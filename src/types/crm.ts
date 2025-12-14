@@ -48,9 +48,10 @@ export interface Student {
   targetCountry: string;
   targetUniversity: string;
   program: string;
-  startDate: Date;
+  graduationYear?: string;
+  startDate?: Date;
   notes: Note[];
-  documents: Document[];
+  documents?: Document[];
   createdAt: Date;
 }
 

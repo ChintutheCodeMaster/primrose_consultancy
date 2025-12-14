@@ -2,27 +2,67 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
-import { mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Student } from '@/types/crm';
 
 export default function PastClients() {
   const { year } = useParams<{ year: string }>();
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter students who graduated in the specified year
-  const pastClients = mockStudents.filter(student => {
-    const graduatedYear = student.status === 'graduated' && 
-                          new Date(student.createdAt).getFullYear().toString() === year;
-    return graduatedYear;
+  const { data: pastClients = [], isLoading } = useQuery({
+    queryKey: ['past-clients', year],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select(`
+          *,
+          accepted_universities (*)
+        `)
+        .eq('graduation_year', year);
+      
+      if (error) throw error;
+      
+      return (data || []).map((student): Student => ({
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        degreeType: (student.degree_type === 'doctorate' ? 'phd' : student.degree_type) as 'bachelor' | 'master' | 'phd',
+        interestedCountry: student.interested_country || '',
+        interestedField: student.interested_field || '',
+        source: student.source || '',
+        meetingSummary: student.meeting_summary || '',
+        createdAt: new Date(student.created_at),
+        status: student.status as 'active' | 'application_phase' | 'accepted' | 'enrolled' | 'graduated' | 'paused',
+        advisorName: student.advisor_name || '',
+        packageCost: Number(student.package_cost) || 0,
+        paymentNotes: student.payment_notes || '',
+        isPaid: student.is_paid || false,
+        signedAgreement: student.signed_agreement || false,
+        targetCountry: student.target_country || '',
+        targetUniversity: student.target_university || '',
+        program: student.program || '',
+        graduationYear: student.graduation_year || '',
+        notes: [],
+        acceptedUniversities: (student.accepted_universities || []).map((uni: any) => ({
+          id: uni.id,
+          name: uni.name,
+          acceptanceLetterUrl: uni.acceptance_letter_url
+        })),
+        startDate: student.start_date ? new Date(student.start_date) : undefined
+      }));
+    }
   });
 
   const filteredClients = pastClients.filter(student => {
-    return student.name.includes(searchTerm) || 
-           student.email.includes(searchTerm) || 
+    const search = searchTerm.toLowerCase();
+    return student.name.toLowerCase().includes(search) || 
+           student.email.toLowerCase().includes(search) || 
            student.phone.includes(searchTerm) ||
-           student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase());
+           student.targetUniversity?.toLowerCase().includes(search);
   });
 
   return (
@@ -49,16 +89,25 @@ export default function PastClients() {
           </div>
         </div>
 
-        {/* Past Clients List */}
-        <div className="space-y-4">
-          {filteredClients.map((student, index) => (
-            <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <StudentRow student={student} />
-            </div>
-          ))}
-        </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">טוען...</p>
+          </div>
+        )}
 
-        {filteredClients.length === 0 && (
+        {/* Past Clients List */}
+        {!isLoading && (
+          <div className="space-y-4">
+            {filteredClients.map((student, index) => (
+              <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+                <StudentRow student={student} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && filteredClients.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">אין לקוחות עבר לשנת {year}</p>
             <p className="text-sm text-muted-foreground mt-2">
