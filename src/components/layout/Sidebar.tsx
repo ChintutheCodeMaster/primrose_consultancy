@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -18,8 +18,12 @@ export function Sidebar() {
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
     location.pathname.startsWith('/past-clients')
   );
+  const [isAgreementOpen, setIsAgreementOpen] = useState(
+    location.pathname.startsWith('/agreement')
+  );
 
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
+  const isAgreementActive = location.pathname.startsWith('/agreement');
 
   return (
     <aside className="fixed right-0 top-0 z-40 h-screen w-64 bg-sidebar border-l border-sidebar-border">
@@ -57,6 +61,38 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Agreement Collapsible */}
+          <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>
+            <CollapsibleTrigger className={cn(
+              'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+              isAgreementActive
+                ? 'bg-sidebar-accent text-sidebar-primary'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+            )}>
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5" />
+                הסכם תחילת תהליך
+              </div>
+              <ChevronDown className={cn(
+                'h-4 w-4 transition-transform duration-200',
+                isAgreementOpen && 'rotate-180'
+              )} />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pr-4 space-y-1 mt-1">
+              <Link
+                to="/agreement/:studentId"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                  location.pathname.includes('/agreement/')
+                    ? 'bg-sidebar-accent text-sidebar-primary'
+                    : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                )}
+              >
+                הסכם נוכחי
+              </Link>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Past Clients Collapsible */}
           <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
