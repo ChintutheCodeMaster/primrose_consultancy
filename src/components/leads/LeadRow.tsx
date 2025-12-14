@@ -1,20 +1,19 @@
 import { Lead, leadStatusLabels, leadStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2 } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
 
 interface LeadRowProps {
   lead: Lead;
-  onClick?: () => void;
+  onEdit?: () => void;
+  onConvert?: () => void;
 }
 
-export function LeadRow({ lead, onClick }: LeadRowProps) {
+export function LeadRow({ lead, onEdit, onConvert }: LeadRowProps) {
   return (
-    <div
-      onClick={onClick}
-      className="group cursor-pointer rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50"
-    >
+    <div className="group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
@@ -34,6 +33,22 @@ export function LeadRow({ lead, onClick }: LeadRowProps) {
               </span>
             </div>
           </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {onEdit && (
+            <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
+              <Pencil className="h-3 w-3" />
+              עריכה
+            </Button>
+          )}
+          {onConvert && (
+            <Button variant="default" size="sm" onClick={onConvert} className="gap-1">
+              <UserCheck className="h-3 w-3" />
+              המר לסטודנט
+            </Button>
+          )}
         </div>
       </div>
 

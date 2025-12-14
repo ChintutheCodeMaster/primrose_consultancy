@@ -2,17 +2,28 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { LeadRow } from '@/components/leads/LeadRow';
 import { AddLeadDialog } from '@/components/leads/AddLeadDialog';
-import { mockLeads } from '@/data/mockData';
+import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
+import { ConvertToStudentDialog } from '@/components/leads/ConvertToStudentDialog';
+import { mockLeads, mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
-import { Lead, LeadStatus, leadStatusLabels } from '@/types/crm';
+import { Lead, LeadStatus, leadStatusLabels, Student } from '@/types/crm';
 import { toast } from 'sonner';
 
 export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>(mockLeads);
+  const [students, setStudents] = useState<Student[]>(mockStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
+  
+  // Edit dialog state
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  
+  // Convert dialog state
+  const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
+  const [isConvertOpen, setIsConvertOpen] = useState(false);
 
   // Sort by creation date (newest first)
   const sortedLeads = [...leads].sort((a, b) => 
@@ -37,6 +48,43 @@ export default function Leads() {
     };
     setLeads([lead, ...leads]);
     toast.success('הליד נוסף בהצלחה!');
+  };
+
+  const handleEditLead = (lead: Lead) => {
+    setEditingLead(lead);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveLead = (updatedLead: Lead) => {
+    setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+    toast.success('הליד עודכן בהצלחה!');
+  };
+
+  const handleConvertClick = (lead: Lead) => {
+    setConvertingLead(lead);
+    setIsConvertOpen(true);
+  };
+
+  const handleConvertToStudent = (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
+    const student: Student = {
+      ...newStudent,
+      id: String(students.length + 1),
+      createdAt: new Date(),
+      notes: [],
+      documents: [],
+    };
+    setStudents([student, ...students]);
+    
+    // Update lead status to converted
+    if (convertingLead) {
+      setLeads(leads.map(l => 
+        l.id === convertingLead.id 
+          ? { ...l, status: 'converted' as LeadStatus } 
+          : l
+      ));
+    }
+    
+    toast.success('הליד הומר לסטודנט בהצלחה! ניתן למצוא אותו בעמוד הסטודנטים.');
   };
 
   return (
@@ -79,7 +127,11 @@ export default function Leads() {
         <div className="space-y-4">
           {filteredLeads.map((lead, index) => (
             <div key={lead.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <LeadRow lead={lead} />
+              <LeadRow 
+                lead={lead} 
+                onEdit={() => handleEditLead(lead)}
+                onConvert={() => handleConvertClick(lead)}
+              />
             </div>
           ))}
         </div>
@@ -90,6 +142,22 @@ export default function Leads() {
           </div>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <EditLeadDialog
+        lead={editingLead}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onSave={handleSaveLead}
+      />
+
+      {/* Convert Dialog */}
+      <ConvertToStudentDialog
+        lead={convertingLead}
+        open={isConvertOpen}
+        onOpenChange={setIsConvertOpen}
+        onConvert={handleConvertToStudent}
+      />
     </MainLayout>
   );
 }

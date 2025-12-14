@@ -1,0 +1,115 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Lead, Student } from '@/types/crm';
+import { UserCheck } from 'lucide-react';
+
+interface ConvertToStudentDialogProps {
+  lead: Lead | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConvert: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
+}
+
+export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: ConvertToStudentDialogProps) {
+  const [packageCost, setPackageCost] = useState(0);
+  const [advisorName, setAdvisorName] = useState('נוגה');
+  const [targetUniversity, setTargetUniversity] = useState('');
+
+  const handleConvert = () => {
+    if (!lead) return;
+
+    const student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'> = {
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      status: 'active',
+      degreeType: lead.degreeType,
+      interestedCountry: lead.interestedCountry,
+      interestedField: lead.interestedField,
+      source: lead.source,
+      meetingSummary: lead.meetingSummary,
+      packageCost,
+      advisorName,
+      isPaid: false,
+      acceptedUniversities: [],
+      targetCountry: lead.interestedCountry,
+      targetUniversity,
+      program: `${lead.interestedField} - ${lead.degreeType}`,
+      startDate: new Date(),
+    };
+
+    onConvert(student);
+    onOpenChange(false);
+    setPackageCost(0);
+    setTargetUniversity('');
+  };
+
+  if (!lead) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <UserCheck className="h-5 w-5 text-success" />
+            המרה לסטודנט
+          </DialogTitle>
+          <DialogDescription>
+            להמיר את {lead.name} לסטודנט ולהתחיל תהליך ליווי?
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <p className="text-sm"><strong>שם:</strong> {lead.name}</p>
+            <p className="text-sm"><strong>מדינה:</strong> {lead.interestedCountry}</p>
+            <p className="text-sm"><strong>תחום:</strong> {lead.interestedField}</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="targetUniversity">אוניברסיטה יעד (אופציונלי)</Label>
+            <Input
+              id="targetUniversity"
+              value={targetUniversity}
+              onChange={(e) => setTargetUniversity(e.target.value)}
+              placeholder="לדוגמה: University of Manchester"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+            <Input
+              id="packageCost"
+              type="number"
+              dir="ltr"
+              value={packageCost || ''}
+              onChange={(e) => setPackageCost(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="advisorName">יועץ מלווה</Label>
+            <Input
+              id="advisorName"
+              value={advisorName}
+              onChange={(e) => setAdvisorName(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Button onClick={handleConvert} className="flex-1 gap-2">
+            <UserCheck className="h-4 w-4" />
+            המר לסטודנט
+          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            ביטול
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
