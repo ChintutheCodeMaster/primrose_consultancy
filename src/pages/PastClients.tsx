@@ -2,15 +2,19 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
+import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Student } from '@/types/crm';
+import { toast } from 'sonner';
 
 export default function PastClients() {
   const { year } = useParams<{ year: string }>();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   const { data: pastClients = [], isLoading } = useQuery({
     queryKey: ['past-clients', year],
@@ -62,8 +66,43 @@ export default function PastClients() {
     return student.name.toLowerCase().includes(search) || 
            student.email.toLowerCase().includes(search) || 
            student.phone.includes(searchTerm) ||
-           student.targetUniversity?.toLowerCase().includes(search);
+           student.targetUniversity?.toLowerCase().includes(search) ||
+           student.targetCountry?.toLowerCase().includes(search);
   });
+
+  const handleEditStudent = async (updatedStudent: Student) => {
+    const { error } = await supabase
+      .from('students')
+      .update({
+        name: updatedStudent.name,
+        email: updatedStudent.email,
+        phone: updatedStudent.phone,
+        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+        interested_country: updatedStudent.interestedCountry,
+        interested_field: updatedStudent.interestedField,
+        source: updatedStudent.source,
+        meeting_summary: updatedStudent.meetingSummary,
+        status: updatedStudent.status,
+        advisor_name: updatedStudent.advisorName,
+        package_cost: updatedStudent.packageCost,
+        payment_notes: updatedStudent.paymentNotes,
+        is_paid: updatedStudent.isPaid,
+        signed_agreement: updatedStudent.signedAgreement,
+        target_country: updatedStudent.targetCountry,
+        target_university: updatedStudent.targetUniversity,
+        program: updatedStudent.program
+      })
+      .eq('id', updatedStudent.id);
+    
+    if (error) {
+      console.error('Error updating student:', error);
+      toast.error('שגיאה בעדכון הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
+    toast.success('הסטודנט עודכן בהצלחה!');
+  };
 
   return (
     <MainLayout>
@@ -81,7 +120,7 @@ export default function PastClients() {
           <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="חיפוש לפי שם, אימייל, טלפון או אוניברסיטה..."
+              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10"
@@ -101,17 +140,28 @@ export default function PastClients() {
           <div className="space-y-4">
             {filteredClients.map((student, index) => (
               <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-                <StudentRow student={student} />
+                <StudentRow 
+                  student={student} 
+                  onEdit={() => setEditingStudent(student)}
+                  showActions={true}
+                />
               </div>
             ))}
           </div>
         )}
 
+        <EditStudentDialog
+          student={editingStudent}
+          open={!!editingStudent}
+          onOpenChange={(open) => !open && setEditingStudent(null)}
+          onSave={handleEditStudent}
+        />
+
         {!isLoading && filteredClients.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">אין לקוחות עבר לשנת {year}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              כדי להעביר סטודנט לכאן, שנה את הסטטוס שלו ל"סיים" בעמוד הסטודנטים
+              כדי להעביר סטודנט לכאן, לחץ על "העבר ללקוח עבר" בעמוד הסטודנטים
             </p>
           </div>
         )}
