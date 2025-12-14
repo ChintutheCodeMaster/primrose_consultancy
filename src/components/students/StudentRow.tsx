@@ -149,10 +149,24 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
           <User className="h-4 w-4 shrink-0" />
           <span>יועץ: {student.advisorName}</span>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Building className="h-4 w-4 shrink-0" />
-          <span>אוניברסיטה יעד: {student.targetUniversity}</span>
-        </div>
+        {student.targetCountry && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <MapPin className="h-4 w-4 shrink-0 text-primary" />
+            <span className="font-medium">מדינה נבחרת: {student.targetCountry}</span>
+          </div>
+        )}
+        {student.targetUniversity && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Building className="h-4 w-4 shrink-0 text-primary" />
+            <span className="font-medium">אוניברסיטה נבחרת: {student.targetUniversity}</span>
+          </div>
+        )}
+        {student.program && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <GraduationCap className="h-4 w-4 shrink-0 text-primary" />
+            <span className="font-medium">תוכנית: {student.program}</span>
+          </div>
+        )}
         {student.paymentNotes && (
           <div className="flex items-center gap-2 text-muted-foreground col-span-full">
             <FileText className="h-4 w-4 shrink-0" />
