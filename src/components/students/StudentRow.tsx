@@ -1,10 +1,11 @@
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, Copy } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from '@/hooks/use-toast';
 
 interface StudentRowProps {
   student: Student;
@@ -20,6 +21,15 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
   const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
   const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
+
+  const copyAgreementLink = () => {
+    const link = `${window.location.origin}/agreement/${student.id}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "הקישור הועתק!",
+      description: "קישור ההסכם הועתק ללוח",
+    });
+  };
 
   return (
     <div className={`group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border ${(needsAgreementReminder || needsPaymentReminder) ? 'border-warning' : 'border-border/50'}`}>
@@ -76,6 +86,18 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
           
           {showActions && (
             <>
+              {/* Copy Agreement Link Button */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyAgreementLink}
+                className="gap-1"
+                title="העתק קישור להסכם"
+              >
+                <Link2 className="h-3 w-3" />
+                קישור להסכם
+              </Button>
+
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
                   <Pencil className="h-3 w-3" />
