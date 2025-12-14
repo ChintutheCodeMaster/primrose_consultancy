@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { StudentCard } from '@/components/students/StudentCard';
+import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
@@ -14,11 +14,17 @@ export default function Students() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
 
-  const filteredStudents = students.filter(student => {
+  // Sort by creation date, newest first
+  const sortedStudents = [...students].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const filteredStudents = sortedStudents.filter(student => {
     const matchesSearch = student.name.includes(searchTerm) || 
                          student.email.includes(searchTerm) || 
                          student.phone.includes(searchTerm) ||
-                         student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase());
+                         student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student.interestedField.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -52,7 +58,7 @@ export default function Students() {
           <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="חיפוש לפי שם, אימייל, טלפון או אוניברסיטה..."
+              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10"
@@ -71,11 +77,11 @@ export default function Students() {
           </Select>
         </div>
 
-        {/* Students Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Students List */}
+        <div className="space-y-4">
           {filteredStudents.map((student, index) => (
             <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <StudentCard student={student} />
+              <StudentRow student={student} />
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { LeadRow } from '@/components/leads/LeadRow';
-import { StudentCard } from '@/components/students/StudentCard';
+import { StudentRow } from '@/components/students/StudentRow';
 import { mockLeads, mockStudents } from '@/data/mockData';
 import { UserPlus, GraduationCap, TrendingUp, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -80,7 +80,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               {recentStudents.map((student, index) => (
                 <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-                  <StudentCard student={student} />
+                  <StudentRow student={student} />
                 </div>
               ))}
             </div>
