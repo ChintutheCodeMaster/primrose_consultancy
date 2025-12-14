@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-import { Lead, LeadStatus } from '@/types/crm';
+import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 
 interface AddLeadDialogProps {
   onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => void;
@@ -19,9 +19,10 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
     email: '',
     phone: '',
     source: '',
+    degreeType: 'bachelor' as DegreeType,
     interestedCountry: '',
-    interestedProgram: '',
-    notes: '',
+    interestedField: '',
+    meetingSummary: '',
     status: 'new' as LeadStatus,
   });
 
@@ -34,9 +35,10 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
       email: '',
       phone: '',
       source: '',
+      degreeType: 'bachelor',
       interestedCountry: '',
-      interestedProgram: '',
-      notes: '',
+      interestedField: '',
+      meetingSummary: '',
       status: 'new',
     });
   };
@@ -49,7 +51,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
           ליד חדש
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>הוספת ליד חדש</DialogTitle>
         </DialogHeader>
@@ -88,6 +90,19 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(degreeTypeLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="source">מקור</Label>
               <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v })}>
                 <SelectTrigger>
@@ -103,6 +118,8 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="country">מדינה</Label>
               <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v })}>
@@ -120,23 +137,24 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="field">תחום לימודים</Label>
+              <Input
+                id="field"
+                value={formData.interestedField}
+                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
+                placeholder="לדוגמה: פסיכולוגיה"
+              />
+            </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="program">תוכנית לימודים</Label>
-            <Input
-              id="program"
-              value={formData.interestedProgram}
-              onChange={(e) => setFormData({ ...formData, interestedProgram: e.target.value })}
-              placeholder="לדוגמה: תואר ראשון בפסיכולוגיה"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="notes">הערות</Label>
+            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
             <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              id="meetingSummary"
+              value={formData.meetingSummary}
+              onChange={(e) => setFormData({ ...formData, meetingSummary: e.target.value })}
               rows={3}
+              placeholder="רשום כאן סיכום של השיחה או הפגישה..."
             />
           </div>
           <Button type="submit" className="w-full">
