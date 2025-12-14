@@ -10,6 +10,7 @@ import Students from "./pages/Students";
 import PastClients from "./pages/PastClients";
 import Advisors from "./pages/Advisors";
 import Agreement from "./pages/Agreement";
+import AgreementTemplate from "./pages/AgreementTemplate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/leads" element={<PasswordGate><Leads /></PasswordGate>} />
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
           <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
+          <Route path="/agreement-template" element={<PasswordGate><AgreementTemplate /></PasswordGate>} />
           <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
