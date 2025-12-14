@@ -34,6 +34,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       packageCost,
       advisorName,
       isPaid: false,
+      signedAgreement: false,
       acceptedUniversities: [],
       targetCountry: lead.interestedCountry,
       targetUniversity,

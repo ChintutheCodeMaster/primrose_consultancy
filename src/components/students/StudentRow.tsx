@@ -1,7 +1,7 @@
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History } from 'lucide-react';
-import { format } from 'date-fns';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -16,8 +16,20 @@ interface StudentRowProps {
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
 export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = true }: StudentRowProps) {
+  // Check if student needs reminder (not signed agreement and more than 4 days since creation)
+  const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
+  const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
+
   return (
-    <div className="group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50">
+    <div className={`group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border ${needsAgreementReminder ? 'border-warning' : 'border-border/50'}`}>
+      {/* Agreement Reminder Alert */}
+      {needsAgreementReminder && (
+        <div className="flex items-center gap-2 bg-warning/10 text-warning-foreground px-4 py-2 rounded-lg mb-4">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <span className="text-sm font-medium">תזכורת: לא חתם על הסכם עבודה ({daysSinceCreation} ימים מתחילת התהליך)</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
@@ -40,7 +52,13 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
         </div>
         
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* Agreement Status Badge */}
+          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.signedAgreement ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning-foreground'}`}>
+            {student.signedAgreement ? <FileSignature className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+            <span>{student.signedAgreement ? 'חתם הסכם' : 'לא חתם הסכם'}</span>
+          </div>
+          
           {/* Payment Status Badge */}
           <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
             {student.isPaid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}

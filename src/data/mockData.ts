@@ -74,6 +74,7 @@ export const mockStudents: Student[] = [
     packageCost: 15000,
     advisorName: 'נוגה',
     isPaid: true,
+    signedAgreement: true,
     acceptedUniversities: [],
     targetCountry: 'אנגליה',
     targetUniversity: 'University of Manchester',
@@ -100,6 +101,7 @@ export const mockStudents: Student[] = [
     packageCost: 18000,
     advisorName: 'נוגה',
     isPaid: false,
+    signedAgreement: false,
     acceptedUniversities: [],
     targetCountry: 'ארה"ב',
     targetUniversity: 'NYU',
@@ -109,7 +111,7 @@ export const mockStudents: Student[] = [
       { id: '1', content: 'עבודה על מכתב המוטיבציה', createdAt: new Date('2024-01-05'), type: 'meeting' },
     ],
     documents: [],
-    createdAt: new Date('2024-01-05'),
+    createdAt: new Date('2024-12-10'),
   },
   {
     id: '3',
@@ -125,6 +127,7 @@ export const mockStudents: Student[] = [
     packageCost: 20000,
     advisorName: 'נוגה',
     isPaid: true,
+    signedAgreement: true,
     acceptedUniversities: [
       { name: 'TU Munich', acceptanceLetterUrl: '' },
       { name: 'ETH Zurich', acceptanceLetterUrl: '' },

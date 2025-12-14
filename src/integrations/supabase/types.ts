@@ -94,6 +94,7 @@ export type Database = {
       students: {
         Row: {
           advisor_name: string | null
+          agreement_reminder_date: string | null
           created_at: string
           degree_type: string
           email: string
@@ -107,6 +108,7 @@ export type Database = {
           package_cost: number | null
           phone: string
           program: string | null
+          signed_agreement: boolean | null
           source: string | null
           start_date: string | null
           status: string
@@ -115,6 +117,7 @@ export type Database = {
         }
         Insert: {
           advisor_name?: string | null
+          agreement_reminder_date?: string | null
           created_at?: string
           degree_type?: string
           email: string
@@ -128,6 +131,7 @@ export type Database = {
           package_cost?: number | null
           phone: string
           program?: string | null
+          signed_agreement?: boolean | null
           source?: string | null
           start_date?: string | null
           status?: string
@@ -136,6 +140,7 @@ export type Database = {
         }
         Update: {
           advisor_name?: string | null
+          agreement_reminder_date?: string | null
           created_at?: string
           degree_type?: string
           email?: string
@@ -149,6 +154,7 @@ export type Database = {
           package_cost?: number | null
           phone?: string
           program?: string | null
+          signed_agreement?: boolean | null
           source?: string | null
           start_date?: string | null
           status?: string

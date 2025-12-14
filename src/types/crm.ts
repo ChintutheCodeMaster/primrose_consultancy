@@ -42,6 +42,7 @@ export interface Student {
   packageCost: number;
   advisorName: string;
   isPaid: boolean;
+  signedAgreement: boolean;
   acceptedUniversities: AcceptedUniversity[];
   targetCountry: string;
   targetUniversity: string;
@@ -50,6 +51,20 @@ export interface Student {
   notes: Note[];
   documents: Document[];
   createdAt: Date;
+}
+
+export interface Note {
+  id: string;
+  content: string;
+  createdAt: Date;
+  type: 'call' | 'meeting' | 'email' | 'general';
+}
+
+export interface Document {
+  id: string;
+  name: string;
+  type: string;
+  uploadedAt: Date;
 }
 
 export interface Note {
