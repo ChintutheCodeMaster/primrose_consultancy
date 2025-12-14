@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
@@ -11,9 +11,11 @@ import { Search, Filter, X } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { differenceInDays } from 'date-fns';
 
 export default function Students() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [students, setStudents] = useState<Student[]>(mockStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
@@ -25,7 +27,15 @@ export default function Students() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+
+  // Handle URL filter parameter
+  useEffect(() => {
+    if (searchParams.get('filter') === 'attention') {
+      setAttentionFilter(true);
+    }
+  }, [searchParams]);
 
   // Extract unique values for filter options
   const filterOptions = useMemo(() => {
@@ -39,7 +49,8 @@ export default function Students() {
   // Check if any filter is active
   const hasActiveFilters = statusFilter !== 'all' || advisorFilter !== 'all' || 
     paymentFilter !== 'all' || countryFilter !== 'all' || degreeFilter !== 'all' ||
-    fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || acceptedFilter !== 'all';
+    fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
+    acceptedFilter !== 'all' || attentionFilter;
 
   const clearAllFilters = () => {
     setStatusFilter('all');
@@ -51,6 +62,16 @@ export default function Students() {
     setSourceFilter('all');
     setCostFilter('all');
     setAcceptedFilter('all');
+    setAttentionFilter(false);
+    setSearchParams({});
+  };
+
+  // Helper to check if student needs attention
+  const studentNeedsAttention = (student: Student) => {
+    const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
+    const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
+    const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
+    return needsAgreementReminder || needsPaymentReminder;
   };
 
   // Sort by creation date, newest first - exclude graduated students
@@ -80,10 +101,11 @@ export default function Students() {
     const matchesAccepted = acceptedFilter === 'all' ||
       (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
       (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
+    const matchesAttention = !attentionFilter || studentNeedsAttention(student);
     
     return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
            matchesCountry && matchesDegree && matchesField && matchesSource && 
-           matchesCost && matchesAccepted;
+           matchesCost && matchesAccepted && matchesAttention;
   });
 
   const handleAddStudent = (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
