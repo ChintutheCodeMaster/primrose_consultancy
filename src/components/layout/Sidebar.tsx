@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -8,6 +8,7 @@ const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
   { name: 'לידים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
+  { name: 'יועצים', href: '/advisors', icon: UserCircle },
 ];
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
