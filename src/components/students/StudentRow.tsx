@@ -19,14 +19,23 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
   const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
+  const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
 
   return (
-    <div className={`group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border ${needsAgreementReminder ? 'border-warning' : 'border-border/50'}`}>
+    <div className={`group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border ${(needsAgreementReminder || needsPaymentReminder) ? 'border-warning' : 'border-border/50'}`}>
       {/* Agreement Reminder Alert */}
       {needsAgreementReminder && (
         <div className="flex items-center gap-2 bg-warning/10 text-warning-foreground px-4 py-2 rounded-lg mb-4">
           <AlertTriangle className="h-4 w-4 text-warning" />
           <span className="text-sm font-medium">תזכורת: לא חתם על הסכם עבודה ({daysSinceCreation} ימים מתחילת התהליך)</span>
+        </div>
+      )}
+
+      {/* Payment Reminder Alert */}
+      {needsPaymentReminder && (
+        <div className="flex items-center gap-2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg mb-4">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <span className="text-sm font-medium">תזכורת: לא שילם ({daysSinceCreation} ימים מתחילת התהליך)</span>
         </div>
       )}
 
