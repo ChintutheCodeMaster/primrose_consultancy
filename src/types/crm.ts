@@ -40,6 +40,7 @@ export interface Student {
   source: string;
   meetingSummary: string;
   packageCost: number;
+  paymentNotes: string;
   advisorName: string;
   isPaid: boolean;
   signedAgreement: boolean;

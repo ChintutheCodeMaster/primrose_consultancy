@@ -153,6 +153,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="paymentNotes">הערות תשלום</Label>
+            <Input
+              id="paymentNotes"
+              value={formData.paymentNotes || ''}
+              onChange={(e) => setFormData({ ...formData, paymentNotes: e.target.value })}
+              placeholder="לדוגמה: תשלום 1 מתוך 4, ישלם חצי שני בסוף"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="targetUniversity">אוניברסיטה יעד</Label>

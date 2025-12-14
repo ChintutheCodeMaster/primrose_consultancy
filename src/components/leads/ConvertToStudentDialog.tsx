@@ -32,6 +32,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       source: lead.source,
       meetingSummary: lead.meetingSummary,
       packageCost,
+      paymentNotes: '',
       advisorName,
       isPaid: false,
       signedAgreement: false,

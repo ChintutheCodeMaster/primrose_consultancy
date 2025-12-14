@@ -144,6 +144,12 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
           <Building className="h-4 w-4 shrink-0" />
           <span>אוניברסיטה יעד: {student.targetUniversity}</span>
         </div>
+        {student.paymentNotes && (
+          <div className="flex items-center gap-2 text-muted-foreground col-span-full">
+            <FileText className="h-4 w-4 shrink-0" />
+            <span>הערות תשלום: {student.paymentNotes}</span>
+          </div>
+        )}
       </div>
 
       {/* Accepted Universities */}
