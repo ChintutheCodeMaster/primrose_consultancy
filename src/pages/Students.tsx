@@ -4,7 +4,6 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { AgreementStatusPanel } from '@/components/students/AgreementStatusPanel';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, X } from 'lucide-react';
@@ -246,7 +245,6 @@ export default function Students() {
 
   return (
     <MainLayout>
-      <AgreementStatusPanel />
       <div className="animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
