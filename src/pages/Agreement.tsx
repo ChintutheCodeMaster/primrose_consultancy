@@ -28,6 +28,7 @@ const Agreement = () => {
   const [studentName, setStudentName] = useState("");
   const [alreadySigned, setAlreadySigned] = useState(false);
   const [signedAt, setSignedAt] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -69,11 +70,7 @@ const Agreement = () => {
         .maybeSingle();
 
       if (error || !student) {
-        toast({
-          title: "שגיאה",
-          description: "לא נמצא סטודנט עם הקישור הזה",
-          variant: "destructive",
-        });
+        setNotFound(true);
         setLoading(false);
         return;
       }
@@ -155,6 +152,24 @@ const Agreement = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-100 p-4" dir="rtl">
+        <Card className="w-full max-w-lg text-center">
+          <CardContent className="pt-10 pb-10">
+            <FileText className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              הקישור אינו תקין
+            </h1>
+            <p className="text-gray-600">
+              לא נמצא סטודנט עם הקישור הזה. אנא וודא שקיבלת את הקישור הנכון.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
