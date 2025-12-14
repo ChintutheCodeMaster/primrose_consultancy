@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 
 const CORRECT_PASSWORD = "NogaNoga123";
-const STORAGE_KEY = "noga_crm_authenticated";
 
 interface PasswordGateProps {
   children: React.ReactNode;
@@ -15,34 +14,16 @@ export const PasswordGate = ({ children }: PasswordGateProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "true") {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === CORRECT_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, "true");
       setIsAuthenticated(true);
       setError("");
     } else {
       setError("סיסמא שגויה");
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">טוען...</div>
-      </div>
-    );
-  }
 
   if (isAuthenticated) {
     return <>{children}</>;
