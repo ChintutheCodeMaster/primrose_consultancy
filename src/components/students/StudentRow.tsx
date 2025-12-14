@@ -1,11 +1,12 @@
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, Copy } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentRowProps {
   student: Student;
@@ -17,6 +18,8 @@ interface StudentRowProps {
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
 export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = true }: StudentRowProps) {
+  const navigate = useNavigate();
+  
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
   const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
@@ -86,6 +89,18 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
           
           {showActions && (
             <>
+              {/* Portal Management Button */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate(`/student-portal/${student.id}`)}
+                className="gap-1"
+                title="ניהול פורטל מועמד"
+              >
+                <Settings className="h-3 w-3" />
+                ניהול פורטל
+              </Button>
+
               {/* Copy Agreement Link Button */}
               <Button 
                 variant="outline" 
