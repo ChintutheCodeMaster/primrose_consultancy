@@ -11,6 +11,8 @@ import PastClients from "./pages/PastClients";
 import Advisors from "./pages/Advisors";
 import Agreement from "./pages/Agreement";
 import AgreementTemplate from "./pages/AgreementTemplate";
+import StudentPortal from "./pages/StudentPortal";
+import StudentPortalManagement from "./pages/StudentPortalManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,8 +24,9 @@ const App = () => (
       <Sonner position="top-center" />
       <BrowserRouter>
         <Routes>
-          {/* Public agreement signing page - outside PasswordGate */}
+          {/* Public pages - outside PasswordGate */}
           <Route path="/agreement/:studentId" element={<Agreement />} />
+          <Route path="/portal/:studentId" element={<StudentPortal />} />
           
           {/* Protected routes */}
           <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />
@@ -31,6 +34,7 @@ const App = () => (
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
           <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
           <Route path="/agreement-template" element={<PasswordGate><AgreementTemplate /></PasswordGate>} />
+          <Route path="/student-portal/:studentId" element={<PasswordGate><StudentPortalManagement /></PasswordGate>} />
           <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
