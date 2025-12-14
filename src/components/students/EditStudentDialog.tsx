@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels } from '@/types/crm';
+import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
+import { Plus, Trash2, Upload, FileText, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface EditStudentDialogProps {
   student: Student | null;
@@ -17,6 +20,9 @@ interface EditStudentDialogProps {
 
 export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditStudentDialogProps) {
   const [formData, setFormData] = useState<Student | null>(null);
+  const [newUniversityName, setNewUniversityName] = useState('');
+  const [uploadingFor, setUploadingFor] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (student) {
@@ -24,11 +30,114 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     }
   }, [student]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData) {
+      // Save accepted universities to database
+      if (student) {
+        // Delete existing universities for this student
+        await supabase
+          .from('accepted_universities')
+          .delete()
+          .eq('student_id', student.id);
+
+        // Insert new universities
+        if (formData.acceptedUniversities.length > 0) {
+          const { error } = await supabase
+            .from('accepted_universities')
+            .insert(
+              formData.acceptedUniversities.map(uni => ({
+                student_id: student.id,
+                name: uni.name,
+                acceptance_letter_url: uni.acceptanceLetterUrl || null
+              }))
+            );
+          
+          if (error) {
+            console.error('Error saving universities:', error);
+            toast.error('שגיאה בשמירת האוניברסיטאות');
+          }
+        }
+      }
+
       onSave(formData);
       onOpenChange(false);
+    }
+  };
+
+  const handleAddUniversity = () => {
+    if (newUniversityName.trim() && formData) {
+      setFormData({
+        ...formData,
+        acceptedUniversities: [
+          ...formData.acceptedUniversities,
+          { name: newUniversityName.trim() }
+        ]
+      });
+      setNewUniversityName('');
+    }
+  };
+
+  const handleRemoveUniversity = (index: number) => {
+    if (formData) {
+      setFormData({
+        ...formData,
+        acceptedUniversities: formData.acceptedUniversities.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = event.target.files?.[0];
+    if (!file || !formData || !student) return;
+
+    setUploadingFor(index);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${student.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('acceptance-letters')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('acceptance-letters')
+        .getPublicUrl(fileName);
+
+      const updatedUniversities = [...formData.acceptedUniversities];
+      updatedUniversities[index] = {
+        ...updatedUniversities[index],
+        acceptanceLetterUrl: publicUrl
+      };
+
+      setFormData({
+        ...formData,
+        acceptedUniversities: updatedUniversities
+      });
+
+      toast.success('הקובץ הועלה בהצלחה');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('שגיאה בהעלאת הקובץ');
+    } finally {
+      setUploadingFor(null);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    if (formData) {
+      const updatedUniversities = [...formData.acceptedUniversities];
+      updatedUniversities[index] = {
+        ...updatedUniversities[index],
+        acceptanceLetterUrl: undefined
+      };
+      setFormData({
+        ...formData,
+        acceptedUniversities: updatedUniversities
+      });
     }
   };
 
@@ -165,21 +274,128 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="targetUniversity">אוניברסיטה יעד</Label>
+              <Label htmlFor="targetCountry">מדינה נבחרת</Label>
+              <Select value={formData.targetCountry || ''} onValueChange={(v) => setFormData({ ...formData, targetCountry: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר מדינה" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="אנגליה">אנגליה</SelectItem>
+                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
+                  <SelectItem value="קנדה">קנדה</SelectItem>
+                  <SelectItem value="הולנד">הולנד</SelectItem>
+                  <SelectItem value="גרמניה">גרמניה</SelectItem>
+                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="targetUniversity">אוניברסיטה נבחרת</Label>
               <Input
                 id="targetUniversity"
                 value={formData.targetUniversity}
                 onChange={(e) => setFormData({ ...formData, targetUniversity: e.target.value })}
+                placeholder="האוניברסיטה שהסטודנט בחר ללכת אליה"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="program">תוכנית לימודים</Label>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="program">תוכנית לימודים</Label>
+            <Input
+              id="program"
+              value={formData.program}
+              onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+            />
+          </div>
+
+          {/* Accepted Universities Section */}
+          <div className="space-y-3 p-4 bg-success/5 rounded-lg border border-success/20">
+            <Label className="text-base font-semibold">אוניברסיטאות שהתקבל אליהן</Label>
+            
+            {/* Add new university */}
+            <div className="flex gap-2">
               <Input
-                id="program"
-                value={formData.program}
-                onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                placeholder="שם האוניברסיטה"
+                value={newUniversityName}
+                onChange={(e) => setNewUniversityName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUniversity())}
               />
+              <Button type="button" variant="outline" size="icon" onClick={handleAddUniversity}>
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
+
+            {/* List of accepted universities */}
+            {formData.acceptedUniversities.length > 0 && (
+              <div className="space-y-2">
+                {formData.acceptedUniversities.map((uni, index) => (
+                  <div key={index} className="flex items-center gap-2 p-3 bg-background rounded-lg border">
+                    <span className="flex-1 font-medium">{uni.name}</span>
+                    
+                    {uni.acceptanceLetterUrl ? (
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={uni.acceptanceLetterUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-sm text-primary hover:underline"
+                        >
+                          <FileText className="h-4 w-4" />
+                          מכתב קבלה
+                        </a>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={uploadingFor === index}
+                        onClick={() => {
+                          setUploadingFor(index);
+                          fileInputRef.current?.click();
+                        }}
+                        className="gap-1"
+                      >
+                        <Upload className="h-3 w-3" />
+                        {uploadingFor === index ? 'מעלה...' : 'העלה מכתב'}
+                      </Button>
+                    )}
+                    
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => handleRemoveUniversity(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={(e) => {
+                if (uploadingFor !== null) {
+                  handleFileUpload(e, uploadingFor);
+                }
+              }}
+            />
           </div>
 
           <div className="space-y-2">
