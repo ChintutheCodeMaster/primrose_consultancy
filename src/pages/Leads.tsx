@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { LeadCard } from '@/components/leads/LeadCard';
+import { LeadRow } from '@/components/leads/LeadRow';
 import { AddLeadDialog } from '@/components/leads/AddLeadDialog';
 import { mockLeads } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
@@ -14,10 +14,16 @@ export default function Leads() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
 
-  const filteredLeads = leads.filter(lead => {
+  // Sort by creation date (newest first)
+  const sortedLeads = [...leads].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const filteredLeads = sortedLeads.filter(lead => {
     const matchesSearch = lead.name.includes(searchTerm) || 
                          lead.email.includes(searchTerm) || 
-                         lead.phone.includes(searchTerm);
+                         lead.phone.includes(searchTerm) ||
+                         lead.interestedField.includes(searchTerm);
     const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -40,7 +46,7 @@ export default function Leads() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">לידים</h1>
-            <p className="text-muted-foreground mt-1">ניהול פניות התעניינות</p>
+            <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} לידים)</p>
           </div>
           <AddLeadDialog onAdd={handleAddLead} />
         </div>
@@ -50,7 +56,7 @@ export default function Leads() {
           <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="חיפוש לפי שם, אימייל או טלפון..."
+              placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10"
@@ -69,11 +75,11 @@ export default function Leads() {
           </Select>
         </div>
 
-        {/* Leads Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Leads List */}
+        <div className="space-y-4">
           {filteredLeads.map((lead, index) => (
             <div key={lead.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <LeadCard lead={lead} />
+              <LeadRow lead={lead} />
             </div>
           ))}
         </div>

@@ -1,0 +1,83 @@
+import { Lead, leadStatusLabels, leadStatusColors, degreeTypeLabels } from '@/types/crm';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
+
+interface LeadRowProps {
+  lead: Lead;
+  onClick?: () => void;
+}
+
+export function LeadRow({ lead, onClick }: LeadRowProps) {
+  return (
+    <div
+      onClick={onClick}
+      className="group cursor-pointer rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <span className="text-lg font-bold">{lead.name.charAt(0)}</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
+              {lead.name}
+            </h3>
+            <div className="flex items-center gap-2 mt-1">
+              <StatusBadge variant={leadStatusColors[lead.status]}>
+                {leadStatusLabels[lead.status]}
+              </StatusBadge>
+              <span className="text-xs text-muted-foreground">
+                {format(lead.createdAt, 'dd/MM/yyyy', { locale: he })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Details Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <GraduationCap className="h-4 w-4 shrink-0" />
+          <span>{degreeTypeLabels[lead.degreeType]}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Mail className="h-4 w-4 shrink-0" />
+          <span className="truncate">{lead.email}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Phone className="h-4 w-4 shrink-0" />
+          <span dir="ltr">{lead.phone}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar className="h-4 w-4 shrink-0" />
+          <span>נוצר {format(lead.createdAt, 'dd/MM/yyyy', { locale: he })}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <MapPin className="h-4 w-4 shrink-0" />
+          <span>{lead.interestedCountry}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Briefcase className="h-4 w-4 shrink-0" />
+          <span>{lead.interestedField}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+          <Share2 className="h-4 w-4 shrink-0" />
+          <span>מקור: {lead.source}</span>
+        </div>
+      </div>
+
+      {/* Meeting Summary */}
+      {lead.meetingSummary && (
+        <div className="mt-4 border-t border-border/50 pt-4">
+          <p className="text-xs font-medium text-muted-foreground mb-1">סיכום פגישה:</p>
+          <p className="text-sm text-card-foreground bg-muted/50 rounded-lg p-3">
+            {lead.meetingSummary}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
