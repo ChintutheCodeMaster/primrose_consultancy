@@ -48,24 +48,42 @@ export type Database = {
       }
       advisors: {
         Row: {
+          contract_url: string | null
           created_at: string
           email: string | null
           id: string
+          is_active: boolean | null
           name: string
+          notes: string | null
+          payment_amount: number | null
+          payment_notes: string | null
+          payment_type: string | null
           phone: string | null
         }
         Insert: {
+          contract_url?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          is_active?: boolean | null
           name: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_notes?: string | null
+          payment_type?: string | null
           phone?: string | null
         }
         Update: {
+          contract_url?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_notes?: string | null
+          payment_type?: string | null
           phone?: string | null
         }
         Relationships: []
