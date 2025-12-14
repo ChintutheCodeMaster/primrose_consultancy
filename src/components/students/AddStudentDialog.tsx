@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
-import { Student, StudentStatus } from '@/types/crm';
+import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
@@ -17,11 +19,20 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     name: '',
     email: '',
     phone: '',
+    degreeType: 'bachelor' as DegreeType,
+    interestedCountry: '',
+    interestedField: '',
+    source: '',
+    meetingSummary: '',
+    packageCost: 0,
+    advisorName: '',
+    isPaid: false,
     targetCountry: '',
     targetUniversity: '',
     program: '',
     startDate: new Date(),
     status: 'active' as StudentStatus,
+    acceptedUniversities: [] as { name: string; acceptanceLetterUrl?: string }[],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,11 +43,20 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       name: '',
       email: '',
       phone: '',
+      degreeType: 'bachelor',
+      interestedCountry: '',
+      interestedField: '',
+      source: '',
+      meetingSummary: '',
+      packageCost: 0,
+      advisorName: '',
+      isPaid: false,
       targetCountry: '',
       targetUniversity: '',
       program: '',
       startDate: new Date(),
       status: 'active',
+      acceptedUniversities: [],
     });
   };
 
@@ -48,11 +68,12 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           סטודנט חדש
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>הוספת סטודנט חדש</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Personal Details */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">שם מלא</Label>
@@ -74,6 +95,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               />
             </div>
           </div>
+          
           <div className="space-y-2">
             <Label htmlFor="email">אימייל</Label>
             <Input
@@ -85,10 +107,37 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               required
             />
           </div>
+
+          {/* Lead-like Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="country">מדינת יעד</Label>
-              <Select value={formData.targetCountry} onValueChange={(v) => setFormData({ ...formData, targetCountry: v })}>
+              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(degreeTypeLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="source">מקור הגעה</Label>
+              <Input
+                id="source"
+                value={formData.source}
+                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                placeholder="לדוגמה: אתר, המלצה, פייסבוק"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="interestedCountry">מדינה מבוקשת</Label>
+              <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v, targetCountry: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="בחר מדינה" />
                 </SelectTrigger>
@@ -103,6 +152,19 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="interestedField">תחום לימודים</Label>
+              <Input
+                id="interestedField"
+                value={formData.interestedField}
+                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
+                placeholder="לדוגמה: מדעי המחשב, רפואה"
+              />
+            </div>
+          </div>
+
+          {/* Student-specific Info */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="status">סטטוס</Label>
               <Select value={formData.status} onValueChange={(v: StudentStatus) => setFormData({ ...formData, status: v })}>
                 <SelectTrigger>
@@ -113,12 +175,44 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                   <SelectItem value="application_phase">בשלב הגשה</SelectItem>
                   <SelectItem value="accepted">התקבל</SelectItem>
                   <SelectItem value="enrolled">נרשם</SelectItem>
+                  <SelectItem value="graduated">סיים</SelectItem>
+                  <SelectItem value="paused">מושהה</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="advisorName">שם היועץ המלווה</Label>
+              <Input
+                id="advisorName"
+                value={formData.advisorName}
+                onChange={(e) => setFormData({ ...formData, advisorName: e.target.value })}
+              />
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="packageCost">עלות חבילת הגשה (₪)</Label>
+              <Input
+                id="packageCost"
+                type="number"
+                dir="ltr"
+                value={formData.packageCost || ''}
+                onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+              />
+            </div>
+            <div className="flex items-center gap-2 pt-8">
+              <Checkbox
+                id="isPaid"
+                checked={formData.isPaid}
+                onCheckedChange={(checked) => setFormData({ ...formData, isPaid: checked as boolean })}
+              />
+              <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="university">אוניברסיטה</Label>
+            <Label htmlFor="university">אוניברסיטה יעד</Label>
             <Input
               id="university"
               value={formData.targetUniversity}
@@ -126,6 +220,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               placeholder="לדוגמה: University of Manchester"
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="program">תוכנית לימודים</Label>
             <Input
@@ -135,6 +230,18 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               placeholder="לדוגמה: תואר ראשון בפסיכולוגיה"
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
+            <Textarea
+              id="meetingSummary"
+              value={formData.meetingSummary}
+              onChange={(e) => setFormData({ ...formData, meetingSummary: e.target.value })}
+              placeholder="סיכום שיחה או פגישה..."
+              rows={3}
+            />
+          </div>
+
           <Button type="submit" className="w-full">
             הוסף סטודנט
           </Button>

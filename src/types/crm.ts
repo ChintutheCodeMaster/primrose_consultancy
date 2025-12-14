@@ -23,12 +23,26 @@ export const degreeTypeLabels: Record<DegreeType, string> = {
   phd: 'דוקטורט',
 };
 
+export interface AcceptedUniversity {
+  name: string;
+  acceptanceLetterUrl?: string;
+}
+
 export interface Student {
   id: string;
   name: string;
   email: string;
   phone: string;
   status: StudentStatus;
+  degreeType: DegreeType;
+  interestedCountry: string;
+  interestedField: string;
+  source: string;
+  meetingSummary: string;
+  packageCost: number;
+  advisorName: string;
+  isPaid: boolean;
+  acceptedUniversities: AcceptedUniversity[];
   targetCountry: string;
   targetUniversity: string;
   program: string;
