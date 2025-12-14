@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
-
 interface EditLeadDialogProps {
   lead: Lead | null;
   open: boolean;
@@ -105,20 +105,12 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interestedCountry">מדינה מבוקשת</Label>
-              <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר מדינה" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="interestedCountry">מדינות מבוקשות</Label>
+              <MultiCountrySelect
+                value={formData.interestedCountry}
+                onChange={(v) => setFormData({ ...formData, interestedCountry: v })}
+                placeholder="בחר מדינות"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">תחום לימודים</Label>

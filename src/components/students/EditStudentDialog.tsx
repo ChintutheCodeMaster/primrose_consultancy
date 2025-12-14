@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
 import { Plus, Trash2, Upload, FileText, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -216,20 +217,12 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interestedCountry">מדינה מבוקשת</Label>
-              <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר מדינה" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="interestedCountry">מדינות מבוקשות</Label>
+              <MultiCountrySelect
+                value={formData.interestedCountry}
+                onChange={(v) => setFormData({ ...formData, interestedCountry: v })}
+                placeholder="בחר מדינות"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">תחום לימודים</Label>
