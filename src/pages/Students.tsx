@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
+import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +25,7 @@ export default function Students() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   // Extract unique values for filter options
   const filterOptions = useMemo(() => {
@@ -104,6 +106,11 @@ export default function Students() {
     ));
     toast.success(`הסטודנט הועבר ללקוחות עבר ${year}`);
     navigate(`/past-clients/${year}`);
+  };
+
+  const handleEditStudent = (updatedStudent: Student) => {
+    setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+    toast.success('הסטודנט עודכן בהצלחה!');
   };
 
   return (
@@ -258,12 +265,20 @@ export default function Students() {
           {filteredStudents.map((student, index) => (
             <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
               <StudentRow 
-                student={student} 
+                student={student}
+                onEdit={() => setEditingStudent(student)}
                 onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
               />
             </div>
           ))}
         </div>
+
+        <EditStudentDialog
+          student={editingStudent}
+          open={!!editingStudent}
+          onOpenChange={(open) => !open && setEditingStudent(null)}
+          onSave={handleEditStudent}
+        />
 
         {filteredStudents.length === 0 && (
           <div className="text-center py-12">
