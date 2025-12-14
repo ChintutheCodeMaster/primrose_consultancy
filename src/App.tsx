@@ -9,6 +9,7 @@ import Leads from "./pages/Leads";
 import Students from "./pages/Students";
 import PastClients from "./pages/PastClients";
 import Advisors from "./pages/Advisors";
+import Agreement from "./pages/Agreement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,20 +17,22 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <PasswordGate>
-        <Toaster />
-        <Sonner position="top-center" />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/leads" element={<Leads />} />
-            <Route path="/students" element={<Students />} />
-            <Route path="/advisors" element={<Advisors />} />
-            <Route path="/past-clients/:year" element={<PastClients />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </PasswordGate>
+      <Toaster />
+      <Sonner position="top-center" />
+      <BrowserRouter>
+        <Routes>
+          {/* Public agreement signing page - outside PasswordGate */}
+          <Route path="/agreement/:studentId" element={<Agreement />} />
+          
+          {/* Protected routes */}
+          <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />
+          <Route path="/leads" element={<PasswordGate><Leads /></PasswordGate>} />
+          <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
+          <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
+          <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -133,6 +133,62 @@ export type Database = {
         }
         Relationships: []
       }
+      student_agreements: {
+        Row: {
+          address: string
+          birth_date: string
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          id_number: string
+          ip_address: string | null
+          last_name: string
+          phone: string
+          signed_at: string
+          student_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          address: string
+          birth_date: string
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          id_number: string
+          ip_address?: string | null
+          last_name: string
+          phone: string
+          signed_at?: string
+          student_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          address?: string
+          birth_date?: string
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          id_number?: string
+          ip_address?: string | null
+          last_name?: string
+          phone?: string
+          signed_at?: string
+          student_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_agreements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           advisor_id: string | null
