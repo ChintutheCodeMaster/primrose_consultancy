@@ -14,7 +14,149 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accepted_universities: {
+        Row: {
+          acceptance_letter_url: string | null
+          created_at: string
+          id: string
+          name: string
+          student_id: string
+        }
+        Insert: {
+          acceptance_letter_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          student_id: string
+        }
+        Update: {
+          acceptance_letter_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accepted_universities_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          degree_type: string
+          email: string
+          id: string
+          interested_country: string | null
+          interested_field: string | null
+          last_contact_at: string
+          meeting_summary: string | null
+          name: string
+          phone: string
+          source: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          degree_type?: string
+          email: string
+          id?: string
+          interested_country?: string | null
+          interested_field?: string | null
+          last_contact_at?: string
+          meeting_summary?: string | null
+          name: string
+          phone: string
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          degree_type?: string
+          email?: string
+          id?: string
+          interested_country?: string | null
+          interested_field?: string | null
+          last_contact_at?: string
+          meeting_summary?: string | null
+          name?: string
+          phone?: string
+          source?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          advisor_name: string | null
+          created_at: string
+          degree_type: string
+          email: string
+          graduation_year: string | null
+          id: string
+          interested_country: string | null
+          interested_field: string | null
+          is_paid: boolean | null
+          meeting_summary: string | null
+          name: string
+          package_cost: number | null
+          phone: string
+          program: string | null
+          source: string | null
+          start_date: string | null
+          status: string
+          target_country: string | null
+          target_university: string | null
+        }
+        Insert: {
+          advisor_name?: string | null
+          created_at?: string
+          degree_type?: string
+          email: string
+          graduation_year?: string | null
+          id?: string
+          interested_country?: string | null
+          interested_field?: string | null
+          is_paid?: boolean | null
+          meeting_summary?: string | null
+          name: string
+          package_cost?: number | null
+          phone: string
+          program?: string | null
+          source?: string | null
+          start_date?: string | null
+          status?: string
+          target_country?: string | null
+          target_university?: string | null
+        }
+        Update: {
+          advisor_name?: string | null
+          created_at?: string
+          degree_type?: string
+          email?: string
+          graduation_year?: string | null
+          id?: string
+          interested_country?: string | null
+          interested_field?: string | null
+          is_paid?: boolean | null
+          meeting_summary?: string | null
+          name?: string
+          package_cost?: number | null
+          phone?: string
+          program?: string | null
+          source?: string | null
+          start_date?: string | null
+          status?: string
+          target_country?: string | null
+          target_university?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
