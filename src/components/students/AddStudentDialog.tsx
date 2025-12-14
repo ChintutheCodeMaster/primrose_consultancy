@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Advisor {
+  id: string;
+  name: string;
+}
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
@@ -15,6 +22,19 @@ interface AddStudentDialogProps {
 
 export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
+
+  const { data: advisors = [] } = useQuery({
+    queryKey: ['advisors'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('id, name')
+        .order('name');
+      if (error) throw error;
+      return data as Advisor[];
+    },
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -185,12 +205,19 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="advisorName">שם היועץ המלווה</Label>
-              <Input
-                id="advisorName"
-                value={formData.advisorName}
-                onChange={(e) => setFormData({ ...formData, advisorName: e.target.value })}
-              />
+              <Label htmlFor="advisorName">יועץ מלווה</Label>
+              <Select value={formData.advisorName} onValueChange={(v) => setFormData({ ...formData, advisorName: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר יועץ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {advisors.map((advisor) => (
+                    <SelectItem key={advisor.id} value={advisor.name}>
+                      {advisor.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
