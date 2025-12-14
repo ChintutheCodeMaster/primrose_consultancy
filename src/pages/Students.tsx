@@ -4,19 +4,20 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { differenceInDays } from 'date-fns';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Students() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [students, setStudents] = useState<Student[]>(mockStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
   const [advisorFilter, setAdvisorFilter] = useState<string>('all');
@@ -29,6 +30,76 @@ export default function Students() {
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
   const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+
+  // Fetch students from Supabase
+  const { data: students = [], isLoading } = useQuery({
+    queryKey: ['students'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select(`
+          *,
+          accepted_universities (*)
+        `)
+        .is('graduation_year', null)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      return (data || []).map((student): Student => ({
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        degreeType: (student.degree_type === 'doctorate' ? 'phd' : student.degree_type) as DegreeType,
+        interestedCountry: student.interested_country || '',
+        interestedField: student.interested_field || '',
+        source: student.source || '',
+        meetingSummary: student.meeting_summary || '',
+        createdAt: new Date(student.created_at),
+        status: student.status as StudentStatus,
+        advisorName: student.advisor_name || '',
+        packageCost: Number(student.package_cost) || 0,
+        paymentNotes: student.payment_notes || '',
+        isPaid: student.is_paid || false,
+        signedAgreement: student.signed_agreement || false,
+        targetCountry: student.target_country || '',
+        targetUniversity: student.target_university || '',
+        program: student.program || '',
+        graduationYear: student.graduation_year || '',
+        notes: [],
+        acceptedUniversities: (student.accepted_universities || []).map((uni: any) => ({
+          id: uni.id,
+          name: uni.name,
+          acceptanceLetterUrl: uni.acceptance_letter_url
+        })),
+        startDate: student.start_date ? new Date(student.start_date) : undefined
+      }));
+    }
+  });
+
+  // Mutation to move student to past clients
+  const moveToPastClientMutation = useMutation({
+    mutationFn: async ({ studentId, year }: { studentId: string; year: string }) => {
+      const { error } = await supabase
+        .from('students')
+        .update({ graduation_year: year })
+        .eq('id', studentId);
+      
+      if (error) throw error;
+      return { studentId, year };
+    },
+    onSuccess: ({ year }) => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['past-clients'] });
+      toast.success(`הסטודנט הועבר ללקוחות עבר ${year}`);
+      navigate(`/past-clients/${year}`);
+    },
+    onError: (error) => {
+      console.error('Error moving student:', error);
+      toast.error('שגיאה בהעברת הסטודנט');
+    }
+  });
 
   // Handle URL filter parameter
   useEffect(() => {
@@ -74,12 +145,7 @@ export default function Students() {
     return needsAgreementReminder || needsPaymentReminder;
   };
 
-  // Sort by creation date, newest first - exclude graduated students
-  const sortedStudents = [...students]
-    .filter(s => s.status !== 'graduated')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  const filteredStudents = sortedStudents.filter(student => {
+  const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.includes(searchTerm) || 
                          student.email.includes(searchTerm) || 
                          student.phone.includes(searchTerm) ||
@@ -108,30 +174,72 @@ export default function Students() {
            matchesCost && matchesAccepted && matchesAttention;
   });
 
-  const handleAddStudent = (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
-    const student: Student = {
-      ...newStudent,
-      id: String(students.length + 1),
-      createdAt: new Date(),
-      notes: [],
-      documents: [],
-    };
-    setStudents([student, ...students]);
+  const handleAddStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
+    const { error } = await supabase.from('students').insert({
+      name: newStudent.name,
+      email: newStudent.email,
+      phone: newStudent.phone,
+      degree_type: newStudent.degreeType === 'phd' ? 'doctorate' : newStudent.degreeType,
+      interested_country: newStudent.interestedCountry,
+      interested_field: newStudent.interestedField,
+      source: newStudent.source,
+      meeting_summary: newStudent.meetingSummary,
+      status: newStudent.status,
+      advisor_name: newStudent.advisorName,
+      package_cost: newStudent.packageCost,
+      payment_notes: newStudent.paymentNotes,
+      is_paid: newStudent.isPaid,
+      signed_agreement: newStudent.signedAgreement,
+      target_country: newStudent.targetCountry,
+      target_university: newStudent.targetUniversity,
+      program: newStudent.program
+    });
+    
+    if (error) {
+      console.error('Error adding student:', error);
+      toast.error('שגיאה בהוספת הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['students'] });
     toast.success('הסטודנט נוסף בהצלחה!');
   };
 
   const handleMoveToPastClient = (studentId: string, year: string) => {
-    setStudents(students.map(s => 
-      s.id === studentId 
-        ? { ...s, status: 'graduated' as StudentStatus, createdAt: new Date(`${year}-01-01`) }
-        : s
-    ));
-    toast.success(`הסטודנט הועבר ללקוחות עבר ${year}`);
-    navigate(`/past-clients/${year}`);
+    moveToPastClientMutation.mutate({ studentId, year });
   };
 
-  const handleEditStudent = (updatedStudent: Student) => {
-    setStudents(students.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+  const handleEditStudent = async (updatedStudent: Student) => {
+    const { error } = await supabase
+      .from('students')
+      .update({
+        name: updatedStudent.name,
+        email: updatedStudent.email,
+        phone: updatedStudent.phone,
+        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+        interested_country: updatedStudent.interestedCountry,
+        interested_field: updatedStudent.interestedField,
+        source: updatedStudent.source,
+        meeting_summary: updatedStudent.meetingSummary,
+        status: updatedStudent.status,
+        advisor_name: updatedStudent.advisorName,
+        package_cost: updatedStudent.packageCost,
+        payment_notes: updatedStudent.paymentNotes,
+        is_paid: updatedStudent.isPaid,
+        signed_agreement: updatedStudent.signedAgreement,
+        target_country: updatedStudent.targetCountry,
+        target_university: updatedStudent.targetUniversity,
+        program: updatedStudent.program
+      })
+      .eq('id', updatedStudent.id);
+    
+    if (error) {
+      console.error('Error updating student:', error);
+      toast.error('שגיאה בעדכון הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['students'] });
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
@@ -282,18 +390,27 @@ export default function Students() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">טוען...</p>
+          </div>
+        )}
+
         {/* Students List */}
-        <div className="space-y-4">
-          {filteredStudents.map((student, index) => (
-            <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <StudentRow 
-                student={student}
-                onEdit={() => setEditingStudent(student)}
-                onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
-              />
-            </div>
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="space-y-4">
+            {filteredStudents.map((student, index) => (
+              <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+                <StudentRow 
+                  student={student}
+                  onEdit={() => setEditingStudent(student)}
+                  onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         <EditStudentDialog
           student={editingStudent}
@@ -302,7 +419,7 @@ export default function Students() {
           onSave={handleEditStudent}
         />
 
-        {filteredStudents.length === 0 && (
+        {!isLoading && filteredStudents.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">לא נמצאו סטודנטים</p>
           </div>
