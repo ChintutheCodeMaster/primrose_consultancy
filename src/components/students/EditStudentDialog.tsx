@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,11 @@ import { Plus, Trash2, Upload, FileText, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface Advisor {
+  id: string;
+  name: string;
+}
+
 interface EditStudentDialogProps {
   student: Student | null;
   open: boolean;
@@ -24,6 +30,18 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newUniversityName, setNewUniversityName] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: advisors = [] } = useQuery({
+    queryKey: ['advisors'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('advisors')
+        .select('id, name')
+        .order('name');
+      if (error) throw error;
+      return data as Advisor[];
+    },
+  });
 
   useEffect(() => {
     if (student) {
@@ -237,12 +255,22 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           {/* Student-specific fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="advisorName">שם יועץ</Label>
-              <Input
-                id="advisorName"
-                value={formData.advisorName}
-                onChange={(e) => setFormData({ ...formData, advisorName: e.target.value })}
-              />
+              <Label htmlFor="advisorName">יועץ</Label>
+              <Select 
+                value={formData.advisorName} 
+                onValueChange={(v) => setFormData({ ...formData, advisorName: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר יועץ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {advisors.map((advisor) => (
+                    <SelectItem key={advisor.id} value={advisor.name}>
+                      {advisor.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="packageCost">עלות חבילה (₪)</Label>

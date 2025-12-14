@@ -46,6 +46,30 @@ export type Database = {
           },
         ]
       }
+      advisors: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -93,6 +117,7 @@ export type Database = {
       }
       students: {
         Row: {
+          advisor_id: string | null
           advisor_name: string | null
           agreement_reminder_date: string | null
           created_at: string
@@ -117,6 +142,7 @@ export type Database = {
           target_university: string | null
         }
         Insert: {
+          advisor_id?: string | null
           advisor_name?: string | null
           agreement_reminder_date?: string | null
           created_at?: string
@@ -141,6 +167,7 @@ export type Database = {
           target_university?: string | null
         }
         Update: {
+          advisor_id?: string | null
           advisor_name?: string | null
           agreement_reminder_date?: string | null
           created_at?: string
@@ -164,7 +191,15 @@ export type Database = {
           target_country?: string | null
           target_university?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "students_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
