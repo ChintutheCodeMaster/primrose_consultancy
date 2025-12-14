@@ -13,6 +13,7 @@ import Agreement from "./pages/Agreement";
 import AgreementTemplate from "./pages/AgreementTemplate";
 import StudentPortal from "./pages/StudentPortal";
 import StudentPortalManagement from "./pages/StudentPortalManagement";
+import AdvisorPortal from "./pages/AdvisorPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           {/* Public pages - outside PasswordGate */}
           <Route path="/agreement/:studentId" element={<Agreement />} />
           <Route path="/portal/:studentId" element={<StudentPortal />} />
+          <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
           
           {/* Protected routes */}
           <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />

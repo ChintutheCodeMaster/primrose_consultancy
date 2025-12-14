@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AdvisorForm, AdvisorFormData } from '@/components/advisors/AdvisorForm';
@@ -319,6 +319,18 @@ export default function Advisors() {
                 )}
 
                 <div className="flex gap-2 pt-4 border-t">
+                  <Button 
+                    variant="outline"
+                    className="flex-1 gap-2"
+                    onClick={() => {
+                      const link = `${window.location.origin}/advisor/${viewingAdvisor.id}`;
+                      navigator.clipboard.writeText(link);
+                      toast.success('קישור לפורטל היועץ הועתק!');
+                    }}
+                  >
+                    <Link2 className="h-4 w-4" />
+                    קישור לפורטל
+                  </Button>
                   <Button 
                     className="flex-1 gap-2" 
                     onClick={() => {
