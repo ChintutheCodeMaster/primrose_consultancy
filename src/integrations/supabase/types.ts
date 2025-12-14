@@ -106,6 +106,7 @@ export type Database = {
           meeting_summary: string | null
           name: string
           package_cost: number | null
+          payment_notes: string | null
           phone: string
           program: string | null
           signed_agreement: boolean | null
@@ -129,6 +130,7 @@ export type Database = {
           meeting_summary?: string | null
           name: string
           package_cost?: number | null
+          payment_notes?: string | null
           phone: string
           program?: string | null
           signed_agreement?: boolean | null
@@ -152,6 +154,7 @@ export type Database = {
           meeting_summary?: string | null
           name?: string
           package_cost?: number | null
+          payment_notes?: string | null
           phone?: string
           program?: string | null
           signed_agreement?: boolean | null

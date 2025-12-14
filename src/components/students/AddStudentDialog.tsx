@@ -25,6 +25,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     source: '',
     meetingSummary: '',
     packageCost: 0,
+    paymentNotes: '',
     advisorName: '',
     isPaid: false,
     signedAgreement: false,
@@ -50,6 +51,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       source: '',
       meetingSummary: '',
       packageCost: 0,
+      paymentNotes: '',
       advisorName: '',
       isPaid: false,
       signedAgreement: false,
@@ -211,6 +213,16 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               />
               <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentNotes">הערות תשלום</Label>
+            <Input
+              id="paymentNotes"
+              value={formData.paymentNotes}
+              onChange={(e) => setFormData({ ...formData, paymentNotes: e.target.value })}
+              placeholder="לדוגמה: תשלום 1 מתוך 4, ישלם חצי שני בסוף"
+            />
           </div>
 
           <div className="flex items-center gap-2">
