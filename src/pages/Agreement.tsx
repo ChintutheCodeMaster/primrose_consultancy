@@ -20,6 +20,42 @@ interface FormData {
   agreed: boolean;
 }
 
+// Default content if no template exists
+const defaultAgreementContent = `מועמד יקר,
+
+אנחנו מתרגשים להתחיל איתך תהליך של ליווי להגשה ללימודים בחו"ל! מדובר במסע מרגש ומשמעותי ותודה שבחרת בנו כדי שנהיה חלק ממנו.
+
+חשוב מאוד שתקדיש את מלוא תשומת הלב בקריאת הפרטים המופיעים מטה, כדי שהתהליך יתנהל בצורה הכי מקצועית ונכונה.
+
+אנחנו מתחייבים לרמה השירות הגבוהה ביותר, אשר כוללת ליווי של יועץ אישי ובנוסף, ללא עלות נוספת, מעבר של יועץ נוסף על החומרים שלך.
+
+עמוד זה הינו טופס הזמנת עבודה של הלקוח (להלן: "הלקוח") עם נוגה שירותים אקדמיים (להלן: "נוגה").
+
+* הנהלים והטופס מנוסחים בלשון זכר, אך מיועדים לנשים ולגברים כאחד
+
+---
+
+**פרטי תשלום ונהלים**
+
+- עלות השירות תחול לפי המחיר שסוכם אל מול נציג נוגה.
+- התשלום יתבצע באחת מהדרכים הבאות: כרטיס אשראי, העברה בנקאית, או Bit.
+- התשלום על חבילה יתבצע מראש, אלא אם הוסכם על פריסה לתשלומים (עד 4 תשלומים).
+
+**סיום התקשרות:**
+- במידה ולקוח מעוניין להפסיק את ההתקשרות, תתבצע הערכה של שעות העבודה בהסכמה.
+- הלקוח ונוגה רשאים להפסיק את ההתקשרות בהתראה של 24 שעות.
+
+**הגבלת אחריות:**
+- על המועמד לוודא מול המוסדות את התאריך הסופי להגשה ודרישות הקבלה.
+- הלקוח מאשר כי האחריות על תהליך הקבלה חלה אך ורק עליו.
+- עמידה בדדליין להגשת האפליקיישן היא אחריות של הלקוח.
+
+**סודיות:**
+- הלקוח מאשר לנוגה שימוש בחומרי אישור קבלה לצרכי שיווק (ללא פרטים אישיים).
+- הלקוח מתחייב להימנע מכל פגיעה בשמה הטוב של נוגה.
+
+במידה ויש נושאים שתרצו לשתף, פנו ל-info@nogaconsultancy.com`;
+
 const Agreement = () => {
   const { studentId } = useParams<{ studentId: string }>();
   const navigate = useNavigate();
@@ -28,6 +64,7 @@ const Agreement = () => {
   const [studentName, setStudentName] = useState("");
   const [alreadySigned, setAlreadySigned] = useState(false);
   const [signedAt, setSignedAt] = useState<string | null>(null);
+  const [agreementContent, setAgreementContent] = useState(defaultAgreementContent);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -40,10 +77,21 @@ const Agreement = () => {
   });
 
   useEffect(() => {
-    const fetchStudent = async () => {
+    const fetchData = async () => {
       if (!studentId) {
         navigate("/");
         return;
+      }
+
+      // Fetch active template
+      const { data: template } = await supabase
+        .from("agreement_templates")
+        .select("content")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (template?.content) {
+        setAgreementContent(template.content);
       }
 
       // Check if already signed
@@ -90,7 +138,7 @@ const Agreement = () => {
       setLoading(false);
     };
 
-    fetchStudent();
+    fetchData();
   }, [studentId, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,6 +199,43 @@ const Agreement = () => {
     }
   };
 
+  // Render markdown-like content
+  const renderContent = (content: string) => {
+    const lines = content.split("\n");
+    const elements: JSX.Element[] = [];
+    let key = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line === "---") {
+        elements.push(<hr key={key++} className="my-6" />);
+      } else if (line.startsWith("**") && line.endsWith("**")) {
+        elements.push(
+          <h3 key={key++} className="text-lg font-bold text-gray-900 mt-4">
+            {line.replace(/\*\*/g, "")}
+          </h3>
+        );
+      } else if (line.startsWith("- ")) {
+        elements.push(
+          <li key={key++} className="mr-4">
+            {line.substring(2)}
+          </li>
+        );
+      } else if (line.trim() === "") {
+        elements.push(<br key={key++} />);
+      } else {
+        elements.push(
+          <p key={key++} className="mb-2">
+            {line}
+          </p>
+        );
+      }
+    }
+
+    return elements;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -205,133 +290,7 @@ const Agreement = () => {
         {/* Agreement Content */}
         <Card className="mb-8">
           <CardContent className="pt-6 prose prose-sm max-w-none text-gray-700 leading-relaxed">
-            <p className="font-semibold text-lg text-gray-900">מועמד יקר,</p>
-            <p>
-              אנחנו מתרגשים להתחיל איתך תהליך של ליווי להגשה ללימודים בחו"ל!
-              מדובר במסע מרגש ומשמעותי ותודה שבחרת בנו כדי שנהיה חלק ממנו.
-              חשוב מאוד שתקדיש את מלוא תשומת הלב בקריאת הפרטים המופיעים מטה,
-              כדי שהתהליך יתנהל בצורה הכי מקצועית ונכונה, דבר אשר יחסוך לך
-              זמן לא מבוטל ומשאבים נוספים.
-            </p>
-            <p>
-              אנחנו מתחייבים לרמה השירות הגבוהה ביותר, אשר כוללת ליווי של
-              יועץ אישי ובנוסף, ללא עלות נוספת, מעבר של יועץ נוסף על החומרים
-              שלך.
-            </p>
-            <p className="text-sm italic">
-              עמוד זה הינו טופס הזמנת עבודה של הלקוח (להלן: "הלקוח") עם נוגה
-              שירותים אקדמיים (להלן: "נוגה").
-            </p>
-            <p className="text-xs text-gray-500">
-              * הנהלים והטופס מנוסחים בלשון זכר, אך מיועדים לנשים ולגברים כאחד
-            </p>
-
-            <hr className="my-6" />
-
-            <h3 className="text-lg font-bold text-gray-900">
-              פרטי תשלום ונהלים
-            </h3>
-            <ul className="list-disc pr-6 space-y-2">
-              <li>
-                עלות השירות תחול לפי המחיר שסוכם אל מול נציג נוגה. במידה והמחיר
-                הסופי שסוכם שונה בעקבות הנחה, המחיר הסופי יהיה זה שהוסכם עליו
-                בכתב מול נציג נוגה ויצורף להסכם זה כנספח א'.
-              </li>
-              <li>
-                התשלום יתבצע באחת מהדרכים הבאות, ובתיאום עם הלקוח:
-                <ul className="list-circle pr-4 mt-1">
-                  <li>תשלום באמצעות כרטיס אשראי</li>
-                  <li>העברה בנקאית</li>
-                  <li>העברה באמצעות Bit</li>
-                </ul>
-              </li>
-              <li>
-                התשלום על חבילה יתבצע מראש, אלא אם הוסכם על פריסה לתשלומים.
-                ככלל, מספר התשלומים לא יעלה על 4.
-              </li>
-            </ul>
-
-            <h4 className="font-bold mt-4">סיום התקשרות:</h4>
-            <ul className="list-disc pr-6 space-y-2">
-              <li>
-                במידה ולקוח מעוניין להפסיק את ההתקשרות, במידה ומדובר בחבילה,
-                תתבצע הערכה של שעות העבודה בהסכמה עם המועמד ועל הלקוח יהיה לשלם
-                תוך 5 ימי עסקים במידה ונותרה יתרה לתשלום.
-              </li>
-              <li>
-                הלקוח ונוגה רשאים להפסיק את ההתקשרות עם נוגה בהתראה של 24 שעות
-                ומכל סיבה שרואה לנכון.
-              </li>
-            </ul>
-
-            <h3 className="text-lg font-bold text-gray-900 mt-6">
-              3. הגבלת אחריות
-            </h3>
-            <ul className="list-disc pr-6 space-y-2">
-              <li>
-                על המועמד לוודא מול המוסדות שהוא מנסה להתקבל אליהם, את התאריך
-                הסופי להגשה (להלן: ״דד ליין״) ודרישות הקבלה.
-              </li>
-              <li>
-                הלקוח מאשר כי האחריות על תהליך הקבלה שלו חלה אך ורק עליו, ולא
-                ייראה בנוגה ומי מטעמה אחראיים לאי קבלתו למוסד שאליו פונה.
-              </li>
-              <li>
-                ״אפליקיישן״ הינו תהליך שנדרשים אליו כללי אתיקה מסויימים
-                מהמוסדות האקדמיים השונים. הלקוח לכן יאשר כי ייבחן את הכללים
-                של המוסדות אליו פונה ויוודא שהוא עומד בהם במסגרת ההגשה:
-                <ul className="list-none pr-4 mt-1 text-sm text-gray-600">
-                  <li>
-                    - All of the components of your application must be your
-                    own work
-                  </li>
-                  <li>
-                    - Your application must be an honest representation of
-                    yourself
-                  </li>
-                  <li>
-                    - Your application materials should be as current as
-                    possible at the time of submission
-                  </li>
-                </ul>
-              </li>
-              <li>
-                הלקוח מודע לכך שנוגה אינה אחראית וכן לא תבצע כתיבת חלקים בשם
-                או במקום המועמד.
-              </li>
-              <li>
-                עמידה בדדליין להגשת האפליקיישן היא אחריות של הלקוח ונוגה לא
-                מתחייבת שתעמוד בדדליין מסויים.
-              </li>
-              <li>
-                היקף העבודה שנוגה תבצע תהיה בהסכמה בין הצדדים, ובתנאי שהלקוח
-                יעביר בזמן את החומרים הנדרשים לביצוע העבודה.
-              </li>
-            </ul>
-
-            <h3 className="text-lg font-bold text-gray-900 mt-6">4. סודיות</h3>
-            <ul className="list-disc pr-6 space-y-2">
-              <li>
-                אני מאשר כי נוגה או מי מטעמו רשאי לעשות כל שימוש, על פי שיקול
-                דעתו הבלעדי ובהתאם לצרכיו, לרבות שימוש בכל חומרי אישור קבלה,
-                שיופקו בשל הליווי של החברה, וזאת ללא כל סייג ומבלי שיצטרכו
-                לקבל אישור מפורש ממני בתנאי שימחקו פרטי האישיים.
-              </li>
-              <li>
-                הנך מתחייב להימנע מכל פגיעה בשמה הטוב ו/או במוניטין נוגה ובכלל
-                כך, עובדיה ו/או מנהליה.
-              </li>
-            </ul>
-
-            <p className="mt-6 text-center text-sm text-gray-600">
-              במידה ויש נושאים שתרצו לשתף, פנו ל-
-              <a
-                href="mailto:info@nogaconsultancy.com"
-                className="text-primary hover:underline"
-              >
-                info@nogaconsultancy.com
-              </a>
-            </p>
+            {renderContent(agreementContent)}
           </CardContent>
         </Card>
 
