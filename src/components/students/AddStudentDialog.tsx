@@ -27,6 +27,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     packageCost: 0,
     advisorName: '',
     isPaid: false,
+    signedAgreement: false,
     targetCountry: '',
     targetUniversity: '',
     program: '',
@@ -51,6 +52,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       packageCost: 0,
       advisorName: '',
       isPaid: false,
+      signedAgreement: false,
       targetCountry: '',
       targetUniversity: '',
       program: '',
@@ -209,6 +211,15 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               />
               <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="signedAgreement"
+              checked={formData.signedAgreement}
+              onCheckedChange={(checked) => setFormData({ ...formData, signedAgreement: checked as boolean })}
+            />
+            <Label htmlFor="signedAgreement" className="cursor-pointer">חתם על הסכם עבודה</Label>
           </div>
 
           <div className="space-y-2">
