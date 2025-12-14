@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Upload, X, Banknote } from 'lucide-react';
@@ -28,19 +27,10 @@ interface Advisor {
   created_at: string;
 }
 
-const paymentTypeLabels: Record<string, string> = {
-  per_package: 'לפי חבילה',
-  hourly: 'לפי שעה',
-  fixed: 'קבוע חודשי',
-  commission: 'עמלה',
-};
-
 const initialFormData = {
   name: '',
   email: '',
   phone: '',
-  payment_type: 'per_package',
-  payment_amount: 0,
   payment_notes: '',
   contract_url: '',
   notes: '',
@@ -51,6 +41,7 @@ export default function Advisors() {
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingAdvisor, setEditingAdvisor] = useState<Advisor | null>(null);
+  const [viewingAdvisor, setViewingAdvisor] = useState<Advisor | null>(null);
   const [formData, setFormData] = useState(initialFormData);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,8 +65,6 @@ export default function Advisors() {
         name: data.name,
         email: data.email || null,
         phone: data.phone || null,
-        payment_type: data.payment_type,
-        payment_amount: data.payment_amount || 0,
         payment_notes: data.payment_notes || null,
         contract_url: data.contract_url || null,
         notes: data.notes || null,
@@ -100,8 +89,6 @@ export default function Advisors() {
           name: data.name,
           email: data.email || null,
           phone: data.phone || null,
-          payment_type: data.payment_type,
-          payment_amount: data.payment_amount || 0,
           payment_notes: data.payment_notes || null,
           contract_url: data.contract_url || null,
           notes: data.notes || null,
@@ -177,8 +164,6 @@ export default function Advisors() {
       name: advisor.name,
       email: advisor.email || '',
       phone: advisor.phone || '',
-      payment_type: advisor.payment_type || 'per_package',
-      payment_amount: advisor.payment_amount || 0,
       payment_notes: advisor.payment_notes || '',
       contract_url: advisor.contract_url || '',
       notes: advisor.notes || '',
@@ -189,6 +174,7 @@ export default function Advisors() {
   const closeDialog = () => {
     setIsAddOpen(false);
     setEditingAdvisor(null);
+    setViewingAdvisor(null);
     setFormData(initialFormData);
   };
 
@@ -239,34 +225,8 @@ export default function Advisors() {
         </div>
       </div>
 
-      <div className="p-4 bg-primary/5 rounded-lg space-y-4">
+      <div className="p-4 bg-primary/5 rounded-lg space-y-3">
         <h4 className="font-medium text-sm text-muted-foreground">הסכם תשלום</h4>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="payment_type">סוג תשלום</Label>
-            <Select value={formData.payment_type} onValueChange={(v) => setFormData({ ...formData, payment_type: v })}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="per_package">לפי חבילה</SelectItem>
-                <SelectItem value="hourly">לפי שעה</SelectItem>
-                <SelectItem value="fixed">קבוע חודשי</SelectItem>
-                <SelectItem value="commission">עמלה</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="payment_amount">סכום (₪)</Label>
-            <Input
-              id="payment_amount"
-              type="number"
-              dir="ltr"
-              value={formData.payment_amount || ''}
-              onChange={(e) => setFormData({ ...formData, payment_amount: Number(e.target.value) })}
-            />
-          </div>
-        </div>
         <div className="space-y-2">
           <Label htmlFor="payment_notes">פרטי הסכם / הערות תשלום</Label>
           <Textarea
@@ -274,7 +234,7 @@ export default function Advisors() {
             value={formData.payment_notes}
             onChange={(e) => setFormData({ ...formData, payment_notes: e.target.value })}
             placeholder="לדוגמה: 500₪ לחבילה + בונוס על קבלות"
-            rows={2}
+            rows={3}
           />
         </div>
       </div>
@@ -384,7 +344,11 @@ export default function Advisors() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {advisors.map((advisor) => (
-              <Card key={advisor.id} className={`group ${!advisor.is_active ? 'opacity-60' : ''}`}>
+              <Card 
+                key={advisor.id} 
+                className={`group cursor-pointer hover:shadow-md transition-shadow ${!advisor.is_active ? 'opacity-60' : ''}`}
+                onClick={() => setViewingAdvisor(advisor)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -399,24 +363,6 @@ export default function Advisors() {
                           )}
                         </CardTitle>
                       </div>
-                    </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(advisor)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => deleteMutation.mutate(advisor.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -438,40 +384,6 @@ export default function Advisors() {
                       )}
                     </div>
                   )}
-
-                  {/* Payment Info */}
-                  {(advisor.payment_type || advisor.payment_amount) && (
-                    <div className="p-3 bg-primary/5 rounded-lg">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Banknote className="h-4 w-4 text-primary" />
-                        <span className="font-medium">
-                          {paymentTypeLabels[advisor.payment_type || 'per_package']}
-                          {advisor.payment_amount ? ` - ₪${advisor.payment_amount.toLocaleString()}` : ''}
-                        </span>
-                      </div>
-                      {advisor.payment_notes && (
-                        <p className="text-xs text-muted-foreground mt-1">{advisor.payment_notes}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Contract */}
-                  {advisor.contract_url && (
-                    <a
-                      href={advisor.contract_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    >
-                      <FileText className="h-4 w-4" />
-                      צפה בחוזה
-                    </a>
-                  )}
-
-                  {/* Notes */}
-                  {advisor.notes && (
-                    <p className="text-sm text-muted-foreground border-t pt-2">{advisor.notes}</p>
-                  )}
                 </CardContent>
               </Card>
             ))}
@@ -485,6 +397,105 @@ export default function Advisors() {
               <DialogTitle>עריכת יועץ</DialogTitle>
             </DialogHeader>
             <AdvisorForm />
+          </DialogContent>
+        </Dialog>
+
+        {/* View Dialog */}
+        <Dialog open={!!viewingAdvisor} onOpenChange={(open) => !open && setViewingAdvisor(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${viewingAdvisor?.is_active ? 'bg-primary/10' : 'bg-muted'}`}>
+                  <UserCircle className={`h-6 w-6 ${viewingAdvisor?.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
+                </div>
+                <div>
+                  {viewingAdvisor?.name}
+                  {!viewingAdvisor?.is_active && (
+                    <Badge variant="secondary" className="text-xs mr-2">לא פעיל</Badge>
+                  )}
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+            
+            {viewingAdvisor && (
+              <div className="space-y-4 mt-4">
+                {/* Contact Info */}
+                {(viewingAdvisor.email || viewingAdvisor.phone) && (
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <h4 className="font-medium text-sm text-muted-foreground mb-2">פרטי התקשרות</h4>
+                    {viewingAdvisor.phone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span dir="ltr">{viewingAdvisor.phone}</span>
+                      </div>
+                    )}
+                    {viewingAdvisor.email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span dir="ltr">{viewingAdvisor.email}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Payment Notes */}
+                {viewingAdvisor.payment_notes && (
+                  <div className="p-4 bg-primary/5 rounded-lg">
+                    <h4 className="font-medium text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                      <Banknote className="h-4 w-4" />
+                      הסכם תשלום
+                    </h4>
+                    <p className="text-sm">{viewingAdvisor.payment_notes}</p>
+                  </div>
+                )}
+
+                {/* Contract */}
+                {viewingAdvisor.contract_url && (
+                  <a
+                    href={viewingAdvisor.contract_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:underline p-4 border rounded-lg"
+                  >
+                    <FileText className="h-4 w-4" />
+                    צפה בחוזה החתום
+                  </a>
+                )}
+
+                {/* Notes */}
+                {viewingAdvisor.notes && (
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium text-sm text-muted-foreground mb-2">הערות</h4>
+                    <p className="text-sm">{viewingAdvisor.notes}</p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button 
+                    className="flex-1 gap-2" 
+                    onClick={() => {
+                      openEdit(viewingAdvisor);
+                      setViewingAdvisor(null);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    ערוך
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="gap-2"
+                    onClick={() => {
+                      deleteMutation.mutate(viewingAdvisor.id);
+                      setViewingAdvisor(null);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    מחק
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
