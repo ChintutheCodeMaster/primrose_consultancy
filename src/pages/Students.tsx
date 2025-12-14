@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
@@ -10,14 +11,15 @@ import { Student, StudentStatus, studentStatusLabels } from '@/types/crm';
 import { toast } from 'sonner';
 
 export default function Students() {
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>(mockStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
 
-  // Sort by creation date, newest first
-  const sortedStudents = [...students].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  // Sort by creation date, newest first - exclude graduated students
+  const sortedStudents = [...students]
+    .filter(s => s.status !== 'graduated')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const filteredStudents = sortedStudents.filter(student => {
     const matchesSearch = student.name.includes(searchTerm) || 
@@ -39,6 +41,16 @@ export default function Students() {
     };
     setStudents([student, ...students]);
     toast.success('הסטודנט נוסף בהצלחה!');
+  };
+
+  const handleMoveToPastClient = (studentId: string, year: string) => {
+    setStudents(students.map(s => 
+      s.id === studentId 
+        ? { ...s, status: 'graduated' as StudentStatus, createdAt: new Date(`${year}-01-01`) }
+        : s
+    ));
+    toast.success(`הסטודנט הועבר ללקוחות עבר ${year}`);
+    navigate(`/past-clients/${year}`);
   };
 
   return (
@@ -70,9 +82,11 @@ export default function Students() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">כל הסטטוסים</SelectItem>
-              {Object.entries(studentStatusLabels).map(([value, label]) => (
-                <SelectItem key={value} value={value}>{label}</SelectItem>
-              ))}
+              {Object.entries(studentStatusLabels)
+                .filter(([value]) => value !== 'graduated')
+                .map(([value, label]) => (
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
@@ -81,7 +95,10 @@ export default function Students() {
         <div className="space-y-4">
           {filteredStudents.map((student, index) => (
             <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-              <StudentRow student={student} />
+              <StudentRow 
+                student={student} 
+                onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
+              />
             </div>
           ))}
         </div>

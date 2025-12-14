@@ -1,20 +1,23 @@
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface StudentRowProps {
   student: Student;
-  onClick?: () => void;
+  onEdit?: () => void;
+  onMoveToPastClient?: (year: string) => void;
+  showActions?: boolean;
 }
 
-export function StudentRow({ student, onClick }: StudentRowProps) {
+const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
+
+export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = true }: StudentRowProps) {
   return (
-    <div
-      onClick={onClick}
-      className="group cursor-pointer rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50"
-    >
+    <div className="group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
@@ -35,10 +38,45 @@ export function StudentRow({ student, onClick }: StudentRowProps) {
             </div>
           </div>
         </div>
-        {/* Payment Status Badge */}
-        <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
-          {student.isPaid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-          <span>{student.isPaid ? 'שולם' : 'לא שולם'}</span>
+        
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          {/* Payment Status Badge */}
+          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
+            {student.isPaid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+            <span>{student.isPaid ? 'שולם' : 'לא שולם'}</span>
+          </div>
+          
+          {showActions && (
+            <>
+              {onEdit && (
+                <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
+                  <Pencil className="h-3 w-3" />
+                  עריכה
+                </Button>
+              )}
+              {onMoveToPastClient && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="default" size="sm" className="gap-1">
+                      <History className="h-3 w-3" />
+                      העבר ללקוח עבר
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {pastClientsYears.map((year) => (
+                      <DropdownMenuItem 
+                        key={year} 
+                        onClick={() => onMoveToPastClient(year)}
+                      >
+                        לקוחות עבר {year}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
+          )}
         </div>
       </div>
 

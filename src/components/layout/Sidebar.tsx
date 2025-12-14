@@ -10,7 +10,7 @@ const navigation = [
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
 
-const pastClientsYears = ['2025', '2024', '2023', '2022'];
+const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
 export function Sidebar() {
   const location = useLocation();
