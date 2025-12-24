@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileCheck, FileX, Copy, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,10 +16,19 @@ interface StudentAgreementStatus {
   signedAt?: string;
 }
 
+type AgreementType = 'package' | 'hourly' | 'edit';
+
+const agreementTypes: Record<AgreementType, string> = {
+  package: 'חבילה',
+  hourly: 'שעתי',
+  edit: 'לערוך',
+};
+
 export const AgreementStatusPanel = () => {
   const [students, setStudents] = useState<StudentAgreementStatus[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedAgreementTypes, setSelectedAgreementTypes] = useState<Record<string, AgreementType>>({});
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -45,33 +55,54 @@ export const AgreementStatusPanel = () => {
         (agreements || []).map((a) => [a.student_id, a.signed_at])
       );
 
-      setStudents(
-        (studentsData || []).map((s) => ({
-          id: s.id,
-          name: s.name,
-          email: s.email,
-          signedAgreement: s.signed_agreement || false,
-          signedAt: agreementMap.get(s.id),
-        }))
-      );
+      const fetchedStudents = (studentsData || []).map((s) => ({
+        id: s.id,
+        name: s.name,
+        email: s.email,
+        signedAgreement: s.signed_agreement || false,
+        signedAt: agreementMap.get(s.id),
+      }));
+
+      setStudents(fetchedStudents);
+      
+      // Initialize default agreement type for each student
+      const defaults: Record<string, AgreementType> = {};
+      fetchedStudents.forEach((s) => {
+        defaults[s.id] = 'package';
+      });
+      setSelectedAgreementTypes(defaults);
+      
       setLoading(false);
     };
 
     fetchStudents();
   }, []);
 
+  const getAgreementLink = (studentId: string, type: AgreementType) => {
+    return `${window.location.origin}/agreement/${studentId}?type=${type}`;
+  };
+
   const copyLink = (studentId: string) => {
-    const link = `${window.location.origin}/agreement/${studentId}`;
+    const type = selectedAgreementTypes[studentId] || 'package';
+    const link = getAgreementLink(studentId, type);
     navigator.clipboard.writeText(link);
     toast({
       title: "הקישור הועתק!",
-      description: "הקישור לטופס ההסכם הועתק ללוח",
+      description: `הקישור להסכם ${agreementTypes[type]} הועתק ללוח`,
     });
   };
 
   const openLink = (studentId: string) => {
-    const link = `${window.location.origin}/agreement/${studentId}`;
+    const type = selectedAgreementTypes[studentId] || 'package';
+    const link = getAgreementLink(studentId, type);
     window.open(link, "_blank");
+  };
+
+  const handleAgreementTypeChange = (studentId: string, type: AgreementType) => {
+    setSelectedAgreementTypes((prev) => ({
+      ...prev,
+      [studentId]: type,
+    }));
   };
 
   const signedStudents = students.filter((s) => s.signedAgreement);
@@ -136,29 +167,44 @@ export const AgreementStatusPanel = () => {
                     {unsignedStudents.map((student) => (
                       <div
                         key={student.id}
-                        className="flex items-center justify-between bg-orange-50 rounded-lg p-2 text-sm"
+                        className="flex flex-col gap-2 bg-orange-50 rounded-lg p-2 text-sm"
                       >
-                        <span className="font-medium truncate flex-1">{student.name}</span>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => copyLink(student.id)}
-                            title="העתק קישור"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => openLink(student.id)}
-                            title="פתח טופס"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium truncate flex-1">{student.name}</span>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => copyLink(student.id)}
+                              title="העתק קישור"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => openLink(student.id)}
+                              title="פתח טופס"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </div>
+                        <Select
+                          value={selectedAgreementTypes[student.id] || 'package'}
+                          onValueChange={(v) => handleAgreementTypeChange(student.id, v as AgreementType)}
+                        >
+                          <SelectTrigger className="h-7 text-xs bg-white">
+                            <SelectValue placeholder="בחר הסכם" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover z-[100]">
+                            <SelectItem value="package">חבילה</SelectItem>
+                            <SelectItem value="hourly">שעתי</SelectItem>
+                            <SelectItem value="edit">לערוך</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     ))}
                   </div>
