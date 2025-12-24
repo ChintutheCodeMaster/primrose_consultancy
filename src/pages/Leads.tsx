@@ -138,6 +138,21 @@ export default function Leads() {
     toast.success('המתעניין הועבר לרשימת "לא המשיכו"');
   };
 
+  const handleDeleteLead = async (leadId: string) => {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', leadId);
+    
+    if (error) {
+      toast.error('שגיאה במחיקת המתעניין');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['leads'] });
+    toast.success('המתעניין נמחק בהצלחה');
+  };
+
   const handleConvertToStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
     // Insert new student
     const { error: studentError } = await supabase.from('students').insert({
@@ -236,6 +251,7 @@ export default function Leads() {
                 onEdit={() => handleEditLead(lead)}
                 onConvert={() => handleConvertClick(lead)}
                 onDidNotContinue={() => handleDidNotContinue(lead.id)}
+                onDelete={() => handleDeleteLead(lead.id)}
               />
             </div>
           ))}

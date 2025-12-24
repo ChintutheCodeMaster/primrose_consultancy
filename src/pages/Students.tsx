@@ -265,6 +265,21 @@ export default function Students() {
     toast.success('הסטודנט הועבר לרשימת "לא המשיכו"');
   };
 
+  const handleDeleteStudent = async (studentId: string) => {
+    const { error } = await supabase
+      .from('students')
+      .delete()
+      .eq('id', studentId);
+    
+    if (error) {
+      toast.error('שגיאה במחיקת הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    toast.success('הסטודנט נמחק בהצלחה');
+  };
+
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -429,6 +444,7 @@ export default function Students() {
                   onEdit={() => setEditingStudent(student)}
                   onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
                   onDidNotContinue={() => handleDidNotContinue(student.id)}
+                  onDelete={() => handleDeleteStudent(student.id)}
                 />
               </div>
             ))}

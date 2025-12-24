@@ -107,6 +107,21 @@ export default function PastClients() {
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
+  const handleDeleteStudent = async (studentId: string) => {
+    const { error } = await supabase
+      .from('students')
+      .delete()
+      .eq('id', studentId);
+    
+    if (error) {
+      toast.error('שגיאה במחיקת הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
+    toast.success('הסטודנט נמחק בהצלחה');
+  };
+
   const handleImportStudents = async (students: ImportedStudent[]) => {
     const studentsToInsert = students.map(student => ({
       name: student.name,
@@ -183,6 +198,7 @@ export default function PastClients() {
                   student={student} 
                   onEdit={() => setEditingStudent(student)}
                   showActions={true}
+                  onDelete={() => handleDeleteStudent(student.id)}
                 />
               </div>
             ))}
