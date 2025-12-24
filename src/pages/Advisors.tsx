@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AdvisorForm, AdvisorFormData } from '@/components/advisors/AdvisorForm';
@@ -35,6 +36,7 @@ const initialFormData: AdvisorFormData = {
 };
 
 export default function Advisors() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingAdvisor, setEditingAdvisor] = useState<Advisor | null>(null);
@@ -193,7 +195,7 @@ export default function Advisors() {
               <Card 
                 key={advisor.id} 
                 className={`group cursor-pointer hover:shadow-md transition-shadow ${!advisor.is_active ? 'opacity-60' : ''}`}
-                onClick={() => setViewingAdvisor(advisor)}
+                onClick={() => navigate(`/advisor/${advisor.id}`)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -209,6 +211,30 @@ export default function Advisors() {
                           )}
                         </CardTitle>
                       </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(advisor);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/advisor/${advisor.id}`, '_blank');
+                        }}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
