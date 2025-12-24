@@ -180,8 +180,8 @@ export default function Leads() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">לידים</h1>
-            <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} לידים)</p>
+            <h1 className="text-3xl font-bold text-foreground">מתעניינים</h1>
+            <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} מתעניינים)</p>
           </div>
           <AddLeadDialog onAdd={handleAddLead} />
         </div>
@@ -225,7 +225,7 @@ export default function Leads() {
 
         {filteredLeads.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">לא נמצאו לידים</p>
+            <p className="text-muted-foreground">לא נמצאו מתעניינים</p>
           </div>
         )}
       </div>
