@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface StudentRowProps {
   student: Student;
   onEdit?: () => void;
   onMoveToPastClient?: (year: string) => void;
   onDidNotContinue?: () => void;
+  onDelete?: () => void;
   showActions?: boolean;
 }
 
@@ -29,7 +41,7 @@ const agreementTypeLabels: Record<AgreementType, string> = {
   edit: 'לערוך',
 };
 
-export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, showActions = true }: StudentRowProps) {
+export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onDelete, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
   const [agreementType, setAgreementType] = useState<AgreementType>('package');
   const [showAgreementDetails, setShowAgreementDetails] = useState(false);
@@ -185,6 +197,34 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              {onDelete && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      מחיקה
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        פעולה זו תמחק לצמיתות את הסטודנט "{student.name}" ואת כל המידע הקשור אליו. לא ניתן לבטל פעולה זו.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        מחק
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </>
           )}

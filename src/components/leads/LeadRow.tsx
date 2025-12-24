@@ -1,18 +1,30 @@
 import { Lead, leadStatusLabels, leadStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck, UserX } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck, UserX, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface LeadRowProps {
   lead: Lead;
   onEdit?: () => void;
   onConvert?: () => void;
   onDidNotContinue?: () => void;
+  onDelete?: () => void;
 }
 
-export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue }: LeadRowProps) {
+export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }: LeadRowProps) {
   return (
     <div className="group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50">
       {/* Header */}
@@ -55,6 +67,34 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue }: LeadRowPr
               <UserCheck className="h-3 w-3" />
               המר לסטודנט
             </Button>
+          )}
+          {onDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  מחיקה
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    פעולה זו תמחק לצמיתות את המתעניין "{lead.name}" ואת כל המידע הקשור אליו. לא ניתן לבטל פעולה זו.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                  <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    מחק
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </div>
