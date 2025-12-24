@@ -40,6 +40,7 @@ interface EditStudentDialogProps {
 export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditStudentDialogProps) {
   const [formData, setFormData] = useState<Student | null>(null);
   const [newUniversityName, setNewUniversityName] = useState('');
+  const [newUniversityCountry, setNewUniversityCountry] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -113,6 +114,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               formData.acceptedUniversities.map(uni => ({
                 student_id: student.id,
                 name: uni.name,
+                country: uni.country || null,
                 acceptance_letter_url: uni.acceptanceLetterUrl || null
               }))
             );
@@ -130,15 +132,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   };
 
   const handleAddUniversity = () => {
-    if (newUniversityName.trim() && formData) {
+    if (newUniversityName.trim() && newUniversityCountry.trim() && formData) {
       setFormData({
         ...formData,
         acceptedUniversities: [
           ...formData.acceptedUniversities,
-          { name: newUniversityName.trim() }
+          { name: newUniversityName.trim(), country: newUniversityCountry.trim() }
         ]
       });
       setNewUniversityName('');
+      setNewUniversityCountry('');
     }
   };
 
@@ -405,14 +408,31 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <Label className="text-base font-semibold">אוניברסיטאות שהתקבל אליהן</Label>
             
             {/* Add new university */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-[1fr_1.5fr_auto] gap-2">
+              <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="מדינה" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="אנגליה">אנגליה</SelectItem>
+                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
+                  <SelectItem value="קנדה">קנדה</SelectItem>
+                  <SelectItem value="הולנד">הולנד</SelectItem>
+                  <SelectItem value="גרמניה">גרמניה</SelectItem>
+                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                  <SelectItem value="אירלנד">אירלנד</SelectItem>
+                  <SelectItem value="צרפת">צרפת</SelectItem>
+                  <SelectItem value="ספרד">ספרד</SelectItem>
+                  <SelectItem value="אחר">אחר</SelectItem>
+                </SelectContent>
+              </Select>
               <Input
                 placeholder="שם האוניברסיטה"
                 value={newUniversityName}
                 onChange={(e) => setNewUniversityName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUniversity())}
               />
-              <Button type="button" variant="outline" size="icon" onClick={handleAddUniversity}>
+              <Button type="button" variant="outline" size="icon" onClick={handleAddUniversity} disabled={!newUniversityCountry || !newUniversityName.trim()}>
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -422,7 +442,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <div className="space-y-2">
                 {formData.acceptedUniversities.map((uni, index) => (
                   <div key={index} className="flex items-center gap-2 p-3 bg-background rounded-lg border">
-                    <span className="flex-1 font-medium">{uni.name}</span>
+                    <div className="flex-1">
+                      <span className="font-medium">{uni.name}</span>
+                      {uni.country && <span className="text-sm text-muted-foreground mr-2">({uni.country})</span>}
+                    </div>
                     
                     {uni.acceptanceLetterUrl ? (
                       <div className="flex items-center gap-1">

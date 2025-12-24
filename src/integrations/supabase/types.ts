@@ -17,6 +17,7 @@ export type Database = {
       accepted_universities: {
         Row: {
           acceptance_letter_url: string | null
+          country: string | null
           created_at: string
           id: string
           name: string
@@ -24,6 +25,7 @@ export type Database = {
         }
         Insert: {
           acceptance_letter_url?: string | null
+          country?: string | null
           created_at?: string
           id?: string
           name: string
@@ -31,6 +33,7 @@ export type Database = {
         }
         Update: {
           acceptance_letter_url?: string | null
+          country?: string | null
           created_at?: string
           id?: string
           name?: string
