@@ -10,6 +10,7 @@ import Students from "./pages/Students";
 import PastClients from "./pages/PastClients";
 import Advisors from "./pages/Advisors";
 import Agreement from "./pages/Agreement";
+import AgreementPreview from "./pages/AgreementPreview";
 import AgreementTemplate from "./pages/AgreementTemplate";
 import StudentPortal from "./pages/StudentPortal";
 import StudentPortalManagement from "./pages/StudentPortalManagement";
@@ -29,6 +30,7 @@ const App = () => (
         <Routes>
           {/* Public pages - outside PasswordGate */}
           <Route path="/agreement/:studentId" element={<Agreement />} />
+          <Route path="/agreement/demo" element={<AgreementPreview />} />
           <Route path="/portal/:studentId" element={<StudentPortal />} />
           <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
           
