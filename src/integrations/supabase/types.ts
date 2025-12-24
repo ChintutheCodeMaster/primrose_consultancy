@@ -305,6 +305,7 @@ export type Database = {
           agreement_reminder_date: string | null
           created_at: string
           degree_type: string
+          dismissed_from_attention: boolean | null
           email: string
           graduation_year: string | null
           id: string
@@ -330,6 +331,7 @@ export type Database = {
           agreement_reminder_date?: string | null
           created_at?: string
           degree_type?: string
+          dismissed_from_attention?: boolean | null
           email: string
           graduation_year?: string | null
           id?: string
@@ -355,6 +357,7 @@ export type Database = {
           agreement_reminder_date?: string | null
           created_at?: string
           degree_type?: string
+          dismissed_from_attention?: boolean | null
           email?: string
           graduation_year?: string | null
           id?: string
