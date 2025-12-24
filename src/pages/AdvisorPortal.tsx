@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { 
   GraduationCap, 
@@ -21,7 +22,11 @@ import {
   Upload,
   Loader2,
   ExternalLink,
-  Search
+  Search,
+  MessageSquare,
+  Award,
+  Calendar,
+  History
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -56,6 +61,14 @@ interface Student {
   is_paid: boolean;
   target_country: string | null;
   target_university: string | null;
+  status: string;
+  did_not_continue: boolean;
+}
+
+interface AcceptedUniversity {
+  id: string;
+  name: string;
+  acceptance_letter_url: string | null;
 }
 
 interface ChecklistItem {
@@ -76,6 +89,15 @@ interface Document {
   created_at: string;
 }
 
+interface Conversation {
+  id: string;
+  conversation_date: string;
+  summary: string;
+  follow_up_actions: string | null;
+  created_by: string;
+  created_at: string;
+}
+
 const documentCategories = [
   { value: "general", label: "כללי" },
   { value: "start", label: "תחילת תהליך" },
@@ -87,13 +109,17 @@ export default function AdvisorPortal() {
   const { advisorId } = useParams<{ advisorId: string }>();
   const [loading, setLoading] = useState(true);
   const [advisor, setAdvisor] = useState<Advisor | null>(null);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [activeStudents, setActiveStudents] = useState<Student[]>([]);
+  const [pastStudents, setPastStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("active");
   
   // Selected student for management
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [acceptedUniversities, setAcceptedUniversities] = useState<AcceptedUniversity[]>([]);
   const [loadingStudent, setLoadingStudent] = useState(false);
   
   // New item states
@@ -110,6 +136,19 @@ export default function AdvisorPortal() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAddDocOpen, setIsAddDocOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Conversation states
+  const [newConversationSummary, setNewConversationSummary] = useState("");
+  const [newConversationFollowUp, setNewConversationFollowUp] = useState("");
+  const [isAddConversationOpen, setIsAddConversationOpen] = useState(false);
+  const [savingConversation, setSavingConversation] = useState(false);
+
+  // Acceptance states
+  const [newUniversityName, setNewUniversityName] = useState("");
+  const [isAddAcceptanceOpen, setIsAddAcceptanceOpen] = useState(false);
+  const [savingAcceptance, setSavingAcceptance] = useState(false);
+  const acceptanceFileRef = useRef<HTMLInputElement>(null);
+  const [uploadingAcceptance, setUploadingAcceptance] = useState<string | null>(null);
 
   useEffect(() => {
     if (advisorId) {
@@ -139,15 +178,26 @@ export default function AdvisorPortal() {
 
     setAdvisor(advisorData);
 
-    // Fetch students assigned to this advisor
-    const { data: studentsData } = await supabase
+    // Fetch active students (not did_not_continue and status not 'accepted')
+    const { data: activeData } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue")
       .eq("advisor_id", advisorId)
-      .is("graduation_year", null)
+      .or("did_not_continue.is.null,did_not_continue.eq.false")
+      .neq("status", "accepted")
       .order("name", { ascending: true });
 
-    setStudents(studentsData || []);
+    setActiveStudents(activeData || []);
+
+    // Fetch past students (did_not_continue or status = 'accepted')
+    const { data: pastData } = await supabase
+      .from("students")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue")
+      .eq("advisor_id", advisorId)
+      .or("did_not_continue.eq.true,status.eq.accepted")
+      .order("name", { ascending: true });
+
+    setPastStudents(pastData || []);
     setLoading(false);
   };
 
@@ -155,23 +205,34 @@ export default function AdvisorPortal() {
     setSelectedStudent(student);
     setLoadingStudent(true);
 
-    // Fetch checklist
-    const { data: checklistData } = await supabase
-      .from("student_checklist_items")
-      .select("*")
-      .eq("student_id", student.id)
-      .order("sort_order", { ascending: true });
+    // Fetch all data in parallel
+    const [checklistResult, documentsResult, conversationsResult, universitiesResult] = await Promise.all([
+      supabase
+        .from("student_checklist_items")
+        .select("*")
+        .eq("student_id", student.id)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("student_documents")
+        .select("*")
+        .eq("student_id", student.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("student_conversations")
+        .select("*")
+        .eq("student_id", student.id)
+        .order("conversation_date", { ascending: false }),
+      supabase
+        .from("accepted_universities")
+        .select("*")
+        .eq("student_id", student.id)
+        .order("created_at", { ascending: false })
+    ]);
 
-    setChecklist(checklistData || []);
-
-    // Fetch documents
-    const { data: documentsData } = await supabase
-      .from("student_documents")
-      .select("*")
-      .eq("student_id", student.id)
-      .order("created_at", { ascending: false });
-
-    setDocuments(documentsData || []);
+    setChecklist(checklistResult.data || []);
+    setDocuments(documentsResult.data || []);
+    setConversations(conversationsResult.data || []);
+    setAcceptedUniversities(universitiesResult.data || []);
     setLoadingStudent(false);
   };
 
@@ -286,7 +347,116 @@ export default function AdvisorPortal() {
     }
   };
 
-  const filteredStudents = students.filter(s => 
+  // Conversation functions
+  const addConversation = async () => {
+    if (!newConversationSummary.trim() || !selectedStudent || !advisor) return;
+    
+    setSavingConversation(true);
+    const { error } = await supabase.from("student_conversations").insert({
+      student_id: selectedStudent.id,
+      advisor_id: advisor.id,
+      summary: newConversationSummary,
+      follow_up_actions: newConversationFollowUp || null,
+      created_by: "advisor",
+    });
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף שיחה", variant: "destructive" });
+    } else {
+      toast({ title: "השיחה נוספה בהצלחה" });
+      setNewConversationSummary("");
+      setNewConversationFollowUp("");
+      setIsAddConversationOpen(false);
+      selectStudent(selectedStudent);
+    }
+    setSavingConversation(false);
+  };
+
+  const deleteConversation = async (convId: string) => {
+    const { error } = await supabase
+      .from("student_conversations")
+      .delete()
+      .eq("id", convId);
+
+    if (!error) {
+      setConversations(prev => prev.filter(c => c.id !== convId));
+      toast({ title: "השיחה נמחקה" });
+    }
+  };
+
+  // Acceptance functions
+  const addAcceptedUniversity = async () => {
+    if (!newUniversityName.trim() || !selectedStudent) return;
+    
+    setSavingAcceptance(true);
+    const { error } = await supabase.from("accepted_universities").insert({
+      student_id: selectedStudent.id,
+      name: newUniversityName,
+    });
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף קבלה", variant: "destructive" });
+    } else {
+      toast({ title: "הקבלה נוספה בהצלחה" });
+      setNewUniversityName("");
+      setIsAddAcceptanceOpen(false);
+      selectStudent(selectedStudent);
+    }
+    setSavingAcceptance(false);
+  };
+
+  const uploadAcceptanceLetter = async (uniId: string, file: File) => {
+    if (!selectedStudent) return;
+    
+    setUploadingAcceptance(uniId);
+    
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${selectedStudent.id}/${uniId}/${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from("acceptance-letters")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+      setUploadingAcceptance(null);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("acceptance-letters")
+      .getPublicUrl(fileName);
+
+    const { error: updateError } = await supabase
+      .from("accepted_universities")
+      .update({ acceptance_letter_url: urlData.publicUrl })
+      .eq("id", uniId);
+
+    if (updateError) {
+      toast({ title: "שגיאה", description: "לא ניתן לשמור קישור", variant: "destructive" });
+    } else {
+      toast({ title: "מכתב הקבלה הועלה בהצלחה" });
+      setAcceptedUniversities(prev => 
+        prev.map(u => u.id === uniId ? { ...u, acceptance_letter_url: urlData.publicUrl } : u)
+      );
+    }
+    setUploadingAcceptance(null);
+  };
+
+  const deleteAcceptedUniversity = async (uniId: string) => {
+    const { error } = await supabase
+      .from("accepted_universities")
+      .delete()
+      .eq("id", uniId);
+
+    if (!error) {
+      setAcceptedUniversities(prev => prev.filter(u => u.id !== uniId));
+      toast({ title: "הקבלה נמחקה" });
+    }
+  };
+
+  const currentStudents = activeTab === "active" ? activeStudents : pastStudents;
+  const filteredStudents = currentStudents.filter(s => 
     s.name.includes(searchTerm) || s.email.includes(searchTerm) || s.phone.includes(searchTerm)
   );
 
@@ -394,209 +564,413 @@ export default function AdvisorPortal() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Checklist */}
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                      צ'קליסט ({checklist.length})
-                    </CardTitle>
-                    <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm">
-                          <Plus className="h-4 w-4 ml-1" />
-                          הוסף
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>הוספת פריט לצ'קליסט</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>כותרת *</Label>
-                            <Input
-                              value={newItemTitle}
-                              onChange={(e) => setNewItemTitle(e.target.value)}
-                              placeholder="לדוגמה: הגשת תעודות"
-                            />
-                          </div>
-                          <div>
-                            <Label>תיאור</Label>
-                            <Textarea
-                              value={newItemDescription}
-                              onChange={(e) => setNewItemDescription(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label>תאריך יעד</Label>
-                            <Input
-                              type="date"
-                              value={newItemDueDate}
-                              onChange={(e) => setNewItemDueDate(e.target.value)}
-                            />
-                          </div>
-                          <Button onClick={addChecklistItem} disabled={saving} className="w-full">
-                            {saving ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                            הוסף
+              <div className="space-y-6">
+                {/* First row: Acceptances and Conversations */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Accepted Universities */}
+                  <Card className="border-green-200 bg-green-50/30">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Award className="h-5 w-5 text-green-600" />
+                        קבלות ({acceptedUniversities.length})
+                      </CardTitle>
+                      <Dialog open={isAddAcceptanceOpen} onOpenChange={setIsAddAcceptanceOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                            <Plus className="h-4 w-4 ml-1" />
+                            הוסף קבלה
                           </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>שם האוניברסיטה *</Label>
+                              <Input
+                                value={newUniversityName}
+                                onChange={(e) => setNewUniversityName(e.target.value)}
+                                placeholder="לדוגמה: University of Manchester"
+                              />
+                            </div>
+                            <Button onClick={addAcceptedUniversity} disabled={savingAcceptance} className="w-full">
+                              {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                              הוסף
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {acceptedUniversities.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-8">אין קבלות עדיין</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {acceptedUniversities.map((uni) => (
+                            <div
+                              key={uni.id}
+                              className="flex items-center gap-3 p-3 rounded-lg border bg-white"
+                            >
+                              <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{uni.name}</p>
+                              </div>
+                              {uni.acceptance_letter_url ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.open(uni.acceptance_letter_url!, "_blank")}
+                                  className="gap-1"
+                                >
+                                  <FileText className="h-3 w-3" />
+                                  מכתב קבלה
+                                </Button>
+                              ) : (
+                                <>
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    id={`upload-${uni.id}`}
+                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) uploadAcceptanceLetter(uni.id, file);
+                                    }}
+                                  />
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={uploadingAcceptance === uni.id}
+                                    onClick={() => document.getElementById(`upload-${uni.id}`)?.click()}
+                                    className="gap-1"
+                                  >
+                                    {uploadingAcceptance === uni.id ? (
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Upload className="h-3 w-3" />
+                                    )}
+                                    העלה מכתב
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
+                                onClick={() => deleteAcceptedUniversity(uni.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </CardHeader>
-                  <CardContent>
-                    {checklist.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">אין פריטים</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {checklist.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`flex items-center gap-3 p-3 rounded-lg border ${
-                              item.is_completed ? "bg-green-50/50 border-green-200" : "bg-white"
-                            }`}
-                          >
-                            <Checkbox
-                              checked={item.is_completed}
-                              onCheckedChange={() => toggleChecklistItem(item.id, item.is_completed)}
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className={`font-medium truncate ${item.is_completed ? "line-through text-muted-foreground" : ""}`}>
-                                {item.title}
-                              </p>
-                              {item.due_date && (
-                                <p className="text-xs text-muted-foreground">
-                                  עד {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}
-                                </p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Conversations */}
+                  <Card className="border-blue-200 bg-blue-50/30">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                        יומן שיחות ({conversations.length})
+                      </CardTitle>
+                      <Dialog open={isAddConversationOpen} onOpenChange={setIsAddConversationOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            <Plus className="h-4 w-4 ml-1" />
+                            הוסף שיחה
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>הוספת שיחה</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>סיכום השיחה *</Label>
+                              <Textarea
+                                value={newConversationSummary}
+                                onChange={(e) => setNewConversationSummary(e.target.value)}
+                                placeholder="מה דובר בשיחה?"
+                                rows={4}
+                              />
+                            </div>
+                            <div>
+                              <Label>פעולות להמשך</Label>
+                              <Textarea
+                                value={newConversationFollowUp}
+                                onChange={(e) => setNewConversationFollowUp(e.target.value)}
+                                placeholder="מה צריך לעשות בהמשך?"
+                                rows={2}
+                              />
+                            </div>
+                            <Button onClick={addConversation} disabled={savingConversation} className="w-full">
+                              {savingConversation ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                              הוסף
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {conversations.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-8">אין שיחות מתועדות</p>
+                      ) : (
+                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                          {conversations.map((conv) => (
+                            <div
+                              key={conv.id}
+                              className="p-3 rounded-lg border bg-white space-y-2"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(conv.conversation_date), "dd/MM/yyyy HH:mm", { locale: he })}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-destructive"
+                                  onClick={() => deleteConversation(conv.id)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <p className="text-sm">{conv.summary}</p>
+                              {conv.follow_up_actions && (
+                                <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                                  <strong>פעולות להמשך:</strong> {conv.follow_up_actions}
+                                </div>
                               )}
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive"
-                              onClick={() => deleteChecklistItem(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Second row: Checklist and Documents */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Checklist */}
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-primary" />
+                        צ'קליסט ({checklist.length})
+                      </CardTitle>
+                      <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm">
+                            <Plus className="h-4 w-4 ml-1" />
+                            הוסף
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>הוספת פריט לצ'קליסט</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>כותרת *</Label>
+                              <Input
+                                value={newItemTitle}
+                                onChange={(e) => setNewItemTitle(e.target.value)}
+                                placeholder="לדוגמה: הגשת תעודות"
+                              />
+                            </div>
+                            <div>
+                              <Label>תיאור</Label>
+                              <Textarea
+                                value={newItemDescription}
+                                onChange={(e) => setNewItemDescription(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>תאריך יעד</Label>
+                              <Input
+                                type="date"
+                                value={newItemDueDate}
+                                onChange={(e) => setNewItemDueDate(e.target.value)}
+                              />
+                            </div>
+                            <Button onClick={addChecklistItem} disabled={saving} className="w-full">
+                              {saving ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                              הוסף
                             </Button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {checklist.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-8">אין פריטים</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {checklist.map((item) => (
+                            <div
+                              key={item.id}
+                              className={`flex items-center gap-3 p-3 rounded-lg border ${
+                                item.is_completed ? "bg-green-50/50 border-green-200" : "bg-white"
+                              }`}
+                            >
+                              <Checkbox
+                                checked={item.is_completed}
+                                onCheckedChange={() => toggleChecklistItem(item.id, item.is_completed)}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className={`font-medium truncate ${item.is_completed ? "line-through text-muted-foreground" : ""}`}>
+                                  {item.title}
+                                </p>
+                                {item.due_date && (
+                                  <p className="text-xs text-muted-foreground">
+                                    עד {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}
+                                  </p>
+                                )}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
+                                onClick={() => deleteChecklistItem(item.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                {/* Documents */}
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      מסמכים ({documents.length})
-                    </CardTitle>
-                    <Dialog open={isAddDocOpen} onOpenChange={setIsAddDocOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm">
-                          <Upload className="h-4 w-4 ml-1" />
-                          העלה
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>העלאת מסמך</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>שם המסמך *</Label>
-                            <Input
-                              value={newDocName}
-                              onChange={(e) => setNewDocName(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label>תיאור</Label>
-                            <Textarea
-                              value={newDocDescription}
-                              onChange={(e) => setNewDocDescription(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label>קטגוריה</Label>
-                            <Select value={newDocCategory} onValueChange={setNewDocCategory}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {documentCategories.map((cat) => (
-                                  <SelectItem key={cat.value} value={cat.value}>
-                                    {cat.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>קובץ *</Label>
-                            <Input
-                              type="file"
-                              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                            />
-                          </div>
-                          <Button onClick={uploadDocument} disabled={uploading} className="w-full">
-                            {uploading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
+                  {/* Documents */}
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        מסמכים ({documents.length})
+                      </CardTitle>
+                      <Dialog open={isAddDocOpen} onOpenChange={setIsAddDocOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm">
+                            <Upload className="h-4 w-4 ml-1" />
                             העלה
                           </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </CardHeader>
-                  <CardContent>
-                    {documents.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">אין מסמכים</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {documents.map((doc) => (
-                          <div
-                            key={doc.id}
-                            className="flex items-center gap-3 p-3 rounded-lg border bg-white"
-                          >
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                              <FileText className="h-5 w-5 text-primary" />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>העלאת מסמך</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>שם המסמך *</Label>
+                              <Input
+                                value={newDocName}
+                                onChange={(e) => setNewDocName(e.target.value)}
+                              />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{doc.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: he })}
-                              </p>
+                            <div>
+                              <Label>תיאור</Label>
+                              <Textarea
+                                value={newDocDescription}
+                                onChange={(e) => setNewDocDescription(e.target.value)}
+                              />
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => window.open(doc.file_url, "_blank")}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive"
-                              onClick={() => deleteDocument(doc.id, doc.file_url)}
-                            >
-                              <Trash2 className="h-4 w-4" />
+                            <div>
+                              <Label>קטגוריה</Label>
+                              <Select value={newDocCategory} onValueChange={setNewDocCategory}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {documentCategories.map((cat) => (
+                                    <SelectItem key={cat.value} value={cat.value}>
+                                      {cat.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label>קובץ *</Label>
+                              <Input
+                                type="file"
+                                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                              />
+                            </div>
+                            <Button onClick={uploadDocument} disabled={uploading} className="w-full">
+                              {uploading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
+                              העלה
                             </Button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {documents.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-8">אין מסמכים</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {documents.map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="flex items-center gap-3 p-3 rounded-lg border bg-white"
+                            >
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                                <FileText className="h-5 w-5 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{doc.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: he })}
+                                </p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => window.open(doc.file_url, "_blank")}
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
+                                onClick={() => deleteDocument(doc.id, doc.file_url)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             )}
           </div>
         ) : (
-          // Students List View
+          // Students List View with Tabs
           <div className="space-y-6">
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+                <TabsTrigger value="active" className="gap-2">
+                  <GraduationCap className="h-4 w-4" />
+                  סטודנטים פעילים ({activeStudents.length})
+                </TabsTrigger>
+                <TabsTrigger value="past" className="gap-2">
+                  <History className="h-4 w-4" />
+                  לקוחות עבר ({pastStudents.length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             {/* Search */}
-            <div className="relative">
+            <div className="relative max-w-md mx-auto">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="חיפוש סטודנט..."
@@ -636,6 +1010,16 @@ export default function AdvisorPortal() {
                           {student.target_country}
                         </span>
                       )}
+                      {student.did_not_continue && (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">
+                          לא המשיך
+                        </span>
+                      )}
+                      {student.status === "accepted" && (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
+                          התקבל
+                        </span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -647,7 +1031,10 @@ export default function AdvisorPortal() {
                 <CardContent className="py-12 text-center">
                   <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    {students.length === 0 ? "אין סטודנטים משויכים אליך כרגע" : "לא נמצאו תוצאות"}
+                    {currentStudents.length === 0 
+                      ? (activeTab === "active" ? "אין סטודנטים פעילים" : "אין לקוחות עבר")
+                      : "לא נמצאו תוצאות"
+                    }
                   </p>
                 </CardContent>
               </Card>
