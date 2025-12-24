@@ -46,7 +46,7 @@ export default function Students() {
       
       if (error) throw error;
       
-      return (data || []).map((student): Student => ({
+      return (data || []).map((student): Student & { amountPaid: number } => ({
         id: student.id,
         name: student.name,
         email: student.email,
@@ -60,6 +60,7 @@ export default function Students() {
         status: student.status as StudentStatus,
         advisorName: student.advisor_name || '',
         packageCost: Number(student.package_cost) || 0,
+        amountPaid: Number(student.amount_paid) || 0,
         paymentNotes: student.payment_notes || '',
         isPaid: student.is_paid || false,
         signedAgreement: student.signed_agreement || false,
@@ -229,7 +230,8 @@ export default function Students() {
         signed_agreement: updatedStudent.signedAgreement,
         target_country: updatedStudent.targetCountry,
         target_university: updatedStudent.targetUniversity,
-        program: updatedStudent.program
+        program: updatedStudent.program,
+        amount_paid: (updatedStudent as any).amountPaid || 0
       })
       .eq('id', updatedStudent.id);
     

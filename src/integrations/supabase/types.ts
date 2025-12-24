@@ -303,6 +303,7 @@ export type Database = {
           advisor_id: string | null
           advisor_name: string | null
           agreement_reminder_date: string | null
+          amount_paid: number | null
           created_at: string
           degree_type: string
           dismissed_from_attention: boolean | null
@@ -329,6 +330,7 @@ export type Database = {
           advisor_id?: string | null
           advisor_name?: string | null
           agreement_reminder_date?: string | null
+          amount_paid?: number | null
           created_at?: string
           degree_type?: string
           dismissed_from_attention?: boolean | null
@@ -355,6 +357,7 @@ export type Database = {
           advisor_id?: string | null
           advisor_name?: string | null
           agreement_reminder_date?: string | null
+          amount_paid?: number | null
           created_at?: string
           degree_type?: string
           dismissed_from_attention?: boolean | null
