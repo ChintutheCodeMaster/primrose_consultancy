@@ -9,13 +9,25 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
-import { Plus, Trash2, Upload, FileText, X } from 'lucide-react';
+import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Advisor {
   id: string;
   name: string;
+}
+
+interface Conversation {
+  id: string;
+  conversation_date: string;
+  summary: string;
+  follow_up_actions: string | null;
+  created_by: string;
+  advisor_name?: string;
 }
 
 interface EditStudentDialogProps {
@@ -30,6 +42,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newUniversityName, setNewUniversityName] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadingConversations, setLoadingConversations] = useState(false);
 
   const { data: advisors = [] } = useQuery({
     queryKey: ['advisors'],
@@ -42,6 +56,37 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       return data as Advisor[];
     },
   });
+
+  // Fetch conversations when student changes
+  useEffect(() => {
+    if (student && open) {
+      fetchConversations(student.id);
+    }
+  }, [student, open]);
+
+  const fetchConversations = async (studentId: string) => {
+    setLoadingConversations(true);
+    const { data } = await supabase
+      .from('student_conversations')
+      .select(`
+        id,
+        conversation_date,
+        summary,
+        follow_up_actions,
+        created_by,
+        advisors (name)
+      `)
+      .eq('student_id', studentId)
+      .order('conversation_date', { ascending: false });
+    
+    if (data) {
+      setConversations(data.map((c: any) => ({
+        ...c,
+        advisor_name: c.advisors?.name || null
+      })));
+    }
+    setLoadingConversations(false);
+  };
 
   useEffect(() => {
     if (student) {
@@ -482,6 +527,39 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               rows={4}
             />
           </div>
+
+          {/* Conversation Log - Read Only */}
+          {conversations.length > 0 && (
+            <div className="space-y-3 p-4 bg-blue-50/50 rounded-lg border border-blue-200">
+              <Label className="text-base font-semibold flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-blue-600" />
+                יומן שיחות מהיועץ ({conversations.length})
+              </Label>
+              <ScrollArea className="max-h-48">
+                <div className="space-y-3 pr-4">
+                  {conversations.map((conv) => (
+                    <div key={conv.id} className="p-3 bg-background rounded-lg border space-y-1">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(conv.conversation_date), "dd/MM/yyyy HH:mm", { locale: he })}
+                        </span>
+                        {conv.advisor_name && (
+                          <span className="text-blue-600">{conv.advisor_name}</span>
+                        )}
+                      </div>
+                      <p className="text-sm">{conv.summary}</p>
+                      {conv.follow_up_actions && (
+                        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-1">
+                          <strong>פעולות להמשך:</strong> {conv.follow_up_actions}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-4">
             <Button type="submit" className="flex-1">

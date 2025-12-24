@@ -266,6 +266,54 @@ export type Database = {
           },
         ]
       }
+      student_conversations: {
+        Row: {
+          advisor_id: string | null
+          conversation_date: string
+          created_at: string
+          created_by: string
+          follow_up_actions: string | null
+          id: string
+          student_id: string
+          summary: string
+        }
+        Insert: {
+          advisor_id?: string | null
+          conversation_date?: string
+          created_at?: string
+          created_by?: string
+          follow_up_actions?: string | null
+          id?: string
+          student_id: string
+          summary: string
+        }
+        Update: {
+          advisor_id?: string | null
+          conversation_date?: string
+          created_at?: string
+          created_by?: string
+          follow_up_actions?: string | null
+          id?: string
+          student_id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_conversations_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_conversations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_documents: {
         Row: {
           category: string | null
