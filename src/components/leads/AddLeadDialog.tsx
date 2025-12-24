@@ -12,8 +12,21 @@ interface AddLeadDialogProps {
   onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => void;
 }
 
+const sourceOptions = [
+  'לינקדאין',
+  'פייסבוק',
+  'גוגל',
+  'פודקאסט',
+  'המלצה ממועמד עבר',
+  'קהילת לימודים באנגליה',
+  'אינסטגרם',
+  'אחר',
+];
+
 export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
   const [open, setOpen] = useState(false);
+  const [sourceSelection, setSourceSelection] = useState('');
+  const [customSource, setCustomSource] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +41,8 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd(formData);
+    const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+    onAdd({ ...formData, source: finalSource });
     setOpen(false);
     setFormData({
       name: '',
@@ -41,6 +55,8 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
       meetingSummary: '',
       status: 'new',
     });
+    setSourceSelection('');
+    setCustomSource('');
   };
 
   return (
@@ -104,19 +120,24 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="source">מקור</Label>
-              <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v })}>
+              <Select value={sourceSelection} onValueChange={setSourceSelection}>
                 <SelectTrigger>
                   <SelectValue placeholder="בחר מקור" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="אתר">אתר</SelectItem>
-                  <SelectItem value="פייסבוק">פייסבוק</SelectItem>
-                  <SelectItem value="אינסטגרם">אינסטגרם</SelectItem>
-                  <SelectItem value="גוגל">גוגל</SelectItem>
-                  <SelectItem value="המלצה">המלצה</SelectItem>
-                  <SelectItem value="אחר">אחר</SelectItem>
+                <SelectContent className="bg-popover z-50">
+                  {sourceOptions.map((src) => (
+                    <SelectItem key={src} value={src}>{src}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {sourceSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן מקור אחר..."
+                  value={customSource}
+                  onChange={(e) => setCustomSource(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
