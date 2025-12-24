@@ -14,6 +14,12 @@ const navigation = [
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
+const agreementTemplateTypes = [
+  { type: 'package', label: 'חבילה' },
+  { type: 'hourly', label: 'שעתי' },
+  { type: 'edit', label: 'לערוך' },
+] as const;
+
 export function Sidebar() {
   const location = useLocation();
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
@@ -25,6 +31,9 @@ export function Sidebar() {
 
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
   const isAgreementActive = location.pathname.startsWith('/agreement-template');
+
+  const currentAgreementTemplateType =
+    new URLSearchParams(location.search).get('type') ?? 'package';
 
   return (
     <aside className="fixed right-0 top-0 z-40 h-screen w-64 bg-sidebar border-l border-sidebar-border">
@@ -81,17 +90,26 @@ export function Sidebar() {
               )} />
             </CollapsibleTrigger>
             <CollapsibleContent className="pr-4 space-y-1 mt-1">
-              <Link
-                to="/agreement-template"
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                  location.pathname === '/agreement-template'
-                    ? 'bg-sidebar-accent text-sidebar-primary'
-                    : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                )}
-              >
-                הסכם נוכחי
-              </Link>
+              {agreementTemplateTypes.map((item) => {
+                const isActive =
+                  location.pathname === '/agreement-template' &&
+                  currentAgreementTemplateType === item.type;
+
+                return (
+                  <Link
+                    key={item.type}
+                    to={`/agreement-template?type=${item.type}`}
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                      isActive
+                        ? 'bg-sidebar-accent text-sidebar-primary'
+                        : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </CollapsibleContent>
           </Collapsible>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,8 @@ const agreementTypeConfig: Record<AgreementType, { label: string; icon: typeof P
 };
 
 export default function AgreementTemplate() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [templates, setTemplates] = useState<Record<AgreementType, AgreementTemplate | null>>({
     package: null,
     hourly: null,
@@ -46,6 +49,17 @@ export default function AgreementTemplate() {
     edit: '',
   });
   const [activeTab, setActiveTab] = useState<AgreementType>('package');
+
+  useEffect(() => {
+    document.title = 'תבניות הסכם | נוגה';
+  }, []);
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'package' || type === 'hourly' || type === 'edit') {
+      setActiveTab(type);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchTemplates();
@@ -147,7 +161,14 @@ export default function AgreementTemplate() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as AgreementType)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => {
+            const next = v as AgreementType;
+            setActiveTab(next);
+            setSearchParams({ type: next });
+          }}
+        >
           <TabsList className="grid w-full grid-cols-3">
             {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
               const config = agreementTypeConfig[type];
