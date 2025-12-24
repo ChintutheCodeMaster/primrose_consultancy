@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
+import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
 import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -426,11 +427,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   <SelectItem value="אחר">אחר</SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                placeholder="שם האוניברסיטה"
+              <UniversityAutocomplete
                 value={newUniversityName}
-                onChange={(e) => setNewUniversityName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUniversity())}
+                onChange={setNewUniversityName}
+                onSelectSuggestion={(suggestion) => {
+                  setNewUniversityName(suggestion.name);
+                  if (suggestion.country && !newUniversityCountry) {
+                    setNewUniversityCountry(suggestion.country);
+                  }
+                }}
+                placeholder="שם האוניברסיטה"
               />
               <Button type="button" variant="outline" size="icon" onClick={handleAddUniversity} disabled={!newUniversityCountry || !newUniversityName.trim()}>
                 <Plus className="h-4 w-4" />

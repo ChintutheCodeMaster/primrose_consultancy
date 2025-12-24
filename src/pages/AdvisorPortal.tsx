@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { UniversityAutocomplete } from "@/components/ui/university-autocomplete";
 import { 
   GraduationCap, 
   User, 
@@ -612,9 +613,15 @@ export default function AdvisorPortal() {
                             </div>
                             <div>
                               <Label>שם האוניברסיטה *</Label>
-                              <Input
+                              <UniversityAutocomplete
                                 value={newUniversityName}
-                                onChange={(e) => setNewUniversityName(e.target.value)}
+                                onChange={setNewUniversityName}
+                                onSelectSuggestion={(suggestion) => {
+                                  setNewUniversityName(suggestion.name);
+                                  if (suggestion.country && !newUniversityCountry) {
+                                    setNewUniversityCountry(suggestion.country);
+                                  }
+                                }}
                                 placeholder="לדוגמה: University of Manchester"
                               />
                             </div>
