@@ -148,11 +148,11 @@ export default function Leads() {
       return;
     }
     
-    // Update lead status to converted
+    // Delete the lead after successful conversion
     if (convertingLead) {
       await supabase
         .from('leads')
-        .update({ status: 'converted' })
+        .delete()
         .eq('id', convertingLead.id);
     }
     
