@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { AgreementDetailsDialog } from './AgreementDetailsDialog';
 
 interface StudentRowProps {
   student: Student;
@@ -31,6 +32,7 @@ const agreementTypeLabels: Record<AgreementType, string> = {
 export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
   const [agreementType, setAgreementType] = useState<AgreementType>('package');
+  const [showAgreementDetails, setShowAgreementDetails] = useState(false);
   
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
@@ -87,11 +89,21 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         
         {/* Actions */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Agreement Status Badge */}
-          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.signedAgreement ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning-foreground'}`}>
-            {student.signedAgreement ? <FileSignature className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-            <span>{student.signedAgreement ? 'חתם הסכם' : 'לא חתם הסכם'}</span>
-          </div>
+          {/* Agreement Status Badge - Clickable if signed */}
+          {student.signedAgreement ? (
+            <button
+              onClick={() => setShowAgreementDetails(true)}
+              className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-success/20 text-success hover:bg-success/30 transition-colors cursor-pointer"
+            >
+              <FileSignature className="h-4 w-4" />
+              <span>חתם הסכם</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-warning/20 text-warning-foreground">
+              <XCircle className="h-4 w-4" />
+              <span>לא חתם הסכם</span>
+            </div>
+          )}
           
           {/* Payment Status Badge */}
           <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
@@ -282,6 +294,14 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           </p>
         </div>
       )}
+
+      {/* Agreement Details Dialog */}
+      <AgreementDetailsDialog
+        studentId={student.id}
+        studentName={student.name}
+        open={showAgreementDetails}
+        onOpenChange={setShowAgreementDetails}
+      />
     </div>
   );
 }
