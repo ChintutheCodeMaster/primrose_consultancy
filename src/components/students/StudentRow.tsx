@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX } from 'lucide-react';
@@ -5,6 +6,7 @@ import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,8 +20,17 @@ interface StudentRowProps {
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
+type AgreementType = 'package' | 'hourly' | 'edit';
+
+const agreementTypeLabels: Record<AgreementType, string> = {
+  package: 'חבילה',
+  hourly: 'שעתי',
+  edit: 'לערוך',
+};
+
 export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
+  const [agreementType, setAgreementType] = useState<AgreementType>('package');
   
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
@@ -27,11 +38,11 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
   const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
 
   const copyAgreementLink = () => {
-    const link = `${window.location.origin}/agreement/${student.id}`;
+    const link = `${window.location.origin}/agreement/${student.id}?type=${agreementType}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "הקישור הועתק!",
-      description: "קישור ההסכם הועתק ללוח",
+      description: `קישור להסכם ${agreementTypeLabels[agreementType]} הועתק ללוח`,
     });
   };
 
@@ -102,17 +113,29 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 ניהול פורטל
               </Button>
 
-              {/* Copy Agreement Link Button */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={copyAgreementLink}
-                className="gap-1"
-                title="העתק קישור להסכם"
-              >
-                <Link2 className="h-3 w-3" />
-                קישור להסכם
-              </Button>
+              {/* Agreement Type Select + Copy Link */}
+              <div className="flex items-center gap-1">
+                <Select value={agreementType} onValueChange={(v) => setAgreementType(v as AgreementType)}>
+                  <SelectTrigger className="h-8 w-24 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="package">חבילה</SelectItem>
+                    <SelectItem value="hourly">שעתי</SelectItem>
+                    <SelectItem value="edit">לערוך</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={copyAgreementLink}
+                  className="gap-1"
+                  title="העתק קישור להסכם"
+                >
+                  <Link2 className="h-3 w-3" />
+                  קישור להסכם
+                </Button>
+              </div>
 
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
