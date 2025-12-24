@@ -1,19 +1,21 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { LeadRow } from '@/components/leads/LeadRow';
 import { AddLeadDialog } from '@/components/leads/AddLeadDialog';
 import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
 import { ConvertToStudentDialog } from '@/components/leads/ConvertToStudentDialog';
-import { mockLeads, mockStudents } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search } from 'lucide-react';
-import { Lead, LeadStatus, leadStatusLabels, Student } from '@/types/crm';
+import { Search, Loader2 } from 'lucide-react';
+import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Leads() {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
-  const [students, setStudents] = useState<Student[]>(mockStudents);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   
@@ -25,12 +27,35 @@ export default function Leads() {
   const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
 
-  // Sort by creation date (newest first)
-  const sortedLeads = [...leads].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  // Fetch leads from Supabase
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ['leads'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      return (data || []).map((lead): Lead => ({
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        source: lead.source || '',
+        status: lead.status as LeadStatus,
+        degreeType: lead.degree_type as DegreeType,
+        interestedCountry: lead.interested_country || '',
+        interestedField: lead.interested_field || '',
+        meetingSummary: lead.meeting_summary || '',
+        createdAt: new Date(lead.created_at),
+        lastContactAt: new Date(lead.last_contact_at),
+      }));
+    }
+  });
 
-  const filteredLeads = sortedLeads.filter(lead => {
+  const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.includes(searchTerm) || 
                          lead.email.includes(searchTerm) || 
                          lead.phone.includes(searchTerm) ||
@@ -39,14 +64,25 @@ export default function Leads() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleAddLead = (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => {
-    const lead: Lead = {
-      ...newLead,
-      id: String(leads.length + 1),
-      createdAt: new Date(),
-      lastContactAt: new Date(),
-    };
-    setLeads([lead, ...leads]);
+  const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => {
+    const { error } = await supabase.from('leads').insert({
+      name: newLead.name,
+      email: newLead.email,
+      phone: newLead.phone,
+      source: newLead.source,
+      status: newLead.status,
+      degree_type: newLead.degreeType,
+      interested_country: newLead.interestedCountry,
+      interested_field: newLead.interestedField,
+      meeting_summary: newLead.meetingSummary,
+    });
+    
+    if (error) {
+      toast.error('שגיאה בהוספת הליד');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['leads'] });
     toast.success('הליד נוסף בהצלחה!');
   };
 
@@ -55,8 +91,28 @@ export default function Leads() {
     setIsEditOpen(true);
   };
 
-  const handleSaveLead = (updatedLead: Lead) => {
-    setLeads(leads.map(l => l.id === updatedLead.id ? updatedLead : l));
+  const handleSaveLead = async (updatedLead: Lead) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        name: updatedLead.name,
+        email: updatedLead.email,
+        phone: updatedLead.phone,
+        source: updatedLead.source,
+        status: updatedLead.status,
+        degree_type: updatedLead.degreeType,
+        interested_country: updatedLead.interestedCountry,
+        interested_field: updatedLead.interestedField,
+        meeting_summary: updatedLead.meetingSummary,
+      })
+      .eq('id', updatedLead.id);
+    
+    if (error) {
+      toast.error('שגיאה בעדכון הליד');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['leads'] });
     toast.success('הליד עודכן בהצלחה!');
   };
 
@@ -65,27 +121,58 @@ export default function Leads() {
     setIsConvertOpen(true);
   };
 
-  const handleConvertToStudent = (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
-    const student: Student = {
-      ...newStudent,
-      id: String(students.length + 1),
-      createdAt: new Date(),
-      notes: [],
-      documents: [],
-    };
-    setStudents([student, ...students]);
+  const handleConvertToStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
+    // Insert new student
+    const { error: studentError } = await supabase.from('students').insert({
+      name: newStudent.name,
+      email: newStudent.email,
+      phone: newStudent.phone,
+      status: newStudent.status,
+      degree_type: newStudent.degreeType,
+      interested_country: newStudent.interestedCountry,
+      interested_field: newStudent.interestedField,
+      source: newStudent.source,
+      meeting_summary: newStudent.meetingSummary,
+      package_cost: newStudent.packageCost,
+      payment_notes: newStudent.paymentNotes,
+      advisor_name: newStudent.advisorName,
+      is_paid: newStudent.isPaid,
+      signed_agreement: newStudent.signedAgreement,
+      target_country: newStudent.targetCountry,
+      target_university: newStudent.targetUniversity,
+      program: newStudent.program,
+    });
+    
+    if (studentError) {
+      toast.error('שגיאה בהמרה לסטודנט');
+      return;
+    }
     
     // Update lead status to converted
     if (convertingLead) {
-      setLeads(leads.map(l => 
-        l.id === convertingLead.id 
-          ? { ...l, status: 'converted' as LeadStatus } 
-          : l
-      ));
+      await supabase
+        .from('leads')
+        .update({ status: 'converted' })
+        .eq('id', convertingLead.id);
     }
     
-    toast.success('הליד הומר לסטודנט בהצלחה! ניתן למצוא אותו בעמוד הסטודנטים.');
+    queryClient.invalidateQueries({ queryKey: ['leads'] });
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    toast.success('הליד הומר לסטודנט בהצלחה!');
+    
+    // Navigate to students page
+    navigate('/students');
   };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
