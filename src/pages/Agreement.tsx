@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle2, FileText, Loader2 } from "lucide-react";
+import nogaLogo from "@/assets/noga-logo.png";
 interface FormData {
   firstName: string;
   lastName: string;
@@ -218,11 +219,9 @@ const Agreement = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="rtl">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <FileText className="h-8 w-8 text-primary" />
-          </div>
+          <img src={nogaLogo} alt="נוגה" className="h-20 w-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             טופס הזמנת עבודה
           </h1>
@@ -232,10 +231,13 @@ const Agreement = () => {
         </div>
 
         {/* Agreement Content */}
-        <Card className="mb-8">
-          <CardContent className="pt-6 prose prose-sm max-w-none text-gray-700 leading-relaxed">
+        <Card className="mb-8 shadow-lg">
+          <CardContent className="pt-6">
             {templateContent ? (
-              <div dangerouslySetInnerHTML={{ __html: templateContent.replace(/\n/g, '<br />') }} />
+              <div 
+                className="prose prose-sm max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:text-gray-900 prose-ul:pr-5 prose-ol:pr-5"
+                dangerouslySetInnerHTML={{ __html: templateContent }} 
+              />
             ) : (
               <p className="text-center text-muted-foreground">טוען תוכן הסכם...</p>
             )}

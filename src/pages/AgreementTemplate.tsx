@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-react";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import nogaLogo from "@/assets/noga-logo.png";
 
 type AgreementType = 'package' | 'hourly' | 'edit';
 
@@ -189,11 +190,14 @@ export default function AgreementTemplate() {
             return (
               <TabsContent key={type} value={type}>
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <config.icon className="h-5 w-5 text-primary" />
-                      הסכם {config.label}
-                    </CardTitle>
+                  <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+                    <div className="flex items-center gap-4">
+                      <img src={nogaLogo} alt="נוגה" className="h-12 w-12 object-contain" />
+                      <CardTitle className="flex items-center gap-2">
+                        <config.icon className="h-5 w-5 text-primary" />
+                        הסכם {config.label}
+                      </CardTitle>
+                    </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
                         <Eye className="h-4 w-4 ml-2" />
@@ -209,7 +213,7 @@ export default function AgreementTemplate() {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6 pt-6">
                     {template ? (
                       <>
                         <div>
@@ -218,19 +222,22 @@ export default function AgreementTemplate() {
                             id={`name-${type}`}
                             value={editedName[type]}
                             onChange={(e) => setEditedName(prev => ({ ...prev, [type]: e.target.value }))}
+                            className="max-w-md"
                           />
                         </div>
-                        <div>
-                          <Label htmlFor={`content-${type}`}>תוכן ההסכם</Label>
-                          <Textarea
-                            id={`content-${type}`}
-                            value={editedContent[type]}
-                            onChange={(e) => setEditedContent(prev => ({ ...prev, [type]: e.target.value }))}
-                            className="min-h-[400px] font-mono text-sm"
-                            dir="rtl"
+                        
+                        <div className="space-y-2">
+                          <Label>תוכן ההסכם</Label>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            השתמש בכפתורי העיצוב בסרגל הכלים כדי להוסיף כותרות, הדגשות ועיצובים נוספים
+                          </p>
+                          <RichTextEditor
+                            content={editedContent[type]}
+                            onChange={(content) => setEditedContent(prev => ({ ...prev, [type]: content }))}
                           />
                         </div>
-                        <p className="text-sm text-muted-foreground">
+
+                        <p className="text-sm text-muted-foreground pt-4 border-t">
                           עודכן לאחרונה: {new Date(template.updated_at).toLocaleDateString("he-IL")}
                         </p>
                       </>
