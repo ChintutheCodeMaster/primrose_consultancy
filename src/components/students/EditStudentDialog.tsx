@@ -257,15 +257,22 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <div className="space-y-2">
               <Label htmlFor="advisorName">יועץ</Label>
               <Select 
-                value={formData.advisorName} 
-                onValueChange={(v) => setFormData({ ...formData, advisorName: v })}
+                value={formData.advisorId || ''} 
+                onValueChange={(v) => {
+                  const selectedAdvisor = advisors.find(a => a.id === v);
+                  setFormData({ 
+                    ...formData, 
+                    advisorId: v,
+                    advisorName: selectedAdvisor?.name || '' 
+                  });
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="בחר יועץ" />
                 </SelectTrigger>
                 <SelectContent>
                   {advisors.map((advisor) => (
-                    <SelectItem key={advisor.id} value={advisor.name}>
+                    <SelectItem key={advisor.id} value={advisor.id}>
                       {advisor.name}
                     </SelectItem>
                   ))}

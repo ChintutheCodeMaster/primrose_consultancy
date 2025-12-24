@@ -41,6 +41,7 @@ export interface Student {
   meetingSummary: string;
   packageCost: number;
   paymentNotes: string;
+  advisorId?: string;
   advisorName: string;
   isPaid: boolean;
   signedAgreement: boolean;
