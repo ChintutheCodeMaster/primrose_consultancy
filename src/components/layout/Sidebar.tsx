@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
-  { name: 'לידים', href: '/leads', icon: UserPlus },
+  { name: 'מתעניינים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
   { name: 'יועצים', href: '/advisors', icon: UserCircle },
 ];
