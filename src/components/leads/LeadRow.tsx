@@ -1,6 +1,6 @@
 import { Lead, leadStatusLabels, leadStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck, UserX } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,10 @@ interface LeadRowProps {
   lead: Lead;
   onEdit?: () => void;
   onConvert?: () => void;
+  onDidNotContinue?: () => void;
 }
 
-export function LeadRow({ lead, onEdit, onConvert }: LeadRowProps) {
+export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue }: LeadRowProps) {
   return (
     <div className="group rounded-2xl bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg border border-border/50">
       {/* Header */}
@@ -36,11 +37,17 @@ export function LeadRow({ lead, onEdit, onConvert }: LeadRowProps) {
         </div>
         
         {/* Action Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           {onEdit && (
             <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
               <Pencil className="h-3 w-3" />
               עריכה
+            </Button>
+          )}
+          {onDidNotContinue && (
+            <Button variant="outline" size="sm" onClick={onDidNotContinue} className="gap-1 text-muted-foreground hover:text-destructive hover:border-destructive">
+              <UserX className="h-3 w-3" />
+              לא המשיך
             </Button>
           )}
           {onConvert && (

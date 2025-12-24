@@ -34,6 +34,7 @@ export default function Leads() {
       const { data, error } = await supabase
         .from('leads')
         .select('*')
+        .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -119,6 +120,22 @@ export default function Leads() {
   const handleConvertClick = (lead: Lead) => {
     setConvertingLead(lead);
     setIsConvertOpen(true);
+  };
+
+  const handleDidNotContinue = async (leadId: string) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({ did_not_continue: true })
+      .eq('id', leadId);
+    
+    if (error) {
+      toast.error('שגיאה בעדכון');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['leads'] });
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+    toast.success('המתעניין הועבר לרשימת "לא המשיכו"');
   };
 
   const handleConvertToStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
@@ -218,6 +235,7 @@ export default function Leads() {
                 lead={lead} 
                 onEdit={() => handleEditLead(lead)}
                 onConvert={() => handleConvertClick(lead)}
+                onDidNotContinue={() => handleDidNotContinue(lead.id)}
               />
             </div>
           ))}

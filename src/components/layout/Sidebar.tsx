@@ -8,6 +8,7 @@ const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
   { name: 'מתעניינים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
+  { name: 'לא המשיכו', href: '/did-not-continue', icon: Users },
   { name: 'יועצים', href: '/advisors', icon: UserCircle },
 ];
 
