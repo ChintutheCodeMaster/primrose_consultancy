@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
-import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History } from 'lucide-react';
+import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import type { Student, StudentStatus, DegreeType } from '@/types/crm';
+import * as XLSX from 'xlsx';
 
 interface SearchResult {
   id: string;
@@ -29,6 +30,118 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Export all data to Excel
+  const exportToExcel = async () => {
+    setIsExporting(true);
+    try {
+      // Fetch all leads
+      const { data: leads } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      // Fetch all students with accepted universities
+      const { data: students } = await supabase
+        .from('students')
+        .select('*, accepted_universities(*)')
+        .order('created_at', { ascending: false });
+
+      // Fetch all advisors
+      const { data: advisors } = await supabase
+        .from('advisors')
+        .select('*')
+        .order('name', { ascending: true });
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // Leads sheet
+      if (leads && leads.length > 0) {
+        const leadsData = leads.map(l => ({
+          'שם': l.name,
+          'אימייל': l.email,
+          'טלפון': l.phone,
+          'סטטוס': l.status,
+          'סוג תואר': l.degree_type,
+          'תחום עניין': l.interested_field || '',
+          'מדינה מועדפת': l.interested_country || '',
+          'מקור': l.source || '',
+          'סיכום פגישה': l.meeting_summary || '',
+          'לא המשיך': l.did_not_continue ? 'כן' : 'לא',
+          'תאריך יצירה': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
+          'קשר אחרון': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
+        }));
+        const leadsSheet = XLSX.utils.json_to_sheet(leadsData);
+        XLSX.utils.book_append_sheet(wb, leadsSheet, 'מתעניינים');
+      }
+
+      // Students sheet
+      if (students && students.length > 0) {
+        const studentsData = students.map(s => ({
+          'שם': s.name,
+          'אימייל': s.email,
+          'טלפון': s.phone,
+          'סטטוס': s.status,
+          'סוג תואר': s.degree_type,
+          'תחום עניין': s.interested_field || '',
+          'מדינה מועדפת': s.interested_country || '',
+          'מדינת יעד': s.target_country || '',
+          'אוניברסיטת יעד': s.target_university || '',
+          'תוכנית': s.program || '',
+          'שנת סיום': s.graduation_year || '',
+          'מקור': s.source || '',
+          'יועץ': s.advisor_name || '',
+          'עלות חבילה': s.package_cost || 0,
+          'סכום ששולם': s.amount_paid || 0,
+          'שולם': s.is_paid ? 'כן' : 'לא',
+          'הערות תשלום': s.payment_notes || '',
+          'הסכם נחתם': s.signed_agreement ? 'כן' : 'לא',
+          'סיכום פגישה': s.meeting_summary || '',
+          'לא המשיך': s.did_not_continue ? 'כן' : 'לא',
+          'אוניברסיטאות מקבלות': s.accepted_universities?.map((u: any) => u.name).join(', ') || '',
+          'תאריך יצירה': s.created_at ? format(new Date(s.created_at), 'dd/MM/yyyy') : '',
+        }));
+        const studentsSheet = XLSX.utils.json_to_sheet(studentsData);
+        XLSX.utils.book_append_sheet(wb, studentsSheet, 'סטודנטים');
+      }
+
+      // Advisors sheet
+      if (advisors && advisors.length > 0) {
+        const advisorsData = advisors.map(a => ({
+          'שם': a.name,
+          'אימייל': a.email || '',
+          'טלפון': a.phone || '',
+          'פעיל': a.is_active ? 'כן' : 'לא',
+          'סוג תשלום': a.payment_type || '',
+          'סכום תשלום': a.payment_amount || 0,
+          'הערות תשלום': a.payment_notes || '',
+          'הערות': a.notes || '',
+        }));
+        const advisorsSheet = XLSX.utils.json_to_sheet(advisorsData);
+        XLSX.utils.book_append_sheet(wb, advisorsSheet, 'יועצים');
+      }
+
+      // Download file
+      const fileName = `נתונים_${format(new Date(), 'dd-MM-yyyy')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast({
+        title: "הקובץ הורד בהצלחה",
+        description: `הקובץ ${fileName} נשמר במחשב שלך`,
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "שגיאה בייצוא",
+        description: "לא ניתן היה לייצא את הנתונים",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Global search function
   const handleSearch = async (term: string) => {
@@ -280,9 +393,23 @@ export default function Dashboard() {
     <MainLayout>
       <div className="animate-fade-in">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">שלום! 👋</h1>
-          <p className="text-muted-foreground mt-1">הנה סיכום הפעילות שלך</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">שלום! 👋</h1>
+            <p className="text-muted-foreground mt-1">הנה סיכום הפעילות שלך</p>
+          </div>
+          <Button
+            onClick={exportToExcel}
+            disabled={isExporting}
+            className="gap-2"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            ייצוא לאקסל
+          </Button>
         </div>
 
         {/* Global Search */}
