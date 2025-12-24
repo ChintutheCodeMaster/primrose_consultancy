@@ -7,6 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
+
+const sourceOptions = [
+  'לינקדאין',
+  'פייסבוק',
+  'גוגל',
+  'פודקאסט',
+  'המלצה ממועמד עבר',
+  'קהילת לימודים באנגליה',
+  'אינסטגרם',
+  'אחר',
+];
+
 interface EditLeadDialogProps {
   lead: Lead | null;
   open: boolean;
@@ -16,17 +28,31 @@ interface EditLeadDialogProps {
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
   const [formData, setFormData] = useState<Lead | null>(null);
+  const [sourceSelection, setSourceSelection] = useState('');
+  const [customSource, setCustomSource] = useState('');
 
   useEffect(() => {
     if (lead) {
       setFormData({ ...lead });
+      // Check if the source is a predefined option or custom
+      if (lead.source && sourceOptions.includes(lead.source)) {
+        setSourceSelection(lead.source);
+        setCustomSource('');
+      } else if (lead.source) {
+        setSourceSelection('אחר');
+        setCustomSource(lead.source);
+      } else {
+        setSourceSelection('');
+        setCustomSource('');
+      }
     }
   }, [lead]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData) {
-      onSave({ ...formData, lastContactAt: new Date() });
+      const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+      onSave({ ...formData, source: finalSource, lastContactAt: new Date() });
       onOpenChange(false);
     }
   };
@@ -124,11 +150,24 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
 
           <div className="space-y-2">
             <Label htmlFor="source">מקור הגעה</Label>
-            <Input
-              id="source"
-              value={formData.source}
-              onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-            />
+            <Select value={sourceSelection} onValueChange={setSourceSelection}>
+              <SelectTrigger>
+                <SelectValue placeholder="בחר מקור" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {sourceOptions.map((src) => (
+                  <SelectItem key={src} value={src}>{src}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {sourceSelection === 'אחר' && (
+              <Input
+                placeholder="הזן מקור אחר..."
+                value={customSource}
+                onChange={(e) => setCustomSource(e.target.value)}
+                className="mt-2"
+              />
+            )}
           </div>
 
           <div className="space-y-2">

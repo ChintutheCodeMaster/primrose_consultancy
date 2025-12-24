@@ -20,6 +20,17 @@ interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
 }
 
+const sourceOptions = [
+  'לינקדאין',
+  'פייסבוק',
+  'גוגל',
+  'פודקאסט',
+  'המלצה ממועמד עבר',
+  'קהילת לימודים באנגליה',
+  'אינסטגרם',
+  'אחר',
+];
+
 export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -35,6 +46,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     },
   });
 
+  const [sourceSelection, setSourceSelection] = useState('');
+  const [customSource, setCustomSource] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -59,7 +72,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd(formData);
+    const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+    onAdd({ ...formData, source: finalSource });
     setOpen(false);
     setFormData({
       name: '',
@@ -82,6 +96,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       status: 'active',
       acceptedUniversities: [],
     });
+    setSourceSelection('');
+    setCustomSource('');
   };
 
   return (
@@ -149,12 +165,24 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="source">מקור הגעה</Label>
-              <Input
-                id="source"
-                value={formData.source}
-                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                placeholder="לדוגמה: אתר, המלצה, פייסבוק"
-              />
+              <Select value={sourceSelection} onValueChange={setSourceSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר מקור" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {sourceOptions.map((src) => (
+                    <SelectItem key={src} value={src}>{src}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {sourceSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן מקור אחר..."
+                  value={customSource}
+                  onChange={(e) => setCustomSource(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
 
