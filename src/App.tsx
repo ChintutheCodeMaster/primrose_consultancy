@@ -15,6 +15,7 @@ import StudentPortal from "./pages/StudentPortal";
 import StudentPortalManagement from "./pages/StudentPortalManagement";
 import AdvisorPortal from "./pages/AdvisorPortal";
 import DidNotContinue from "./pages/DidNotContinue";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           
           {/* Protected routes */}
           <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />
+          <Route path="/analytics" element={<PasswordGate><Analytics /></PasswordGate>} />
           <Route path="/leads" element={<PasswordGate><Leads /></PasswordGate>} />
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
           <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
