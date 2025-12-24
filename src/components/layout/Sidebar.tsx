@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
@@ -21,7 +23,7 @@ const agreementTemplateTypes = [
   { type: 'edit', label: 'לערוך' },
 ] as const;
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
     location.pathname.startsWith('/past-clients')
@@ -36,134 +38,181 @@ export function Sidebar() {
   const currentAgreementTemplateType =
     new URLSearchParams(location.search).get('type') ?? 'package';
 
+  const handleClick = () => {
+    if (onNavigate) onNavigate();
+  };
+
   return (
-    <aside className="fixed right-0 top-0 z-40 h-screen w-64 bg-sidebar border-l border-sidebar-border">
-      <div className="flex h-full flex-col">
-        {/* Logo */}
-        <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary">
-              <GraduationCap className="h-6 w-6 text-sidebar-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-sidebar-foreground">נוגה</h1>
-              <p className="text-xs text-sidebar-foreground/60">לימודים בחו״ל</p>
-            </div>
+    <div className="flex h-full flex-col">
+      {/* Logo */}
+      <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary">
+            <GraduationCap className="h-6 w-6 text-sidebar-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-sidebar-foreground">נוגה</h1>
+            <p className="text-xs text-sidebar-foreground/60">לימודים בחו״ל</p>
           </div>
         </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-primary'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.name}
-              </Link>
-            );
-          })}
-
-          {/* Agreement Collapsible */}
-          <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>
-            <CollapsibleTrigger className={cn(
-              'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-              isAgreementActive
-                ? 'bg-sidebar-accent text-sidebar-primary'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-            )}>
-              <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5" />
-                הסכם תחילת תהליך
-              </div>
-              <ChevronDown className={cn(
-                'h-4 w-4 transition-transform duration-200',
-                isAgreementOpen && 'rotate-180'
-              )} />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pr-4 space-y-1 mt-1">
-              {agreementTemplateTypes.map((item) => {
-                const isActive =
-                  location.pathname === '/agreement-template' &&
-                  currentAgreementTemplateType === item.type;
-
-                return (
-                  <Link
-                    key={item.type}
-                    to={`/agreement-template?type=${item.type}`}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                      isActive
-                        ? 'bg-sidebar-accent text-sidebar-primary'
-                        : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Past Clients Collapsible */}
-          <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
-            <CollapsibleTrigger className={cn(
-              'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-              isPastClientsActive
-                ? 'bg-sidebar-accent text-sidebar-primary'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-            )}>
-              <div className="flex items-center gap-3">
-                <History className="h-5 w-5" />
-                לקוחות עבר
-              </div>
-              <ChevronDown className={cn(
-                'h-4 w-4 transition-transform duration-200',
-                isPastClientsOpen && 'rotate-180'
-              )} />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pr-4 space-y-1 mt-1">
-              {pastClientsYears.map((year) => {
-                const isYearActive = location.pathname === `/past-clients/${year}`;
-                return (
-                  <Link
-                    key={year}
-                    to={`/past-clients/${year}`}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                      isYearActive
-                        ? 'bg-sidebar-accent text-sidebar-primary'
-                        : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                    )}
-                  >
-                    לקוחות עבר {year}
-                  </Link>
-                );
-              })}
-            </CollapsibleContent>
-          </Collapsible>
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-sidebar-border p-4">
-          <Link
-            to="/settings"
-            className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-          >
-            <Settings className="h-5 w-5" />
-            הגדרות
-          </Link>
-        </div>
       </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+        {navigation.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              onClick={handleClick}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+                isActive
+                  ? 'bg-sidebar-accent text-sidebar-primary'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              {item.name}
+            </Link>
+          );
+        })}
+
+        {/* Agreement Collapsible */}
+        <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isAgreementActive
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}>
+            <div className="flex items-center gap-3">
+              <FileText className="h-5 w-5" />
+              הסכם תחילת תהליך
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isAgreementOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            {agreementTemplateTypes.map((item) => {
+              const isActive =
+                location.pathname === '/agreement-template' &&
+                currentAgreementTemplateType === item.type;
+
+              return (
+                <Link
+                  key={item.type}
+                  to={`/agreement-template?type=${item.type}`}
+                  onClick={handleClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Past Clients Collapsible */}
+        <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isPastClientsActive
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}>
+            <div className="flex items-center gap-3">
+              <History className="h-5 w-5" />
+              לקוחות עבר
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isPastClientsOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            {pastClientsYears.map((year) => {
+              const isYearActive = location.pathname === `/past-clients/${year}`;
+              return (
+                <Link
+                  key={year}
+                  to={`/past-clients/${year}`}
+                  onClick={handleClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    isYearActive
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  לקוחות עבר {year}
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
+      </nav>
+
+      {/* Footer */}
+      <div className="border-t border-sidebar-border p-4">
+        <Link
+          to="/settings"
+          onClick={handleClick}
+          className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+        >
+          <Settings className="h-5 w-5" />
+          הגדרות
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// Mobile sidebar using Sheet
+export function MobileSidebar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="fixed top-4 right-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md"
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-72 p-0 bg-sidebar">
+        <SidebarContent onNavigate={() => setOpen(false)} />
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+// Desktop sidebar
+export function DesktopSidebar() {
+  return (
+    <aside className="fixed right-0 top-0 z-40 h-screen w-64 bg-sidebar border-l border-sidebar-border hidden lg:block">
+      <SidebarContent />
     </aside>
+  );
+}
+
+// Combined Sidebar export
+export function Sidebar() {
+  return (
+    <>
+      <DesktopSidebar />
+      <MobileSidebar />
+    </>
   );
 }

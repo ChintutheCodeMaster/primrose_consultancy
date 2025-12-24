@@ -393,15 +393,15 @@ export default function Dashboard() {
     <MainLayout>
       <div className="animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">שלום! 👋</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">שלום! 👋</h1>
             <p className="text-muted-foreground mt-1">הנה סיכום הפעילות שלך</p>
           </div>
           <Button
             onClick={exportToExcel}
             disabled={isExporting}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
