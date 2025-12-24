@@ -409,38 +409,50 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <Label className="text-base font-semibold">אוניברסיטאות שהתקבל אליהן</Label>
             
             {/* Add new university */}
-            <div className="grid grid-cols-[1fr_1.5fr_auto] gap-2">
-              <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="מדינה" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                  <SelectItem value="אירלנד">אירלנד</SelectItem>
-                  <SelectItem value="צרפת">צרפת</SelectItem>
-                  <SelectItem value="ספרד">ספרד</SelectItem>
-                  <SelectItem value="אחר">אחר</SelectItem>
-                </SelectContent>
-              </Select>
-              <UniversityAutocomplete
-                value={newUniversityName}
-                onChange={setNewUniversityName}
-                onSelectSuggestion={(suggestion) => {
-                  setNewUniversityName(suggestion.name);
-                  if (suggestion.country && !newUniversityCountry) {
-                    setNewUniversityCountry(suggestion.country);
-                  }
-                }}
-                placeholder="שם האוניברסיטה"
-              />
-              <Button type="button" variant="outline" size="icon" onClick={handleAddUniversity} disabled={!newUniversityCountry || !newUniversityName.trim()}>
-                <Plus className="h-4 w-4" />
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                  <SelectTrigger className={!newUniversityCountry && newUniversityName.trim() ? 'border-orange-300 bg-orange-50' : ''}>
+                    <SelectValue placeholder="בחר מדינה *" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="אנגליה">אנגליה</SelectItem>
+                    <SelectItem value="ארה״ב">ארה״ב</SelectItem>
+                    <SelectItem value="קנדה">קנדה</SelectItem>
+                    <SelectItem value="הולנד">הולנד</SelectItem>
+                    <SelectItem value="גרמניה">גרמניה</SelectItem>
+                    <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                    <SelectItem value="אירלנד">אירלנד</SelectItem>
+                    <SelectItem value="צרפת">צרפת</SelectItem>
+                    <SelectItem value="ספרד">ספרד</SelectItem>
+                    <SelectItem value="אחר">אחר</SelectItem>
+                  </SelectContent>
+                </Select>
+                <UniversityAutocomplete
+                  value={newUniversityName}
+                  onChange={setNewUniversityName}
+                  onSelectSuggestion={(suggestion) => {
+                    setNewUniversityName(suggestion.name);
+                    if (suggestion.country) {
+                      setNewUniversityCountry(suggestion.country);
+                    }
+                  }}
+                  placeholder="שם האוניברסיטה *"
+                />
+              </div>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleAddUniversity} 
+                disabled={!newUniversityCountry || !newUniversityName.trim()}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 ml-2" />
+                הוסף אוניברסיטה
               </Button>
+              {!newUniversityCountry && newUniversityName.trim() && (
+                <p className="text-xs text-orange-600">יש לבחור מדינה כדי להוסיף</p>
+              )}
             </div>
 
             {/* List of accepted universities */}
