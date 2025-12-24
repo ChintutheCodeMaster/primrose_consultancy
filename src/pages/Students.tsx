@@ -42,6 +42,7 @@ export default function Students() {
           accepted_universities (*)
         `)
         .is('graduation_year', null)
+        .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -245,6 +246,22 @@ export default function Students() {
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
+  const handleDidNotContinue = async (studentId: string) => {
+    const { error } = await supabase
+      .from('students')
+      .update({ did_not_continue: true })
+      .eq('id', studentId);
+    
+    if (error) {
+      toast.error('שגיאה בעדכון');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+    toast.success('הסטודנט הועבר לרשימת "לא המשיכו"');
+  };
+
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -408,6 +425,7 @@ export default function Students() {
                   student={student}
                   onEdit={() => setEditingStudent(student)}
                   onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
+                  onDidNotContinue={() => handleDidNotContinue(student.id)}
                 />
               </div>
             ))}

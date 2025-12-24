@@ -14,6 +14,7 @@ import AgreementTemplate from "./pages/AgreementTemplate";
 import StudentPortal from "./pages/StudentPortal";
 import StudentPortalManagement from "./pages/StudentPortalManagement";
 import AdvisorPortal from "./pages/AdvisorPortal";
+import DidNotContinue from "./pages/DidNotContinue";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/leads" element={<PasswordGate><Leads /></PasswordGate>} />
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
           <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
+          <Route path="/did-not-continue" element={<PasswordGate><DidNotContinue /></PasswordGate>} />
           <Route path="/agreement-template" element={<PasswordGate><AgreementTemplate /></PasswordGate>} />
           <Route path="/student-portal/:studentId" element={<PasswordGate><StudentPortalManagement /></PasswordGate>} />
           <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />

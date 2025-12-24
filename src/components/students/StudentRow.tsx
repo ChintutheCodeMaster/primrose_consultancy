@@ -1,6 +1,6 @@
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -12,12 +12,13 @@ interface StudentRowProps {
   student: Student;
   onEdit?: () => void;
   onMoveToPastClient?: (year: string) => void;
+  onDidNotContinue?: () => void;
   showActions?: boolean;
 }
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
-export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = true }: StudentRowProps) {
+export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
   
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
@@ -117,6 +118,17 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, showActions = 
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
                   <Pencil className="h-3 w-3" />
                   עריכה
+                </Button>
+              )}
+              {onDidNotContinue && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onDidNotContinue} 
+                  className="gap-1 text-muted-foreground hover:text-destructive hover:border-destructive"
+                >
+                  <UserX className="h-3 w-3" />
+                  לא המשיך
                 </Button>
               )}
               {onMoveToPastClient && (

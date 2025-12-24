@@ -119,6 +119,7 @@ export type Database = {
         Row: {
           created_at: string
           degree_type: string
+          did_not_continue: boolean | null
           email: string
           id: string
           interested_country: string | null
@@ -133,6 +134,7 @@ export type Database = {
         Insert: {
           created_at?: string
           degree_type?: string
+          did_not_continue?: boolean | null
           email: string
           id?: string
           interested_country?: string | null
@@ -147,6 +149,7 @@ export type Database = {
         Update: {
           created_at?: string
           degree_type?: string
+          did_not_continue?: boolean | null
           email?: string
           id?: string
           interested_country?: string | null
@@ -306,6 +309,7 @@ export type Database = {
           amount_paid: number | null
           created_at: string
           degree_type: string
+          did_not_continue: boolean | null
           dismissed_from_attention: boolean | null
           email: string
           graduation_year: string | null
@@ -333,6 +337,7 @@ export type Database = {
           amount_paid?: number | null
           created_at?: string
           degree_type?: string
+          did_not_continue?: boolean | null
           dismissed_from_attention?: boolean | null
           email: string
           graduation_year?: string | null
@@ -360,6 +365,7 @@ export type Database = {
           amount_paid?: number | null
           created_at?: string
           degree_type?: string
+          did_not_continue?: boolean | null
           dismissed_from_attention?: boolean | null
           email?: string
           graduation_year?: string | null
