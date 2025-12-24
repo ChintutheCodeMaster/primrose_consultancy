@@ -68,6 +68,7 @@ interface Student {
 interface AcceptedUniversity {
   id: string;
   name: string;
+  country: string | null;
   acceptance_letter_url: string | null;
 }
 
@@ -145,6 +146,7 @@ export default function AdvisorPortal() {
 
   // Acceptance states
   const [newUniversityName, setNewUniversityName] = useState("");
+  const [newUniversityCountry, setNewUniversityCountry] = useState("");
   const [isAddAcceptanceOpen, setIsAddAcceptanceOpen] = useState(false);
   const [savingAcceptance, setSavingAcceptance] = useState(false);
   const acceptanceFileRef = useRef<HTMLInputElement>(null);
@@ -386,12 +388,13 @@ export default function AdvisorPortal() {
 
   // Acceptance functions
   const addAcceptedUniversity = async () => {
-    if (!newUniversityName.trim() || !selectedStudent) return;
+    if (!newUniversityName.trim() || !newUniversityCountry.trim() || !selectedStudent) return;
     
     setSavingAcceptance(true);
     const { error } = await supabase.from("accepted_universities").insert({
       student_id: selectedStudent.id,
       name: newUniversityName,
+      country: newUniversityCountry,
     });
 
     if (error) {
@@ -399,6 +402,7 @@ export default function AdvisorPortal() {
     } else {
       toast({ title: "הקבלה נוספה בהצלחה" });
       setNewUniversityName("");
+      setNewUniversityCountry("");
       setIsAddAcceptanceOpen(false);
       selectStudent(selectedStudent);
     }
@@ -587,6 +591,26 @@ export default function AdvisorPortal() {
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
+                              <Label>מדינה *</Label>
+                              <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="בחר מדינה" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="אנגליה">אנגליה</SelectItem>
+                                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
+                                  <SelectItem value="קנדה">קנדה</SelectItem>
+                                  <SelectItem value="הולנד">הולנד</SelectItem>
+                                  <SelectItem value="גרמניה">גרמניה</SelectItem>
+                                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                                  <SelectItem value="אירלנד">אירלנד</SelectItem>
+                                  <SelectItem value="צרפת">צרפת</SelectItem>
+                                  <SelectItem value="ספרד">ספרד</SelectItem>
+                                  <SelectItem value="אחר">אחר</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
                               <Label>שם האוניברסיטה *</Label>
                               <Input
                                 value={newUniversityName}
@@ -594,7 +618,7 @@ export default function AdvisorPortal() {
                                 placeholder="לדוגמה: University of Manchester"
                               />
                             </div>
-                            <Button onClick={addAcceptedUniversity} disabled={savingAcceptance} className="w-full">
+                            <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                               {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
                               הוסף
                             </Button>
@@ -615,6 +639,9 @@ export default function AdvisorPortal() {
                               <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium truncate">{uni.name}</p>
+                                {uni.country && (
+                                  <p className="text-xs text-muted-foreground">{uni.country}</p>
+                                )}
                               </div>
                               {uni.acceptance_letter_url ? (
                                 <Button

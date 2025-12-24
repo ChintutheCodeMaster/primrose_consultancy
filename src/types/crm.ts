@@ -25,6 +25,7 @@ export const degreeTypeLabels: Record<DegreeType, string> = {
 
 export interface AcceptedUniversity {
   name: string;
+  country?: string;
   acceptanceLetterUrl?: string;
 }
 
