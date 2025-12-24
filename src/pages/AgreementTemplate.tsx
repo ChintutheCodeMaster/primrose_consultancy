@@ -6,58 +6,98 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Save, Loader2, Eye } from "lucide-react";
+import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-react";
+
+type AgreementType = 'package' | 'hourly' | 'edit';
 
 interface AgreementTemplate {
   id: string;
   name: string;
   content: string;
+  type: AgreementType;
   is_active: boolean;
   updated_at: string;
 }
 
+const agreementTypeConfig: Record<AgreementType, { label: string; icon: typeof Package }> = {
+  package: { label: 'חבילה', icon: Package },
+  hourly: { label: 'שעתי', icon: Clock },
+  edit: { label: 'לערוך', icon: Edit3 },
+};
+
 export default function AgreementTemplate() {
-  const [template, setTemplate] = useState<AgreementTemplate | null>(null);
+  const [templates, setTemplates] = useState<Record<AgreementType, AgreementTemplate | null>>({
+    package: null,
+    hourly: null,
+    edit: null,
+  });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editedContent, setEditedContent] = useState("");
-  const [editedName, setEditedName] = useState("");
+  const [saving, setSaving] = useState<AgreementType | null>(null);
+  const [editedContent, setEditedContent] = useState<Record<AgreementType, string>>({
+    package: '',
+    hourly: '',
+    edit: '',
+  });
+  const [editedName, setEditedName] = useState<Record<AgreementType, string>>({
+    package: '',
+    hourly: '',
+    edit: '',
+  });
+  const [activeTab, setActiveTab] = useState<AgreementType>('package');
 
   useEffect(() => {
-    fetchTemplate();
+    fetchTemplates();
   }, []);
 
-  const fetchTemplate = async () => {
+  const fetchTemplates = async () => {
     const { data, error } = await supabase
       .from("agreement_templates")
       .select("*")
-      .eq("is_active", true)
-      .maybeSingle();
+      .in("type", ['package', 'hourly', 'edit']);
 
     if (error) {
       toast({
         title: "שגיאה",
-        description: "לא ניתן לטעון את תבנית ההסכם",
+        description: "לא ניתן לטעון את תבניות ההסכם",
         variant: "destructive",
       });
     } else if (data) {
-      setTemplate(data);
-      setEditedContent(data.content);
-      setEditedName(data.name);
+      const templatesMap: Record<AgreementType, AgreementTemplate | null> = {
+        package: null,
+        hourly: null,
+        edit: null,
+      };
+      const contentMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '' };
+      const nameMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '' };
+
+      data.forEach((t) => {
+        const type = t.type as AgreementType;
+        if (type in templatesMap) {
+          templatesMap[type] = t as AgreementTemplate;
+          contentMap[type] = t.content;
+          nameMap[type] = t.name;
+        }
+      });
+
+      setTemplates(templatesMap);
+      setEditedContent(contentMap);
+      setEditedName(nameMap);
     }
     setLoading(false);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (type: AgreementType) => {
+    const template = templates[type];
     if (!template) return;
 
-    setSaving(true);
+    setSaving(type);
     const { error } = await supabase
       .from("agreement_templates")
       .update({
-        content: editedContent,
-        name: editedName,
+        content: editedContent[type],
+        name: editedName[type],
         updated_at: new Date().toISOString(),
       })
       .eq("id", template.id);
@@ -71,16 +111,15 @@ export default function AgreementTemplate() {
     } else {
       toast({
         title: "נשמר בהצלחה",
-        description: "תבנית ההסכם עודכנה",
+        description: `תבנית הסכם ${agreementTypeConfig[type].label} עודכנה`,
       });
-      fetchTemplate();
+      fetchTemplates();
     }
-    setSaving(false);
+    setSaving(null);
   };
 
-  const handlePreview = () => {
-    // Open the agreement page in a new tab with a demo ID
-    window.open("/agreement/demo", "_blank");
+  const handlePreview = (type: AgreementType) => {
+    window.open(`/agreement/demo?type=${type}`, "_blank");
   };
 
   if (loading) {
@@ -96,74 +135,96 @@ export default function AgreementTemplate() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">הסכם נוכחי</h1>
-              <p className="text-sm text-muted-foreground">
-                צפייה ועריכת תבנית ההסכם הפעילה
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <FileText className="h-5 w-5 text-primary" />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handlePreview}>
-              <Eye className="h-4 w-4 ml-2" />
-              תצוגה מקדימה
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 ml-2" />
-              )}
-              שמור שינויים
-            </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">תבניות הסכם</h1>
+            <p className="text-sm text-muted-foreground">
+              ערוך את תבניות ההסכם השונות - חבילה, שעתי, ולערוך
+            </p>
           </div>
         </div>
 
-        {template ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>פרטי התבנית</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name">שם התבנית</Label>
-                <Input
-                  id="name"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="content">תוכן ההסכם</Label>
-                <Textarea
-                  id="content"
-                  value={editedContent}
-                  onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[500px] font-mono text-sm"
-                  dir="rtl"
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                עודכן לאחרונה: {new Date(template.updated_at).toLocaleDateString("he-IL")}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">לא נמצאה תבנית הסכם פעילה</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                תבנית ההסכם הנוכחית מוטמעת בקוד בעמוד Agreement.tsx
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as AgreementType)}>
+          <TabsList className="grid w-full grid-cols-3">
+            {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
+              const config = agreementTypeConfig[type];
+              const Icon = config.icon;
+              return (
+                <TabsTrigger key={type} value={type} className="gap-2">
+                  <Icon className="h-4 w-4" />
+                  {config.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
+            const template = templates[type];
+            const config = agreementTypeConfig[type];
+
+            return (
+              <TabsContent key={type} value={type}>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <config.icon className="h-5 w-5 text-primary" />
+                      הסכם {config.label}
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
+                        <Eye className="h-4 w-4 ml-2" />
+                        תצוגה מקדימה
+                      </Button>
+                      <Button size="sm" onClick={() => handleSave(type)} disabled={saving === type}>
+                        {saving === type ? (
+                          <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4 ml-2" />
+                        )}
+                        שמור
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {template ? (
+                      <>
+                        <div>
+                          <Label htmlFor={`name-${type}`}>שם התבנית</Label>
+                          <Input
+                            id={`name-${type}`}
+                            value={editedName[type]}
+                            onChange={(e) => setEditedName(prev => ({ ...prev, [type]: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`content-${type}`}>תוכן ההסכם</Label>
+                          <Textarea
+                            id={`content-${type}`}
+                            value={editedContent[type]}
+                            onChange={(e) => setEditedContent(prev => ({ ...prev, [type]: e.target.value }))}
+                            className="min-h-[400px] font-mono text-sm"
+                            dir="rtl"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          עודכן לאחרונה: {new Date(template.updated_at).toLocaleDateString("he-IL")}
+                        </p>
+                      </>
+                    ) : (
+                      <div className="py-8 text-center">
+                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">לא נמצאה תבנית להסכם {config.label}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
       </div>
     </MainLayout>
   );
