@@ -522,7 +522,11 @@ export default function Analytics() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="students" name="סטודנטים" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="students" name="סטודנטים" radius={[4, 4, 0, 0]}>
+                    {monthlyTrendData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -547,9 +551,9 @@ export default function Analytics() {
                     }}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#F59E0B" strokeWidth={3} dot={{ fill: '#F59E0B', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -575,9 +579,9 @@ export default function Analytics() {
                     labelFormatter={(label) => `עונת ${label}`}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="#EC4899" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#06B6D4" strokeWidth={3} dot={{ fill: '#06B6D4', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -601,7 +605,11 @@ export default function Analytics() {
                     tickFormatter={(value) => value.length > 18 ? value.substring(0, 18) + '...' : value}
                   />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="count" name="סטודנטים" radius={[0, 4, 4, 0]}>
+                    {studentsBySourceData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
