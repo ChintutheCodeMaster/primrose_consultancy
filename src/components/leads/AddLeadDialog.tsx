@@ -7,23 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
+import { useSourceOptions } from '@/hooks/useSourceOptions';
 
 interface AddLeadDialogProps {
   onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => void;
 }
 
-const sourceOptions = [
-  'לינקדאין',
-  'פייסבוק',
-  'גוגל',
-  'פודקאסט',
-  'המלצה ממועמד עבר',
-  'קהילת לימודים באנגליה',
-  'אינסטגרם',
-  'אחר',
-];
-
 export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
+  const sourceOptions = useSourceOptions();
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
