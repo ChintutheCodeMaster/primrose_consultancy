@@ -134,6 +134,50 @@ export default function Analytics() {
     .slice(0, 6)
     .map(([source, count]) => ({ source, count }));
 
+  // Source comparison: Active students vs Did not continue
+  const allSources = new Set<string>();
+  
+  // Active students by source
+  const activeStudentsBySource = (students || [])
+    .filter(s => !s.did_not_continue)
+    .reduce((acc, student) => {
+      const source = student.source || 'לא ידוע';
+      allSources.add(source);
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+  // Did not continue students by source
+  const didNotContinueStudentsBySource = (students || [])
+    .filter(s => s.did_not_continue)
+    .reduce((acc, student) => {
+      const source = student.source || 'לא ידוע';
+      allSources.add(source);
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+  // Did not continue leads by source
+  const didNotContinueLeadsBySource = (leads || [])
+    .filter(l => l.did_not_continue)
+    .reduce((acc, lead) => {
+      const source = lead.source || 'לא ידוע';
+      allSources.add(source);
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+  // Combine data for comparison chart
+  const sourceComparisonData = Array.from(allSources)
+    .map(source => ({
+      source,
+      active: activeStudentsBySource[source] || 0,
+      didNotContinue: (didNotContinueStudentsBySource[source] || 0) + (didNotContinueLeadsBySource[source] || 0),
+    }))
+    .filter(d => d.active > 0 || d.didNotContinue > 0)
+    .sort((a, b) => (b.active + b.didNotContinue) - (a.active + a.didNotContinue))
+    .slice(0, 8);
+
   // Conversion funnel data
   const totalLeads = (filteredLeads || []).length;
   const activeLeads = (filteredLeads || []).filter(l => !l.did_not_continue).length;
@@ -472,6 +516,26 @@ export default function Analytics() {
                   <YAxis dataKey="source" type="category" width={100} />
                   <Tooltip />
                   <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Source Comparison: Active vs Did Not Continue */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>מקור הפניה - סטודנטים פעילים לעומת לא המשיכו</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={sourceComparisonData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="source" type="category" width={120} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="active" name="סטודנטים פעילים" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
