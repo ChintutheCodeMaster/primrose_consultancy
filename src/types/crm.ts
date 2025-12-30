@@ -41,6 +41,7 @@ export interface Student {
   source: string;
   meetingSummary: string;
   packageCost: number;
+  amountPaid?: number;
   paymentNotes: string;
   advisorId?: string;
   advisorName: string;

@@ -270,6 +270,10 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <span>עלות חבילה: ₪{student.packageCost.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
+          <DollarSign className="h-4 w-4 shrink-0 text-primary" />
+          <span className="font-medium">יתרה לתשלום: ₪{(student.packageCost - (student.amountPaid || 0)).toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
           <User className="h-4 w-4 shrink-0" />
           <span>יועץ: {student.advisorName}</span>
         </div>
