@@ -24,7 +24,17 @@ import {
   LabelList,
 } from 'recharts';
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+// Vibrant, distinguishable colors
+const COLORS = [
+  '#3B82F6', // Blue
+  '#EF4444', // Red
+  '#F59E0B', // Yellow/Amber
+  '#10B981', // Green
+  '#8B5CF6', // Purple
+  '#EC4899', // Pink
+  '#06B6D4', // Cyan
+  '#F97316', // Orange
+];
 
 // Generate season years (current year + 2 years forward, 5 years back)
 const generateSeasonYears = () => {
@@ -211,6 +221,25 @@ export default function Analytics() {
     name: degreeLabels[degree] || degree,
     value: count,
   }));
+
+  // Students by country
+  const studentsByCountry = (filteredStudents || []).reduce((acc, student) => {
+    const country = student.interested_country || student.target_country || 'לא ידוע';
+    // Handle multiple countries (comma separated)
+    const countries = country.split(',').map(c => c.trim()).filter(Boolean);
+    countries.forEach(c => {
+      acc[c] = (acc[c] || 0) + 1;
+    });
+    return acc;
+  }, {} as Record<string, number>);
+
+  const studentsByCountryData = Object.entries(studentsByCountry)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 8)
+    .map(([country, count]) => ({
+      name: country,
+      value: count,
+    }));
 
   // Monthly trend (last 12 months)
   const last12Months = Array.from({ length: 12 }, (_, i) => {
@@ -548,29 +577,29 @@ export default function Analytics() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="active" name="סטודנטים פעילים" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="active" name="סטודנטים פעילים" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="#EF4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* Students by Degree */}
-          <Card className="lg:col-span-2">
+          <Card>
             <CardHeader>
               <CardTitle>התפלגות לפי סוג תואר</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={320}>
                   <PieChart>
                     <Pie
                       data={studentsByDegreeData}
                       cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={100}
+                      cy="45%"
+                      labelLine={true}
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -578,8 +607,49 @@ export default function Analytics() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
-                    <Legend />
+                    <Tooltip formatter={(value, name) => [value, name]} />
+                    <Legend 
+                      layout="horizontal" 
+                      verticalAlign="bottom" 
+                      align="center"
+                      wrapperStyle={{ paddingTop: '20px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Students by Country */}
+          <Card>
+            <CardHeader>
+              <CardTitle>התפלגות לפי מדינה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center">
+                <ResponsiveContainer width="100%" height={320}>
+                  <PieChart>
+                    <Pie
+                      data={studentsByCountryData}
+                      cx="50%"
+                      cy="45%"
+                      labelLine={true}
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {studentsByCountryData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [value, name]} />
+                    <Legend 
+                      layout="horizontal" 
+                      verticalAlign="bottom" 
+                      align="center"
+                      wrapperStyle={{ paddingTop: '20px' }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
