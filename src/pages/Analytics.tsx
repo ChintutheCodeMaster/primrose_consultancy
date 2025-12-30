@@ -479,7 +479,9 @@ export default function Analytics() {
                   <XAxis dataKey="year" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="count" position="top" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -526,6 +528,7 @@ export default function Analytics() {
                     {monthlyTrendData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
+                    <LabelList dataKey="students" position="top" fill="hsl(var(--foreground))" fontSize={11} fontWeight={600} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -551,8 +554,12 @@ export default function Analytics() {
                     }}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#3B82F6" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="leads" position="top" fill="#3B82F6" fontSize={10} fontWeight={600} />
+                  </Bar>
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="#10B981" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="students" position="top" fill="#10B981" fontSize={10} fontWeight={600} />
+                  </Bar>
                   <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#F59E0B" strokeWidth={3} dot={{ fill: '#F59E0B', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
@@ -579,8 +586,12 @@ export default function Analytics() {
                     labelFormatter={(label) => `עונת ${label}`}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="#EC4899" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="leads" position="top" fill="#8B5CF6" fontSize={11} fontWeight={600} />
+                  </Bar>
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="#EC4899" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="students" position="top" fill="#EC4899" fontSize={11} fontWeight={600} />
+                  </Bar>
                   <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#06B6D4" strokeWidth={3} dot={{ fill: '#06B6D4', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
@@ -594,7 +605,7 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={studentsBySourceData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                <BarChart data={studentsBySourceData} layout="vertical" margin={{ left: 20, right: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis 
@@ -609,6 +620,7 @@ export default function Analytics() {
                     {studentsBySourceData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
+                    <LabelList dataKey="count" position="right" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -636,8 +648,12 @@ export default function Analytics() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="active" name="סטודנטים פעילים" fill="#10B981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="active" name="סטודנטים פעילים" fill="#10B981" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="active" position="top" fill="#10B981" fontSize={11} fontWeight={600} />
+                  </Bar>
+                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                    <LabelList dataKey="didNotContinue" position="top" fill="#EF4444" fontSize={11} fontWeight={600} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
