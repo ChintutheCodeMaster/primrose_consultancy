@@ -235,7 +235,7 @@ const Agreement = () => {
           <CardContent className="pt-6">
             {templateContent ? (
               <div 
-                className="prose prose-sm max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:text-gray-900 prose-ul:pr-5 prose-ol:pr-5"
+                className="agreement-content prose prose-sm max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:text-gray-900 prose-ul:pr-5 prose-ol:pr-5"
                 dangerouslySetInnerHTML={{ __html: templateContent }} 
               />
             ) : (

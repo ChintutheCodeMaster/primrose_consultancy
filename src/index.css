@@ -138,6 +138,36 @@
   }
 }
 
+/* Agreement content styling - preserve spacing from editor */
+.agreement-content p {
+  margin-bottom: 1em;
+  min-height: 1em;
+}
+
+.agreement-content p:empty {
+  margin-bottom: 1em;
+  min-height: 1em;
+}
+
+.agreement-content p br {
+  display: block;
+  content: "";
+  margin-bottom: 0.5em;
+}
+
+.agreement-content h1,
+.agreement-content h2,
+.agreement-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.agreement-content ul,
+.agreement-content ol {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
