@@ -322,14 +322,21 @@ export default function Dashboard() {
   ).length;
   
   // Students needing attention
+  // Criteria: After 4 days from creation - if not paid OR not signed agreement
   const studentsNeedingAttention = students.filter(s => {
     if (s.status === 'graduated') return false;
     if (s.dismissedFromAttention) return false;
     
     const daysSinceCreation = differenceInDays(new Date(), new Date(s.createdAt));
-    const needsAgreementReminder = !s.signedAgreement && daysSinceCreation >= 4;
-    const needsPaymentReminder = !s.isPaid && daysSinceCreation >= 7;
-    return needsAgreementReminder || needsPaymentReminder;
+    
+    // After 4 days: show if not signed agreement OR not paid
+    if (daysSinceCreation >= 4) {
+      const needsAgreementReminder = !s.signedAgreement;
+      const needsPaymentReminder = !s.isPaid;
+      return needsAgreementReminder || needsPaymentReminder;
+    }
+    
+    return false;
   });
   
   // Total income this month
