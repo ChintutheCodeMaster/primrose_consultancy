@@ -509,13 +509,19 @@ export default function Analytics() {
               <CardTitle>סטודנטים לפי מקור הגעה</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={studentsBySourceData} layout="vertical">
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={studentsBySourceData} layout="vertical" margin={{ left: 20, right: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
-                  <YAxis dataKey="source" type="category" width={100} />
+                  <YAxis 
+                    dataKey="source" 
+                    type="category" 
+                    width={140} 
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(value) => value.length > 18 ? value.substring(0, 18) + '...' : value}
+                  />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -527,15 +533,23 @@ export default function Analytics() {
               <CardTitle>מקור הפניה - סטודנטים פעילים לעומת לא המשיכו</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={sourceComparisonData} layout="vertical">
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={sourceComparisonData} margin={{ left: 20, right: 30 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="source" type="category" width={120} />
+                  <XAxis 
+                    dataKey="source" 
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => value.length > 12 ? value.substring(0, 12) + '...' : value}
+                    interval={0}
+                    angle={-30}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="active" name="סטודנטים פעילים" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="active" name="סטודנטים פעילים" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
