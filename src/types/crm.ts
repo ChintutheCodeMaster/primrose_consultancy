@@ -13,6 +13,7 @@ export interface Lead {
   interestedCountry: string;
   interestedField: string;
   meetingSummary: string;
+  packageNotes?: string;
   createdAt: Date;
   lastContactAt: Date;
 }
@@ -43,6 +44,7 @@ export interface Student {
   packageCost: number;
   amountPaid?: number;
   paymentNotes: string;
+  packageNotes?: string;
   advisorId?: string;
   advisorName: string;
   isPaid: boolean;
