@@ -190,6 +190,51 @@ export default function Analytics() {
     students: monthlyStudents[monthKey] || 0,
   }));
 
+  // Monthly conversion data (leads vs students created each month)
+  const monthlyLeads = (leads || []).reduce((acc, lead) => {
+    const date = new Date(lead.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const monthlyStudentsAll = (students || []).reduce((acc, student) => {
+    const date = new Date(student.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const monthlyConversionData = last12Months.map(({ month, monthKey }) => {
+    const leadsCount = monthlyLeads[monthKey] || 0;
+    const studentsCount = monthlyStudentsAll[monthKey] || 0;
+    const conversionRate = leadsCount > 0 ? Math.round((studentsCount / leadsCount) * 100) : 0;
+    return {
+      month,
+      leads: leadsCount,
+      students: studentsCount,
+      conversionRate,
+    };
+  });
+
+  // Conversion by season (graduation_year)
+  const conversionBySeason = SEASON_YEARS.map(year => {
+    const seasonStudents = (students || []).filter(s => s.graduation_year === year);
+    const seasonLeads = (leads || []).filter(l => {
+      const createdYear = new Date(l.created_at).getFullYear().toString();
+      return createdYear === year;
+    });
+    const leadsCount = seasonLeads.length;
+    const studentsCount = seasonStudents.length;
+    const conversionRate = leadsCount > 0 ? Math.round((studentsCount / leadsCount) * 100) : 0;
+    return {
+      season: year,
+      leads: leadsCount,
+      students: studentsCount,
+      conversionRate,
+    };
+  }).filter(d => d.leads > 0 || d.students > 0);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -354,6 +399,61 @@ export default function Analytics() {
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="students" name="סטודנטים" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Monthly Conversion - Leads vs Students */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>המרה חודשית - מתעניינים לסטודנטים (12 חודשים אחרונים)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyConversionData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                  <Tooltip 
+                    formatter={(value, name) => {
+                      if (name === 'יחס המרה') return [`${value}%`, name];
+                      return [value, name];
+                    }}
+                  />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Conversion by Season */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>המרה לפי עונת הגשה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={conversionBySeason}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="season" tickFormatter={(v) => `עונת ${v}`} />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                  <Tooltip 
+                    formatter={(value, name) => {
+                      if (name === 'יחס המרה') return [`${value}%`, name];
+                      return [value, name];
+                    }}
+                    labelFormatter={(label) => `עונת ${label}`}
+                  />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
