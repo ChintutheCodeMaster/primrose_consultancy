@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
+import { useSourceOptions } from '@/hooks/useSourceOptions';
 
 interface Advisor {
   id: string;
@@ -20,18 +21,8 @@ interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
 }
 
-const sourceOptions = [
-  'לינקדאין',
-  'פייסבוק',
-  'גוגל',
-  'פודקאסט',
-  'המלצה ממועמד עבר',
-  'קהילת לימודים באנגליה',
-  'אינסטגרם',
-  'אחר',
-];
-
 export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
+  const sourceOptions = useSourceOptions();
   const [open, setOpen] = useState(false);
 
   const { data: advisors = [] } = useQuery({
