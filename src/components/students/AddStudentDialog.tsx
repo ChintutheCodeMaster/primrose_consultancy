@@ -73,6 +73,12 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+    
+    // Validate source is required
+    if (!finalSource.trim()) {
+      return;
+    }
+    
     onAdd({ ...formData, source: finalSource });
     setOpen(false);
     setFormData({
@@ -164,10 +170,10 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="source">מקור הגעה</Label>
-              <Select value={sourceSelection} onValueChange={setSourceSelection}>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר מקור" />
+              <Label htmlFor="source">מקור הגעה <span className="text-destructive">*</span></Label>
+              <Select value={sourceSelection} onValueChange={setSourceSelection} required>
+                <SelectTrigger className={!sourceSelection ? 'border-destructive/50' : ''}>
+                  <SelectValue placeholder="בחר מקור (חובה)" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {sourceOptions.map((src) => (
@@ -181,7 +187,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                   value={customSource}
                   onChange={(e) => setCustomSource(e.target.value)}
                   className="mt-2"
+                  required
                 />
+              )}
+              {!sourceSelection && (
+                <p className="text-xs text-muted-foreground">יש לבחור מקור הגעה</p>
               )}
             </div>
           </div>
@@ -320,7 +330,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={!sourceSelection || (sourceSelection === 'אחר' && !customSource.trim())}
+          >
             הוסף סטודנט
           </Button>
         </form>
