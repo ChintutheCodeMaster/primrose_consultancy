@@ -4,7 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter, DollarSign } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -240,6 +242,55 @@ export default function Analytics() {
       name: country,
       value: count,
     }));
+
+  // Average package cost by season
+  const avgCostBySeason = SEASON_YEARS.map(year => {
+    const seasonStudents = (students || []).filter(s => s.graduation_year === year && s.package_cost && s.package_cost > 0);
+    const total = seasonStudents.reduce((sum, s) => sum + Number(s.package_cost), 0);
+    const count = seasonStudents.length;
+    return {
+      label: `עונת ${year}`,
+      average: count > 0 ? Math.round(total / count) : 0,
+      count,
+    };
+  }).filter(d => d.count > 0);
+
+  // Average package cost by degree type
+  const avgCostByDegree = Object.entries(
+    (students || []).reduce((acc, student) => {
+      if (student.package_cost && student.package_cost > 0) {
+        const degree = student.degree_type || 'לא ידוע';
+        if (!acc[degree]) acc[degree] = { total: 0, count: 0 };
+        acc[degree].total += Number(student.package_cost);
+        acc[degree].count += 1;
+      }
+      return acc;
+    }, {} as Record<string, { total: number; count: number }>)
+  ).map(([degree, data]) => ({
+    label: degreeLabels[degree] || degree,
+    average: Math.round(data.total / data.count),
+    count: data.count,
+  })).sort((a, b) => b.average - a.average);
+
+  // Average package cost by country
+  const avgCostByCountry = Object.entries(
+    (students || []).reduce((acc, student) => {
+      if (student.package_cost && student.package_cost > 0) {
+        const country = student.interested_country || student.target_country || 'לא ידוע';
+        const countries = country.split(',').map(c => c.trim()).filter(Boolean);
+        countries.forEach(c => {
+          if (!acc[c]) acc[c] = { total: 0, count: 0 };
+          acc[c].total += Number(student.package_cost);
+          acc[c].count += 1;
+        });
+      }
+      return acc;
+    }, {} as Record<string, { total: number; count: number }>)
+  ).map(([country, data]) => ({
+    label: country,
+    average: Math.round(data.total / data.count),
+    count: data.count,
+  })).sort((a, b) => b.average - a.average);
 
   // Monthly trend (last 12 months)
   const last12Months = Array.from({ length: 12 }, (_, i) => {
@@ -653,6 +704,100 @@ export default function Analytics() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Average Package Cost Breakdown */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                מחיר חבילה ממוצע
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="season" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="season">לפי עונה</TabsTrigger>
+                  <TabsTrigger value="degree">לפי סוג תואר</TabsTrigger>
+                  <TabsTrigger value="country">לפי מדינה</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="season">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">עונה</TableHead>
+                        <TableHead className="text-right">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {avgCostBySeason.length > 0 ? avgCostBySeason.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{row.label}</TableCell>
+                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>{row.count}</TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+                
+                <TabsContent value="degree">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">סוג תואר</TableHead>
+                        <TableHead className="text-right">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {avgCostByDegree.length > 0 ? avgCostByDegree.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{row.label}</TableCell>
+                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>{row.count}</TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+                
+                <TabsContent value="country">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">מדינה</TableHead>
+                        <TableHead className="text-right">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {avgCostByCountry.length > 0 ? avgCostByCountry.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{row.label}</TableCell>
+                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>{row.count}</TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
