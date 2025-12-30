@@ -1,8 +1,10 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Users, UserPlus, TrendingUp, ArrowRight } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -24,7 +26,21 @@ import {
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
+// Generate season years (current year + 2 years forward, 5 years back)
+const generateSeasonYears = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = currentYear + 2; i >= currentYear - 5; i--) {
+    years.push(i.toString());
+  }
+  return years;
+};
+
+const SEASON_YEARS = generateSeasonYears();
+
 export default function Analytics() {
+  const [seasonFilter, setSeasonFilter] = useState<string>('all');
+
   // Fetch students data
   const { data: students, isLoading: studentsLoading } = useQuery({
     queryKey: ['analytics-students'],
@@ -50,6 +66,23 @@ export default function Analytics() {
 
   const isLoading = studentsLoading || leadsLoading;
 
+  // Filter data by season
+  const filteredStudents = useMemo(() => {
+    if (!students) return [];
+    if (seasonFilter === 'all') return students;
+    return students.filter(s => s.graduation_year === seasonFilter);
+  }, [students, seasonFilter]);
+
+  const filteredLeads = useMemo(() => {
+    if (!leads) return [];
+    if (seasonFilter === 'all') return leads;
+    // For leads, filter by creation year as approximation for season
+    return leads.filter(l => {
+      const createdYear = new Date(l.created_at).getFullYear().toString();
+      return createdYear === seasonFilter;
+    });
+  }, [leads, seasonFilter]);
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -61,7 +94,7 @@ export default function Analytics() {
   }
 
   // Calculate students by year
-  const studentsByYear = (students || []).reduce((acc, student) => {
+  const studentsByYear = (filteredStudents || []).reduce((acc, student) => {
     const year = new Date(student.created_at).getFullYear().toString();
     acc[year] = (acc[year] || 0) + 1;
     return acc;
@@ -72,7 +105,7 @@ export default function Analytics() {
     .map(([year, count]) => ({ year, count }));
 
   // Calculate average package cost by year
-  const packageCostByYear = (students || []).reduce((acc, student) => {
+  const packageCostByYear = (filteredStudents || []).reduce((acc, student) => {
     if (student.package_cost && student.package_cost > 0) {
       const year = new Date(student.created_at).getFullYear().toString();
       if (!acc[year]) acc[year] = { total: 0, count: 0 };
@@ -90,7 +123,7 @@ export default function Analytics() {
     }));
 
   // Calculate students by source
-  const studentsBySource = (students || []).reduce((acc, student) => {
+  const studentsBySource = (filteredStudents || []).reduce((acc, student) => {
     const source = student.source || 'לא ידוע';
     acc[source] = (acc[source] || 0) + 1;
     return acc;
@@ -102,11 +135,11 @@ export default function Analytics() {
     .map(([source, count]) => ({ source, count }));
 
   // Conversion funnel data
-  const totalLeads = (leads || []).length;
-  const activeLeads = (leads || []).filter(l => !l.did_not_continue).length;
-  const convertedToStudents = (students || []).length;
-  const signedAgreement = (students || []).filter(s => s.signed_agreement).length;
-  const paidStudents = (students || []).filter(s => s.is_paid).length;
+  const totalLeads = (filteredLeads || []).length;
+  const activeLeads = (filteredLeads || []).filter(l => !l.did_not_continue).length;
+  const convertedToStudents = (filteredStudents || []).length;
+  const signedAgreement = (filteredStudents || []).filter(s => s.signed_agreement).length;
+  const paidStudents = (filteredStudents || []).filter(s => s.is_paid).length;
 
   const funnelData = [
     { name: 'מתעניינים', value: totalLeads, fill: 'hsl(var(--chart-1))' },
@@ -117,7 +150,7 @@ export default function Analytics() {
   ];
 
   // Students by degree type
-  const studentsByDegree = (students || []).reduce((acc, student) => {
+  const studentsByDegree = (filteredStudents || []).reduce((acc, student) => {
     const degree = student.degree_type || 'לא ידוע';
     acc[degree] = (acc[degree] || 0) + 1;
     return acc;
@@ -145,7 +178,7 @@ export default function Analytics() {
     };
   });
 
-  const monthlyStudents = (students || []).reduce((acc, student) => {
+  const monthlyStudents = (filteredStudents || []).reduce((acc, student) => {
     const date = new Date(student.created_at);
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     acc[key] = (acc[key] || 0) + 1;
@@ -161,9 +194,27 @@ export default function Analytics() {
     <MainLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">אנליטיקס</h1>
-          <p className="text-muted-foreground mt-1">סטטיסטיקות ונתונים על הסטודנטים והמתעניינים</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">אנליטיקס</h1>
+            <p className="text-muted-foreground mt-1">סטטיסטיקות ונתונים על הסטודנטים והמתעניינים</p>
+          </div>
+          
+          {/* Season Filter */}
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={seasonFilter} onValueChange={setSeasonFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="עונת הגשה" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל העונות</SelectItem>
+                {SEASON_YEARS.map((year) => (
+                  <SelectItem key={year} value={year}>עונת {year}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Summary Cards */}
