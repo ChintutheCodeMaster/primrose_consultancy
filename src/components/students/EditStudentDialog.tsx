@@ -367,6 +367,17 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Textarea
+              id="packageNotes"
+              value={formData.packageNotes || ''}
+              onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
+              rows={2}
+              placeholder="הערות לגבי החבילה..."
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="targetCountry">מדינה נבחרת</Label>

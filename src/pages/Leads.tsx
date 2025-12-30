@@ -50,6 +50,7 @@ export default function Leads() {
         interestedCountry: lead.interested_country || '',
         interestedField: lead.interested_field || '',
         meetingSummary: lead.meeting_summary || '',
+        packageNotes: lead.package_notes || '',
         createdAt: new Date(lead.created_at),
         lastContactAt: new Date(lead.last_contact_at),
       }));
@@ -76,6 +77,7 @@ export default function Leads() {
       interested_country: newLead.interestedCountry,
       interested_field: newLead.interestedField,
       meeting_summary: newLead.meetingSummary,
+      package_notes: newLead.packageNotes,
     });
     
     if (error) {
@@ -105,6 +107,7 @@ export default function Leads() {
         interested_country: updatedLead.interestedCountry,
         interested_field: updatedLead.interestedField,
         meeting_summary: updatedLead.meetingSummary,
+        package_notes: updatedLead.packageNotes,
       })
       .eq('id', updatedLead.id);
     
@@ -165,6 +168,7 @@ export default function Leads() {
       interested_field: newStudent.interestedField,
       source: newStudent.source,
       meeting_summary: newStudent.meetingSummary,
+      package_notes: newStudent.packageNotes,
       package_cost: newStudent.packageCost,
       payment_notes: newStudent.paymentNotes,
       advisor_name: newStudent.advisorName,

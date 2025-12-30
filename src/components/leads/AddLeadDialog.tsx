@@ -27,6 +27,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
     interestedCountry: '',
     interestedField: '',
     meetingSummary: '',
+    packageNotes: '',
     status: 'new' as LeadStatus,
   });
 
@@ -44,6 +45,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
       interestedCountry: '',
       interestedField: '',
       meetingSummary: '',
+      packageNotes: '',
       status: 'new',
     });
     setSourceSelection('');
@@ -167,6 +169,16 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
               onChange={(e) => setFormData({ ...formData, meetingSummary: e.target.value })}
               rows={3}
               placeholder="רשום כאן סיכום של השיחה או הפגישה..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Textarea
+              id="packageNotes"
+              value={formData.packageNotes}
+              onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
+              rows={2}
+              placeholder="הערות לגבי החבילה..."
             />
           </div>
           <Button type="submit" className="w-full">

@@ -180,6 +180,17 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Textarea
+              id="packageNotes"
+              value={formData.packageNotes || ''}
+              onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
+              rows={2}
+              placeholder="הערות לגבי החבילה..."
+            />
+          </div>
+
           <div className="flex gap-2 pt-4">
             <Button type="submit" className="flex-1">
               שמור שינויים

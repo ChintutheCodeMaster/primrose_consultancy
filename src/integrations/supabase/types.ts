@@ -133,6 +133,7 @@ export type Database = {
           last_contact_at: string
           meeting_summary: string | null
           name: string
+          package_notes: string | null
           phone: string
           source: string | null
           status: string
@@ -148,6 +149,7 @@ export type Database = {
           last_contact_at?: string
           meeting_summary?: string | null
           name: string
+          package_notes?: string | null
           phone: string
           source?: string | null
           status?: string
@@ -163,6 +165,7 @@ export type Database = {
           last_contact_at?: string
           meeting_summary?: string | null
           name?: string
+          package_notes?: string | null
           phone?: string
           source?: string | null
           status?: string
@@ -374,6 +377,7 @@ export type Database = {
           meeting_summary: string | null
           name: string
           package_cost: number | null
+          package_notes: string | null
           payment_notes: string | null
           phone: string
           program: string | null
@@ -402,6 +406,7 @@ export type Database = {
           meeting_summary?: string | null
           name: string
           package_cost?: number | null
+          package_notes?: string | null
           payment_notes?: string | null
           phone: string
           program?: string | null
@@ -430,6 +435,7 @@ export type Database = {
           meeting_summary?: string | null
           name?: string
           package_cost?: number | null
+          package_notes?: string | null
           payment_notes?: string | null
           phone?: string
           program?: string | null
