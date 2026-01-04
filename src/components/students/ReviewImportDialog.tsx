@@ -1,0 +1,376 @@
+import { useState, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import { 
+  AlertCircle, 
+  CheckCircle2, 
+  ChevronDown, 
+  ChevronUp,
+  Edit2,
+  Trash2,
+  Save,
+  X
+} from 'lucide-react';
+
+export interface ParsedClient {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  meetingSummary: string;
+  degreeType: string;
+  advisorName: string;
+  source: string;
+  amountPaid: number;
+  packageNotes: string;
+  acceptedTo: string;
+  notes: string;
+  hasIssues: boolean;
+  issues: string[];
+  selected: boolean;
+}
+
+interface ReviewImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  clients: ParsedClient[];
+  onImport: (clients: ParsedClient[]) => Promise<void>;
+  graduationYear: string;
+}
+
+export function ReviewImportDialog({ 
+  open, 
+  onOpenChange, 
+  clients: initialClients, 
+  onImport,
+  graduationYear 
+}: ReviewImportDialogProps) {
+  const [clients, setClients] = useState<ParsedClient[]>(initialClients);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [filterIssues, setFilterIssues] = useState(false);
+
+  const filteredClients = useMemo(() => {
+    if (filterIssues) {
+      return clients.filter(c => c.hasIssues);
+    }
+    return clients;
+  }, [clients, filterIssues]);
+
+  const selectedClients = useMemo(() => clients.filter(c => c.selected), [clients]);
+  const clientsWithIssues = useMemo(() => clients.filter(c => c.hasIssues), [clients]);
+
+  const toggleSelect = (id: string) => {
+    setClients(prev => prev.map(c => 
+      c.id === id ? { ...c, selected: !c.selected } : c
+    ));
+  };
+
+  const toggleSelectAll = () => {
+    const allSelected = filteredClients.every(c => c.selected);
+    const ids = new Set(filteredClients.map(c => c.id));
+    setClients(prev => prev.map(c => 
+      ids.has(c.id) ? { ...c, selected: !allSelected } : c
+    ));
+  };
+
+  const updateClient = (id: string, updates: Partial<ParsedClient>) => {
+    setClients(prev => prev.map(c => {
+      if (c.id !== id) return c;
+      const updated = { ...c, ...updates };
+      // Recalculate issues
+      const issues: string[] = [];
+      if (!updated.name.trim()) issues.push('חסר שם');
+      if (!updated.email.trim() && !updated.phone.trim()) issues.push('חסר אימייל או טלפון');
+      updated.issues = issues;
+      updated.hasIssues = issues.length > 0;
+      return updated;
+    }));
+  };
+
+  const removeClient = (id: string) => {
+    setClients(prev => prev.filter(c => c.id !== id));
+  };
+
+  const handleImport = async () => {
+    if (selectedClients.length === 0) return;
+    setIsLoading(true);
+    try {
+      await onImport(selectedClients);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Import error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>סקירת נתונים לפני ייבוא - לקוחות עבר {graduationYear}</DialogTitle>
+          <DialogDescription>
+            נמצאו {clients.length} רשומות. סקור ותקן את הנתונים לפני הייבוא.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Summary */}
+        <div className="flex flex-wrap gap-3 py-2 border-b">
+          <Badge variant="outline" className="gap-1">
+            <CheckCircle2 className="h-3 w-3 text-green-500" />
+            נבחרו: {selectedClients.length}
+          </Badge>
+          <Badge variant="outline" className="gap-1">
+            <AlertCircle className="h-3 w-3 text-amber-500" />
+            עם בעיות: {clientsWithIssues.length}
+          </Badge>
+          <div className="flex items-center gap-2 mr-auto">
+            <Checkbox 
+              id="filter-issues" 
+              checked={filterIssues}
+              onCheckedChange={(checked) => setFilterIssues(checked === true)}
+            />
+            <label htmlFor="filter-issues" className="text-sm cursor-pointer">
+              הצג רק רשומות עם בעיות
+            </label>
+          </div>
+        </div>
+
+        {/* Select All */}
+        <div className="flex items-center gap-2 py-2 border-b">
+          <Checkbox 
+            id="select-all"
+            checked={filteredClients.length > 0 && filteredClients.every(c => c.selected)}
+            onCheckedChange={toggleSelectAll}
+          />
+          <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
+            בחר הכל ({filteredClients.length})
+          </label>
+        </div>
+
+        {/* Client List */}
+        <ScrollArea className="flex-1 -mx-6 px-6">
+          <div className="space-y-2 py-2">
+            {filteredClients.map((client) => (
+              <div 
+                key={client.id}
+                className={`border rounded-lg overflow-hidden ${
+                  client.hasIssues ? 'border-amber-300 bg-amber-50/50' : 'border-border'
+                }`}
+              >
+                {/* Header Row */}
+                <div className="flex items-center gap-3 p-3">
+                  <Checkbox 
+                    checked={client.selected}
+                    onCheckedChange={() => toggleSelect(client.id)}
+                  />
+                  <div 
+                    className="flex-1 cursor-pointer"
+                    onClick={() => setExpandedId(expandedId === client.id ? null : client.id)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{client.name || '(ללא שם)'}</span>
+                      {client.hasIssues && (
+                        <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
+                          {client.issues.join(', ')}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground flex flex-wrap gap-2 mt-1">
+                      {client.email && <span>{client.email}</span>}
+                      {client.phone && <span>{client.phone}</span>}
+                      {client.advisorName && <span>יועץ: {client.advisorName}</span>}
+                      {client.amountPaid > 0 && <span>שולם: ₪{client.amountPaid.toLocaleString()}</span>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditingId(editingId === client.id ? null : client.id)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeClient(client.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setExpandedId(expandedId === client.id ? null : client.id)}
+                    >
+                      {expandedId === client.id ? 
+                        <ChevronUp className="h-4 w-4" /> : 
+                        <ChevronDown className="h-4 w-4" />
+                      }
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Expanded View */}
+                {expandedId === client.id && !editingId && (
+                  <div className="border-t p-3 bg-muted/30 text-sm space-y-2">
+                    {client.meetingSummary && (
+                      <div>
+                        <span className="font-medium">סיכום פגישה: </span>
+                        <span className="whitespace-pre-wrap">{client.meetingSummary}</span>
+                      </div>
+                    )}
+                    {client.packageNotes && (
+                      <div>
+                        <span className="font-medium">הערות חבילה: </span>
+                        <span>{client.packageNotes}</span>
+                      </div>
+                    )}
+                    {client.acceptedTo && (
+                      <div>
+                        <span className="font-medium">התקבל ל: </span>
+                        <span>{client.acceptedTo}</span>
+                      </div>
+                    )}
+                    {client.notes && (
+                      <div>
+                        <span className="font-medium">הערות: </span>
+                        <span>{client.notes}</span>
+                      </div>
+                    )}
+                    {client.degreeType && (
+                      <div>
+                        <span className="font-medium">סוג תואר: </span>
+                        <span>{client.degreeType}</span>
+                      </div>
+                    )}
+                    {client.source && (
+                      <div>
+                        <span className="font-medium">מקור: </span>
+                        <span>{client.source}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Edit Mode */}
+                {editingId === client.id && (
+                  <div className="border-t p-3 bg-muted/30 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-sm font-medium">שם</label>
+                        <Input
+                          value={client.name}
+                          onChange={(e) => updateClient(client.id, { name: e.target.value })}
+                          placeholder="שם מלא"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">אימייל</label>
+                        <Input
+                          value={client.email}
+                          onChange={(e) => updateClient(client.id, { email: e.target.value })}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">טלפון</label>
+                        <Input
+                          value={client.phone}
+                          onChange={(e) => updateClient(client.id, { phone: e.target.value })}
+                          placeholder="050-1234567"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">יועץ</label>
+                        <Input
+                          value={client.advisorName}
+                          onChange={(e) => updateClient(client.id, { advisorName: e.target.value })}
+                          placeholder="שם היועץ"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">סכום ששולם</label>
+                        <Input
+                          type="number"
+                          value={client.amountPaid}
+                          onChange={(e) => updateClient(client.id, { amountPaid: Number(e.target.value) || 0 })}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">מקור</label>
+                        <Input
+                          value={client.source}
+                          onChange={(e) => updateClient(client.id, { source: e.target.value })}
+                          placeholder="מקור הגעה"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">סיכום פגישה</label>
+                      <Textarea
+                        value={client.meetingSummary}
+                        onChange={(e) => updateClient(client.id, { meetingSummary: e.target.value })}
+                        placeholder="סיכום הפגישה..."
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">הערות חבילה</label>
+                      <Input
+                        value={client.packageNotes}
+                        onChange={(e) => updateClient(client.id, { packageNotes: e.target.value })}
+                        placeholder="פרטי החבילה..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">התקבל ל</label>
+                      <Input
+                        value={client.acceptedTo}
+                        onChange={(e) => updateClient(client.id, { acceptedTo: e.target.value })}
+                        placeholder="שם האוניברסיטה/תכנית"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button size="sm" onClick={() => setEditingId(null)}>
+                        <Save className="h-4 w-4 ml-1" />
+                        סיום עריכה
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            ביטול
+          </Button>
+          <Button 
+            onClick={handleImport} 
+            disabled={isLoading || selectedClients.length === 0}
+          >
+            {isLoading ? 'מייבא...' : `ייבא ${selectedClients.length} לקוחות`}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
