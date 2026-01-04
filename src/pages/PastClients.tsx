@@ -4,6 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { ImportExcelDialog, ImportedStudent } from '@/components/students/ImportExcelDialog';
+import { ReviewImportDialog, ParsedClient } from '@/components/students/ReviewImportDialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Upload } from 'lucide-react';
@@ -18,6 +19,8 @@ export default function PastClients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
 
   const { data: pastClients = [], isLoading } = useQuery({
     queryKey: ['past-clients', year],
@@ -154,6 +157,40 @@ export default function PastClients() {
     toast.success(`${students.length} לקוחות יובאו בהצלחה!`);
   };
 
+  const handleReviewImport = async (clients: ParsedClient[]) => {
+    const studentsToInsert = clients.map(client => ({
+      name: client.name,
+      email: client.email || 'לא צוין',
+      phone: client.phone || 'לא צוין',
+      graduation_year: year || '2026',
+      degree_type: client.degreeType || 'bachelor',
+      target_university: client.acceptedTo || null,
+      package_cost: 0,
+      amount_paid: client.amountPaid || 0,
+      advisor_name: client.advisorName || null,
+      source: client.source || null,
+      meeting_summary: client.meetingSummary || null,
+      package_notes: client.packageNotes || null,
+      status: 'graduated',
+      is_paid: true,
+      signed_agreement: true,
+    }));
+
+    const { error } = await supabase
+      .from('students')
+      .insert(studentsToInsert);
+
+    if (error) {
+      console.error('Error importing students:', error);
+      toast.error('שגיאה בייבוא הלקוחות');
+      throw error;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
+    toast.success(`${clients.length} לקוחות יובאו בהצלחה!`);
+    setShowReviewDialog(false);
+  };
+
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -217,6 +254,14 @@ export default function PastClients() {
           onOpenChange={setShowImportDialog}
           onImport={handleImportStudents}
           graduationYear={year || new Date().getFullYear().toString()}
+        />
+
+        <ReviewImportDialog
+          open={showReviewDialog}
+          onOpenChange={setShowReviewDialog}
+          clients={reviewClients}
+          onImport={handleReviewImport}
+          graduationYear={year || '2026'}
         />
 
         {!isLoading && filteredClients.length === 0 && (
