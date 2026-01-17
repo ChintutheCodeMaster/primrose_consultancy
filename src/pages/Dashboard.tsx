@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download } from 'lucide-react';
+import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { differenceInDays, format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -292,6 +292,44 @@ export default function Dashboard() {
     }
   });
 
+  // Fetch recently signed agreements (not dismissed)
+  const { data: recentAgreements = [] } = useQuery({
+    queryKey: ['recent-agreements'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('student_agreements')
+        .select(`
+          id,
+          student_id,
+          first_name,
+          last_name,
+          signed_at,
+          notification_dismissed
+        `)
+        .eq('notification_dismissed', false)
+        .order('signed_at', { ascending: false })
+        .limit(10);
+      
+      if (error) throw error;
+      
+      // Get student names for each agreement
+      const studentIds = (data || []).map(a => a.student_id);
+      const { data: studentsData } = await supabase
+        .from('students')
+        .select('id, name')
+        .in('id', studentIds);
+      
+      const studentMap = new Map((studentsData || []).map(s => [s.id, s.name]));
+      
+      return (data || []).map(a => ({
+        id: a.id,
+        studentId: a.student_id,
+        studentName: studentMap.get(a.student_id) || `${a.first_name} ${a.last_name}`,
+        signedAt: new Date(a.signed_at),
+      }));
+    }
+  });
+
   // Mutation to dismiss student from attention
   const dismissMutation = useMutation({
     mutationFn: async (studentId: string) => {
@@ -313,6 +351,32 @@ export default function Dashboard() {
       toast({
         title: "שגיאה",
         description: "לא ניתן להסיר את הסטודנט מהרשימה",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation to dismiss agreement notification
+  const dismissAgreementMutation = useMutation({
+    mutationFn: async (agreementId: string) => {
+      const { error } = await supabase
+        .from('student_agreements')
+        .update({ notification_dismissed: true })
+        .eq('id', agreementId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-agreements'] });
+      toast({
+        title: "ההתראה הוסרה",
+        description: "ההתראה על חתימת ההסכם הוסרה",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן להסיר את ההתראה",
         variant: "destructive",
       });
     }
@@ -550,6 +614,45 @@ export default function Dashboard() {
             icon={UserCheck}
           />
         </div>
+
+        {/* Recently Signed Agreements Notification */}
+        {recentAgreements.length > 0 && (
+          <div className="mb-8 bg-success/10 border border-success/30 rounded-xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <FileCheck className="h-5 w-5 text-success" />
+              <h2 className="text-lg font-semibold text-foreground">הסכמים שנחתמו לאחרונה</h2>
+            </div>
+            <div className="space-y-2">
+              {recentAgreements.map((agreement) => (
+                <div 
+                  key={agreement.id} 
+                  className="flex items-center justify-between bg-card rounded-lg px-4 py-3 border border-border/50 animate-fade-in"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-success" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{agreement.studentName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        נחתם ב-{format(agreement.signedAt, 'dd/MM/yyyy HH:mm')}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => dismissAgreementMutation.mutate(agreement.id)}
+                    title="הסר התראה"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
