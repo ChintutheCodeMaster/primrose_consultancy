@@ -51,6 +51,12 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
   const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
   const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
 
+  // Defensive: support both camelCase (app model) and snake_case (DB rows)
+  const amountPaid =
+    typeof student.amountPaid === 'number'
+      ? student.amountPaid
+      : Number((student as any).amount_paid ?? 0);
+
   const copyAgreementLink = () => {
     const link = `${window.location.origin}/agreement/${student.id}?type=${agreementType}`;
     navigator.clipboard.writeText(link);
@@ -271,7 +277,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         </div>
         <div className="flex items-center gap-2 text-muted-foreground font-medium">
           <DollarSign className="h-4 w-4 shrink-0 text-success" />
-          <span className="text-success">שולם בפועל: ₪{(student.amountPaid || 0).toLocaleString()}</span>
+          <span className="text-success">שולם בפועל: ₪{amountPaid.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <User className="h-4 w-4 shrink-0" />
