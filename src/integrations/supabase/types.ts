@@ -368,7 +368,7 @@ export type Database = {
           degree_type: string
           did_not_continue: boolean | null
           dismissed_from_attention: boolean | null
-          email: string
+          email: string | null
           graduation_year: string | null
           id: string
           interested_country: string | null
@@ -397,7 +397,7 @@ export type Database = {
           degree_type?: string
           did_not_continue?: boolean | null
           dismissed_from_attention?: boolean | null
-          email: string
+          email?: string | null
           graduation_year?: string | null
           id?: string
           interested_country?: string | null
@@ -426,7 +426,7 @@ export type Database = {
           degree_type?: string
           did_not_continue?: boolean | null
           dismissed_from_attention?: boolean | null
-          email?: string
+          email?: string | null
           graduation_year?: string | null
           id?: string
           interested_country?: string | null
