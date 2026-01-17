@@ -18,7 +18,27 @@ interface FormData {
   idNumber: string;
   address: string;
   agreed: boolean;
+  // MBA specific fields
+  mbaPackageSelections: string[];
+  mbaPackageOther: string;
+  mbaPaymentOption: string;
+  mbaPaymentOther: string;
+  linkedinProfile: string;
 }
+
+const MBA_PACKAGE_OPTIONS = [
+  "טיוב קורות חיים",
+  "טיוב פרופיל לינקדאין",
+  "עזרה בכתיבת חיבורים",
+  "הכנה לראיונות",
+  "ליווי אישי מלא",
+];
+
+const MBA_PAYMENT_OPTIONS = [
+  "תשלום ראשון עבור החבילה (1-4 תשלומים)",
+  "מקדמה ע״ס 10% מעלות החבילה הכוללת",
+  "אחר",
+];
 
 const Agreement = () => {
   const { studentId } = useParams<{ studentId: string }>();
@@ -41,7 +61,14 @@ const Agreement = () => {
     idNumber: "",
     address: "",
     agreed: false,
+    mbaPackageSelections: [],
+    mbaPackageOther: "",
+    mbaPaymentOption: "",
+    mbaPaymentOther: "",
+    linkedinProfile: "",
   });
+  
+  const isMba = agreementType === "mba";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,6 +144,34 @@ const Agreement = () => {
       return;
     }
 
+    // MBA-specific validations
+    if (isMba) {
+      if (formData.mbaPackageSelections.length === 0 && !formData.mbaPackageOther) {
+        toast({
+          title: "שגיאה",
+          description: "יש לבחור לפחות אפשרות אחת בשאלת החבילה",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!formData.mbaPaymentOption) {
+        toast({
+          title: "שגיאה",
+          description: "יש לבחור אופן תשלום",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (formData.mbaPaymentOption === "אחר" && !formData.mbaPaymentOther) {
+        toast({
+          title: "שגיאה",
+          description: "יש לפרט את אופן התשלום",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
@@ -133,6 +188,14 @@ const Agreement = () => {
           id_number: formData.idNumber,
           address: formData.address,
           user_agent: navigator.userAgent,
+          // MBA specific fields
+          ...(isMba && {
+            mba_package_selections: formData.mbaPackageSelections.length > 0 ? formData.mbaPackageSelections : null,
+            mba_package_other: formData.mbaPackageOther || null,
+            mba_payment_option: formData.mbaPaymentOption || null,
+            mba_payment_other: formData.mbaPaymentOption === "אחר" ? formData.mbaPaymentOther : null,
+            linkedin_profile: formData.linkedinProfile || null,
+          }),
         });
 
       if (agreementError) throw agreementError;
@@ -328,6 +391,128 @@ const Agreement = () => {
                   />
                 </div>
               </div>
+
+              {/* MBA-specific fields - before address */}
+              {isMba && (
+                <>
+                  {/* Package Selection - Multiple Choice */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <Label className="text-base font-semibold">
+                      אנא סמן את השירותים שהוזמנו *
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      במידה ובחרת בחבילה שלמה אנא סמן ״ליווי אישי מלא״
+                    </p>
+                    <div className="space-y-2">
+                      {MBA_PACKAGE_OPTIONS.map((option) => (
+                        <div key={option} className="flex items-center space-x-2 space-x-reverse">
+                          <Checkbox
+                            id={`package-${option}`}
+                            checked={formData.mbaPackageSelections.includes(option)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  mbaPackageSelections: [...formData.mbaPackageSelections, option],
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  mbaPackageSelections: formData.mbaPackageSelections.filter(
+                                    (s) => s !== option
+                                  ),
+                                });
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`package-${option}`} className="font-normal cursor-pointer">
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                      {/* Other option with text input */}
+                      <div className="flex items-start space-x-2 space-x-reverse gap-2">
+                        <div className="flex items-center space-x-2 space-x-reverse mt-2">
+                          <Checkbox
+                            id="package-other"
+                            checked={formData.mbaPackageOther.length > 0}
+                            onCheckedChange={(checked) => {
+                              if (!checked) {
+                                setFormData({ ...formData, mbaPackageOther: "" });
+                              }
+                            }}
+                          />
+                          <Label htmlFor="package-other" className="font-normal cursor-pointer">
+                            אחר:
+                          </Label>
+                        </div>
+                        <Input
+                          placeholder="נא לפרט"
+                          value={formData.mbaPackageOther}
+                          onChange={(e) =>
+                            setFormData({ ...formData, mbaPackageOther: e.target.value })
+                          }
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Option - Single Choice */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <Label className="text-base font-semibold">
+                      אנא בחר באופן התשלום *
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      במידה וסיכמת על אופן תשלום אחר עם נציג נוגה אנא סמן ״אחר״
+                    </p>
+                    <div className="space-y-2">
+                      {MBA_PAYMENT_OPTIONS.map((option) => (
+                        <div key={option} className="flex items-center space-x-2 space-x-reverse">
+                          <input
+                            type="radio"
+                            id={`payment-${option}`}
+                            name="mbaPaymentOption"
+                            value={option}
+                            checked={formData.mbaPaymentOption === option}
+                            onChange={(e) =>
+                              setFormData({ ...formData, mbaPaymentOption: e.target.value })
+                            }
+                            className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                          />
+                          <Label htmlFor={`payment-${option}`} className="font-normal cursor-pointer">
+                            {option === "אחר" ? "אחר, נא לפרט כאן:" : option}
+                          </Label>
+                        </div>
+                      ))}
+                      {formData.mbaPaymentOption === "אחר" && (
+                        <Input
+                          placeholder="נא לפרט את אופן התשלום"
+                          value={formData.mbaPaymentOther}
+                          onChange={(e) =>
+                            setFormData({ ...formData, mbaPaymentOther: e.target.value })
+                          }
+                          className="mr-6"
+                          required
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* LinkedIn Profile - Optional */}
+                  <div className="pt-4 border-t">
+                    <Label htmlFor="linkedinProfile">פרופיל לינקדאין</Label>
+                    <Input
+                      id="linkedinProfile"
+                      value={formData.linkedinProfile}
+                      onChange={(e) =>
+                        setFormData({ ...formData, linkedinProfile: e.target.value })
+                      }
+                      placeholder="https://linkedin.com/in/..."
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <Label htmlFor="address">כתובת מגורים *</Label>

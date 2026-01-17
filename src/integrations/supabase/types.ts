@@ -183,6 +183,11 @@ export type Database = {
           id_number: string
           ip_address: string | null
           last_name: string
+          linkedin_profile: string | null
+          mba_package_other: string | null
+          mba_package_selections: string[] | null
+          mba_payment_option: string | null
+          mba_payment_other: string | null
           notification_dismissed: boolean | null
           phone: string
           signed_at: string
@@ -199,6 +204,11 @@ export type Database = {
           id_number: string
           ip_address?: string | null
           last_name: string
+          linkedin_profile?: string | null
+          mba_package_other?: string | null
+          mba_package_selections?: string[] | null
+          mba_payment_option?: string | null
+          mba_payment_other?: string | null
           notification_dismissed?: boolean | null
           phone: string
           signed_at?: string
@@ -215,6 +225,11 @@ export type Database = {
           id_number?: string
           ip_address?: string | null
           last_name?: string
+          linkedin_profile?: string | null
+          mba_package_other?: string | null
+          mba_package_selections?: string[] | null
+          mba_payment_option?: string | null
+          mba_payment_other?: string | null
           notification_dismissed?: boolean | null
           phone?: string
           signed_at?: string
