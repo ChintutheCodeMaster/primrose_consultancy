@@ -183,6 +183,7 @@ export type Database = {
           id_number: string
           ip_address: string | null
           last_name: string
+          notification_dismissed: boolean | null
           phone: string
           signed_at: string
           student_id: string
@@ -198,6 +199,7 @@ export type Database = {
           id_number: string
           ip_address?: string | null
           last_name: string
+          notification_dismissed?: boolean | null
           phone: string
           signed_at?: string
           student_id: string
@@ -213,6 +215,7 @@ export type Database = {
           id_number?: string
           ip_address?: string | null
           last_name?: string
+          notification_dismissed?: boolean | null
           phone?: string
           signed_at?: string
           student_id?: string
