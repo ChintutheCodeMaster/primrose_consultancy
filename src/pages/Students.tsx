@@ -285,147 +285,150 @@ export default function Students() {
   return (
     <MainLayout>
       <div className="animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">סטודנטים</h1>
-            <p className="text-muted-foreground mt-1">ניהול סטודנטים בליווי ({filteredStudents.length})</p>
-          </div>
-          <AddStudentDialog onAdd={handleAddStudent} />
-        </div>
-
-        {/* Search */}
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
+        {/* Sticky Header and Search */}
+        <div className="sticky top-0 z-10 bg-background pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8 pt-2">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">סטודנטים</h1>
+              <p className="text-muted-foreground mt-1">ניהול סטודנטים בליווי ({filteredStudents.length})</p>
             </div>
-            {hasActiveFilters && (
-              <Button variant="outline" onClick={clearAllFilters} className="gap-2">
-                <X className="h-4 w-4" />
-                נקה סינונים
-              </Button>
-            )}
+            <AddStudentDialog onAdd={handleAddStudent} />
           </div>
 
-          {/* Filter Row 1 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StudentStatus | 'all')}>
-              <SelectTrigger>
-                <SelectValue placeholder="סטטוס" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
-                {Object.entries(studentStatusLabels)
-                  .filter(([value]) => value !== 'graduated')
-                  .map(([value, label]) => (
+          {/* Search */}
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pr-10"
+                />
+              </div>
+              {hasActiveFilters && (
+                <Button variant="outline" onClick={clearAllFilters} className="gap-2">
+                  <X className="h-4 w-4" />
+                  נקה סינונים
+                </Button>
+              )}
+            </div>
+
+            {/* Filter Row 1 */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StudentStatus | 'all')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="סטטוס" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל הסטטוסים</SelectItem>
+                  {Object.entries(studentStatusLabels)
+                    .filter(([value]) => value !== 'graduated')
+                    .map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={advisorFilter} onValueChange={setAdvisorFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="יועץ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל היועצים</SelectItem>
+                  {filterOptions.advisors.map((advisor) => (
+                    <SelectItem key={advisor} value={advisor}>{advisor}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="תשלום" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל סטטוסי תשלום</SelectItem>
+                  <SelectItem value="paid">שולם</SelectItem>
+                  <SelectItem value="unpaid">לא שולם</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={countryFilter} onValueChange={setCountryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="מדינה" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל המדינות</SelectItem>
+                  {filterOptions.countries.map((country) => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={degreeFilter} onValueChange={(v) => setDegreeFilter(v as DegreeType | 'all')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="סוג תואר" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל סוגי התואר</SelectItem>
+                  {Object.entries(degreeTypeLabels).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={advisorFilter} onValueChange={setAdvisorFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="יועץ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל היועצים</SelectItem>
-                {filterOptions.advisors.map((advisor) => (
-                  <SelectItem key={advisor} value={advisor}>{advisor}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Filter Row 2 */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <Select value={fieldFilter} onValueChange={setFieldFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="תחום לימודים" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל התחומים</SelectItem>
+                  {filterOptions.fields.map((field) => (
+                    <SelectItem key={field} value={field}>{field}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="תשלום" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל סטטוסי תשלום</SelectItem>
-                <SelectItem value="paid">שולם</SelectItem>
-                <SelectItem value="unpaid">לא שולם</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="מקור הגעה" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל המקורות</SelectItem>
+                  {filterOptions.sources.map((source) => (
+                    <SelectItem key={source} value={source}>{source}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={countryFilter} onValueChange={setCountryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="מדינה" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל המדינות</SelectItem>
-                {filterOptions.countries.map((country) => (
-                  <SelectItem key={country} value={country}>{country}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={costFilter} onValueChange={setCostFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="טווח עלות" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל העלויות</SelectItem>
+                  <SelectItem value="under10k">עד ₪10,000</SelectItem>
+                  <SelectItem value="10k-20k">₪10,000 - ₪20,000</SelectItem>
+                  <SelectItem value="over20k">מעל ₪20,000</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={degreeFilter} onValueChange={(v) => setDegreeFilter(v as DegreeType | 'all')}>
-              <SelectTrigger>
-                <SelectValue placeholder="סוג תואר" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל סוגי התואר</SelectItem>
-                {Object.entries(degreeTypeLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Filter Row 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            <Select value={fieldFilter} onValueChange={setFieldFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="תחום לימודים" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל התחומים</SelectItem>
-                {filterOptions.fields.map((field) => (
-                  <SelectItem key={field} value={field}>{field}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="מקור הגעה" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל המקורות</SelectItem>
-                {filterOptions.sources.map((source) => (
-                  <SelectItem key={source} value={source}>{source}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={costFilter} onValueChange={setCostFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="טווח עלות" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל העלויות</SelectItem>
-                <SelectItem value="under10k">עד ₪10,000</SelectItem>
-                <SelectItem value="10k-20k">₪10,000 - ₪20,000</SelectItem>
-                <SelectItem value="over20k">מעל ₪20,000</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={acceptedFilter} onValueChange={setAcceptedFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="האם התקבל" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">הכל</SelectItem>
-                <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
-                <SelectItem value="no">טרם התקבל</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={acceptedFilter} onValueChange={setAcceptedFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="האם התקבל" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">הכל</SelectItem>
+                  <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
+                  <SelectItem value="no">טרם התקבל</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
