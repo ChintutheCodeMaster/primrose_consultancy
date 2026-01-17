@@ -35,7 +35,7 @@ export interface ImportedStudent {
 
 const TEMPLATE_COLUMNS = [
   { key: 'name', label: 'שם מלא', required: true },
-  { key: 'email', label: 'אימייל', required: true },
+  { key: 'email', label: 'אימייל', required: false },
   { key: 'phone', label: 'טלפון', required: true },
   { key: 'graduation_year', label: 'שנת סיום', required: true },
   { key: 'degree_type', label: 'סוג תואר', required: false },
@@ -103,13 +103,13 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
           const gradYear = String(row[headers.indexOf('שנת סיום')] || graduationYear).trim();
 
           if (!name) parseErrors.push(`שורה ${rowNum}: חסר שם מלא`);
-          if (!email) parseErrors.push(`שורה ${rowNum}: חסר אימייל`);
+          if (!email) parseErrors.push(`שורה ${rowNum}: ⚠️ חסר אימייל (אופציונלי)`);
           if (!phone) parseErrors.push(`שורה ${rowNum}: חסר טלפון`);
 
-          if (name && email && phone) {
+          if (name && phone) {
             students.push({
               name,
-              email,
+              email: email || '',
               phone,
               graduationYear: gradYear,
               degreeType: String(row[headers.indexOf('סוג תואר')] || '').trim() || undefined,

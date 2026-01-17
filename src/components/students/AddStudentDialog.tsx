@@ -141,8 +141,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
+              className={!formData.email ? 'border-orange-300' : ''}
             />
+            {!formData.email && (
+              <p className="text-xs text-orange-600">⚠️ לא הוזנה כתובת אימייל</p>
+            )}
           </div>
 
           {/* Lead-like Info */}
