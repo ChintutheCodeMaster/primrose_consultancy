@@ -269,9 +269,9 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <DollarSign className="h-4 w-4 shrink-0" />
           <span>עלות חבילה: ₪{student.packageCost.toLocaleString()}</span>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground font-medium">
           <DollarSign className="h-4 w-4 shrink-0 text-success" />
-          <span>שולם בפועל: ₪{(student.amountPaid || 0).toLocaleString()}</span>
+          <span className="text-success">שולם בפועל: ₪{(student.amountPaid || 0).toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <User className="h-4 w-4 shrink-0" />
