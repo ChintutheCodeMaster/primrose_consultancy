@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -8,7 +8,7 @@ import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
 import { ConvertToStudentDialog } from '@/components/leads/ConvertToStudentDialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ArrowUpDown } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +18,7 @@ export default function Leads() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   
   // Edit dialog state
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
@@ -57,14 +58,22 @@ export default function Leads() {
     }
   });
 
-  const filteredLeads = leads.filter(lead => {
-    const matchesSearch = lead.name.includes(searchTerm) || 
-                         lead.email.includes(searchTerm) || 
-                         lead.phone.includes(searchTerm) ||
-                         lead.interestedField.includes(searchTerm);
-    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredLeads = useMemo(() => {
+    const filtered = leads.filter(lead => {
+      const matchesSearch = lead.name.includes(searchTerm) || 
+                           lead.email.includes(searchTerm) || 
+                           lead.phone.includes(searchTerm) ||
+                           lead.interestedField.includes(searchTerm);
+      const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+    
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [leads, searchTerm, statusFilter, sortOrder]);
 
   const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => {
     const { error } = await supabase.from('leads').insert({
@@ -244,6 +253,16 @@ export default function Leads() {
                 {Object.entries(leadStatusLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>{label}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+              <SelectTrigger className="w-full sm:w-48">
+                <ArrowUpDown className="h-4 w-4 ml-2" />
+                <SelectValue placeholder="מיון" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">מהחדש לישן</SelectItem>
+                <SelectItem value="oldest">מהישן לחדש</SelectItem>
               </SelectContent>
             </Select>
           </div>

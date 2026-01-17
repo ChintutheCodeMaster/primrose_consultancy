@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
@@ -6,8 +6,9 @@ import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { ImportExcelDialog, ImportedStudent } from '@/components/students/ImportExcelDialog';
 import { ReviewImportDialog, ParsedClient } from '@/components/students/ReviewImportDialog';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Upload } from 'lucide-react';
+import { Search, Upload, ArrowUpDown } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Student } from '@/types/crm';
@@ -17,6 +18,7 @@ export default function PastClients() {
   const { year } = useParams<{ year: string }>();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);
@@ -69,14 +71,22 @@ export default function PastClients() {
     }
   });
 
-  const filteredClients = pastClients.filter(student => {
-    const search = searchTerm.toLowerCase();
-    return student.name.toLowerCase().includes(search) || 
-           student.email.toLowerCase().includes(search) || 
-           student.phone.includes(searchTerm) ||
-           student.targetUniversity?.toLowerCase().includes(search) ||
-           student.targetCountry?.toLowerCase().includes(search);
-  });
+  const filteredClients = useMemo(() => {
+    const filtered = pastClients.filter(student => {
+      const search = searchTerm.toLowerCase();
+      return student.name.toLowerCase().includes(search) || 
+             student.email.toLowerCase().includes(search) || 
+             student.phone.includes(searchTerm) ||
+             student.targetUniversity?.toLowerCase().includes(search) ||
+             student.targetCountry?.toLowerCase().includes(search);
+    });
+    
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [pastClients, searchTerm, sortOrder]);
 
   const handleEditStudent = async (updatedStudent: Student) => {
     const { error } = await supabase
@@ -221,6 +231,16 @@ export default function PastClients() {
                 className="pr-10"
               />
             </div>
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+              <SelectTrigger className="w-full sm:w-48">
+                <ArrowUpDown className="h-4 w-4 ml-2" />
+                <SelectValue placeholder="מיון" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">מהחדש לישן</SelectItem>
+                <SelectItem value="oldest">מהישן לחדש</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

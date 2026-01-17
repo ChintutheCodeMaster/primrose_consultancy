@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -59,6 +60,7 @@ const degreeTypeLabels: Record<string, string> = {
 export default function DidNotContinue() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedLead, setSelectedLead] = useState<FullLead | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<FullStudent | null>(null);
 
@@ -129,17 +131,31 @@ export default function DidNotContinue() {
     }
   });
 
-  const filteredLeads = leads.filter(lead =>
-    lead.name.includes(searchTerm) ||
-    lead.email.includes(searchTerm) ||
-    lead.phone.includes(searchTerm)
-  );
+  const filteredLeads = useMemo(() => {
+    const filtered = leads.filter(lead =>
+      lead.name.includes(searchTerm) ||
+      lead.email.includes(searchTerm) ||
+      lead.phone.includes(searchTerm)
+    );
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [leads, searchTerm, sortOrder]);
 
-  const filteredStudents = students.filter(student =>
-    student.name.includes(searchTerm) ||
-    student.email.includes(searchTerm) ||
-    student.phone.includes(searchTerm)
-  );
+  const filteredStudents = useMemo(() => {
+    const filtered = students.filter(student =>
+      student.name.includes(searchTerm) ||
+      student.email.includes(searchTerm) ||
+      student.phone.includes(searchTerm)
+    );
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [students, searchTerm, sortOrder]);
 
   const isLoading = leadsLoading || studentsLoading;
 
@@ -171,15 +187,27 @@ export default function DidNotContinue() {
             </div>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="חיפוש לפי שם, אימייל או טלפון..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
+          {/* Search and Sort */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="חיפוש לפי שם, אימייל או טלפון..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pr-10"
+              />
+            </div>
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+              <SelectTrigger className="w-full sm:w-48">
+                <ArrowUpDown className="h-4 w-4 ml-2" />
+                <SelectValue placeholder="מיון" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">מהחדש לישן</SelectItem>
+                <SelectItem value="oldest">מהישן לחדש</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
