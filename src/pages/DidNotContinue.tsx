@@ -156,28 +156,31 @@ export default function DidNotContinue() {
   return (
     <MainLayout>
       <div className="animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-              <UserX className="h-8 w-8 text-muted-foreground" />
-              לא המשיכו
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              מתעניינים וסטודנטים שלא המשיכו בתהליך ({leads.length + students.length} סה״כ)
-            </p>
+        {/* Sticky Header and Search */}
+        <div className="sticky top-0 z-10 bg-background pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8 pt-2">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <UserX className="h-8 w-8 text-muted-foreground" />
+                לא המשיכו
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                מתעניינים וסטודנטים שלא המשיכו בתהליך ({leads.length + students.length} סה״כ)
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="חיפוש לפי שם, אימייל או טלפון..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pr-10"
-          />
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="חיפוש לפי שם, אימייל או טלפון..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
+          </div>
         </div>
 
         {/* Tabs */}
