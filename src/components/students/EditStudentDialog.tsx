@@ -249,8 +249,11 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
+              className={!formData.email ? 'border-orange-300' : ''}
             />
+            {!formData.email && (
+              <p className="text-xs text-orange-600">⚠️ לא הוזנה כתובת אימייל</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
