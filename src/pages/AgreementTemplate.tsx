@@ -12,7 +12,7 @@ import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-reac
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import nogaLogo from "@/assets/noga-logo.png";
 
-type AgreementType = 'package' | 'hourly' | 'edit';
+type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 interface AgreementTemplate {
   id: string;
@@ -27,6 +27,7 @@ const agreementTypeConfig: Record<AgreementType, { label: string; icon: typeof P
   package: { label: 'חבילה', icon: Package },
   hourly: { label: 'שעתי', icon: Clock },
   edit: { label: 'לערוך', icon: Edit3 },
+  mba: { label: 'MBA', icon: Package },
 };
 
 export default function AgreementTemplate() {
@@ -36,6 +37,7 @@ export default function AgreementTemplate() {
     package: null,
     hourly: null,
     edit: null,
+    mba: null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<AgreementType | null>(null);
@@ -43,11 +45,13 @@ export default function AgreementTemplate() {
     package: '',
     hourly: '',
     edit: '',
+    mba: '',
   });
   const [editedName, setEditedName] = useState<Record<AgreementType, string>>({
     package: '',
     hourly: '',
     edit: '',
+    mba: '',
   });
   const [activeTab, setActiveTab] = useState<AgreementType>('package');
 
@@ -57,7 +61,7 @@ export default function AgreementTemplate() {
 
   useEffect(() => {
     const type = searchParams.get('type');
-    if (type === 'package' || type === 'hourly' || type === 'edit') {
+    if (type === 'package' || type === 'hourly' || type === 'edit' || type === 'mba') {
       setActiveTab(type);
     }
   }, [searchParams]);
@@ -70,7 +74,7 @@ export default function AgreementTemplate() {
     const { data, error } = await supabase
       .from("agreement_templates")
       .select("*")
-      .in("type", ['package', 'hourly', 'edit']);
+      .in("type", ['package', 'hourly', 'edit', 'mba']);
 
     if (error) {
       toast({
@@ -83,9 +87,10 @@ export default function AgreementTemplate() {
         package: null,
         hourly: null,
         edit: null,
+        mba: null,
       };
-      const contentMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '' };
-      const nameMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '' };
+      const contentMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '', mba: '' };
+      const nameMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '', mba: '' };
 
       data.forEach((t) => {
         const type = t.type as AgreementType;
