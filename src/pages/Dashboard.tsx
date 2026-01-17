@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
+import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { differenceInDays, format } from 'date-fns';
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   // Export all data to Excel
   const exportToExcel = async () => {
@@ -366,6 +368,48 @@ export default function Dashboard() {
     dismissMutation.mutate(studentId);
   };
 
+  const handleEditStudent = async (updatedStudent: Student) => {
+    const { error } = await supabase
+      .from('students')
+      .update({
+        name: updatedStudent.name,
+        email: updatedStudent.email,
+        phone: updatedStudent.phone,
+        degree_type: updatedStudent.degreeType,
+        status: updatedStudent.status,
+        interested_country: updatedStudent.interestedCountry,
+        interested_field: updatedStudent.interestedField,
+        advisor_id: updatedStudent.advisorId,
+        advisor_name: updatedStudent.advisorName,
+        package_cost: updatedStudent.packageCost,
+        amount_paid: updatedStudent.amountPaid,
+        payment_notes: updatedStudent.paymentNotes,
+        package_notes: updatedStudent.packageNotes,
+        target_country: updatedStudent.targetCountry,
+        target_university: updatedStudent.targetUniversity,
+        program: updatedStudent.program,
+        is_paid: updatedStudent.isPaid,
+        signed_agreement: updatedStudent.signedAgreement,
+        meeting_summary: updatedStudent.meetingSummary,
+      })
+      .eq('id', updatedStudent.id);
+
+    if (error) {
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לעדכן את הסטודנט",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "עודכן בהצלחה",
+        description: "פרטי הסטודנט עודכנו",
+      });
+      queryClient.invalidateQueries({ queryKey: ['students-dashboard'] });
+    }
+    setEditingStudent(null);
+  };
+
   const getLocationIcon = (location: string) => {
     switch (location) {
       case 'leads': return <UserPlus className="h-4 w-4" />;
@@ -536,7 +580,12 @@ export default function Dashboard() {
                     >
                       <X className="h-4 w-4" />
                     </Button>
-                    <StudentRow student={student as Student} showActions={false} />
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => setEditingStudent(student as Student)}
+                    >
+                      <StudentRow student={student as Student} showActions={false} />
+                    </div>
                   </div>
                 ))
               ) : (
@@ -557,13 +606,26 @@ export default function Dashboard() {
             </div>
             <div className="space-y-4">
               {recentStudents.map((student, index) => (
-                <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+                <div 
+                  key={student.id} 
+                  className="animate-slide-up cursor-pointer" 
+                  style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={() => setEditingStudent(student as Student)}
+                >
                   <StudentRow student={student as Student} showActions={false} />
                 </div>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Edit Student Dialog */}
+        <EditStudentDialog
+          student={editingStudent}
+          open={!!editingStudent}
+          onOpenChange={(open) => !open && setEditingStudent(null)}
+          onSave={handleEditStudent}
+        />
       </div>
     </MainLayout>
   );
