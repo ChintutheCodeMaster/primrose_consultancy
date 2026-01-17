@@ -27,11 +27,10 @@ interface FormData {
 }
 
 const MBA_PACKAGE_OPTIONS = [
-  "טיוב קורות חיים",
-  "טיוב פרופיל לינקדאין",
-  "עזרה בכתיבת חיבורים",
-  "הכנה לראיונות",
-  "ליווי אישי מלא",
+  "הגשה לתכנית אחת - 12,000 ש״ח + מע״מ",
+  "כל הגשה נוספת - 5,000 ש״ח + מע״מ",
+  "הגשה לשלוש תכניות (מותנה בבחירת החבילה מראש) - 21,000 ש״ח + מע״מ",
+  "הגשה לחמש תכניות (מותנה בבחירת החבילה מראש) - 30,000 ש״ח + מע״מ",
 ];
 
 const MBA_PAYMENT_OPTIONS = [
@@ -398,10 +397,10 @@ const Agreement = () => {
                   {/* Package Selection - Multiple Choice */}
                   <div className="space-y-3 pt-4 border-t">
                     <Label className="text-base font-semibold">
-                      אנא סמן את השירותים שהוזמנו *
+                      נא בחר בחבילה ההגשה המתאימה *
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      במידה ובחרת בחבילה שלמה אנא סמן ״ליווי אישי מלא״
+                      במידה וסיכמת על חבילה אחרת עם נציג נוגה אנא סמן ״אחר״
                     </p>
                     <div className="space-y-2">
                       {MBA_PACKAGE_OPTIONS.map((option) => (
