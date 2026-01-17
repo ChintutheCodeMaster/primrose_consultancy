@@ -6,7 +6,7 @@ import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X } from 'lucide-react';
+import { Search, X, ArrowUpDown } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ export default function Students() {
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
   const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   // Fetch students from Supabase
@@ -149,34 +150,43 @@ export default function Students() {
     return needsAgreementReminder || needsPaymentReminder;
   };
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.includes(searchTerm) || 
-                         student.email.includes(searchTerm) || 
-                         student.phone.includes(searchTerm) ||
-                         student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.interestedField.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
-    const matchesAdvisor = advisorFilter === 'all' || student.advisorName === advisorFilter;
-    const matchesPayment = paymentFilter === 'all' || 
-      (paymentFilter === 'paid' && student.isPaid) || 
-      (paymentFilter === 'unpaid' && !student.isPaid);
-    const matchesCountry = countryFilter === 'all' || student.interestedCountry === countryFilter;
-    const matchesDegree = degreeFilter === 'all' || student.degreeType === degreeFilter;
-    const matchesField = fieldFilter === 'all' || student.interestedField === fieldFilter;
-    const matchesSource = sourceFilter === 'all' || student.source === sourceFilter;
-    const matchesCost = costFilter === 'all' ||
-      (costFilter === 'under10k' && student.packageCost < 10000) ||
-      (costFilter === '10k-20k' && student.packageCost >= 10000 && student.packageCost <= 20000) ||
-      (costFilter === 'over20k' && student.packageCost > 20000);
-    const matchesAccepted = acceptedFilter === 'all' ||
-      (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
-      (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
-    const matchesAttention = !attentionFilter || studentNeedsAttention(student);
+  const filteredStudents = useMemo(() => {
+    const filtered = students.filter(student => {
+      const matchesSearch = student.name.includes(searchTerm) || 
+                           student.email.includes(searchTerm) || 
+                           student.phone.includes(searchTerm) ||
+                           student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           student.interestedField.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
+      const matchesAdvisor = advisorFilter === 'all' || student.advisorName === advisorFilter;
+      const matchesPayment = paymentFilter === 'all' || 
+        (paymentFilter === 'paid' && student.isPaid) || 
+        (paymentFilter === 'unpaid' && !student.isPaid);
+      const matchesCountry = countryFilter === 'all' || student.interestedCountry === countryFilter;
+      const matchesDegree = degreeFilter === 'all' || student.degreeType === degreeFilter;
+      const matchesField = fieldFilter === 'all' || student.interestedField === fieldFilter;
+      const matchesSource = sourceFilter === 'all' || student.source === sourceFilter;
+      const matchesCost = costFilter === 'all' ||
+        (costFilter === 'under10k' && student.packageCost < 10000) ||
+        (costFilter === '10k-20k' && student.packageCost >= 10000 && student.packageCost <= 20000) ||
+        (costFilter === 'over20k' && student.packageCost > 20000);
+      const matchesAccepted = acceptedFilter === 'all' ||
+        (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
+        (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
+      const matchesAttention = !attentionFilter || studentNeedsAttention(student);
+      
+      return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
+             matchesCountry && matchesDegree && matchesField && matchesSource && 
+             matchesCost && matchesAccepted && matchesAttention;
+    });
     
-    return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
-           matchesCountry && matchesDegree && matchesField && matchesSource && 
-           matchesCost && matchesAccepted && matchesAttention;
-  });
+    // Sort by date
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, sortOrder]);
 
   const handleAddStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
     const { error } = await supabase.from('students').insert({
@@ -426,6 +436,17 @@ export default function Students() {
                   <SelectItem value="all">הכל</SelectItem>
                   <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
                   <SelectItem value="no">טרם התקבל</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+                <SelectTrigger>
+                  <ArrowUpDown className="h-4 w-4 ml-2" />
+                  <SelectValue placeholder="מיון" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">מהחדש לישן</SelectItem>
+                  <SelectItem value="oldest">מהישן לחדש</SelectItem>
                 </SelectContent>
               </Select>
             </div>
