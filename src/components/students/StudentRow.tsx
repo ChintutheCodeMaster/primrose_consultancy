@@ -154,6 +154,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     <SelectItem value="package">חבילה</SelectItem>
                     <SelectItem value="hourly">שעתי</SelectItem>
                     <SelectItem value="edit">לערוך</SelectItem>
+                    <SelectItem value="mba">MBA</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button 
