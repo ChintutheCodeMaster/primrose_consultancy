@@ -566,28 +566,48 @@ export default function Dashboard() {
             </div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto">
               {studentsNeedingAttention.length > 0 ? (
-                studentsNeedingAttention.map((student, index) => (
-                  <div key={student.id} className="animate-slide-up relative group" style={{ animationDelay: `${index * 50}ms` }}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDismiss(student.id);
-                      }}
-                      title="הסר מרשימת דורשי תשומת לב"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                    <div 
-                      className="cursor-pointer"
-                      onClick={() => setEditingStudent(student as Student)}
-                    >
-                      <StudentRow student={student as Student} showActions={false} />
+                studentsNeedingAttention.map((student, index) => {
+                  const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
+                  const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
+                  const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 4;
+                  
+                  return (
+                    <div key={student.id} className="animate-slide-up relative group" style={{ animationDelay: `${index * 50}ms` }}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDismiss(student.id);
+                        }}
+                        title="הסר מרשימת דורשי תשומת לב"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <div 
+                        className="cursor-pointer"
+                        onClick={() => setEditingStudent(student as Student)}
+                      >
+                        <StudentRow student={student as Student} showActions={false} />
+                      </div>
+                      {/* Attention reasons */}
+                      <div className="flex gap-2 mt-2 mr-4">
+                        {needsPaymentReminder && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-destructive/10 text-destructive">
+                            <DollarSign className="h-3 w-3" />
+                            לא שולם
+                          </span>
+                        )}
+                        {needsAgreementReminder && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">
+                            לא נחתם הסכם
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-center py-8 bg-card rounded-xl border border-border/50">
                   <p className="text-muted-foreground">🎉 אין סטודנטים שדורשים תשומת לב</p>
