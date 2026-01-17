@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, User, Calendar, Mail, Phone, CreditCard, MapPin, Clock, Monitor } from "lucide-react";
+import { Loader2, User, Calendar, Mail, Phone, CreditCard, MapPin, Clock, Monitor, Package, Banknote, Linkedin } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -17,6 +17,12 @@ interface AgreementDetails {
   signed_at: string;
   ip_address: string | null;
   user_agent: string | null;
+  // MBA specific fields
+  mba_package_selections: string[] | null;
+  mba_package_other: string | null;
+  mba_payment_option: string | null;
+  mba_payment_other: string | null;
+  linkedin_profile: string | null;
 }
 
 interface AgreementDetailsDialogProps {
@@ -122,6 +128,69 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
               </label>
               <p className="font-medium">{details.address}</p>
             </div>
+
+            {/* MBA-specific fields */}
+            {(details.mba_package_selections || details.mba_package_other || details.mba_payment_option || details.linkedin_profile) && (
+              <div className="border-t pt-4 mt-4">
+                <h4 className="text-sm font-semibold mb-3 text-primary">פרטי MBA</h4>
+                <div className="space-y-3">
+                  {/* Package selections */}
+                  {(details.mba_package_selections || details.mba_package_other) && (
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Package className="h-3 w-3" />
+                        שירותים שהוזמנו
+                      </label>
+                      <div className="font-medium">
+                        {details.mba_package_selections && details.mba_package_selections.length > 0 && (
+                          <ul className="list-disc list-inside text-sm">
+                            {details.mba_package_selections.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        )}
+                        {details.mba_package_other && (
+                          <p className="text-sm">אחר: {details.mba_package_other}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment option */}
+                  {details.mba_payment_option && (
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Banknote className="h-3 w-3" />
+                        אופן תשלום
+                      </label>
+                      <p className="font-medium text-sm">
+                        {details.mba_payment_option}
+                        {details.mba_payment_other && `: ${details.mba_payment_other}`}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* LinkedIn profile */}
+                  {details.linkedin_profile && (
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Linkedin className="h-3 w-3" />
+                        פרופיל לינקדאין
+                      </label>
+                      <a 
+                        href={details.linkedin_profile} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="font-medium text-sm text-primary hover:underline"
+                        dir="ltr"
+                      >
+                        {details.linkedin_profile}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Signature Info */}
             <div className="border-t pt-4 mt-4">
