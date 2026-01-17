@@ -16,12 +16,13 @@ interface StudentAgreementStatus {
   signedAt?: string;
 }
 
-type AgreementType = 'package' | 'hourly' | 'edit';
+type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 const agreementTypes: Record<AgreementType, string> = {
   package: 'חבילה',
   hourly: 'שעתי',
   edit: 'לערוך',
+  mba: 'MBA',
 };
 
 export const AgreementStatusPanel = () => {

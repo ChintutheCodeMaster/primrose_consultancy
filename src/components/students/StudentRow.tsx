@@ -33,12 +33,13 @@ interface StudentRowProps {
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 
-type AgreementType = 'package' | 'hourly' | 'edit';
+type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 const agreementTypeLabels: Record<AgreementType, string> = {
   package: 'חבילה',
   hourly: 'שעתי',
   edit: 'לערוך',
+  mba: 'MBA',
 };
 
 export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onDelete, showActions = true }: StudentRowProps) {

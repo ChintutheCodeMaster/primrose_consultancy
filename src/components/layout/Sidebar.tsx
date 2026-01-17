@@ -21,6 +21,7 @@ const agreementTemplateTypes = [
   { type: 'package', label: 'חבילה' },
   { type: 'hourly', label: 'שעתי' },
   { type: 'edit', label: 'לערוך' },
+  { type: 'mba', label: 'MBA' },
 ] as const;
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
