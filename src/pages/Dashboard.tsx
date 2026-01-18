@@ -382,10 +382,8 @@ export default function Dashboard() {
     }
   });
 
-  // Active students count
-  const activeStudentsCount = students.filter(s => 
-    s.status !== 'graduated'
-  ).length;
+  // Active students count - same as what's shown in Students page
+  const activeStudentsCount = students.length;
   
   // Students needing attention
   // Criteria: After 4 days from creation - if not paid OR not signed agreement
