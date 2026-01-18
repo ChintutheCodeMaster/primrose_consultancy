@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
@@ -31,6 +31,8 @@ export default function Students() {
   const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
+  const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
@@ -112,7 +114,33 @@ export default function Students() {
     if (searchParams.get('filter') === 'attention') {
       setAttentionFilter(true);
     }
-  }, [searchParams]);
+    
+    // Handle highlight parameter for scrolling to specific student
+    const studentId = searchParams.get('highlight');
+    if (studentId) {
+      setHighlightedStudentId(studentId);
+      // Clear the highlight param after setting it
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('highlight');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Scroll to highlighted student when data loads
+  useEffect(() => {
+    if (highlightedStudentId && !isLoading && students.length > 0) {
+      const element = studentRefs.current[highlightedStudentId];
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        // Remove highlight after 3 seconds
+        setTimeout(() => {
+          setHighlightedStudentId(null);
+        }, 3000);
+      }
+    }
+  }, [highlightedStudentId, isLoading, students]);
 
   // Extract unique values for filter options
   const filterOptions = useMemo(() => {
@@ -467,7 +495,12 @@ export default function Students() {
         {!isLoading && (
           <div className="space-y-4">
             {filteredStudents.map((student, index) => (
-              <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+              <div 
+                key={student.id} 
+                ref={(el) => { studentRefs.current[student.id] = el; }}
+                className={`animate-slide-up transition-all duration-500 ${highlightedStudentId === student.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`} 
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <StudentRow 
                   student={student}
                   onEdit={() => setEditingStudent(student)}
