@@ -678,15 +678,30 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={320}>
+                <ResponsiveContainer width="100%" height={350}>
                   <PieChart>
                     <Pie
                       data={studentsByDegreeData}
                       cx="50%"
-                      cy="45%"
-                      labelLine={true}
-                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={80}
+                      cy="40%"
+                      labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
+                      label={({ name, value, percent, cx, x }) => {
+                        const isLeft = x < cx;
+                        return (
+                          <text 
+                            x={x} 
+                            y={0} 
+                            textAnchor={isLeft ? 'end' : 'start'} 
+                            dominantBaseline="central"
+                            fill="hsl(var(--foreground))"
+                            fontSize={12}
+                            fontWeight={500}
+                          >
+                            {`${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                          </text>
+                        );
+                      }}
+                      outerRadius={70}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -714,15 +729,30 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={320}>
+                <ResponsiveContainer width="100%" height={350}>
                   <PieChart>
                     <Pie
                       data={studentsByCountryData}
                       cx="50%"
-                      cy="45%"
-                      labelLine={true}
-                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={80}
+                      cy="40%"
+                      labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
+                      label={({ name, value, percent, cx, x }) => {
+                        const isLeft = x < cx;
+                        return (
+                          <text 
+                            x={x} 
+                            y={0} 
+                            textAnchor={isLeft ? 'end' : 'start'} 
+                            dominantBaseline="central"
+                            fill="hsl(var(--foreground))"
+                            fontSize={12}
+                            fontWeight={500}
+                          >
+                            {`${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                          </text>
+                        );
+                      }}
+                      outerRadius={70}
                       fill="#8884d8"
                       dataKey="value"
                     >
