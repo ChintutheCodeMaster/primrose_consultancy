@@ -30,6 +30,8 @@ export interface AcceptedUniversity {
   acceptanceLetterUrl?: string;
 }
 
+export type PaymentType = 'hourly' | 'package' | 'other';
+
 export interface Student {
   id: string;
   name: string;
@@ -41,6 +43,7 @@ export interface Student {
   interestedField: string;
   source: string;
   meetingSummary: string;
+  paymentType?: PaymentType;
   packageCost: number;
   amountPaid?: number;
   paymentNotes: string;
@@ -59,6 +62,12 @@ export interface Student {
   documents?: Document[];
   createdAt: Date;
 }
+
+export const paymentTypeLabels: Record<PaymentType, string> = {
+  hourly: 'שעתי',
+  package: 'חבילה',
+  other: 'אחר',
+};
 
 export interface Note {
   id: string;

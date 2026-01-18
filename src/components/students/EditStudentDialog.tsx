@@ -332,6 +332,25 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="paymentType">סוג תשלום</Label>
+              <Select 
+                value={(formData as any).paymentType || 'package'} 
+                onValueChange={(v: 'hourly' | 'package' | 'other') => setFormData({ ...formData, paymentType: v } as any)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="hourly">שעתי</SelectItem>
+                  <SelectItem value="package">חבילה</SelectItem>
+                  <SelectItem value="other">אחר</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {((formData as any).paymentType === 'package' || !(formData as any).paymentType) && (
+            <div className="space-y-2">
               <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
               <Input
                 id="packageCost"
@@ -340,7 +359,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
               />
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
