@@ -592,7 +592,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <SelectTrigger>
                 <SelectValue placeholder="בחר מקור" />
               </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
+              <SelectContent className="bg-popover z-[100] max-h-60 overflow-y-auto" position="popper" sideOffset={4}>
                 {sourceOptions.map((src) => (
                   <SelectItem key={src} value={src}>{src}</SelectItem>
                 ))}
