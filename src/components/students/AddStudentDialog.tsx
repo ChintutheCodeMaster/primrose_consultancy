@@ -50,6 +50,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     meetingSummary: '',
     paymentType: 'package' as 'hourly' | 'package' | 'other',
     packageCost: 0,
+    amountPaid: 0,
     paymentNotes: '',
     advisorName: '',
     isPaid: false,
@@ -84,6 +85,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       meetingSummary: '',
       paymentType: 'package',
       packageCost: 0,
+      amountPaid: 0,
       paymentNotes: '',
       advisorName: '',
       isPaid: false,
@@ -279,6 +281,17 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
+            <Input
+              id="amountPaid"
+              type="number"
+              dir="ltr"
+              value={formData.amountPaid || ''}
+              onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) })}
+            />
           </div>
 
           <div className="flex items-center gap-2">
