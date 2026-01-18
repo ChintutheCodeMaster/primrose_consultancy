@@ -254,7 +254,7 @@ export default function Dashboard() {
             acceptance_letter_url
           )
         `)
-        .neq('status', 'past_client')
+        .is('graduation_year', null)
         .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
