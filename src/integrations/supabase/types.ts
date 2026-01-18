@@ -397,6 +397,7 @@ export type Database = {
           package_cost: number | null
           package_notes: string | null
           payment_notes: string | null
+          payment_type: string | null
           phone: string
           program: string | null
           signed_agreement: boolean | null
@@ -426,6 +427,7 @@ export type Database = {
           package_cost?: number | null
           package_notes?: string | null
           payment_notes?: string | null
+          payment_type?: string | null
           phone: string
           program?: string | null
           signed_agreement?: boolean | null
@@ -455,6 +457,7 @@ export type Database = {
           package_cost?: number | null
           package_notes?: string | null
           payment_notes?: string | null
+          payment_type?: string | null
           phone?: string
           program?: string | null
           signed_agreement?: boolean | null

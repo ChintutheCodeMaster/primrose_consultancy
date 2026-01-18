@@ -48,6 +48,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     interestedField: '',
     source: '',
     meetingSummary: '',
+    paymentType: 'package' as 'hourly' | 'package' | 'other',
     packageCost: 0,
     paymentNotes: '',
     advisorName: '',
@@ -81,6 +82,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       interestedField: '',
       source: '',
       meetingSummary: '',
+      paymentType: 'package',
       packageCost: 0,
       paymentNotes: '',
       advisorName: '',
@@ -255,23 +257,39 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="packageCost">עלות חבילת הגשה (₪)</Label>
-              <Input
-                id="packageCost"
-                type="number"
-                dir="ltr"
-                value={formData.packageCost || ''}
-                onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
-              />
+              <Label htmlFor="paymentType">סוג תשלום</Label>
+              <Select value={formData.paymentType} onValueChange={(v: 'hourly' | 'package' | 'other') => setFormData({ ...formData, paymentType: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="hourly">שעתי</SelectItem>
+                  <SelectItem value="package">חבילה</SelectItem>
+                  <SelectItem value="other">אחר</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center gap-2 pt-8">
-              <Checkbox
-                id="isPaid"
-                checked={formData.isPaid}
-                onCheckedChange={(checked) => setFormData({ ...formData, isPaid: checked as boolean })}
-              />
-              <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
-            </div>
+            {formData.paymentType === 'package' && (
+              <div className="space-y-2">
+                <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+                <Input
+                  id="packageCost"
+                  type="number"
+                  dir="ltr"
+                  value={formData.packageCost || ''}
+                  onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isPaid"
+              checked={formData.isPaid}
+              onCheckedChange={(checked) => setFormData({ ...formData, isPaid: checked as boolean })}
+            />
+            <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
           </div>
 
           <div className="space-y-2">
