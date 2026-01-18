@@ -269,18 +269,16 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 </SelectContent>
               </Select>
             </div>
-            {formData.paymentType === 'package' && (
-              <div className="space-y-2">
-                <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
-                <Input
-                  id="packageCost"
-                  type="number"
-                  dir="ltr"
-                  value={formData.packageCost || ''}
-                  onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+              <Input
+                id="packageCost"
+                type="number"
+                dir="ltr"
+                value={formData.packageCost || ''}
+                onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

@@ -349,17 +349,15 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             </div>
           </div>
 
-          {((formData as any).paymentType === 'package' || !(formData as any).paymentType) && (
-            <div className="space-y-2">
-              <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
-              <Input
-                id="packageCost"
-                type="number"
-                value={formData.packageCost}
-                onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+            <Input
+              id="packageCost"
+              type="number"
+              value={formData.packageCost}
+              onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
