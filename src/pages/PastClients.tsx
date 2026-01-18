@@ -235,7 +235,7 @@ export default function PastClients() {
   return (
     <MainLayout>
       <div className="animate-fade-in">
-        {/* Sticky Header and Search */}
+        {/* Sticky Header and Search - Only search is sticky */}
         <div className="sticky top-0 z-10 bg-background pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8 pt-2">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -249,28 +249,30 @@ export default function PastClients() {
             </Button>
           </div>
 
-          {/* Search */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
-            </div>
-            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
-              <SelectTrigger className="w-full sm:w-48">
-                <ArrowUpDown className="h-4 w-4 ml-2" />
-                <SelectValue placeholder="מיון" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">מהחדש לישן</SelectItem>
-                <SelectItem value="oldest">מהישן לחדש</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Search - Only this stays sticky */}
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
           </div>
+        </div>
+
+        {/* Sort - Not sticky, will scroll with content */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+            <SelectTrigger className="w-full sm:w-48">
+              <ArrowUpDown className="h-4 w-4 ml-2" />
+              <SelectValue placeholder="מיון" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">מהחדש לישן</SelectItem>
+              <SelectItem value="oldest">מהישן לחדש</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Loading State */}
