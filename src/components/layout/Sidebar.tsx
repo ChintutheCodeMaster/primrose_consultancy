@@ -13,6 +13,7 @@ const navigation = [
 ];
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
+const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
 const agreementTemplateTypes = [
   { type: 'package', label: 'חבילה' },
@@ -26,11 +27,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
     location.pathname.startsWith('/past-clients')
   );
+  const [isDidNotContinueOpen, setIsDidNotContinueOpen] = useState(
+    location.pathname.startsWith('/did-not-continue')
+  );
   const [isAgreementOpen, setIsAgreementOpen] = useState(
     location.pathname.startsWith('/agreement-template')
   );
 
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
+  const isDidNotContinueActive = location.pathname.startsWith('/did-not-continue');
   const isAgreementActive = location.pathname.startsWith('/agreement-template');
 
   const currentAgreementTemplateType =
@@ -116,20 +121,45 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Did Not Continue */}
-        <Link
-          to="/did-not-continue"
-          onClick={handleClick}
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-            location.pathname === '/did-not-continue'
+        {/* Did Not Continue Collapsible */}
+        <Collapsible open={isDidNotContinueOpen} onOpenChange={setIsDidNotContinueOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isDidNotContinueActive
               ? 'bg-sidebar-accent text-sidebar-primary'
               : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}
-        >
-          <Users className="h-5 w-5" />
-          לא המשיכו
-        </Link>
+          )}>
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5" />
+              לא המשיכו
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isDidNotContinueOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            {didNotContinueYears.map((year) => {
+              const isYearActive = location.pathname === `/did-not-continue/${year}`;
+              const displayLabel = year === '2025-ומטה' ? '2025 ומטה' : year;
+              return (
+                <Link
+                  key={year}
+                  to={`/did-not-continue/${year}`}
+                  onClick={handleClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    isYearActive
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  {displayLabel}
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Analytics */}
         <Link

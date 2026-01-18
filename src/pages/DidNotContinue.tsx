@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
@@ -59,6 +59,7 @@ const degreeTypeLabels: Record<string, string> = {
 };
 
 export default function DidNotContinue() {
+  const { year } = useParams<{ year: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,6 +68,20 @@ export default function DidNotContinue() {
   const [selectedStudent, setSelectedStudent] = useState<FullStudent | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Helper to check if a date falls within the year filter
+  const isInYearRange = (dateString: string) => {
+    const date = new Date(dateString);
+    const itemYear = date.getFullYear();
+    
+    if (year === '2025-ומטה') {
+      return itemYear <= 2025;
+    }
+    return itemYear === parseInt(year || '2026');
+  };
+
+  // Get display label for the year
+  const yearDisplayLabel = year === '2025-ומטה' ? '2025 ומטה' : year;
 
   // Fetch leads that did not continue (full data)
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -163,29 +178,31 @@ export default function DidNotContinue() {
 
   const filteredLeads = useMemo(() => {
     const filtered = leads.filter(lead =>
-      lead.name.includes(searchTerm) ||
+      isInYearRange(lead.created_at) &&
+      (lead.name.includes(searchTerm) ||
       lead.email.includes(searchTerm) ||
-      lead.phone.includes(searchTerm)
+      lead.phone.includes(searchTerm))
     );
     return filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [leads, searchTerm, sortOrder]);
+  }, [leads, searchTerm, sortOrder, year]);
 
   const filteredStudents = useMemo(() => {
     const filtered = students.filter(student =>
-      student.name.includes(searchTerm) ||
+      isInYearRange(student.created_at) &&
+      (student.name.includes(searchTerm) ||
       student.email.includes(searchTerm) ||
-      student.phone.includes(searchTerm)
+      student.phone.includes(searchTerm))
     );
     return filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [students, searchTerm, sortOrder]);
+  }, [students, searchTerm, sortOrder, year]);
 
   const isLoading = leadsLoading || studentsLoading;
 
@@ -207,12 +224,12 @@ export default function DidNotContinue() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <UserX className="h-8 w-8 text-muted-foreground" />
-                לא המשיכו
+                לא המשיכו - {yearDisplayLabel}
               </h1>
               <p className="text-muted-foreground mt-1">
-                מתעניינים וסטודנטים שלא המשיכו בתהליך ({leads.length + students.length} סה״כ)
+                מתעניינים וסטודנטים שלא המשיכו בתהליך ({filteredLeads.length + filteredStudents.length} סה״כ)
               </p>
             </div>
           </div>
