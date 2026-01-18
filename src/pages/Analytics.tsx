@@ -678,32 +678,16 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={400}>
                   <PieChart>
                     <Pie
                       data={studentsByDegreeData}
                       cx="50%"
-                      cy="40%"
-                      labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
-                      label={({ name, value, percent, cx, x }) => {
-                        const isLeft = x < cx;
-                        return (
-                          <text 
-                            x={x} 
-                            y={0} 
-                            textAnchor={isLeft ? 'end' : 'start'} 
-                            dominantBaseline="central"
-                            fill="hsl(var(--foreground))"
-                            fontSize={12}
-                            fontWeight={500}
-                          >
-                            {`${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                          </text>
-                        );
-                      }}
-                      outerRadius={70}
+                      cy="50%"
+                      outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
+                      label={false}
                     >
                       {studentsByDegreeData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -711,10 +695,20 @@ export default function Analytics() {
                     </Pie>
                     <Tooltip formatter={(value, name) => [value, name]} />
                     <Legend 
-                      layout="horizontal" 
-                      verticalAlign="bottom" 
-                      align="center"
-                      wrapperStyle={{ paddingTop: '20px' }}
+                      layout="vertical" 
+                      verticalAlign="middle" 
+                      align="right"
+                      wrapperStyle={{ paddingRight: '20px' }}
+                      formatter={(value, entry: any) => {
+                        const item = studentsByDegreeData.find(d => d.name === value);
+                        const total = studentsByDegreeData.reduce((sum, d) => sum + d.value, 0);
+                        const percent = item ? Math.round((item.value / total) * 100) : 0;
+                        return (
+                          <span style={{ color: 'hsl(var(--foreground))', fontWeight: 500 }}>
+                            {value}: {item?.value} ({percent}%)
+                          </span>
+                        );
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -729,32 +723,16 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={350}>
+                <ResponsiveContainer width="100%" height={400}>
                   <PieChart>
                     <Pie
                       data={studentsByCountryData}
                       cx="50%"
-                      cy="40%"
-                      labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
-                      label={({ name, value, percent, cx, x }) => {
-                        const isLeft = x < cx;
-                        return (
-                          <text 
-                            x={x} 
-                            y={0} 
-                            textAnchor={isLeft ? 'end' : 'start'} 
-                            dominantBaseline="central"
-                            fill="hsl(var(--foreground))"
-                            fontSize={12}
-                            fontWeight={500}
-                          >
-                            {`${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                          </text>
-                        );
-                      }}
-                      outerRadius={70}
+                      cy="50%"
+                      outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
+                      label={false}
                     >
                       {studentsByCountryData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -762,10 +740,20 @@ export default function Analytics() {
                     </Pie>
                     <Tooltip formatter={(value, name) => [value, name]} />
                     <Legend 
-                      layout="horizontal" 
-                      verticalAlign="bottom" 
-                      align="center"
-                      wrapperStyle={{ paddingTop: '20px' }}
+                      layout="vertical" 
+                      verticalAlign="middle" 
+                      align="right"
+                      wrapperStyle={{ paddingRight: '20px' }}
+                      formatter={(value, entry: any) => {
+                        const item = studentsByCountryData.find(d => d.name === value);
+                        const total = studentsByCountryData.reduce((sum, d) => sum + d.value, 0);
+                        const percent = item ? Math.round((item.value / total) * 100) : 0;
+                        return (
+                          <span style={{ color: 'hsl(var(--foreground))', fontWeight: 500 }}>
+                            {value}: {item?.value} ({percent}%)
+                          </span>
+                        );
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
