@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useSourceOptions } from '@/hooks/useSourceOptions';
 
 interface Advisor {
   id: string;
@@ -39,7 +40,10 @@ interface EditStudentDialogProps {
 }
 
 export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditStudentDialogProps) {
+  const sourceOptions = useSourceOptions();
   const [formData, setFormData] = useState<Student | null>(null);
+  const [sourceSelection, setSourceSelection] = useState('');
+  const [customSource, setCustomSource] = useState('');
   const [newUniversityName, setNewUniversityName] = useState('');
   const [newUniversityCountry, setNewUniversityCountry] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
@@ -93,8 +97,20 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   useEffect(() => {
     if (student) {
       setFormData({ ...student });
+      // Check if the student's source matches one of the predefined options
+      const currentSource = student.source || '';
+      if (sourceOptions.includes(currentSource)) {
+        setSourceSelection(currentSource);
+        setCustomSource('');
+      } else if (currentSource) {
+        setSourceSelection('אחר');
+        setCustomSource(currentSource);
+      } else {
+        setSourceSelection('');
+        setCustomSource('');
+      }
     }
-  }, [student]);
+  }, [student, sourceOptions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -563,11 +579,36 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="space-y-2">
             <Label htmlFor="source">מקור הגעה</Label>
-            <Input
-              id="source"
-              value={formData.source}
-              onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-            />
+            <Select 
+              value={sourceSelection} 
+              onValueChange={(v) => {
+                setSourceSelection(v);
+                if (v !== 'אחר') {
+                  setFormData({ ...formData, source: v });
+                  setCustomSource('');
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="בחר מקור" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {sourceOptions.map((src) => (
+                  <SelectItem key={src} value={src}>{src}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {sourceSelection === 'אחר' && (
+              <Input
+                placeholder="הזן מקור אחר..."
+                value={customSource}
+                onChange={(e) => {
+                  setCustomSource(e.target.value);
+                  setFormData({ ...formData, source: e.target.value });
+                }}
+                className="mt-2"
+              />
+            )}
           </div>
 
           {/* Toggles for payment and agreement */}
