@@ -66,7 +66,7 @@ export interface Student {
 export const paymentTypeLabels: Record<PaymentType, string> = {
   hourly: 'שעתי',
   package: 'חבילה',
-  other: 'אחר',
+  other: 'משולב',
 };
 
 export interface Note {

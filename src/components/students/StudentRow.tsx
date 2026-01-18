@@ -273,9 +273,17 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
 
       {/* Student-specific Details */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mt-4 pt-4 border-t border-border/50">
+        {/* Payment Type Display */}
         <div className="flex items-center gap-2 text-muted-foreground">
           <DollarSign className="h-4 w-4 shrink-0" />
-          <span>עלות חבילה: ₪{student.packageCost.toLocaleString()}</span>
+          <span>
+            {student.paymentType === 'hourly' 
+              ? 'תשלום שעתי' 
+              : student.paymentType === 'package' 
+                ? `עלות חבילה: ₪${student.packageCost.toLocaleString()}`
+                : `משולב - עלות חבילה: ₪${student.packageCost.toLocaleString()}`
+            }
+          </span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground font-medium">
           <DollarSign className="h-4 w-4 shrink-0 text-success" />

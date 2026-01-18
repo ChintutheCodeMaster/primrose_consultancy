@@ -265,7 +265,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 <SelectContent className="bg-popover z-50">
                   <SelectItem value="hourly">שעתי</SelectItem>
                   <SelectItem value="package">חבילה</SelectItem>
-                  <SelectItem value="other">אחר</SelectItem>
+                  <SelectItem value="other">משולב</SelectItem>
                 </SelectContent>
               </Select>
             </div>
