@@ -44,7 +44,10 @@ const agreementTypeLabels: Record<AgreementType, string> = {
 
 export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onDelete, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
-  const [agreementType, setAgreementType] = useState<AgreementType>('package');
+  const [agreementType, setAgreementType] = useState<AgreementType>(
+    student.paymentType === 'hourly' ? 'hourly' : 
+    student.paymentType === 'other' ? 'package' : 'package'
+  );
   const [showAgreementDetails, setShowAgreementDetails] = useState(false);
   
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
