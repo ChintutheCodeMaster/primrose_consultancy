@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 
 export default function PastClients() {
   const { year } = useParams<{ year: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
@@ -23,6 +24,8 @@ export default function PastClients() {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);
   const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
+  const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const { data: pastClients = [], isLoading } = useQuery({
     queryKey: ['past-clients', year],
@@ -70,6 +73,32 @@ export default function PastClients() {
       }));
     }
   });
+
+  // Handle highlight parameter for scrolling to specific student
+  useEffect(() => {
+    const studentId = searchParams.get('highlight');
+    if (studentId) {
+      setHighlightedStudentId(studentId);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('highlight');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Scroll to highlighted student when data loads
+  useEffect(() => {
+    if (highlightedStudentId && !isLoading && pastClients.length > 0) {
+      const element = studentRefs.current[highlightedStudentId];
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        setTimeout(() => {
+          setHighlightedStudentId(null);
+        }, 3000);
+      }
+    }
+  }, [highlightedStudentId, isLoading, pastClients]);
 
   const filteredClients = useMemo(() => {
     const filtered = pastClients.filter(student => {
@@ -255,7 +284,12 @@ export default function PastClients() {
         {!isLoading && (
           <div className="space-y-4">
             {filteredClients.map((student, index) => (
-              <div key={student.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+              <div 
+                key={student.id} 
+                ref={(el) => { studentRefs.current[student.id] = el; }}
+                className={`animate-slide-up transition-all duration-500 ${highlightedStudentId === student.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <StudentRow 
                   student={student} 
                   onEdit={() => setEditingStudent(student)}

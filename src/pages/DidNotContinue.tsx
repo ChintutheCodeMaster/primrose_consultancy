@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
@@ -58,11 +59,14 @@ const degreeTypeLabels: Record<string, string> = {
 };
 
 export default function DidNotContinue() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedLead, setSelectedLead] = useState<FullLead | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<FullStudent | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Fetch leads that did not continue (full data)
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -130,6 +134,32 @@ export default function DidNotContinue() {
       setSelectedStudent(null);
     }
   });
+
+  // Handle highlight parameter for scrolling to specific item
+  useEffect(() => {
+    const itemId = searchParams.get('highlight');
+    if (itemId) {
+      setHighlightedId(itemId);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('highlight');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Scroll to highlighted item when data loads
+  useEffect(() => {
+    if (highlightedId && !leadsLoading && !studentsLoading) {
+      const element = itemRefs.current[highlightedId];
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        setTimeout(() => {
+          setHighlightedId(null);
+        }, 3000);
+      }
+    }
+  }, [highlightedId, leadsLoading, studentsLoading, leads, students]);
 
   const filteredLeads = useMemo(() => {
     const filtered = leads.filter(lead =>
@@ -224,7 +254,8 @@ export default function DidNotContinue() {
                 filteredLeads.map((lead) => (
                   <div
                     key={lead.id}
-                    className="rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-shadow cursor-pointer"
+                    ref={(el) => { itemRefs.current[lead.id] = el; }}
+                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-all duration-500 cursor-pointer ${highlightedId === lead.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     onClick={() => setSelectedLead(lead)}
                   >
                     <div className="flex items-start justify-between">
@@ -283,7 +314,8 @@ export default function DidNotContinue() {
                 filteredStudents.map((student) => (
                   <div
                     key={student.id}
-                    className="rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-shadow cursor-pointer"
+                    ref={(el) => { itemRefs.current[student.id] = el; }}
+                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-all duration-500 cursor-pointer ${highlightedId === student.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     onClick={() => setSelectedStudent(student)}
                   >
                     <div className="flex items-start justify-between">
