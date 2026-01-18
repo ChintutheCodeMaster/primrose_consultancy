@@ -251,7 +251,7 @@ export default function Leads() {
   return (
     <MainLayout>
       <div className="animate-fade-in">
-        {/* Sticky Header and Search */}
+        {/* Sticky Header and Search - Only search is sticky */}
         <div className="sticky top-0 z-10 bg-background pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8 pt-2">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -262,39 +262,41 @@ export default function Leads() {
             <AddLeadDialog onAdd={handleAddLead} />
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LeadStatus | 'all')}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="סטטוס" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
-                {Object.entries(leadStatusLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
-              <SelectTrigger className="w-full sm:w-48">
-                <ArrowUpDown className="h-4 w-4 ml-2" />
-                <SelectValue placeholder="מיון" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">מהחדש לישן</SelectItem>
-                <SelectItem value="oldest">מהישן לחדש</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Search - Only this stays sticky */}
+          <div className="relative flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
           </div>
+        </div>
+
+        {/* Filters - Not sticky, will scroll with content */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LeadStatus | 'all')}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="סטטוס" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הסטטוסים</SelectItem>
+              {Object.entries(leadStatusLabels).map(([value, label]) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
+            <SelectTrigger className="w-full sm:w-48">
+              <ArrowUpDown className="h-4 w-4 ml-2" />
+              <SelectValue placeholder="מיון" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">מהחדש לישן</SelectItem>
+              <SelectItem value="oldest">מהישן לחדש</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Leads List */}
