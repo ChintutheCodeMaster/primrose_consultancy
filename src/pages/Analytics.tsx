@@ -479,7 +479,10 @@ export default function Analytics() {
                   <XAxis dataKey="year" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="count" name="סטודנטים" radius={[4, 4, 0, 0]}>
+                    {studentsByYearData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
                     <LabelList dataKey="count" position="top" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
                   </Bar>
                 </BarChart>
@@ -497,16 +500,25 @@ export default function Analytics() {
                 <LineChart data={avgPackageCostData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
-                  <YAxis />
+                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
                   <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, 'ממוצע']} />
                   <Line
                     type="monotone"
                     dataKey="average"
                     name="מחיר ממוצע"
                     stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))' }}
-                  />
+                    strokeWidth={3}
+                    dot={{ fill: 'hsl(var(--primary))', r: 6 }}
+                  >
+                    <LabelList 
+                      dataKey="average" 
+                      position="top" 
+                      fill="hsl(var(--foreground))" 
+                      fontSize={11} 
+                      fontWeight={600}
+                      formatter={(value: number) => `₪${(value/1000).toFixed(1)}k`}
+                    />
+                  </Line>
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -673,7 +685,7 @@ export default function Analytics() {
                       cx="50%"
                       cy="45%"
                       labelLine={true}
-                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -709,7 +721,7 @@ export default function Analytics() {
                       cx="50%"
                       cy="45%"
                       labelLine={true}
-                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -750,18 +762,25 @@ export default function Analytics() {
                 <TabsContent value="season">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-right">עונה</TableHead>
-                        <TableHead className="text-right">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      <TableRow className="bg-primary/10">
+                        <TableHead className="text-right font-bold text-primary">עונה</TableHead>
+                        <TableHead className="text-right font-bold text-primary">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right font-bold text-primary">מספר סטודנטים</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {avgCostBySeason.length > 0 ? avgCostBySeason.map((row, index) => (
-                        <TableRow key={index}>
+                        <TableRow 
+                          key={index}
+                          className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
+                        >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
-                          <TableCell>{row.count}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium text-sm">
+                              {row.count}
+                            </span>
+                          </TableCell>
                         </TableRow>
                       )) : (
                         <TableRow>
@@ -775,18 +794,25 @@ export default function Analytics() {
                 <TabsContent value="degree">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-right">סוג תואר</TableHead>
-                        <TableHead className="text-right">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      <TableRow className="bg-purple-100 dark:bg-purple-900/30">
+                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">סוג תואר</TableHead>
+                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">מספר סטודנטים</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {avgCostByDegree.length > 0 ? avgCostByDegree.map((row, index) => (
-                        <TableRow key={index}>
+                        <TableRow 
+                          key={index}
+                          className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
+                        >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
-                          <TableCell>{row.count}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium text-sm">
+                              {row.count}
+                            </span>
+                          </TableCell>
                         </TableRow>
                       )) : (
                         <TableRow>
@@ -800,18 +826,25 @@ export default function Analytics() {
                 <TabsContent value="country">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-right">מדינה</TableHead>
-                        <TableHead className="text-right">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right">מספר סטודנטים</TableHead>
+                      <TableRow className="bg-amber-100 dark:bg-amber-900/30">
+                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מדינה</TableHead>
+                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מחיר ממוצע</TableHead>
+                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מספר סטודנטים</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {avgCostByCountry.length > 0 ? avgCostByCountry.map((row, index) => (
-                        <TableRow key={index}>
+                        <TableRow 
+                          key={index}
+                          className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
+                        >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell>₪{row.average.toLocaleString()}</TableCell>
-                          <TableCell>{row.count}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium text-sm">
+                              {row.count}
+                            </span>
+                          </TableCell>
                         </TableRow>
                       )) : (
                         <TableRow>
