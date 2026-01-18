@@ -243,6 +243,21 @@ export default function Analytics() {
       value: count,
     }));
 
+  // Students by field of study
+  const studentsByField = (filteredStudents || []).reduce((acc, student) => {
+    const field = student.interested_field || 'לא ידוע';
+    acc[field] = (acc[field] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const studentsByFieldData = Object.entries(studentsByField)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 8)
+    .map(([field, count]) => ({
+      name: field,
+      value: count,
+    }));
+
   // Average package cost by season
   const avgCostBySeason = SEASON_YEARS.map(year => {
     const seasonStudents = (students || []).filter(s => s.graduation_year === year && s.package_cost && s.package_cost > 0);
@@ -761,7 +776,51 @@ export default function Analytics() {
             </CardContent>
           </Card>
 
-          {/* Average Package Cost Breakdown */}
+          {/* Students by Field of Study */}
+          <Card>
+            <CardHeader>
+              <CardTitle>התפלגות לפי תחום לימודים</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center">
+                <ResponsiveContainer width="100%" height={400}>
+                  <PieChart>
+                    <Pie
+                      data={studentsByFieldData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={false}
+                    >
+                      {studentsByFieldData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [value, name]} />
+                    <Legend 
+                      layout="vertical" 
+                      verticalAlign="middle" 
+                      align="right"
+                      wrapperStyle={{ paddingRight: '20px' }}
+                      formatter={(value, entry: any) => {
+                        const item = studentsByFieldData.find(d => d.name === value);
+                        const total = studentsByFieldData.reduce((sum, d) => sum + d.value, 0);
+                        const percent = item ? Math.round((item.value / total) * 100) : 0;
+                        return (
+                          <span style={{ color: 'hsl(var(--foreground))', fontWeight: 500 }}>
+                            {value}: {item?.value} ({percent}%)
+                          </span>
+                        );
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
