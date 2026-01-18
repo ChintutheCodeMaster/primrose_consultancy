@@ -8,11 +8,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
-  { name: 'אנליטיקס', href: '/analytics', icon: BarChart3 },
   { name: 'מתעניינים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
-  { name: 'לא המשיכו', href: '/did-not-continue', icon: Users },
-  { name: 'יועצים', href: '/advisors', icon: UserCircle },
 ];
 
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
@@ -80,6 +77,90 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
 
+        {/* Past Clients Collapsible */}
+        <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isPastClientsActive
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}>
+            <div className="flex items-center gap-3">
+              <History className="h-5 w-5" />
+              לקוחות עבר
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isPastClientsOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            {pastClientsYears.map((year) => {
+              const isYearActive = location.pathname === `/past-clients/${year}`;
+              return (
+                <Link
+                  key={year}
+                  to={`/past-clients/${year}`}
+                  onClick={handleClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    isYearActive
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  לקוחות עבר {year}
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Did Not Continue */}
+        <Link
+          to="/did-not-continue"
+          onClick={handleClick}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            location.pathname === '/did-not-continue'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}
+        >
+          <Users className="h-5 w-5" />
+          לא המשיכו
+        </Link>
+
+        {/* Analytics */}
+        <Link
+          to="/analytics"
+          onClick={handleClick}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            location.pathname === '/analytics'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}
+        >
+          <BarChart3 className="h-5 w-5" />
+          אנליטיקס
+        </Link>
+
+        {/* Advisors */}
+        <Link
+          to="/advisors"
+          onClick={handleClick}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            location.pathname === '/advisors'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}
+        >
+          <UserCircle className="h-5 w-5" />
+          יועצים
+        </Link>
+
         {/* Agreement Collapsible */}
         <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>
           <CollapsibleTrigger className={cn(
@@ -116,45 +197,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   )}
                 >
                   {item.label}
-                </Link>
-              );
-            })}
-          </CollapsibleContent>
-        </Collapsible>
-
-        {/* Past Clients Collapsible */}
-        <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
-          <CollapsibleTrigger className={cn(
-            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-            isPastClientsActive
-              ? 'bg-sidebar-accent text-sidebar-primary'
-              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}>
-            <div className="flex items-center gap-3">
-              <History className="h-5 w-5" />
-              לקוחות עבר
-            </div>
-            <ChevronDown className={cn(
-              'h-4 w-4 transition-transform duration-200',
-              isPastClientsOpen && 'rotate-180'
-            )} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {pastClientsYears.map((year) => {
-              const isYearActive = location.pathname === `/past-clients/${year}`;
-              return (
-                <Link
-                  key={year}
-                  to={`/past-clients/${year}`}
-                  onClick={handleClick}
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                    isYearActive
-                      ? 'bg-sidebar-accent text-sidebar-primary'
-                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                  )}
-                >
-                  לקוחות עבר {year}
                 </Link>
               );
             })}
