@@ -174,7 +174,7 @@ export default function Dashboard() {
               phone: lead.phone,
               location: 'did-not-continue',
               locationLabel: 'לא המשיכו (מתעניין)',
-              navigateTo: '/did-not-continue'
+              navigateTo: `/did-not-continue?highlight=${lead.id}`
             });
           } else {
             results.push({
@@ -184,7 +184,7 @@ export default function Dashboard() {
               phone: lead.phone,
               location: 'leads',
               locationLabel: 'מתעניינים',
-              navigateTo: '/leads'
+              navigateTo: `/leads?highlight=${lead.id}`
             });
           }
         });
@@ -206,7 +206,7 @@ export default function Dashboard() {
               phone: student.phone,
               location: 'did-not-continue',
               locationLabel: 'לא המשיכו (סטודנט)',
-              navigateTo: '/did-not-continue'
+              navigateTo: `/did-not-continue?highlight=${student.id}`
             });
           } else if (student.graduation_year) {
             results.push({
@@ -216,7 +216,7 @@ export default function Dashboard() {
               phone: student.phone,
               location: 'past-clients',
               locationLabel: `לקוחות עבר ${student.graduation_year}`,
-              navigateTo: `/past-clients/${student.graduation_year}`,
+              navigateTo: `/past-clients/${student.graduation_year}?highlight=${student.id}`,
               year: student.graduation_year
             });
           } else {
@@ -227,7 +227,7 @@ export default function Dashboard() {
               phone: student.phone,
               location: 'students',
               locationLabel: 'סטודנטים',
-              navigateTo: '/students'
+              navigateTo: `/students?highlight=${student.id}`
             });
           }
         });

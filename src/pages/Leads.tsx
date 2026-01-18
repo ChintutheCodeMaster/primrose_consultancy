@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { LeadRow } from '@/components/leads/LeadRow';
@@ -15,10 +15,13 @@ import { supabase } from '@/integrations/supabase/client';
 
 export default function Leads() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [highlightedLeadId, setHighlightedLeadId] = useState<string | null>(null);
+  const leadRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   
   // Edit dialog state
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
@@ -57,6 +60,32 @@ export default function Leads() {
       }));
     }
   });
+
+  // Handle highlight parameter for scrolling to specific lead
+  useEffect(() => {
+    const leadId = searchParams.get('highlight');
+    if (leadId) {
+      setHighlightedLeadId(leadId);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('highlight');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Scroll to highlighted lead when data loads
+  useEffect(() => {
+    if (highlightedLeadId && !isLoading && leads.length > 0) {
+      const element = leadRefs.current[highlightedLeadId];
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+        setTimeout(() => {
+          setHighlightedLeadId(null);
+        }, 3000);
+      }
+    }
+  }, [highlightedLeadId, isLoading, leads]);
 
   const filteredLeads = useMemo(() => {
     const filtered = leads.filter(lead => {
@@ -271,7 +300,12 @@ export default function Leads() {
         {/* Leads List */}
         <div className="space-y-4">
           {filteredLeads.map((lead, index) => (
-            <div key={lead.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+            <div 
+              key={lead.id} 
+              ref={(el) => { leadRefs.current[lead.id] = el; }}
+              className={`animate-slide-up transition-all duration-500 ${highlightedLeadId === lead.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`}
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <LeadRow 
                 lead={lead} 
                 onEdit={() => handleEditLead(lead)}
