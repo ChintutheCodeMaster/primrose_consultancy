@@ -381,14 +381,15 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <Input
                 id="amountPaid"
                 type="number"
-                value={(formData as any).amountPaid || 0}
-                onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) } as any)}
+                dir="ltr"
+                value={formData.amountPaid ?? 0}
+                onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) })}
               />
             </div>
             <div className="space-y-2">
               <Label className="text-muted-foreground">יתרה לתשלום</Label>
               <div className="h-10 px-3 flex items-center rounded-md border bg-muted/50 text-muted-foreground">
-                ₪{(formData.packageCost - ((formData as any).amountPaid || 0)).toLocaleString()}
+                ₪{(formData.packageCost - (formData.amountPaid ?? 0)).toLocaleString()}
               </div>
             </div>
           </div>
