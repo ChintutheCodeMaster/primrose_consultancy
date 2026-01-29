@@ -278,7 +278,7 @@ export default function Students() {
         target_country: updatedStudent.targetCountry,
         target_university: updatedStudent.targetUniversity,
         program: updatedStudent.program,
-        amount_paid: (updatedStudent as any).amountPaid || 0
+          amount_paid: updatedStudent.amountPaid ?? 0
       })
       .eq('id', updatedStudent.id);
     
