@@ -96,7 +96,14 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
   useEffect(() => {
     if (student) {
-      setFormData({ ...student });
+      // Normalize amountPaid because some callers may still provide snake_case (amount_paid)
+      const rawAmountPaid = (student as any).amountPaid ?? (student as any).amount_paid ?? 0;
+      const normalizedAmountPaid = Number(rawAmountPaid);
+
+      setFormData({
+        ...(student as any),
+        amountPaid: Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : 0,
+      });
       // Check if the student's source matches one of the predefined options
       const currentSource = student.source || '';
       if (sourceOptions.includes(currentSource)) {
