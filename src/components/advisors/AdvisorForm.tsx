@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { FileText, Upload, X } from 'lucide-react';
+import { FileText, Upload, X, Eye, EyeOff, Key } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ export interface AdvisorFormData {
   contract_url: string;
   notes: string;
   is_active: boolean;
+  portal_password: string;
 }
 
 interface AdvisorFormProps {
@@ -28,6 +29,7 @@ interface AdvisorFormProps {
 
 export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, isEditing }: AdvisorFormProps) {
   const [uploading, setUploading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,6 +166,39 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
             />
           </div>
         )}
+      </div>
+
+      <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg space-y-3">
+        <h4 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
+          <Key className="h-4 w-4" />
+          סיסמה לפורטל היועץ
+        </h4>
+        <div className="space-y-2">
+          <Label htmlFor="portal_password">סיסמה (אופציונלי)</Label>
+          <div className="relative">
+            <Input
+              id="portal_password"
+              type={showPassword ? 'text' : 'password'}
+              dir="ltr"
+              value={formData.portal_password}
+              onChange={(e) => onFormDataChange({ ...formData, portal_password: e.target.value })}
+              placeholder="השאר ריק לפורטל פתוח"
+              className="pl-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute left-1 top-1/2 -translate-y-1/2 h-7 w-7"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            אם תגדיר סיסמה, היועץ יצטרך להזין אותה כדי לגשת לפורטל שלו
+          </p>
+        </div>
       </div>
 
       <div className="space-y-2">

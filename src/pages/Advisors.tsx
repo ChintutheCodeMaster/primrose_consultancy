@@ -33,6 +33,7 @@ const initialFormData: AdvisorFormData = {
   contract_url: '',
   notes: '',
   is_active: true,
+  portal_password: '',
 };
 
 export default function Advisors() {
@@ -95,6 +96,7 @@ export default function Advisors() {
         contract_url: data.contract_url || null,
         notes: data.notes || null,
         is_active: data.is_active,
+        portal_password: data.portal_password || null,
       });
       if (error) throw error;
     },
@@ -119,6 +121,7 @@ export default function Advisors() {
           contract_url: data.contract_url || null,
           notes: data.notes || null,
           is_active: data.is_active,
+          portal_password: data.portal_password || null,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -165,6 +168,7 @@ export default function Advisors() {
       contract_url: advisor.contract_url || '',
       notes: advisor.notes || '',
       is_active: advisor.is_active ?? true,
+      portal_password: (advisor as any).portal_password || '',
     });
   };
 

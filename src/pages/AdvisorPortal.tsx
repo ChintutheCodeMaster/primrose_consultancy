@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { AdvisorPortalPasswordGate } from "@/components/advisors/AdvisorPortalPasswordGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ interface Advisor {
   name: string;
   email: string | null;
   phone: string | null;
+  portal_password: string | null;
 }
 
 interface OtherAdvisor {
@@ -124,6 +126,7 @@ export default function AdvisorPortal() {
   const [pastStudents, setPastStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("active");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Selected student for management
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -171,10 +174,10 @@ export default function AdvisorPortal() {
   const fetchAdvisorData = async () => {
     setLoading(true);
     
-    // Fetch advisor info
+    // Fetch advisor info (including password)
     const { data: advisorData, error: advisorError } = await supabase
       .from("advisors")
-      .select("id, name, email, phone")
+      .select("id, name, email, phone, portal_password")
       .eq("id", advisorId)
       .maybeSingle();
 
@@ -513,6 +516,17 @@ export default function AdvisorPortal() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // Show password gate if advisor has a password and user hasn't authenticated
+  if (advisor.portal_password && !isAuthenticated) {
+    return (
+      <AdvisorPortalPasswordGate
+        advisorName={advisor.name}
+        correctPassword={advisor.portal_password}
+        onSuccess={() => setIsAuthenticated(true)}
+      />
     );
   }
 
