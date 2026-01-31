@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AdvisorForm, AdvisorFormData } from '@/components/advisors/AdvisorForm';
@@ -307,6 +307,32 @@ export default function Advisors() {
             <DialogHeader>
               <DialogTitle>עריכת יועץ</DialogTitle>
             </DialogHeader>
+            {editingAdvisor && (
+              <div className="flex gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    const link = `${window.location.origin}/advisor/${editingAdvisor.id}`;
+                    navigator.clipboard.writeText(link);
+                    toast.success('קישור לפורטל היועץ הועתק!');
+                  }}
+                >
+                  <Link2 className="h-4 w-4" />
+                  העתק קישור לפורטל
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => window.open(`/advisor/${editingAdvisor.id}`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  פתח פורטל
+                </Button>
+              </div>
+            )}
             <AdvisorForm
               formData={formData}
               onFormDataChange={setFormData}
