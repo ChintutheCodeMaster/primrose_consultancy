@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy, History } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AdvisorForm, AdvisorFormData } from '@/components/advisors/AdvisorForm';
@@ -189,29 +189,39 @@ export default function Advisors() {
             </h1>
             <p className="text-muted-foreground mt-1">ניהול רשימת היועצים והסכמי תשלום</p>
           </div>
-          <Dialog open={isAddOpen} onOpenChange={(open) => {
-            setIsAddOpen(open);
-            if (!open) setFormData(initialFormData);
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                הוסף יועץ
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>הוסף יועץ חדש</DialogTitle>
-              </DialogHeader>
-              <AdvisorForm
-                formData={formData}
-                onFormDataChange={setFormData}
-                onSubmit={handleSubmit}
-                onCancel={closeDialog}
-                isEditing={false}
-              />
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => navigate('/past-advisors')}
+            >
+              <History className="h-4 w-4" />
+              יועצי עבר
+            </Button>
+            <Dialog open={isAddOpen} onOpenChange={(open) => {
+              setIsAddOpen(open);
+              if (!open) setFormData(initialFormData);
+            }}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  הוסף יועץ
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>הוסף יועץ חדש</DialogTitle>
+                </DialogHeader>
+                <AdvisorForm
+                  formData={formData}
+                  onFormDataChange={setFormData}
+                  onSubmit={handleSubmit}
+                  onCancel={closeDialog}
+                  isEditing={false}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {isLoading ? (

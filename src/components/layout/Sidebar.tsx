@@ -33,10 +33,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [isAgreementOpen, setIsAgreementOpen] = useState(
     location.pathname.startsWith('/agreement-template')
   );
-  const [isAdvisorsOpen, setIsAdvisorsOpen] = useState(
-    location.pathname === '/advisors' || location.pathname === '/past-advisors'
-  );
-
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
   const isDidNotContinueActive = location.pathname.startsWith('/did-not-continue');
   const isAgreementActive = location.pathname.startsWith('/agreement-template');
@@ -180,50 +176,20 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           אנליטיקס
         </Link>
 
-        {/* Advisors Collapsible */}
-        <Collapsible open={isAdvisorsOpen} onOpenChange={setIsAdvisorsOpen}>
-          <CollapsibleTrigger className={cn(
-            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+        {/* Advisors - Direct Link */}
+        <Link
+          to="/advisors"
+          onClick={handleClick}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
             isAdvisorsActive
               ? 'bg-sidebar-accent text-sidebar-primary'
               : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}>
-            <div className="flex items-center gap-3">
-              <UserCircle className="h-5 w-5" />
-              יועצים
-            </div>
-            <ChevronDown className={cn(
-              'h-4 w-4 transition-transform duration-200',
-              isAdvisorsOpen && 'rotate-180'
-            )} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            <Link
-              to="/advisors"
-              onClick={handleClick}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                location.pathname === '/advisors'
-                  ? 'bg-sidebar-accent text-sidebar-primary'
-                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-              )}
-            >
-              יועצים פעילים
-            </Link>
-            <Link
-              to="/past-advisors"
-              onClick={handleClick}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                location.pathname === '/past-advisors'
-                  ? 'bg-sidebar-accent text-sidebar-primary'
-                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-              )}
-            >
-              יועצי עבר
-            </Link>
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+        >
+          <UserCircle className="h-5 w-5" />
+          יועצים
+        </Link>
 
         {/* Agreement Collapsible */}
         <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>
