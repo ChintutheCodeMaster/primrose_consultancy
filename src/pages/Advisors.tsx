@@ -223,7 +223,7 @@ export default function Advisors() {
               <Card 
                 key={advisor.id} 
                 className={`group cursor-pointer hover:shadow-md transition-shadow ${!advisor.is_active ? 'opacity-60' : ''}`}
-                onClick={() => navigate(`/advisor/${advisor.id}`)}
+                onClick={() => window.open(`/advisor/${advisor.id}`, '_blank')}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
