@@ -79,6 +79,7 @@ export default function Students() {
         acceptedUniversities: (student.accepted_universities || []).map((uni: any) => ({
           id: uni.id,
           name: uni.name,
+          country: uni.country || '',
           acceptanceLetterUrl: uni.acceptance_letter_url
         })),
         startDate: student.start_date ? new Date(student.start_date) : undefined

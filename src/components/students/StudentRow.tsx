@@ -331,6 +331,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
               <div key={index} className="flex items-center gap-1 bg-success/10 text-success px-3 py-1 rounded-full text-sm">
                 <CheckCircle className="h-3 w-3" />
                 <span>{uni.name}</span>
+                {uni.country && <span className="text-success/70">({uni.country})</span>}
                 {uni.acceptanceLetterUrl && (
                   <a 
                     href={uni.acceptanceLetterUrl} 
