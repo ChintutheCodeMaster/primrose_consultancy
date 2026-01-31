@@ -180,7 +180,9 @@ export default function Advisors() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">יועצים</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              יועצים ({advisors.filter(a => a.is_active).length})
+            </h1>
             <p className="text-muted-foreground mt-1">ניהול רשימת היועצים והסכמי תשלום</p>
           </div>
           <Dialog open={isAddOpen} onOpenChange={(open) => {
