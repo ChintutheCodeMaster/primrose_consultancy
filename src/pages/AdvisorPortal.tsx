@@ -53,6 +53,13 @@ interface Advisor {
   phone: string | null;
 }
 
+interface OtherAdvisor {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+}
+
 interface Student {
   id: string;
   name: string;
@@ -112,6 +119,7 @@ export default function AdvisorPortal() {
   const { advisorId } = useParams<{ advisorId: string }>();
   const [loading, setLoading] = useState(true);
   const [advisor, setAdvisor] = useState<Advisor | null>(null);
+  const [otherAdvisors, setOtherAdvisors] = useState<OtherAdvisor[]>([]);
   const [activeStudents, setActiveStudents] = useState<Student[]>([]);
   const [pastStudents, setPastStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -181,6 +189,16 @@ export default function AdvisorPortal() {
     }
 
     setAdvisor(advisorData);
+
+    // Fetch other active advisors (excluding current one)
+    const { data: otherAdvisorsData } = await supabase
+      .from("advisors")
+      .select("id, name, email, phone")
+      .eq("is_active", true)
+      .neq("id", advisorId)
+      .order("name", { ascending: true });
+
+    setOtherAdvisors(otherAdvisorsData || []);
 
     // Fetch all students and filter by advisor_name (supports multiple advisors)
     const { data: allStudents } = await supabase
@@ -1105,6 +1123,43 @@ export default function AdvisorPortal() {
               </Card>
             )}
           </div>
+        )}
+
+        {/* Other Advisors Section */}
+        {otherAdvisors.length > 0 && (
+          <Card className="border-muted">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <User className="h-5 w-5 text-muted-foreground" />
+                יועצים נוספים
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {otherAdvisors.map((otherAdvisor) => (
+                  <div key={otherAdvisor.id} className="p-3 rounded-lg bg-muted/50 space-y-1">
+                    <div className="font-medium">{otherAdvisor.name}</div>
+                    {otherAdvisor.email && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <a href={`mailto:${otherAdvisor.email}`} className="hover:underline" dir="ltr">
+                          {otherAdvisor.email}
+                        </a>
+                      </div>
+                    )}
+                    {otherAdvisor.phone && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <a href={`tel:${otherAdvisor.phone}`} className="hover:underline" dir="ltr">
+                          {otherAdvisor.phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Footer */}
