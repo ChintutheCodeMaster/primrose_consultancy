@@ -53,12 +53,20 @@ interface Document {
   created_at: string;
 }
 
+interface AcceptedUniversity {
+  id: string;
+  name: string;
+  country: string | null;
+  acceptance_letter_url: string | null;
+}
+
 export default function StudentPortal() {
   const { studentId } = useParams<{ studentId: string }>();
   const [loading, setLoading] = useState(true);
   const [student, setStudent] = useState<Student | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [acceptedUniversities, setAcceptedUniversities] = useState<AcceptedUniversity[]>([]);
 
   useEffect(() => {
     if (studentId) {
@@ -105,6 +113,15 @@ export default function StudentPortal() {
       .order("created_at", { ascending: false });
 
     setDocuments(documentsData || []);
+
+    // Fetch accepted universities
+    const { data: universitiesData } = await supabase
+      .from("accepted_universities")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: true });
+
+    setAcceptedUniversities(universitiesData || []);
     setLoading(false);
   };
 
@@ -244,6 +261,55 @@ export default function StudentPortal() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Accepted Universities */}
+        {acceptedUniversities.length > 0 && (
+          <Card className="border-green-200 bg-green-50/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <GraduationCap className="h-5 w-5 text-green-600" />
+                אוניברסיטאות שהתקבלת אליהן 🎉
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {Object.entries(
+                  acceptedUniversities.reduce((acc, uni) => {
+                    const country = uni.country || 'אחר';
+                    if (!acc[country]) acc[country] = [];
+                    acc[country].push(uni);
+                    return acc;
+                  }, {} as Record<string, AcceptedUniversity[]>)
+                ).map(([country, unis]) => (
+                  <div key={country}>
+                    <div className="text-sm font-medium text-muted-foreground mb-1">{country}</div>
+                    <div className="space-y-2">
+                      {unis.map((uni) => (
+                        <div key={uni.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-green-100">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <span className="font-medium">{uni.name}</span>
+                          </div>
+                          {uni.acceptance_letter_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(uni.acceptance_letter_url!, "_blank")}
+                              className="gap-1"
+                            >
+                              <Download className="h-4 w-4" />
+                              מכתב קבלה
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Progress Bar */}
         {checklist.length > 0 && (
