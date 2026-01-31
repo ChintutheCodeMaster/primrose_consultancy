@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -29,12 +30,15 @@ export function useSourceOptions() {
     },
   });
 
-  // Combine default options with existing sources, removing duplicates
-  const allSources = [...new Set([...defaultSourceOptions, ...existingSources])];
-  
-  // Add "אחר" at the end if not already there
-  const sourceOptions = allSources.filter(s => s !== 'אחר');
-  sourceOptions.push('אחר');
+  const sourceOptions = useMemo(() => {
+    // Combine default options with existing sources, removing duplicates
+    const allSources = [...new Set([...defaultSourceOptions, ...existingSources])];
+
+    // Add "אחר" at the end if not already there
+    const options = allSources.filter((s) => s !== 'אחר');
+    options.push('אחר');
+    return options;
+  }, [existingSources]);
 
   return sourceOptions;
 }
