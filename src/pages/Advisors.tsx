@@ -56,6 +56,34 @@ export default function Advisors() {
     },
   });
 
+  // Fetch active student counts per advisor (by advisor_name field which contains comma-separated names)
+  const { data: studentCounts = {} } = useQuery({
+    queryKey: ['advisor-student-counts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select('advisor_name')
+        .eq('did_not_continue', false)
+        .neq('status', 'graduated');
+      
+      if (error) throw error;
+      
+      // Count students per advisor (handle comma-separated advisor names)
+      const counts: Record<string, number> = {};
+      data?.forEach((student) => {
+        if (student.advisor_name) {
+          const advisorNames = student.advisor_name.split(', ').map(n => n.trim());
+          advisorNames.forEach((name) => {
+            if (name) {
+              counts[name] = (counts[name] || 0) + 1;
+            }
+          });
+        }
+      });
+      return counts;
+    },
+  });
+
   const addMutation = useMutation({
     mutationFn: async (data: AdvisorFormData) => {
       const { error } = await supabase.from('advisors').insert({
@@ -210,6 +238,11 @@ export default function Advisors() {
                             <Badge variant="secondary" className="text-xs">לא פעיל</Badge>
                           )}
                         </CardTitle>
+                        {studentCounts[advisor.name] !== undefined && studentCounts[advisor.name] > 0 && (
+                          <p className="text-sm text-muted-foreground">
+                            {studentCounts[advisor.name]} לקוחות פעילים
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-1">
