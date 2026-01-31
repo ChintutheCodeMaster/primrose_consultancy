@@ -134,6 +134,7 @@ export default function PastClients() {
         package_cost: updatedStudent.packageCost,
         amount_paid: updatedStudent.amountPaid ?? 0,
         payment_notes: updatedStudent.paymentNotes,
+        payment_type: updatedStudent.paymentType || 'package',
         is_paid: updatedStudent.isPaid,
         signed_agreement: updatedStudent.signedAgreement,
         target_country: updatedStudent.targetCountry,
