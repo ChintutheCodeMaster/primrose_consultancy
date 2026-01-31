@@ -1031,6 +1031,18 @@ export default function AdvisorPortal() {
                         <h3 className="font-semibold truncate">{student.name}</h3>
                         <p className="text-sm text-muted-foreground truncate">{student.email}</p>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/students?highlight=${student.id}`, '_blank');
+                        }}
+                        title="פתח כרטיס לקוח בחלון חדש"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs ${student.signed_agreement ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
