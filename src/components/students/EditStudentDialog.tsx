@@ -142,11 +142,17 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     if (formData) {
       // Save accepted universities to database
       if (student) {
+        console.log('Saving universities for student:', student.id, 'Universities:', formData.acceptedUniversities);
+        
         // Delete existing universities for this student
-        await supabase
+        const { error: deleteError } = await supabase
           .from('accepted_universities')
           .delete()
           .eq('student_id', student.id);
+        
+        if (deleteError) {
+          console.error('Error deleting old universities:', deleteError);
+        }
 
         // Insert new universities
         if (formData.acceptedUniversities.length > 0) {
@@ -164,6 +170,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           if (error) {
             console.error('Error saving universities:', error);
             toast.error('שגיאה בשמירת האוניברסיטאות');
+          } else {
+            console.log('Universities saved successfully');
           }
         }
       }
@@ -172,6 +180,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       onOpenChange(false);
     }
   };
+
 
   const handleAddUniversity = () => {
     if (newUniversityName.trim() && newUniversityCountry.trim() && formData) {
