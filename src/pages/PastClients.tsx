@@ -53,6 +53,7 @@ export default function PastClients() {
         createdAt: new Date(student.created_at),
         status: student.status as 'active' | 'application_phase' | 'accepted' | 'enrolled' | 'graduated' | 'paused',
         advisorName: student.advisor_name || '',
+         paymentType: (student.payment_type as 'hourly' | 'package' | 'other') || 'package',
         packageCost: Number(student.package_cost) || 0,
         amountPaid: Number(student.amount_paid) || 0,
         paymentNotes: student.payment_notes || '',
