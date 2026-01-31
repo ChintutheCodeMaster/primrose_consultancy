@@ -64,7 +64,8 @@ export default function Advisors() {
         .from('students')
         .select('advisor_name')
         .eq('did_not_continue', false)
-        .neq('status', 'graduated');
+        .neq('status', 'graduated')
+        .is('graduation_year', null); // Only count students without graduation_year (truly active)
       
       if (error) throw error;
       
