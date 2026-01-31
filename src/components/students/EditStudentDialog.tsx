@@ -70,6 +70,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     }
   }, [student, open]);
 
+  const parseCurrencyInput = (raw: string) => {
+    // Allow pasting values like "1,180", "₪1180", "1180.50"
+    const cleaned = raw
+      .replace(/[^0-9.,-]/g, '')
+      .replace(/,/g, '');
+
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
   const fetchConversations = async (studentId: string) => {
     setLoadingConversations(true);
     const { data } = await supabase
@@ -394,10 +404,11 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
               <Input
                 id="amountPaid"
-                type="number"
+                type="text"
+                inputMode="decimal"
                 dir="ltr"
-                value={formData.amountPaid ?? 0}
-                onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) })}
+                value={String(formData.amountPaid ?? '')}
+                onChange={(e) => setFormData({ ...formData, amountPaid: parseCurrencyInput(e.target.value) })}
               />
             </div>
             <div className="space-y-2">
