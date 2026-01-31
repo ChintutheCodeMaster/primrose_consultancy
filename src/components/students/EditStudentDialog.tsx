@@ -94,28 +94,35 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     setLoadingConversations(false);
   };
 
+  // Initialize form data ONLY when the student changes.
+  // (Previously this also depended on sourceOptions, which changes reference and caused the form to reset on every keystroke.)
   useEffect(() => {
-    if (student) {
-      // Normalize amountPaid because some callers may still provide snake_case (amount_paid)
-      const rawAmountPaid = (student as any).amountPaid ?? (student as any).amount_paid ?? 0;
-      const normalizedAmountPaid = Number(rawAmountPaid);
+    if (!student) return;
 
-      setFormData({
-        ...(student as any),
-        amountPaid: Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : 0,
-      });
-      // Check if the student's source matches one of the predefined options
-      const currentSource = student.source || '';
-      if (sourceOptions.includes(currentSource)) {
-        setSourceSelection(currentSource);
-        setCustomSource('');
-      } else if (currentSource) {
-        setSourceSelection('אחר');
-        setCustomSource(currentSource);
-      } else {
-        setSourceSelection('');
-        setCustomSource('');
-      }
+    // Normalize amountPaid because some callers may still provide snake_case (amount_paid)
+    const rawAmountPaid = (student as any).amountPaid ?? (student as any).amount_paid ?? 0;
+    const normalizedAmountPaid = Number(rawAmountPaid);
+
+    setFormData({
+      ...(student as any),
+      acceptedUniversities: Array.isArray((student as any).acceptedUniversities) ? (student as any).acceptedUniversities : [],
+      amountPaid: Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : 0,
+    });
+  }, [student]);
+
+  // Sync source selection (does not touch formData)
+  useEffect(() => {
+    if (!student) return;
+    const currentSource = student.source || '';
+    if (sourceOptions.includes(currentSource)) {
+      setSourceSelection(currentSource);
+      setCustomSource('');
+    } else if (currentSource) {
+      setSourceSelection('אחר');
+      setCustomSource(currentSource);
+    } else {
+      setSourceSelection('');
+      setCustomSource('');
     }
   }, [student, sourceOptions]);
 
