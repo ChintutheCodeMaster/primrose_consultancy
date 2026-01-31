@@ -64,6 +64,7 @@ interface Student {
   target_university: string | null;
   status: string;
   did_not_continue: boolean;
+  graduation_year: string | null;
 }
 
 interface AcceptedUniversity {
@@ -184,7 +185,7 @@ export default function AdvisorPortal() {
     // Fetch active students (not did_not_continue and status not 'accepted')
     const { data: activeData } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year")
       .eq("advisor_id", advisorId)
       .or("did_not_continue.is.null,did_not_continue.eq.false")
       .neq("status", "accepted")
@@ -195,7 +196,7 @@ export default function AdvisorPortal() {
     // Fetch past students (did_not_continue or status = 'accepted')
     const { data: pastData } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year")
       .eq("advisor_id", advisorId)
       .or("did_not_continue.eq.true,status.eq.accepted")
       .order("name", { ascending: true });
@@ -1037,7 +1038,15 @@ export default function AdvisorPortal() {
                         className="h-8 w-8 flex-shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`/students?highlight=${student.id}`, '_blank');
+                          // Determine the correct page based on student status
+                          let targetUrl = `/students?highlight=${student.id}`;
+                          if (student.did_not_continue) {
+                            targetUrl = `/did-not-continue/2025-ומטה?highlight=${student.id}`;
+                          } else if (student.graduation_year) {
+                            // Has graduation year - goes to past clients
+                            targetUrl = `/past-clients/${student.graduation_year}?highlight=${student.id}`;
+                          }
+                          window.open(targetUrl, '_blank');
                         }}
                         title="פתח כרטיס לקוח בחלון חדש"
                       >
