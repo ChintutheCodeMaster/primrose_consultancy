@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Input } from '@/components/ui/input';
+import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown } from 'lucide-react';
+import { Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -235,15 +235,13 @@ export default function DidNotContinue() {
           </div>
 
           {/* Search - Only this stays sticky */}
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="חיפוש לפי שם, אימייל או טלפון..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-          </div>
+          <GlobalSearchInput
+            placeholder="חיפוש לפי שם, אימייל או טלפון..."
+            localSearchTerm={searchTerm}
+            onLocalSearchChange={setSearchTerm}
+            currentPage="did-not-continue"
+            className="flex-1"
+          />
         </div>
 
         {/* Sort - Not sticky, will scroll with content */}
