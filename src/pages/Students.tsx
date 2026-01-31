@@ -4,9 +4,9 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentRow } from '@/components/students/StudentRow';
 import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { Input } from '@/components/ui/input';
+import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X, ArrowUpDown } from 'lucide-react';
+import { X, ArrowUpDown } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -339,15 +339,13 @@ export default function Students() {
 
           {/* Search - Only this stays sticky */}
           <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
-            </div>
+            <GlobalSearchInput
+              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
+              localSearchTerm={searchTerm}
+              onLocalSearchChange={setSearchTerm}
+              currentPage="students"
+              className="flex-1"
+            />
             {hasActiveFilters && (
               <Button variant="outline" onClick={clearAllFilters} className="gap-2">
                 <X className="h-4 w-4" />

@@ -6,9 +6,9 @@ import { LeadRow } from '@/components/leads/LeadRow';
 import { AddLeadDialog } from '@/components/leads/AddLeadDialog';
 import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
 import { ConvertToStudentDialog } from '@/components/leads/ConvertToStudentDialog';
-import { Input } from '@/components/ui/input';
+import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Loader2, ArrowUpDown } from 'lucide-react';
+import { Loader2, ArrowUpDown } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -263,15 +263,13 @@ export default function Leads() {
           </div>
 
           {/* Search - Only this stays sticky */}
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-          </div>
+          <GlobalSearchInput
+            placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
+            localSearchTerm={searchTerm}
+            onLocalSearchChange={setSearchTerm}
+            currentPage="leads"
+            className="flex-1"
+          />
         </div>
 
         {/* Filters - Not sticky, will scroll with content */}

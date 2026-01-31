@@ -5,10 +5,10 @@ import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { ImportExcelDialog, ImportedStudent } from '@/components/students/ImportExcelDialog';
 import { ReviewImportDialog, ParsedClient } from '@/components/students/ReviewImportDialog';
-import { Input } from '@/components/ui/input';
+import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Upload, ArrowUpDown } from 'lucide-react';
+import { Upload, ArrowUpDown } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Student } from '@/types/crm';
@@ -250,15 +250,13 @@ export default function PastClients() {
           </div>
 
           {/* Search - Only this stays sticky */}
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-          </div>
+          <GlobalSearchInput
+            placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
+            localSearchTerm={searchTerm}
+            onLocalSearchChange={setSearchTerm}
+            currentPage="past-clients"
+            className="flex-1"
+          />
         </div>
 
         {/* Sort - Not sticky, will scroll with content */}
