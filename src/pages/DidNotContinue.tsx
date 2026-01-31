@@ -167,7 +167,7 @@ export default function DidNotContinue() {
       const element = itemRefs.current[highlightedId];
       if (element) {
         setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
         setTimeout(() => {
           setHighlightedId(null);

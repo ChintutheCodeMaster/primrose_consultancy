@@ -91,7 +91,7 @@ export default function PastClients() {
       const element = studentRefs.current[highlightedStudentId];
       if (element) {
         setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
         setTimeout(() => {
           setHighlightedStudentId(null);
