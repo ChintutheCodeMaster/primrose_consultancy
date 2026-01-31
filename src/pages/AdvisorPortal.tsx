@@ -182,26 +182,36 @@ export default function AdvisorPortal() {
 
     setAdvisor(advisorData);
 
-    // Fetch active students (not did_not_continue and status not 'accepted')
-    const { data: activeData } = await supabase
+    // Fetch all students and filter by advisor_name (supports multiple advisors)
+    const { data: allStudents } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year")
-      .eq("advisor_id", advisorId)
-      .or("did_not_continue.is.null,did_not_continue.eq.false")
-      .neq("status", "accepted")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name")
       .order("name", { ascending: true });
 
-    setActiveStudents(activeData || []);
+    // Filter students where advisor_name contains this advisor's name
+    const advisorStudents = (allStudents || []).filter(student => {
+      if (!student.advisor_name) return false;
+      const advisorNames = student.advisor_name.split(',').map((n: string) => n.trim());
+      return advisorNames.includes(advisorData.name);
+    });
 
-    // Fetch past students (did_not_continue or status = 'accepted')
-    const { data: pastData } = await supabase
-      .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year")
-      .eq("advisor_id", advisorId)
-      .or("did_not_continue.eq.true,status.eq.accepted")
-      .order("name", { ascending: true });
+    // Split into active and past students
+    const active = advisorStudents.filter(s => 
+      (!s.did_not_continue) && 
+      s.status !== 'accepted' && 
+      s.status !== 'graduated' &&
+      !s.graduation_year
+    );
+    
+    const past = advisorStudents.filter(s => 
+      s.did_not_continue || 
+      s.status === 'accepted' || 
+      s.status === 'graduated' ||
+      s.graduation_year
+    );
 
-    setPastStudents(pastData || []);
+    setActiveStudents(active);
+    setPastStudents(past);
     setLoading(false);
   };
 
