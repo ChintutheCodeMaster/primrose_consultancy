@@ -132,6 +132,7 @@ export default function PastClients() {
         status: updatedStudent.status,
         advisor_name: updatedStudent.advisorName,
         package_cost: updatedStudent.packageCost,
+        amount_paid: updatedStudent.amountPaid ?? 0,
         payment_notes: updatedStudent.paymentNotes,
         is_paid: updatedStudent.isPaid,
         signed_agreement: updatedStudent.signedAgreement,
