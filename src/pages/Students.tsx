@@ -497,7 +497,7 @@ export default function Students() {
               <div 
                 key={student.id} 
                 ref={(el) => { studentRefs.current[student.id] = el; }}
-                className={`animate-slide-up transition-all duration-500 ${highlightedStudentId === student.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`} 
+                className={`animate-slide-up scroll-mt-40 transition-all duration-500 ${highlightedStudentId === student.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`} 
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <StudentRow 

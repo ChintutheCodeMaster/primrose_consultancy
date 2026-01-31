@@ -303,7 +303,7 @@ export default function Leads() {
             <div 
               key={lead.id} 
               ref={(el) => { leadRefs.current[lead.id] = el; }}
-              className={`animate-slide-up transition-all duration-500 ${highlightedLeadId === lead.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`}
+              className={`animate-slide-up scroll-mt-40 transition-all duration-500 ${highlightedLeadId === lead.id ? 'ring-2 ring-primary ring-offset-2 rounded-2xl' : ''}`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <LeadRow 
