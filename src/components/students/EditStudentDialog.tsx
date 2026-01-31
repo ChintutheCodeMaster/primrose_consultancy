@@ -512,63 +512,76 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               )}
             </div>
 
-            {/* List of accepted universities */}
+            {/* List of accepted universities - grouped by country */}
             {formData.acceptedUniversities.length > 0 && (
-              <div className="space-y-2">
-                {formData.acceptedUniversities.map((uni, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-background rounded-lg border">
-                    <div className="flex-1">
-                      <span className="font-medium">{uni.name}</span>
-                      {uni.country && <span className="text-sm text-muted-foreground mr-2">({uni.country})</span>}
+              <div className="space-y-3">
+                {Object.entries(
+                  formData.acceptedUniversities.reduce((acc, uni, index) => {
+                    const country = uni.country || 'ללא מדינה';
+                    if (!acc[country]) acc[country] = [];
+                    acc[country].push({ ...uni, originalIndex: index });
+                    return acc;
+                  }, {} as Record<string, (AcceptedUniversity & { originalIndex: number })[]>)
+                ).map(([country, universities]) => (
+                  <div key={country} className="space-y-1">
+                    <div className="text-sm font-medium text-muted-foreground px-1">{country}</div>
+                    <div className="space-y-1">
+                      {universities.map((uni) => (
+                        <div key={uni.originalIndex} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border">
+                          <div className="flex-1">
+                            <span className="font-medium">{uni.name}</span>
+                          </div>
+                          
+                          {uni.acceptanceLetterUrl ? (
+                            <div className="flex items-center gap-1">
+                              <a
+                                href={uni.acceptanceLetterUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-sm text-primary hover:underline"
+                              >
+                                <FileText className="h-4 w-4" />
+                                מכתב קבלה
+                              </a>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => handleRemoveFile(uni.originalIndex)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={uploadingFor === uni.originalIndex}
+                              onClick={() => {
+                                setUploadingFor(uni.originalIndex);
+                                fileInputRef.current?.click();
+                              }}
+                              className="gap-1"
+                            >
+                              <Upload className="h-3 w-3" />
+                              {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב'}
+                            </Button>
+                          )}
+                          
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleRemoveUniversity(uni.originalIndex)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                    
-                    {uni.acceptanceLetterUrl ? (
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={uni.acceptanceLetterUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-sm text-primary hover:underline"
-                        >
-                          <FileText className="h-4 w-4" />
-                          מכתב קבלה
-                        </a>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => handleRemoveFile(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={uploadingFor === index}
-                        onClick={() => {
-                          setUploadingFor(index);
-                          fileInputRef.current?.click();
-                        }}
-                        className="gap-1"
-                      >
-                        <Upload className="h-3 w-3" />
-                        {uploadingFor === index ? 'מעלה...' : 'העלה מכתב'}
-                      </Button>
-                    )}
-                    
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleRemoveUniversity(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 ))}
               </div>
