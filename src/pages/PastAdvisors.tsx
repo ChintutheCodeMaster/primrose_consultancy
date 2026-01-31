@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -7,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Phone, Mail, FileText, ExternalLink, RotateCcw } from 'lucide-react';
+import { Search, Phone, Mail, FileText, ExternalLink, RotateCcw, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PastAdvisors() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAdvisor, setSelectedAdvisor] = useState<any>(null);
 
@@ -55,6 +57,14 @@ export default function PastAdvisors() {
             <h1 className="text-3xl font-bold text-foreground">יועצי עבר</h1>
             <p className="text-muted-foreground">יועצים שכבר לא פעילים במערכת</p>
           </div>
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => navigate('/advisors')}
+          >
+            <ArrowRight className="h-4 w-4" />
+            חזרה ליועצים פעילים
+          </Button>
         </div>
 
         {/* Search */}
