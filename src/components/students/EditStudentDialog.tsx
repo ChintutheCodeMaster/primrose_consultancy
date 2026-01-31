@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
+import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
 import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar } from 'lucide-react';
@@ -347,29 +348,12 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           {/* Student-specific fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="advisorName">יועץ</Label>
-              <Select 
-                value={formData.advisorId || ''} 
-                onValueChange={(v) => {
-                  const selectedAdvisor = advisors.find(a => a.id === v);
-                  setFormData({ 
-                    ...formData, 
-                    advisorId: v,
-                    advisorName: selectedAdvisor?.name || '' 
-                  });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר יועץ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {advisors.map((advisor) => (
-                    <SelectItem key={advisor.id} value={advisor.id}>
-                      {advisor.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="advisorName">יועצים</Label>
+              <MultiAdvisorSelect
+                value={formData.advisorName || ''}
+                onChange={(v) => setFormData({ ...formData, advisorName: v })}
+                placeholder="בחר יועצים"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentType">סוג תשלום</Label>
