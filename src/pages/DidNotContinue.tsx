@@ -272,7 +272,7 @@ export default function DidNotContinue() {
                   <div
                     key={lead.id}
                     ref={(el) => { itemRefs.current[lead.id] = el; }}
-                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-all duration-500 cursor-pointer ${highlightedId === lead.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md scroll-mt-40 transition-all duration-500 cursor-pointer ${highlightedId === lead.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     onClick={() => setSelectedLead(lead)}
                   >
                     <div className="flex items-start justify-between">
@@ -332,7 +332,7 @@ export default function DidNotContinue() {
                   <div
                     key={student.id}
                     ref={(el) => { itemRefs.current[student.id] = el; }}
-                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md transition-all duration-500 cursor-pointer ${highlightedId === student.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                    className={`rounded-xl bg-card p-5 border border-border/50 hover:shadow-md scroll-mt-40 transition-all duration-500 cursor-pointer ${highlightedId === student.id ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     onClick={() => setSelectedStudent(student)}
                   >
                     <div className="flex items-start justify-between">
