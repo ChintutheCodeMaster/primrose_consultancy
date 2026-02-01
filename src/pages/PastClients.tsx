@@ -106,8 +106,8 @@ export default function PastClients() {
     const filtered = pastClients.filter(student => {
       const search = searchTerm.toLowerCase();
       return student.name.toLowerCase().includes(search) || 
-             student.email.toLowerCase().includes(search) || 
-             student.phone.includes(searchTerm) ||
+             (student.email?.toLowerCase() || '').includes(search) || 
+             (student.phone || '').includes(searchTerm) ||
              student.targetUniversity?.toLowerCase().includes(search) ||
              student.targetCountry?.toLowerCase().includes(search);
     });
