@@ -108,12 +108,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {leadsYears.map((year) => {
-              const isYearActive = location.pathname === `/leads/${year}`;
+            {leadsCategories.map((category) => {
+              const isYearActive = location.pathname === `/leads/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/leads/${year}`}
+                  key={category.id}
+                  to={`/leads/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -122,7 +122,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  מתעניינים {year}
+                  {category.display_label}
                 </Link>
               );
             })}
