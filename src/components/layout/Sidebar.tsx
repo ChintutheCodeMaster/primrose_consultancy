@@ -24,6 +24,9 @@ const agreementTemplateTypes = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const [isLeadsOpen, setIsLeadsOpen] = useState(
+    location.pathname.startsWith('/leads')
+  );
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
     location.pathname.startsWith('/past-clients')
   );
@@ -33,6 +36,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [isAgreementOpen, setIsAgreementOpen] = useState(
     location.pathname.startsWith('/agreement-template')
   );
+  const isLeadsActive = location.pathname.startsWith('/leads');
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
   const isDidNotContinueActive = location.pathname.startsWith('/did-not-continue');
   const isAgreementActive = location.pathname.startsWith('/agreement-template');
