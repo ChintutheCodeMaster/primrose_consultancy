@@ -15,11 +15,13 @@ interface AddLeadDialogProps {
   defaultYear?: string;
 }
 
-export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
+export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const sourceOptions = useSourceOptions();
+  const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [selectedYear, setSelectedYear] = useState(defaultYear || '');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -36,7 +38,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    onAdd({ ...formData, source: finalSource });
+    onAdd({ ...formData, source: finalSource, leadsYear: selectedYear || defaultYear || '27' });
     setOpen(false);
     setFormData({
       name: '',
@@ -52,6 +54,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setSelectedYear(defaultYear || '');
   };
 
   return (
