@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 interface AddLeadDialogProps {
-  onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => void;
+  onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => void;
+  defaultYear?: string;
 }
 
 export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
