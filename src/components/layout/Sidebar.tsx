@@ -1,19 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useSidebarCategories } from '@/hooks/useSidebarCategories';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
-
-const leadsYears = ['27', '26', '25', '24', '23'];
-const pastClientsYears = ['2026', '2025', '2024', '2023', '2021-22'];
-const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
 const agreementTemplateTypes = [
   { type: 'package', label: 'חבילה' },
@@ -24,6 +21,13 @@ const agreementTemplateTypes = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const { data: categories = [], isLoading: isCategoriesLoading } = useSidebarCategories();
+  
+  // Group categories by type
+  const leadsCategories = categories.filter(c => c.category_type === 'leads');
+  const pastClientsCategories = categories.filter(c => c.category_type === 'past_clients');
+  const didNotContinueCategories = categories.filter(c => c.category_type === 'did_not_continue');
+  
   const [isLeadsOpen, setIsLeadsOpen] = useState(
     location.pathname.startsWith('/leads')
   );
@@ -104,12 +108,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {leadsYears.map((year) => {
-              const isYearActive = location.pathname === `/leads/${year}`;
+            {leadsCategories.map((category) => {
+              const isYearActive = location.pathname === `/leads/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/leads/${year}`}
+                  key={category.id}
+                  to={`/leads/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -118,7 +122,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  מתעניינים {year}
+                  {category.display_label}
                 </Link>
               );
             })}
@@ -143,12 +147,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {pastClientsYears.map((year) => {
-              const isYearActive = location.pathname === `/past-clients/${year}`;
+            {pastClientsCategories.map((category) => {
+              const isYearActive = location.pathname === `/past-clients/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/past-clients/${year}`}
+                  key={category.id}
+                  to={`/past-clients/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -157,7 +161,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  לקוחות עבר {year}
+                  {category.display_label}
                 </Link>
               );
             })}
@@ -182,13 +186,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {didNotContinueYears.map((year) => {
-              const isYearActive = location.pathname === `/did-not-continue/${year}`;
-              const displayLabel = year === '2025-ומטה' ? '2025 ומטה' : year;
+            {didNotContinueCategories.map((category) => {
+              const isYearActive = location.pathname === `/did-not-continue/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/did-not-continue/${year}`}
+                  key={category.id}
+                  to={`/did-not-continue/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -197,7 +200,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  {displayLabel}
+                  {category.display_label}
                 </Link>
               );
             })}
