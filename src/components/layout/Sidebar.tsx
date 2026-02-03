@@ -8,10 +8,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
-  { name: 'מתעניינים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
 
+const leadsYears = ['27', '26', '25', '24', '23'];
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2021-22'];
 const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
@@ -24,6 +24,9 @@ const agreementTemplateTypes = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const [isLeadsOpen, setIsLeadsOpen] = useState(
+    location.pathname.startsWith('/leads')
+  );
   const [isPastClientsOpen, setIsPastClientsOpen] = useState(
     location.pathname.startsWith('/past-clients')
   );
@@ -33,6 +36,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [isAgreementOpen, setIsAgreementOpen] = useState(
     location.pathname.startsWith('/agreement-template')
   );
+  const isLeadsActive = location.pathname.startsWith('/leads');
   const isPastClientsActive = location.pathname.startsWith('/past-clients');
   const isDidNotContinueActive = location.pathname.startsWith('/did-not-continue');
   const isAgreementActive = location.pathname.startsWith('/agreement-template');
@@ -81,6 +85,45 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           );
         })}
+
+        {/* Leads Collapsible */}
+        <Collapsible open={isLeadsOpen} onOpenChange={setIsLeadsOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isLeadsActive
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}>
+            <div className="flex items-center gap-3">
+              <UserPlus className="h-5 w-5" />
+              מתעניינים
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isLeadsOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            {leadsYears.map((year) => {
+              const isYearActive = location.pathname === `/leads/${year}`;
+              return (
+                <Link
+                  key={year}
+                  to={`/leads/${year}`}
+                  onClick={handleClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                    isYearActive
+                      ? 'bg-sidebar-accent text-sidebar-primary'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  )}
+                >
+                  מתעניינים {year}
+                </Link>
+              );
+            })}
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Past Clients Collapsible */}
         <Collapsible open={isPastClientsOpen} onOpenChange={setIsPastClientsOpen}>
