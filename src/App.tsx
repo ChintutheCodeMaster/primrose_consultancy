@@ -18,6 +18,7 @@ import StudentPortalManagement from "./pages/StudentPortalManagement";
 import AdvisorPortal from "./pages/AdvisorPortal";
 import DidNotContinue from "./pages/DidNotContinue";
 import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
