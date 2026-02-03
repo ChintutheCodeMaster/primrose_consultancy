@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { SidebarCategory } from '@/hooks/useSidebarCategories';
@@ -83,12 +83,44 @@ export default function Settings() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async ({ id, newOrder, categoryType }: { id: string; newOrder: number; categoryType: string }) => {
+      const typeCategories = categories.filter(c => c.category_type === categoryType);
+      const currentIndex = typeCategories.findIndex(c => c.id === id);
+      const targetIndex = newOrder === -1 ? currentIndex - 1 : currentIndex + 1;
+      
+      if (targetIndex < 0 || targetIndex >= typeCategories.length) return;
+      
+      const current = typeCategories[currentIndex];
+      const target = typeCategories[targetIndex];
+      
+      // Swap sort orders
+      await supabase.from('sidebar_categories').update({ sort_order: target.sort_order }).eq('id', current.id);
+      await supabase.from('sidebar_categories').update({ sort_order: current.sort_order }).eq('id', target.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories-all'] });
+    },
+    onError: () => {
+      toast.error('שגיאה בשינוי הסדר');
+    },
+  });
+
   const handleAdd = () => {
     if (!newCategory.year_value || !newCategory.display_label) {
       toast.error('יש למלא את כל השדות');
       return;
     }
     addMutation.mutate(newCategory);
+  };
+
+  const handleMoveUp = (category: SidebarCategory) => {
+    reorderMutation.mutate({ id: category.id, newOrder: -1, categoryType: category.category_type });
+  };
+
+  const handleMoveDown = (category: SidebarCategory) => {
+    reorderMutation.mutate({ id: category.id, newOrder: 1, categoryType: category.category_type });
   };
 
   const groupedCategories = {
@@ -182,15 +214,36 @@ export default function Settings() {
                     <TableHead>תווית</TableHead>
                     <TableHead>ערך שנה</TableHead>
                     <TableHead>סדר</TableHead>
+                    <TableHead className="w-24">הזז</TableHead>
                     <TableHead className="w-16"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {groupedCategories[type].map((category) => (
+                  {groupedCategories[type].map((category, index) => (
                     <TableRow key={category.id}>
                       <TableCell>{category.display_label}</TableCell>
                       <TableCell>{category.year_value}</TableCell>
                       <TableCell>{category.sort_order}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleMoveUp(category)}
+                            disabled={index === 0 || reorderMutation.isPending}
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleMoveDown(category)}
+                            disabled={index === groupedCategories[type].length - 1 || reorderMutation.isPending}
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -205,7 +258,7 @@ export default function Settings() {
                   ))}
                   {groupedCategories[type].length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
                         אין קטגוריות
                       </TableCell>
                     </TableRow>
