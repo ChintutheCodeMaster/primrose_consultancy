@@ -12,7 +12,7 @@ const navigation = [
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
 
-const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
+const pastClientsYears = ['2026', '2025', '2024', '2023', '2021-22'];
 const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
 const agreementTemplateTypes = [
