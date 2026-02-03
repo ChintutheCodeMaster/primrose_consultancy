@@ -45,6 +45,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [packageCostText, setPackageCostText] = useState('');
+  const [amountPaidText, setAmountPaidText] = useState('');
   const [newUniversityName, setNewUniversityName] = useState('');
   const [newUniversityCountry, setNewUniversityCountry] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
@@ -119,6 +121,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       acceptedUniversities: Array.isArray((student as any).acceptedUniversities) ? (student as any).acceptedUniversities : [],
       amountPaid: Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : 0,
     });
+    
+    // Initialize text fields for decimal input
+    setPackageCostText(String((student as any).packageCost || ''));
+    setAmountPaidText(String(Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : ''));
   }, [student]);
 
   // Sync source selection (does not touch formData)
@@ -140,9 +146,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData) {
+      // Parse numeric values from text fields
+      const finalFormData = {
+        ...formData,
+        packageCost: parseCurrencyInput(packageCostText),
+        amountPaid: parseCurrencyInput(amountPaidText),
+      };
+      
       // Save accepted universities to database
       if (student) {
-        console.log('Saving universities for student:', student.id, 'Universities:', formData.acceptedUniversities);
+        console.log('Saving universities for student:', student.id, 'Universities:', finalFormData.acceptedUniversities);
         
         // Delete existing universities for this student
         const { error: deleteError } = await supabase
@@ -155,11 +168,11 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
         }
 
         // Insert new universities
-        if (formData.acceptedUniversities.length > 0) {
+        if (finalFormData.acceptedUniversities.length > 0) {
           const { error } = await supabase
             .from('accepted_universities')
             .insert(
-              formData.acceptedUniversities.map(uni => ({
+              finalFormData.acceptedUniversities.map(uni => ({
                 student_id: student.id,
                 name: uni.name,
                 country: uni.country || null,
@@ -176,7 +189,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
         }
       }
 
-      onSave(formData);
+      onSave(finalFormData);
       onOpenChange(false);
     }
   };
@@ -389,12 +402,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               type="text"
               inputMode="decimal"
               dir="ltr"
-              value={formData.packageCost || ''}
-              onChange={(e) => {
-                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
-                const n = Number(cleaned);
-                setFormData({ ...formData, packageCost: Number.isFinite(n) ? n : 0 });
-              }}
+              value={packageCostText}
+              onChange={(e) => setPackageCostText(e.target.value)}
             />
           </div>
 
@@ -406,14 +415,14 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 type="text"
                 inputMode="decimal"
                 dir="ltr"
-                value={String(formData.amountPaid ?? '')}
-                onChange={(e) => setFormData({ ...formData, amountPaid: parseCurrencyInput(e.target.value) })}
+                value={amountPaidText}
+                onChange={(e) => setAmountPaidText(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label className="text-muted-foreground">יתרה לתשלום</Label>
               <div className="h-10 px-3 flex items-center rounded-md border bg-muted/50 text-muted-foreground">
-                ₪{(formData.packageCost - (formData.amountPaid ?? 0)).toLocaleString()}
+                ₪{(parseCurrencyInput(packageCostText) - parseCurrencyInput(amountPaidText)).toLocaleString()}
               </div>
             </div>
           </div>

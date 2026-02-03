@@ -22,6 +22,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [packageCostText, setPackageCostText] = useState('');
+  const [amountPaidText, setAmountPaidText] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,6 +48,12 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     acceptedUniversities: [] as { name: string; acceptanceLetterUrl?: string }[],
   });
 
+  const parseNumber = (text: string): number => {
+    const cleaned = text.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
@@ -55,7 +63,15 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       return;
     }
     
-    onAdd({ ...formData, source: finalSource });
+    // Parse numeric values from text fields
+    const finalFormData = {
+      ...formData,
+      source: finalSource,
+      packageCost: parseNumber(packageCostText),
+      amountPaid: parseNumber(amountPaidText),
+    };
+    
+    onAdd(finalFormData);
     setOpen(false);
     setFormData({
       name: '',
@@ -82,6 +98,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setPackageCostText('');
+    setAmountPaidText('');
   };
 
   return (
@@ -254,12 +272,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 type="text"
                 inputMode="decimal"
                 dir="ltr"
-                value={formData.packageCost || ''}
-                onChange={(e) => {
-                  const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
-                  const n = Number(cleaned);
-                  setFormData({ ...formData, packageCost: Number.isFinite(n) ? n : 0 });
-                }}
+                value={packageCostText}
+                onChange={(e) => setPackageCostText(e.target.value)}
               />
             </div>
           </div>
@@ -271,12 +285,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               type="text"
               inputMode="decimal"
               dir="ltr"
-              value={formData.amountPaid || ''}
-              onChange={(e) => {
-                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
-                const n = Number(cleaned);
-                setFormData({ ...formData, amountPaid: Number.isFinite(n) ? n : 0 });
-              }}
+              value={amountPaidText}
+              onChange={(e) => setAmountPaidText(e.target.value)}
             />
           </div>
 
