@@ -107,6 +107,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
             <Input
               id="packageCost"
               type="number"
+              step="0.01"
               dir="ltr"
               value={packageCost || ''}
               onChange={(e) => setPackageCost(Number(e.target.value))}
