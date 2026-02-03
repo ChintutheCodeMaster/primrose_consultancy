@@ -15,15 +15,6 @@ import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-// Map short year (e.g., "27") to full year range for filtering
-const getYearRange = (shortYear: string): { start: Date; end: Date } => {
-  const fullYear = 2000 + parseInt(shortYear);
-  // Academic year starts in September of previous year
-  const start = new Date(fullYear - 1, 8, 1); // September 1st of previous year
-  const end = new Date(fullYear, 7, 31); // August 31st of the year
-  return { start, end };
-};
-
 export default function Leads() {
   const navigate = useNavigate();
   const { year } = useParams<{ year: string }>();
