@@ -186,13 +186,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {didNotContinueYears.map((year) => {
-              const isYearActive = location.pathname === `/did-not-continue/${year}`;
-              const displayLabel = year === '2025-ומטה' ? '2025 ומטה' : year;
+            {didNotContinueCategories.map((category) => {
+              const isYearActive = location.pathname === `/did-not-continue/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/did-not-continue/${year}`}
+                  key={category.id}
+                  to={`/did-not-continue/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -201,7 +200,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  {displayLabel}
+                  {category.display_label}
                 </Link>
               );
             })}
