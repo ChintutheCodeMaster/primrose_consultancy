@@ -214,6 +214,7 @@ export default function Settings() {
                     <TableHead>תווית</TableHead>
                     <TableHead>ערך שנה</TableHead>
                     <TableHead>סדר</TableHead>
+                    <TableHead className="w-24">הזז</TableHead>
                     <TableHead className="w-16"></TableHead>
                   </TableRow>
                 </TableHeader>
