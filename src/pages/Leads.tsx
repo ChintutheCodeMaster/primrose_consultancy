@@ -42,6 +42,9 @@ export default function Leads() {
   // Convert dialog state
   const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
+  
+  // Import dialog state
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Fetch leads from Supabase filtered by year
   const { data: leads = [], isLoading } = useQuery({
