@@ -126,7 +126,7 @@ export default function Leads() {
     });
   }, [leads, searchTerm, statusFilter, sortOrder]);
 
-  const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => {
+  const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => {
     const { error } = await supabase.from('leads').insert({
       name: newLead.name,
       email: newLead.email,
@@ -138,6 +138,7 @@ export default function Leads() {
       interested_field: newLead.interestedField,
       meeting_summary: newLead.meetingSummary,
       package_notes: newLead.packageNotes,
+      leads_year: newLead.leadsYear,
     });
     
     if (error) {
