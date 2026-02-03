@@ -83,12 +83,44 @@ export default function Settings() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async ({ id, newOrder, categoryType }: { id: string; newOrder: number; categoryType: string }) => {
+      const typeCategories = categories.filter(c => c.category_type === categoryType);
+      const currentIndex = typeCategories.findIndex(c => c.id === id);
+      const targetIndex = newOrder === -1 ? currentIndex - 1 : currentIndex + 1;
+      
+      if (targetIndex < 0 || targetIndex >= typeCategories.length) return;
+      
+      const current = typeCategories[currentIndex];
+      const target = typeCategories[targetIndex];
+      
+      // Swap sort orders
+      await supabase.from('sidebar_categories').update({ sort_order: target.sort_order }).eq('id', current.id);
+      await supabase.from('sidebar_categories').update({ sort_order: current.sort_order }).eq('id', target.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-categories-all'] });
+    },
+    onError: () => {
+      toast.error('שגיאה בשינוי הסדר');
+    },
+  });
+
   const handleAdd = () => {
     if (!newCategory.year_value || !newCategory.display_label) {
       toast.error('יש למלא את כל השדות');
       return;
     }
     addMutation.mutate(newCategory);
+  };
+
+  const handleMoveUp = (category: SidebarCategory) => {
+    reorderMutation.mutate({ id: category.id, newOrder: -1, categoryType: category.category_type });
+  };
+
+  const handleMoveDown = (category: SidebarCategory) => {
+    reorderMutation.mutate({ id: category.id, newOrder: 1, categoryType: category.category_type });
   };
 
   const groupedCategories = {
