@@ -21,6 +21,13 @@ const agreementTemplateTypes = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const { data: categories = [], isLoading: isCategoriesLoading } = useSidebarCategories();
+  
+  // Group categories by type
+  const leadsCategories = categories.filter(c => c.category_type === 'leads');
+  const pastClientsCategories = categories.filter(c => c.category_type === 'past_clients');
+  const didNotContinueCategories = categories.filter(c => c.category_type === 'did_not_continue');
+  
   const [isLeadsOpen, setIsLeadsOpen] = useState(
     location.pathname.startsWith('/leads')
   );
