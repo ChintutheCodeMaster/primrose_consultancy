@@ -131,6 +131,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="source">מקור</Label>
               <Select value={sourceSelection} onValueChange={setSourceSelection}>
                 <SelectTrigger>
