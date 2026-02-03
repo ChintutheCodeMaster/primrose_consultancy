@@ -175,6 +175,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sidebar_categories: {
+        Row: {
+          category_type: string
+          created_at: string
+          display_label: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          year_value: string
+        }
+        Insert: {
+          category_type: string
+          created_at?: string
+          display_label: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          year_value: string
+        }
+        Update: {
+          category_type?: string
+          created_at?: string
+          display_label?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          year_value?: string
+        }
+        Relationships: []
+      }
       student_agreements: {
         Row: {
           address: string
