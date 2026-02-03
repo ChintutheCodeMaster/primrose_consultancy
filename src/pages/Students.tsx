@@ -82,7 +82,8 @@ export default function Students() {
           country: uni.country || '',
           acceptanceLetterUrl: uni.acceptance_letter_url
         })),
-        startDate: student.start_date ? new Date(student.start_date) : undefined
+        startDate: student.start_date ? new Date(student.start_date) : undefined,
+        paymentReminderDate: student.payment_reminder_date ? new Date(student.payment_reminder_date) : undefined
       }));
     }
   });
@@ -279,7 +280,10 @@ export default function Students() {
         target_country: updatedStudent.targetCountry,
         target_university: updatedStudent.targetUniversity,
         program: updatedStudent.program,
-          amount_paid: updatedStudent.amountPaid ?? 0
+        amount_paid: updatedStudent.amountPaid ?? 0,
+        payment_reminder_date: (updatedStudent as any).paymentReminderDate 
+          ? (updatedStudent as any).paymentReminderDate.toISOString().split('T')[0]
+          : null
       })
       .eq('id', updatedStudent.id);
     

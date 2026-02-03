@@ -59,6 +59,7 @@ export interface Student {
   program: string;
   graduationYear?: string;
   startDate?: Date;
+  paymentReminderDate?: Date;
   notes: Note[];
   documents?: Document[];
   createdAt: Date;
