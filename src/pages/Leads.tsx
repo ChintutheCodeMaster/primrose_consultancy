@@ -372,6 +372,14 @@ export default function Leads() {
         onOpenChange={setIsConvertOpen}
         onConvert={handleConvertToStudent}
       />
+
+      {/* Import Dialog */}
+      <ImportLeadsExcelDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onImportComplete={() => queryClient.invalidateQueries({ queryKey: ['leads'] })}
+        year={year || '26'}
+      />
     </MainLayout>
   );
 }
