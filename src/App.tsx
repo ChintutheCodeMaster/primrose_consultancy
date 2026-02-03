@@ -38,7 +38,7 @@ const App = () => (
           {/* Protected routes */}
           <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />
           <Route path="/analytics" element={<PasswordGate><Analytics /></PasswordGate>} />
-          <Route path="/leads" element={<PasswordGate><Leads /></PasswordGate>} />
+          <Route path="/leads/:year" element={<PasswordGate><Leads /></PasswordGate>} />
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
           <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
           <Route path="/past-advisors" element={<PasswordGate><PastAdvisors /></PasswordGate>} />
