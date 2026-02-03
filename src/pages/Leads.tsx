@@ -142,12 +142,12 @@ export default function Leads() {
     toast.success('הליד נוסף בהצלחה!');
   };
 
-  const handleEditLead = (lead: Lead) => {
+  const handleEditLead = (lead: Lead & { leadsYear?: string }) => {
     setEditingLead(lead);
     setIsEditOpen(true);
   };
 
-  const handleSaveLead = async (updatedLead: Lead) => {
+  const handleSaveLead = async (updatedLead: Lead & { leadsYear?: string }) => {
     const { error } = await supabase
       .from('leads')
       .update({
@@ -161,6 +161,7 @@ export default function Leads() {
         interested_field: updatedLead.interestedField,
         meeting_summary: updatedLead.meetingSummary,
         package_notes: updatedLead.packageNotes,
+        leads_year: updatedLead.leadsYear,
       })
       .eq('id', updatedLead.id);
     
