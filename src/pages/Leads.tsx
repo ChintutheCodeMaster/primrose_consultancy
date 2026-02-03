@@ -56,12 +56,9 @@ export default function Leads() {
         .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
-      // Filter by year if specified
+      // Filter by leads_year field
       if (year) {
-        const { start, end } = getYearRange(year);
-        query = query
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
+        query = query.eq('leads_year', year);
       }
       
       const { data, error } = await query;
