@@ -1,19 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useSidebarCategories } from '@/hooks/useSidebarCategories';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
-
-const leadsYears = ['27', '26', '25', '24', '23'];
-const pastClientsYears = ['2026', '2025', '2024', '2023', '2021-22'];
-const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
 const agreementTemplateTypes = [
   { type: 'package', label: 'חבילה' },
