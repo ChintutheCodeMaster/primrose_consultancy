@@ -134,6 +134,7 @@ export type Database = {
           interested_country: string | null
           interested_field: string | null
           last_contact_at: string
+          leads_year: string | null
           meeting_summary: string | null
           name: string
           package_notes: string | null
@@ -150,6 +151,7 @@ export type Database = {
           interested_country?: string | null
           interested_field?: string | null
           last_contact_at?: string
+          leads_year?: string | null
           meeting_summary?: string | null
           name: string
           package_notes?: string | null
@@ -166,6 +168,7 @@ export type Database = {
           interested_country?: string | null
           interested_field?: string | null
           last_contact_at?: string
+          leads_year?: string | null
           meeting_summary?: string | null
           name?: string
           package_notes?: string | null

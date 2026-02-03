@@ -15,15 +15,6 @@ import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
-// Map short year (e.g., "27") to full year range for filtering
-const getYearRange = (shortYear: string): { start: Date; end: Date } => {
-  const fullYear = 2000 + parseInt(shortYear);
-  // Academic year starts in September of previous year
-  const start = new Date(fullYear - 1, 8, 1); // September 1st of previous year
-  const end = new Date(fullYear, 7, 31); // August 31st of the year
-  return { start, end };
-};
-
 export default function Leads() {
   const navigate = useNavigate();
   const { year } = useParams<{ year: string }>();
@@ -56,12 +47,9 @@ export default function Leads() {
         .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
-      // Filter by year if specified
+      // Filter by leads_year field
       if (year) {
-        const { start, end } = getYearRange(year);
-        query = query
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
+        query = query.eq('leads_year', year);
       }
       
       const { data, error } = await query;
@@ -129,7 +117,7 @@ export default function Leads() {
     });
   }, [leads, searchTerm, statusFilter, sortOrder]);
 
-  const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => {
+  const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => {
     const { error } = await supabase.from('leads').insert({
       name: newLead.name,
       email: newLead.email,
@@ -141,6 +129,7 @@ export default function Leads() {
       interested_field: newLead.interestedField,
       meeting_summary: newLead.meetingSummary,
       package_notes: newLead.packageNotes,
+      leads_year: newLead.leadsYear,
     });
     
     if (error) {
@@ -291,7 +280,7 @@ export default function Leads() {
                 <Upload className="h-4 w-4 ml-2" />
                 ייבוא מאקסל
               </Button>
-              <AddLeadDialog onAdd={handleAddLead} />
+              <AddLeadDialog onAdd={handleAddLead} defaultYear={year} />
             </div>
           </div>
 

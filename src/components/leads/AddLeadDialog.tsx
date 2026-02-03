@@ -8,16 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 interface AddLeadDialogProps {
-  onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'>) => void;
+  onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => void;
+  defaultYear?: string;
 }
 
-export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
+export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const sourceOptions = useSourceOptions();
+  const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [selectedYear, setSelectedYear] = useState(defaultYear || '');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -34,7 +38,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    onAdd({ ...formData, source: finalSource });
+    onAdd({ ...formData, source: finalSource, leadsYear: selectedYear || defaultYear || '27' });
     setOpen(false);
     setFormData({
       name: '',
@@ -50,6 +54,7 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setSelectedYear(defaultYear || '');
   };
 
   return (
@@ -99,6 +104,19 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שנה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadsCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.year_value}>{cat.display_label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="degreeType">סוג תואר</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
@@ -111,6 +129,8 @@ export function AddLeadDialog({ onAdd }: AddLeadDialogProps) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="source">מקור</Label>
               <Select value={sourceSelection} onValueChange={setSourceSelection}>
