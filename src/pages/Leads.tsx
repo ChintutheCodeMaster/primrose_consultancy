@@ -286,7 +286,13 @@ export default function Leads() {
               </h1>
               <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} מתעניינים)</p>
             </div>
-            <AddLeadDialog onAdd={handleAddLead} />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                <Upload className="h-4 w-4 ml-2" />
+                ייבוא מאקסל
+              </Button>
+              <AddLeadDialog onAdd={handleAddLead} />
+            </div>
           </div>
 
           {/* Search - Only this stays sticky */}
