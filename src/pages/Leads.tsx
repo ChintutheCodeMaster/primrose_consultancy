@@ -6,9 +6,11 @@ import { LeadRow } from '@/components/leads/LeadRow';
 import { AddLeadDialog } from '@/components/leads/AddLeadDialog';
 import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
 import { ConvertToStudentDialog } from '@/components/leads/ConvertToStudentDialog';
+import { ImportLeadsExcelDialog } from '@/components/leads/ImportLeadsExcelDialog';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowUpDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, ArrowUpDown, Upload } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +42,9 @@ export default function Leads() {
   // Convert dialog state
   const [convertingLead, setConvertingLead] = useState<Lead | null>(null);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
+  
+  // Import dialog state
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Fetch leads from Supabase filtered by year
   const { data: leads = [], isLoading } = useQuery({
@@ -281,7 +286,13 @@ export default function Leads() {
               </h1>
               <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} מתעניינים)</p>
             </div>
-            <AddLeadDialog onAdd={handleAddLead} />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+                <Upload className="h-4 w-4 ml-2" />
+                ייבוא מאקסל
+              </Button>
+              <AddLeadDialog onAdd={handleAddLead} />
+            </div>
           </div>
 
           {/* Search - Only this stays sticky */}
@@ -360,6 +371,14 @@ export default function Leads() {
         open={isConvertOpen}
         onOpenChange={setIsConvertOpen}
         onConvert={handleConvertToStudent}
+      />
+
+      {/* Import Dialog */}
+      <ImportLeadsExcelDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onImportComplete={() => queryClient.invalidateQueries({ queryKey: ['leads'] })}
+        year={year || '26'}
       />
     </MainLayout>
   );
