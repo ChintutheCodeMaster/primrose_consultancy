@@ -147,12 +147,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             )} />
           </CollapsibleTrigger>
           <CollapsibleContent className="pr-4 space-y-1 mt-1">
-            {pastClientsYears.map((year) => {
-              const isYearActive = location.pathname === `/past-clients/${year}`;
+            {pastClientsCategories.map((category) => {
+              const isYearActive = location.pathname === `/past-clients/${category.year_value}`;
               return (
                 <Link
-                  key={year}
-                  to={`/past-clients/${year}`}
+                  key={category.id}
+                  to={`/past-clients/${category.year_value}`}
                   onClick={handleClick}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
@@ -161,7 +161,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                   )}
                 >
-                  לקוחות עבר {year}
+                  {category.display_label}
                 </Link>
               );
             })}
