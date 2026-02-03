@@ -106,11 +106,15 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
             <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
             <Input
               id="packageCost"
-              type="number"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               dir="ltr"
               value={packageCost || ''}
-              onChange={(e) => setPackageCost(Number(e.target.value))}
+              onChange={(e) => {
+                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+                const n = Number(cleaned);
+                setPackageCost(Number.isFinite(n) ? n : 0);
+              }}
             />
           </div>
 
