@@ -386,10 +386,15 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
             <Input
               id="packageCost"
-              type="number"
-              step="0.01"
-              value={formData.packageCost}
-              onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+              type="text"
+              inputMode="decimal"
+              dir="ltr"
+              value={formData.packageCost || ''}
+              onChange={(e) => {
+                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+                const n = Number(cleaned);
+                setFormData({ ...formData, packageCost: Number.isFinite(n) ? n : 0 });
+              }}
             />
           </div>
 

@@ -251,11 +251,15 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
               <Input
                 id="packageCost"
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 dir="ltr"
                 value={formData.packageCost || ''}
-                onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+                  const n = Number(cleaned);
+                  setFormData({ ...formData, packageCost: Number.isFinite(n) ? n : 0 });
+                }}
               />
             </div>
           </div>
@@ -264,11 +268,15 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
             <Input
               id="amountPaid"
-              type="number"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               dir="ltr"
               value={formData.amountPaid || ''}
-              onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) })}
+              onChange={(e) => {
+                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+                const n = Number(cleaned);
+                setFormData({ ...formData, amountPaid: Number.isFinite(n) ? n : 0 });
+              }}
             />
           </div>
 
