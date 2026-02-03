@@ -8,10 +8,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
-  { name: 'מתעניינים', href: '/leads', icon: UserPlus },
   { name: 'סטודנטים', href: '/students', icon: GraduationCap },
 ];
 
+const leadsYears = ['27', '26', '25', '24', '23'];
 const pastClientsYears = ['2026', '2025', '2024', '2023', '2021-22'];
 const didNotContinueYears = ['2025-ומטה', '2026', '2027', '2028'];
 
