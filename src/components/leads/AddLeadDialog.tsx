@@ -104,6 +104,19 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שנה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadsCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.year_value}>{cat.display_label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="degreeType">סוג תואר</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
@@ -116,7 +129,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+          </div>
+          <div className="grid grid-cols-2 gap-4">
               <Label htmlFor="source">מקור</Label>
               <Select value={sourceSelection} onValueChange={setSourceSelection}>
                 <SelectTrigger>
