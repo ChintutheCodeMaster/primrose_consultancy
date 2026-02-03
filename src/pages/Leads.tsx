@@ -289,7 +289,7 @@ export default function Leads() {
                 <Upload className="h-4 w-4 ml-2" />
                 ייבוא מאקסל
               </Button>
-              <AddLeadDialog onAdd={handleAddLead} />
+              <AddLeadDialog onAdd={handleAddLead} defaultYear={year} />
             </div>
           </div>
 
