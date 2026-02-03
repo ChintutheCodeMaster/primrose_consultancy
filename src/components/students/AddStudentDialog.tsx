@@ -252,6 +252,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               <Input
                 id="packageCost"
                 type="number"
+                step="0.01"
                 dir="ltr"
                 value={formData.packageCost || ''}
                 onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
@@ -264,6 +265,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             <Input
               id="amountPaid"
               type="number"
+              step="0.01"
               dir="ltr"
               value={formData.amountPaid || ''}
               onChange={(e) => setFormData({ ...formData, amountPaid: Number(e.target.value) })}

@@ -387,6 +387,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <Input
               id="packageCost"
               type="number"
+              step="0.01"
               value={formData.packageCost}
               onChange={(e) => setFormData({ ...formData, packageCost: Number(e.target.value) })}
             />
