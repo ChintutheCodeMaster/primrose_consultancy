@@ -10,14 +10,17 @@ import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
-import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar } from 'lucide-react';
+import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { cn } from '@/lib/utils';
 
 interface Advisor {
   id: string;
@@ -655,6 +658,50 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 }}
                 className="mt-2"
               />
+            )}
+          </div>
+
+          {/* Payment Reminder Date */}
+          <div className="space-y-2">
+            <Label>תאריך תזכורת לתשלום</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-right font-normal",
+                    !formData.paymentReminderDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  {formData.paymentReminderDate ? (
+                    format(formData.paymentReminderDate, "dd/MM/yyyy", { locale: he })
+                  ) : (
+                    <span>בחר תאריך תזכורת</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={formData.paymentReminderDate}
+                  onSelect={(date) => setFormData({ ...formData, paymentReminderDate: date })}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            {formData.paymentReminderDate && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setFormData({ ...formData, paymentReminderDate: undefined })}
+                className="text-xs text-muted-foreground"
+              >
+                <X className="h-3 w-3 ml-1" />
+                הסר תאריך תזכורת
+              </Button>
             )}
           </div>
 

@@ -53,7 +53,14 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
   const needsAgreementReminder = !student.signedAgreement && daysSinceCreation >= 4;
-  const needsPaymentReminder = !student.isPaid && daysSinceCreation >= 7;
+  
+  // Payment reminder: use custom date if set, otherwise fallback to 7 days since creation
+  const paymentReminderDate = (student as any).paymentReminderDate;
+  const needsPaymentReminder = !student.isPaid && (
+    paymentReminderDate 
+      ? new Date() >= new Date(paymentReminderDate)
+      : daysSinceCreation >= 7
+  );
 
   // Defensive: support both camelCase (app model) and snake_case (DB rows)
   const amountPaid =
@@ -84,7 +91,13 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {needsPaymentReminder && (
         <div className="flex items-center gap-2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg mb-4">
           <AlertTriangle className="h-4 w-4 text-destructive" />
-          <span className="text-sm font-medium">תזכורת: לא שילם ({daysSinceCreation} ימים מתחילת התהליך)</span>
+          <span className="text-sm font-medium">
+            תזכורת: לא שילם 
+            {paymentReminderDate 
+              ? ` (תזכורת ל-${format(new Date(paymentReminderDate), 'dd/MM/yyyy', { locale: he })})`
+              : ` (${daysSinceCreation} ימים מתחילת התהליך)`
+            }
+          </span>
         </div>
       )}
 
