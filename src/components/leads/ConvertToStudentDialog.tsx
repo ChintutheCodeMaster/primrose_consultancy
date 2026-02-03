@@ -22,9 +22,15 @@ interface ConvertToStudentDialogProps {
 }
 
 export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: ConvertToStudentDialogProps) {
-  const [packageCost, setPackageCost] = useState(0);
+  const [packageCostText, setPackageCostText] = useState('');
   const [advisorName, setAdvisorName] = useState('');
   const [targetUniversity, setTargetUniversity] = useState('');
+
+  const parseNumber = (text: string): number => {
+    const cleaned = text.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
 
   const { data: advisors = [] } = useQuery({
     queryKey: ['advisors'],
@@ -52,7 +58,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       source: lead.source,
       meetingSummary: lead.meetingSummary,
       packageNotes: lead.packageNotes,
-      packageCost,
+      packageCost: parseNumber(packageCostText),
       paymentNotes: '',
       advisorName,
       isPaid: false,
@@ -66,7 +72,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
 
     onConvert(student);
     onOpenChange(false);
-    setPackageCost(0);
+    setPackageCostText('');
     setTargetUniversity('');
   };
 
@@ -109,12 +115,8 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
               type="text"
               inputMode="decimal"
               dir="ltr"
-              value={packageCost || ''}
-              onChange={(e) => {
-                const cleaned = e.target.value.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
-                const n = Number(cleaned);
-                setPackageCost(Number.isFinite(n) ? n : 0);
-              }}
+              value={packageCostText}
+              onChange={(e) => setPackageCostText(e.target.value)}
             />
           </div>
 
