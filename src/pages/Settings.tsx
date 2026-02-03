@@ -219,11 +219,31 @@ export default function Settings() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {groupedCategories[type].map((category) => (
+                  {groupedCategories[type].map((category, index) => (
                     <TableRow key={category.id}>
                       <TableCell>{category.display_label}</TableCell>
                       <TableCell>{category.year_value}</TableCell>
                       <TableCell>{category.sort_order}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleMoveUp(category)}
+                            disabled={index === 0 || reorderMutation.isPending}
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleMoveDown(category)}
+                            disabled={index === groupedCategories[type].length - 1 || reorderMutation.isPending}
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -238,7 +258,7 @@ export default function Settings() {
                   ))}
                   {groupedCategories[type].length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
                         אין קטגוריות
                       </TableCell>
                     </TableRow>
