@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
+import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 const sourceOptions = [
   'לינקדאין',
@@ -20,14 +21,15 @@ const sourceOptions = [
 ];
 
 interface EditLeadDialogProps {
-  lead: Lead | null;
+  lead: (Lead & { leadsYear?: string }) | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (lead: Lead) => void;
+  onSave: (lead: Lead & { leadsYear?: string }) => void;
 }
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
-  const [formData, setFormData] = useState<Lead | null>(null);
+  const { data: leadsCategories = [] } = useCategoriesByType('leads');
+  const [formData, setFormData] = useState<(Lead & { leadsYear?: string }) | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
 
@@ -100,7 +102,20 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Select value={formData.leadsYear || ''} onValueChange={(v) => setFormData({ ...formData, leadsYear: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שנה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadsCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.year_value}>{cat.display_label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="degreeType">סוג תואר</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
