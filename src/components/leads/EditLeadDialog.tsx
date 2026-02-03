@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
+import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 const sourceOptions = [
   'לינקדאין',
@@ -20,10 +21,10 @@ const sourceOptions = [
 ];
 
 interface EditLeadDialogProps {
-  lead: Lead | null;
+  lead: (Lead & { leadsYear?: string }) | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (lead: Lead) => void;
+  onSave: (lead: Lead & { leadsYear?: string }) => void;
 }
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
