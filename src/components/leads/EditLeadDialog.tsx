@@ -102,7 +102,20 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Select value={formData.leadsYear || ''} onValueChange={(v) => setFormData({ ...formData, leadsYear: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר שנה" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadsCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.year_value}>{cat.display_label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="degreeType">סוג תואר</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
