@@ -70,6 +70,7 @@ export default function Leads() {
         packageNotes: lead.package_notes || '',
         createdAt: new Date(lead.created_at),
         lastContactAt: new Date(lead.last_contact_at),
+        leadsYear: lead.leads_year || '',
       }));
     }
   });
