@@ -608,11 +608,16 @@ export default function Dashboard() {
               className={studentsNeedingAttention.length > 0 ? 'border-warning bg-warning/5' : ''}
             />
           </div>
-          <StatCard
-            title="הכנסות החודש"
-            value={`₪${totalIncomeThisMonth.toLocaleString()}`}
-            icon={DollarSign}
-          />
+          <div 
+            onClick={() => navigate('/analytics')}
+            className="cursor-pointer"
+          >
+            <StatCard
+              title="הכנסות החודש"
+              value={`₪${totalIncomeThisMonth.toLocaleString()}`}
+              icon={DollarSign}
+            />
+          </div>
           <StatCard
             title="המרות החודש"
             value={conversionsThisMonth}
