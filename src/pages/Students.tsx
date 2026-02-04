@@ -198,7 +198,8 @@ export default function Students() {
       const matchesField = fieldFilter === 'all' || student.interestedField === fieldFilter;
       const matchesSource = sourceFilter === 'all' || student.source === sourceFilter;
       const matchesCost = costFilter === 'all' ||
-        (costFilter === 'under10k' && student.packageCost < 10000) ||
+        (costFilter === 'under5k' && student.packageCost < 5000) ||
+        (costFilter === '5k-10k' && student.packageCost >= 5000 && student.packageCost < 10000) ||
         (costFilter === '10k-20k' && student.packageCost >= 10000 && student.packageCost <= 20000) ||
         (costFilter === 'over20k' && student.packageCost > 20000);
       const matchesAccepted = acceptedFilter === 'all' ||
@@ -473,7 +474,8 @@ export default function Students() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">כל העלויות</SelectItem>
-                <SelectItem value="under10k">עד ₪10,000</SelectItem>
+                <SelectItem value="under5k">עד ₪5,000</SelectItem>
+                <SelectItem value="5k-10k">₪5,000 - ₪10,000</SelectItem>
                 <SelectItem value="10k-20k">₪10,000 - ₪20,000</SelectItem>
                 <SelectItem value="over20k">מעל ₪20,000</SelectItem>
               </SelectContent>
