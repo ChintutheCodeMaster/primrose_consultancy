@@ -405,15 +405,21 @@ export default function Dashboard() {
     return false;
   });
   
-  // Total income this month - sum of all paid amounts from paid students
-  // Since we don't have historical payment dates, we show total paid from active students
+  // Date constants for filtering
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+
+  // Total income this month - based on payment_date (when payment was marked as paid)
   const totalIncomeThisMonth = students
-    .filter(s => s.isPaid && s.amountPaid > 0)
+    .filter(s => {
+      if (!s.isPaid || !(s as any).paymentDate) return false;
+      const paymentDate = new Date((s as any).paymentDate);
+      return paymentDate.getMonth() === currentMonth && 
+             paymentDate.getFullYear() === currentYear;
+    })
     .reduce((sum, s) => sum + (s.amountPaid || 0), 0);
   
   // Conversions this month
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
   const conversionsThisMonth = students.filter(s => {
     const createdDate = new Date(s.createdAt);
     return createdDate.getMonth() === currentMonth && 
