@@ -422,6 +422,26 @@ export default function Dashboard() {
     }
   });
 
+  // Fetch ALL students created this month (regardless of status)
+  const { data: allNewStudentsThisMonth = [] } = useQuery({
+    queryKey: ['all-new-students-this-month'],
+    queryFn: async () => {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, name, created_at, graduation_year, did_not_continue')
+        .gte('created_at', startOfMonth.toISOString())
+        .lte('created_at', endOfMonth.toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
   // Date constants for filtering
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -436,13 +456,11 @@ export default function Dashboard() {
     })
     .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
   
-  // New students this month
-  const newStudentsThisMonth = students.filter(s => {
-    const createdDate = new Date(s.createdAt);
-    return createdDate.getMonth() === currentMonth && 
-           createdDate.getFullYear() === currentYear;
-  });
-  const conversionsThisMonth = newStudentsThisMonth.length;
+  // Categorize new students this month
+  const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
+  const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
+  const didNotContinueNew = allNewStudentsThisMonth.filter(s => s.did_not_continue);
+  const totalNewStudentsThisMonth = allNewStudentsThisMonth.length;
 
   const recentStudents = students
     .filter(s => s.status !== 'graduated')
@@ -644,8 +662,9 @@ export default function Dashboard() {
           >
             <StatCard
               title="סטודנטים חדשים החודש"
-              value={conversionsThisMonth}
+              value={totalNewStudentsThisMonth}
               icon={UserCheck}
+              description={totalNewStudentsThisMonth > 0 ? `${activeNewStudents.length} פעילים • ${pastClientsNew.length} עבר • ${didNotContinueNew.length} לא המשיכו` : undefined}
             />
           </div>
         </div>
@@ -791,37 +810,104 @@ export default function Dashboard() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <UserCheck className="h-5 w-5" />
-                סטודנטים חדשים החודש
+                סטודנטים חדשים החודש ({totalNewStudentsThisMonth})
               </DialogTitle>
             </DialogHeader>
-            <div className="max-h-80 overflow-y-auto">
-              {newStudentsThisMonth.length > 0 ? (
-                <div className="space-y-2">
-                  {newStudentsThisMonth.map((student) => (
-                    <div 
-                      key={student.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                      onClick={() => {
-                        setShowNewStudentsDialog(false);
-                        navigate(`/students?highlight=${student.id}`);
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                          {student.name.charAt(0)}
+            <div className="max-h-[60vh] overflow-y-auto space-y-4">
+              {/* Active Students */}
+              {activeNewStudents.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-success"></div>
+                    סטודנטים פעילים ({activeNewStudents.length})
+                  </h3>
+                  <div className="space-y-1">
+                    {activeNewStudents.map((student) => (
+                      <div 
+                        key={student.id}
+                        className="flex items-center justify-between p-2 bg-success/10 rounded-lg hover:bg-success/20 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setShowNewStudentsDialog(false);
+                          navigate(`/students?highlight=${student.id}`);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-success/20 flex items-center justify-center text-success font-bold text-xs">
+                            {student.name.charAt(0)}
+                          </div>
+                          <span className="font-medium text-sm">{student.name}</span>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{student.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            נוסף ב-{format(student.createdAt, 'dd/MM/yyyy')}
-                          </p>
-                        </div>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
                       </div>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              ) : (
+              )}
+
+              {/* Past Clients */}
+              {pastClientsNew.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary"></div>
+                    לקוחות עבר ({pastClientsNew.length})
+                  </h3>
+                  <div className="space-y-1">
+                    {pastClientsNew.map((student) => (
+                      <div 
+                        key={student.id}
+                        className="flex items-center justify-between p-2 bg-primary/10 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setShowNewStudentsDialog(false);
+                          navigate(`/past-clients/${student.graduation_year}?highlight=${student.id}`);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                            {student.name.charAt(0)}
+                          </div>
+                          <div>
+                            <span className="font-medium text-sm">{student.name}</span>
+                            <span className="text-xs text-muted-foreground mr-2">({student.graduation_year})</span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Did Not Continue */}
+              {didNotContinueNew.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-destructive"></div>
+                    לא המשיכו ({didNotContinueNew.length})
+                  </h3>
+                  <div className="space-y-1">
+                    {didNotContinueNew.map((student) => (
+                      <div 
+                        key={student.id}
+                        className="flex items-center justify-between p-2 bg-destructive/10 rounded-lg hover:bg-destructive/20 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setShowNewStudentsDialog(false);
+                          navigate(`/did-not-continue?highlight=${student.id}`);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-7 rounded-full bg-destructive/20 flex items-center justify-center text-destructive font-bold text-xs">
+                            {student.name.charAt(0)}
+                          </div>
+                          <span className="font-medium text-sm">{student.name}</span>
+                        </div>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {totalNewStudentsThisMonth === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   אין סטודנטים חדשים החודש
                 </div>

@@ -9,10 +9,11 @@ interface StatCardProps {
     value: number;
     isPositive: boolean;
   };
+  description?: string;
   className?: string;
 }
 
-export function StatCard({ title, value, icon: Icon, trend, className }: StatCardProps) {
+export function StatCard({ title, value, icon: Icon, trend, description, className }: StatCardProps) {
   return (
     <div
       className={cn(
@@ -24,6 +25,9 @@ export function StatCard({ title, value, icon: Icon, trend, className }: StatCar
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-3xl font-bold text-card-foreground">{value}</p>
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
           {trend && (
             <p
               className={cn(
