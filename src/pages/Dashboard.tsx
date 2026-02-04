@@ -636,7 +636,7 @@ export default function Dashboard() {
             />
           </div>
           <StatCard
-            title="המרות החודש"
+            title="סטודנטים חדשים החודש"
             value={conversionsThisMonth}
             icon={UserCheck}
           />
