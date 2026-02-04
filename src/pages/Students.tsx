@@ -257,34 +257,49 @@ export default function Students() {
   };
 
   const handleEditStudent = async (updatedStudent: Student) => {
+    // Get current student to check if isPaid status changed
+    const currentStudent = students.find(s => s.id === updatedStudent.id);
+    const isPaidChanged = currentStudent && !currentStudent.isPaid && updatedStudent.isPaid;
+    
+    const updateData: any = {
+      name: updatedStudent.name,
+      email: updatedStudent.email,
+      phone: updatedStudent.phone,
+      degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+      interested_country: updatedStudent.interestedCountry,
+      interested_field: updatedStudent.interestedField,
+      source: updatedStudent.source,
+      meeting_summary: updatedStudent.meetingSummary,
+      package_notes: updatedStudent.packageNotes,
+      status: updatedStudent.status,
+      advisor_id: updatedStudent.advisorId || null,
+      advisor_name: updatedStudent.advisorName,
+      payment_type: updatedStudent.paymentType || 'package',
+      package_cost: updatedStudent.packageCost,
+      payment_notes: updatedStudent.paymentNotes,
+      is_paid: updatedStudent.isPaid,
+      signed_agreement: updatedStudent.signedAgreement,
+      target_country: updatedStudent.targetCountry,
+      target_university: updatedStudent.targetUniversity,
+      program: updatedStudent.program,
+      amount_paid: updatedStudent.amountPaid ?? 0,
+      payment_reminder_date: (updatedStudent as any).paymentReminderDate 
+        ? (updatedStudent as any).paymentReminderDate.toISOString().split('T')[0]
+        : null
+    };
+
+    // If isPaid just changed to true, set the payment_date to today
+    if (isPaidChanged) {
+      updateData.payment_date = new Date().toISOString().split('T')[0];
+    }
+    // If isPaid is being set to false, clear the payment_date
+    if (!updatedStudent.isPaid) {
+      updateData.payment_date = null;
+    }
+
     const { error } = await supabase
       .from('students')
-      .update({
-        name: updatedStudent.name,
-        email: updatedStudent.email,
-        phone: updatedStudent.phone,
-        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
-        interested_country: updatedStudent.interestedCountry,
-        interested_field: updatedStudent.interestedField,
-        source: updatedStudent.source,
-        meeting_summary: updatedStudent.meetingSummary,
-        package_notes: updatedStudent.packageNotes,
-        status: updatedStudent.status,
-        advisor_id: updatedStudent.advisorId || null,
-        advisor_name: updatedStudent.advisorName,
-        payment_type: updatedStudent.paymentType || 'package',
-        package_cost: updatedStudent.packageCost,
-        payment_notes: updatedStudent.paymentNotes,
-        is_paid: updatedStudent.isPaid,
-        signed_agreement: updatedStudent.signedAgreement,
-        target_country: updatedStudent.targetCountry,
-        target_university: updatedStudent.targetUniversity,
-        program: updatedStudent.program,
-        amount_paid: updatedStudent.amountPaid ?? 0,
-        payment_reminder_date: (updatedStudent as any).paymentReminderDate 
-          ? (updatedStudent as any).paymentReminderDate.toISOString().split('T')[0]
-          : null
-      })
+      .update(updateData)
       .eq('id', updatedStudent.id);
     
     if (error) {

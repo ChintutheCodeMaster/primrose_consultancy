@@ -272,7 +272,7 @@ export default function Dashboard() {
         source: s.source || '',
         meetingSummary: s.meeting_summary || '',
         packageCost: s.package_cost || 0,
-         amountPaid: Number(s.amount_paid) || 0,
+        amountPaid: Number(s.amount_paid) || 0,
         paymentNotes: s.payment_notes || '',
         advisorName: s.advisor_name || '',
         isPaid: s.is_paid || false,
@@ -286,6 +286,7 @@ export default function Dashboard() {
         program: s.program || '',
         graduationYear: s.graduation_year || undefined,
         startDate: s.start_date ? new Date(s.start_date) : undefined,
+        paymentDate: s.payment_date ? new Date(s.payment_date) : undefined,
         notes: [],
         createdAt: new Date(s.created_at),
         dismissedFromAttention: s.dismissed_from_attention || false,
@@ -404,17 +405,17 @@ export default function Dashboard() {
     return false;
   });
   
-  // Total income this month
+  // Total income this month - based on payment_date
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const totalIncomeThisMonth = students
     .filter(s => {
-      const createdDate = new Date(s.createdAt);
-      return s.isPaid && 
-             createdDate.getMonth() === currentMonth && 
-             createdDate.getFullYear() === currentYear;
+      if (!s.isPaid || !(s as any).paymentDate) return false;
+      const paymentDate = new Date((s as any).paymentDate);
+      return paymentDate.getMonth() === currentMonth && 
+             paymentDate.getFullYear() === currentYear;
     })
-    .reduce((sum, s) => sum + (s.packageCost || 0), 0);
+    .reduce((sum, s) => sum + (s.amountPaid || 0), 0);
   
   // Conversions this month
   const conversionsThisMonth = students.filter(s => {
