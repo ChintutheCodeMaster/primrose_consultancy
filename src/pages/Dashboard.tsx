@@ -405,19 +405,34 @@ export default function Dashboard() {
     return false;
   });
   
+  // Fetch all students with payment_date for income calculation (includes past clients)
+  const { data: allStudentsForIncome = [] } = useQuery({
+    queryKey: ['students-income'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, is_paid, amount_paid, payment_date')
+        .eq('is_paid', true)
+        .not('payment_date', 'is', null);
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
   // Date constants for filtering
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
   // Total income this month - based on payment_date (when payment was marked as paid)
-  const totalIncomeThisMonth = students
+  // Includes ALL students (active + past clients)
+  const totalIncomeThisMonth = allStudentsForIncome
     .filter(s => {
-      if (!s.isPaid || !(s as any).paymentDate) return false;
-      const paymentDate = new Date((s as any).paymentDate);
+      const paymentDate = new Date(s.payment_date);
       return paymentDate.getMonth() === currentMonth && 
              paymentDate.getFullYear() === currentYear;
     })
-    .reduce((sum, s) => sum + (s.amountPaid || 0), 0);
+    .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
   
   // Conversions this month
   const conversionsThisMonth = students.filter(s => {

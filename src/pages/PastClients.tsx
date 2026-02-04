@@ -120,29 +120,57 @@ export default function PastClients() {
   }, [pastClients, searchTerm, sortOrder]);
 
   const handleEditStudent = async (updatedStudent: Student) => {
+    // Get current student to check if isPaid status changed
+    const currentStudent = pastClients.find(s => s.id === updatedStudent.id);
+    const isPaidChanged = currentStudent && !currentStudent.isPaid && updatedStudent.isPaid;
+    
+    const updateData: any = {
+      name: updatedStudent.name,
+      email: updatedStudent.email,
+      phone: updatedStudent.phone,
+      degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+      interested_country: updatedStudent.interestedCountry,
+      interested_field: updatedStudent.interestedField,
+      source: updatedStudent.source,
+      meeting_summary: updatedStudent.meetingSummary,
+      status: updatedStudent.status,
+      advisor_name: updatedStudent.advisorName,
+      package_cost: updatedStudent.packageCost,
+      amount_paid: updatedStudent.amountPaid ?? 0,
+      payment_notes: updatedStudent.paymentNotes,
+      payment_type: updatedStudent.paymentType || 'package',
+      is_paid: updatedStudent.isPaid,
+      signed_agreement: updatedStudent.signedAgreement,
+      target_country: updatedStudent.targetCountry,
+      target_university: updatedStudent.targetUniversity,
+      program: updatedStudent.program
+    };
+
+    // If isPaid just changed to true, set the payment_date to today
+    if (isPaidChanged) {
+      updateData.payment_date = new Date().toISOString().split('T')[0];
+    }
+    // If student is already paid but has no payment_date and amount is being updated, set date now
+    else if (updatedStudent.isPaid && currentStudent?.isPaid && updatedStudent.amountPaid && updatedStudent.amountPaid > 0) {
+      // Check if current student has no payment_date (we need to fetch this)
+      const { data: studentData } = await supabase
+        .from('students')
+        .select('payment_date')
+        .eq('id', updatedStudent.id)
+        .maybeSingle();
+      
+      if (studentData && !studentData.payment_date) {
+        updateData.payment_date = new Date().toISOString().split('T')[0];
+      }
+    }
+    // If isPaid is being set to false, clear the payment_date
+    if (!updatedStudent.isPaid) {
+      updateData.payment_date = null;
+    }
+
     const { error } = await supabase
       .from('students')
-      .update({
-        name: updatedStudent.name,
-        email: updatedStudent.email,
-        phone: updatedStudent.phone,
-        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
-        interested_country: updatedStudent.interestedCountry,
-        interested_field: updatedStudent.interestedField,
-        source: updatedStudent.source,
-        meeting_summary: updatedStudent.meetingSummary,
-        status: updatedStudent.status,
-        advisor_name: updatedStudent.advisorName,
-        package_cost: updatedStudent.packageCost,
-        amount_paid: updatedStudent.amountPaid ?? 0,
-        payment_notes: updatedStudent.paymentNotes,
-        payment_type: updatedStudent.paymentType || 'package',
-        is_paid: updatedStudent.isPaid,
-        signed_agreement: updatedStudent.signedAgreement,
-        target_country: updatedStudent.targetCountry,
-        target_university: updatedStudent.targetUniversity,
-        program: updatedStudent.program
-      })
+      .update(updateData)
       .eq('id', updatedStudent.id);
     
     if (error) {
