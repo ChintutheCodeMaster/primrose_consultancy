@@ -432,6 +432,7 @@ export type Database = {
           name: string
           package_cost: number | null
           package_notes: string | null
+          payment_date: string | null
           payment_notes: string | null
           payment_reminder_date: string | null
           payment_type: string | null
@@ -463,6 +464,7 @@ export type Database = {
           name: string
           package_cost?: number | null
           package_notes?: string | null
+          payment_date?: string | null
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
@@ -494,6 +496,7 @@ export type Database = {
           name?: string
           package_cost?: number | null
           package_notes?: string | null
+          payment_date?: string | null
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
