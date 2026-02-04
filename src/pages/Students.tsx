@@ -292,6 +292,19 @@ export default function Students() {
     if (isPaidChanged) {
       updateData.payment_date = new Date().toISOString().split('T')[0];
     }
+    // If student is already paid but has no payment_date and amount is being updated, set date now
+    else if (updatedStudent.isPaid && currentStudent?.isPaid && updatedStudent.amountPaid && updatedStudent.amountPaid > 0) {
+      // Check if current student has no payment_date (we need to fetch this)
+      const { data: studentData } = await supabase
+        .from('students')
+        .select('payment_date')
+        .eq('id', updatedStudent.id)
+        .maybeSingle();
+      
+      if (studentData && !studentData.payment_date) {
+        updateData.payment_date = new Date().toISOString().split('T')[0];
+      }
+    }
     // If isPaid is being set to false, clear the payment_date
     if (!updatedStudent.isPaid) {
       updateData.payment_date = null;
