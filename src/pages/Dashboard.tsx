@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import type { Student, StudentStatus, DegreeType } from '@/types/crm';
 import * as XLSX from 'xlsx';
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [showNewStudentsDialog, setShowNewStudentsDialog] = useState(false);
 
   // Export all data to Excel
   const exportToExcel = async () => {
@@ -434,12 +436,13 @@ export default function Dashboard() {
     })
     .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
   
-  // Conversions this month
-  const conversionsThisMonth = students.filter(s => {
+  // New students this month
+  const newStudentsThisMonth = students.filter(s => {
     const createdDate = new Date(s.createdAt);
     return createdDate.getMonth() === currentMonth && 
            createdDate.getFullYear() === currentYear;
-  }).length;
+  });
+  const conversionsThisMonth = newStudentsThisMonth.length;
 
   const recentStudents = students
     .filter(s => s.status !== 'graduated')
@@ -635,11 +638,16 @@ export default function Dashboard() {
               icon={DollarSign}
             />
           </div>
-          <StatCard
-            title="סטודנטים חדשים החודש"
-            value={conversionsThisMonth}
-            icon={UserCheck}
-          />
+          <div 
+            onClick={() => setShowNewStudentsDialog(true)}
+            className="cursor-pointer"
+          >
+            <StatCard
+              title="סטודנטים חדשים החודש"
+              value={conversionsThisMonth}
+              icon={UserCheck}
+            />
+          </div>
         </div>
 
         {/* Recently Signed Agreements Notification */}
@@ -776,6 +784,51 @@ export default function Dashboard() {
           onOpenChange={(open) => !open && setEditingStudent(null)}
           onSave={handleEditStudent}
         />
+
+        {/* New Students This Month Dialog */}
+        <Dialog open={showNewStudentsDialog} onOpenChange={setShowNewStudentsDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                סטודנטים חדשים החודש
+              </DialogTitle>
+            </DialogHeader>
+            <div className="max-h-80 overflow-y-auto">
+              {newStudentsThisMonth.length > 0 ? (
+                <div className="space-y-2">
+                  {newStudentsThisMonth.map((student) => (
+                    <div 
+                      key={student.id}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                      onClick={() => {
+                        setShowNewStudentsDialog(false);
+                        navigate(`/students?highlight=${student.id}`);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                          {student.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{student.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            נוסף ב-{format(student.createdAt, 'dd/MM/yyyy')}
+                          </p>
+                        </div>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  אין סטודנטים חדשים החודש
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
