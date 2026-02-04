@@ -8,10 +8,10 @@ import { ReviewImportDialog, ParsedClient } from '@/components/students/ReviewIm
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Upload, ArrowUpDown } from 'lucide-react';
+import { Upload, ArrowUpDown, X } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Student } from '@/types/crm';
+import { Student, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { toast } from 'sonner';
 
 export default function PastClients() {
@@ -20,6 +20,12 @@ export default function PastClients() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [advisorFilter, setAdvisorFilter] = useState<string>('all');
+  const [paymentFilter, setPaymentFilter] = useState<string>('all');
+  const [degreeFilter, setDegreeFilter] = useState<DegreeType | 'all'>('all');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [costFilter, setCostFilter] = useState<string>('all');
+  const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);
@@ -102,14 +108,53 @@ export default function PastClients() {
     }
   }, [highlightedStudentId, isLoading, pastClients]);
 
+  // Extract unique values for filter options
+  const filterOptions = useMemo(() => {
+    const advisors = [...new Set(pastClients.map(s => s.advisorName).filter(Boolean))];
+    const sources = [...new Set(pastClients.map(s => s.source).filter(Boolean))];
+    return { advisors, sources };
+  }, [pastClients]);
+
+  // Check if any filter is active
+  const hasActiveFilters = advisorFilter !== 'all' || paymentFilter !== 'all' || 
+    degreeFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
+    acceptedFilter !== 'all';
+
+  const clearAllFilters = () => {
+    setAdvisorFilter('all');
+    setPaymentFilter('all');
+    setDegreeFilter('all');
+    setSourceFilter('all');
+    setCostFilter('all');
+    setAcceptedFilter('all');
+  };
+
   const filteredClients = useMemo(() => {
     const filtered = pastClients.filter(student => {
       const search = searchTerm.toLowerCase();
-      return student.name.toLowerCase().includes(search) || 
+      const matchesSearch = student.name.toLowerCase().includes(search) || 
              (student.email?.toLowerCase() || '').includes(search) || 
              (student.phone || '').includes(searchTerm) ||
              student.targetUniversity?.toLowerCase().includes(search) ||
              student.targetCountry?.toLowerCase().includes(search);
+      
+      const matchesAdvisor = advisorFilter === 'all' || student.advisorName === advisorFilter;
+      const matchesPayment = paymentFilter === 'all' || 
+        (paymentFilter === 'paid' && student.isPaid) || 
+        (paymentFilter === 'unpaid' && !student.isPaid);
+      const matchesDegree = degreeFilter === 'all' || student.degreeType === degreeFilter;
+      const matchesSource = sourceFilter === 'all' || student.source === sourceFilter;
+      const matchesCost = costFilter === 'all' ||
+        (costFilter === 'under5k' && student.packageCost < 5000) ||
+        (costFilter === '5k-10k' && student.packageCost >= 5000 && student.packageCost < 10000) ||
+        (costFilter === '10k-20k' && student.packageCost >= 10000 && student.packageCost <= 20000) ||
+        (costFilter === 'over20k' && student.packageCost > 20000);
+      const matchesAccepted = acceptedFilter === 'all' ||
+        (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
+        (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
+      
+      return matchesSearch && matchesAdvisor && matchesPayment && matchesDegree && 
+             matchesSource && matchesCost && matchesAccepted;
     });
     
     return filtered.sort((a, b) => {
@@ -117,7 +162,7 @@ export default function PastClients() {
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [pastClients, searchTerm, sortOrder]);
+  }, [pastClients, searchTerm, advisorFilter, paymentFilter, degreeFilter, sourceFilter, costFilter, acceptedFilter, sortOrder]);
 
   const handleEditStudent = async (updatedStudent: Student) => {
     // Get current student to check if isPaid status changed
@@ -278,10 +323,10 @@ export default function PastClients() {
           />
         </div>
 
-        {/* Sort - Not sticky, will scroll with content */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 mb-4">
           <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full sm:w-40">
               <ArrowUpDown className="h-4 w-4 ml-2" />
               <SelectValue placeholder="מיון" />
             </SelectTrigger>
@@ -290,6 +335,84 @@ export default function PastClients() {
               <SelectItem value="oldest">מהישן לחדש</SelectItem>
             </SelectContent>
           </Select>
+
+          <Select value={advisorFilter} onValueChange={setAdvisorFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="כל היועצים" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל היועצים</SelectItem>
+              {filterOptions.advisors.map(advisor => (
+                <SelectItem key={advisor} value={advisor}>{advisor}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="סטטוס תשלום" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל סטטוסי התשלום</SelectItem>
+              <SelectItem value="paid">שולם</SelectItem>
+              <SelectItem value="unpaid">לא שולם</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={degreeFilter} onValueChange={(v) => setDegreeFilter(v as DegreeType | 'all')}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="סוג תואר" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל סוגי התואר</SelectItem>
+              {Object.entries(degreeTypeLabels).map(([value, label]) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="מקור" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל המקורות</SelectItem>
+              {filterOptions.sources.map(source => (
+                <SelectItem key={source} value={source}>{source}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={costFilter} onValueChange={setCostFilter}>
+            <SelectTrigger className="w-full sm:w-44">
+              <SelectValue placeholder="עלות" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל העלויות</SelectItem>
+              <SelectItem value="under5k">עד ₪5,000</SelectItem>
+              <SelectItem value="5k-10k">₪5,000 - ₪10,000</SelectItem>
+              <SelectItem value="10k-20k">₪10,000 - ₪20,000</SelectItem>
+              <SelectItem value="over20k">מעל ₪20,000</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={acceptedFilter} onValueChange={setAcceptedFilter}>
+            <SelectTrigger className="w-full sm:w-44">
+              <SelectValue placeholder="קבלה" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">הכל</SelectItem>
+              <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
+              <SelectItem value="no">טרם התקבל</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-muted-foreground">
+              <X className="h-4 w-4 ml-1" />
+              נקה סינון
+            </Button>
+          )}
         </div>
 
         {/* Loading State */}
