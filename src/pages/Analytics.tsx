@@ -484,28 +484,30 @@ export default function Analytics() {
           </CardHeader>
           <CardContent>
             {incomeThisMonth.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>שם</TableHead>
-                    <TableHead>סכום ששולם</TableHead>
-                    <TableHead>תאריך תשלום</TableHead>
-                    <TableHead>יועץ</TableHead>
-                    <TableHead>סוג</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {incomeThisMonth.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell className="font-medium">{student.name}</TableCell>
-                      <TableCell>₪{Number(student.amount_paid).toLocaleString()}</TableCell>
-                      <TableCell>{new Date(student.payment_date).toLocaleDateString('he-IL')}</TableCell>
-                      <TableCell>{student.advisor_name || '-'}</TableCell>
-                      <TableCell>{student.graduation_year ? `לקוח עבר ${student.graduation_year}` : 'סטודנט פעיל'}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right w-[25%]">שם</TableHead>
+                      <TableHead className="text-right w-[20%]">סכום ששולם</TableHead>
+                      <TableHead className="text-right w-[20%]">תאריך תשלום</TableHead>
+                      <TableHead className="text-right w-[15%]">יועץ</TableHead>
+                      <TableHead className="text-right w-[20%]">סוג</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {incomeThisMonth.map((student) => (
+                      <TableRow key={student.id}>
+                        <TableCell className="font-medium text-right">{student.name}</TableCell>
+                        <TableCell className="text-right" dir="ltr">₪{Number(student.amount_paid).toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{new Date(student.payment_date).toLocaleDateString('he-IL')}</TableCell>
+                        <TableCell className="text-right">{student.advisor_name || '-'}</TableCell>
+                        <TableCell className="text-right">{student.graduation_year ? `לקוח עבר ${student.graduation_year}` : 'סטודנט פעיל'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 אין תשלומים שנרשמו החודש
