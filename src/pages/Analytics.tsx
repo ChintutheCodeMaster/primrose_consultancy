@@ -76,7 +76,22 @@ export default function Analytics() {
     },
   });
 
-  const isLoading = studentsLoading || leadsLoading;
+  // Fetch income data (students with payment_date)
+  const { data: incomeData, isLoading: incomeLoading } = useQuery({
+    queryKey: ['analytics-income'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, name, amount_paid, payment_date, advisor_name, graduation_year')
+        .eq('is_paid', true)
+        .not('payment_date', 'is', null)
+        .order('payment_date', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const isLoading = studentsLoading || leadsLoading || incomeLoading;
 
   // Filter data by season
   const filteredStudents = useMemo(() => {
@@ -374,6 +389,18 @@ export default function Analytics() {
     };
   }).filter(d => d.leads > 0 || d.students > 0);
 
+  // Income this month calculation
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const incomeThisMonth = (incomeData || [])
+    .filter(s => {
+      const paymentDate = new Date(s.payment_date);
+      return paymentDate.getMonth() === currentMonth && 
+             paymentDate.getFullYear() === currentYear;
+    });
+  
+  const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -446,6 +473,46 @@ export default function Analytics() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Income This Month */}
+        <Card id="income-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              הכנסות החודש - ₪{totalIncomeThisMonth.toLocaleString()}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {incomeThisMonth.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>שם</TableHead>
+                    <TableHead>סכום ששולם</TableHead>
+                    <TableHead>תאריך תשלום</TableHead>
+                    <TableHead>יועץ</TableHead>
+                    <TableHead>סוג</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {incomeThisMonth.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.name}</TableCell>
+                      <TableCell>₪{Number(student.amount_paid).toLocaleString()}</TableCell>
+                      <TableCell>{new Date(student.payment_date).toLocaleDateString('he-IL')}</TableCell>
+                      <TableCell>{student.advisor_name || '-'}</TableCell>
+                      <TableCell>{student.graduation_year ? `לקוח עבר ${student.graduation_year}` : 'סטודנט פעיל'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                אין תשלומים שנרשמו החודש
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Funnel Chart */}
         <Card>
