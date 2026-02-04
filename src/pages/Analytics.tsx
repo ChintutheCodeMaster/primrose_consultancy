@@ -213,11 +213,11 @@ export default function Analytics() {
   const paidStudents = (filteredStudents || []).filter(s => s.is_paid).length;
 
   const funnelData = [
-    { name: 'מתעניינים', value: totalLeads, fill: 'hsl(var(--chart-1))' },
-    { name: 'פעילים', value: activeLeads, fill: 'hsl(var(--chart-2))' },
-    { name: 'הפכו לסטודנטים', value: convertedToStudents, fill: 'hsl(var(--chart-3))' },
-    { name: 'חתמו הסכם', value: signedAgreement, fill: 'hsl(var(--chart-4))' },
-    { name: 'שילמו', value: paidStudents, fill: 'hsl(var(--chart-5))' },
+    { name: 'מתעניינים', value: totalLeads, fill: COLORS[0] },
+    { name: 'פעילים', value: activeLeads, fill: COLORS[1] },
+    { name: 'הפכו לסטודנטים', value: convertedToStudents, fill: COLORS[2] },
+    { name: 'חתמו הסכם', value: signedAgreement, fill: COLORS[3] },
+    { name: 'שילמו', value: paidStudents, fill: COLORS[4] },
   ];
 
   // Students by degree type
