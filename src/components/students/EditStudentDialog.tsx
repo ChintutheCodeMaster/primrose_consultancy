@@ -462,12 +462,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   <SelectValue placeholder="בחר מדינה" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                  {countryOptions.map((country) => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
