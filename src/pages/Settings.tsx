@@ -269,6 +269,8 @@ export default function Settings() {
             </CardContent>
           </Card>
         ))}
+
+        <SourceOptionsManager />
       </div>
     </MainLayout>
   );
