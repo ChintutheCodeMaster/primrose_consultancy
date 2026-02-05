@@ -18,6 +18,7 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
