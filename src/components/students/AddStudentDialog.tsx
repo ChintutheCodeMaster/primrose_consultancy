@@ -11,6 +11,7 @@ import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCountryOptions } from '@/hooks/useCountryOptions';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
