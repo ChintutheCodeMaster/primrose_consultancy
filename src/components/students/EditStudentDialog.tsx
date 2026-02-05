@@ -46,6 +46,8 @@ interface EditStudentDialogProps {
 
 export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditStudentDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
+  const [formData, setFormData] = useState<Student | null>(null);
   const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
