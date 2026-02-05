@@ -19,6 +19,7 @@ interface AddStudentDialogProps {
 
 export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
   const [open, setOpen] = useState(false);
 
   const [sourceSelection, setSourceSelection] = useState('');
