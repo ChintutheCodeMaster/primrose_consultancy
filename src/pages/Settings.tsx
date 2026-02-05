@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { SidebarCategory } from '@/hooks/useSidebarCategories';
 import { SourceOptionsManager } from '@/components/settings/SourceOptionsManager';
+import { CountryOptionsManager } from '@/components/settings/CountryOptionsManager';
 
 const categoryTypeLabels = {
   leads: 'מתעניינים',
