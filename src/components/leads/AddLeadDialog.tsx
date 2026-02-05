@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 interface AddLeadDialogProps {

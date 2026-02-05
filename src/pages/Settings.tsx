@@ -272,6 +272,7 @@ export default function Settings() {
         ))}
 
         <SourceOptionsManager />
+        <CountryOptionsManager />
       </div>
     </MainLayout>
   );
