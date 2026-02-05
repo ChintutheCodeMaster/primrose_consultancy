@@ -12,6 +12,7 @@ import { Plus, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { SidebarCategory } from '@/hooks/useSidebarCategories';
+import { SourceOptionsManager } from '@/components/settings/SourceOptionsManager';
 
 const categoryTypeLabels = {
   leads: 'מתעניינים',
@@ -268,6 +269,8 @@ export default function Settings() {
             </CardContent>
           </Card>
         ))}
+
+        <SourceOptionsManager />
       </div>
     </MainLayout>
   );

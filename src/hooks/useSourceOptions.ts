@@ -1,44 +1,49 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-// Default source options
-export const defaultSourceOptions = [
-  'לינקדאין',
-  'פייסבוק',
-  'גוגל',
-  'פודקאסט',
-  'המלצה ממועמד עבר',
-  'קהילת לימודים באנגליה',
-  'אינסטגרם',
-];
+export interface SourceOption {
+  id: string;
+  name: string;
+  is_active: boolean;
+  sort_order: number;
+}
 
 export function useSourceOptions() {
-  const { data: existingSources = [] } = useQuery({
-    queryKey: ['existing-sources'],
+  const { data: sourceOptions = [] } = useQuery({
+    queryKey: ['source-options'],
     queryFn: async () => {
-      // Get unique sources from both leads and students
-      const [leadsResult, studentsResult] = await Promise.all([
-        supabase.from('leads').select('source').not('source', 'is', null),
-        supabase.from('students').select('source').not('source', 'is', null),
-      ]);
-
-      const leadSources = (leadsResult.data || []).map(l => l.source).filter(Boolean);
-      const studentSources = (studentsResult.data || []).map(s => s.source).filter(Boolean);
+      const { data, error } = await supabase
+        .from('source_options')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
       
-      return [...new Set([...leadSources, ...studentSources])];
+      if (error) throw error;
+      return (data || []) as SourceOption[];
     },
   });
 
-  const sourceOptions = useMemo(() => {
-    // Combine default options with existing sources, removing duplicates
-    const allSources = [...new Set([...defaultSourceOptions, ...existingSources])];
-
-    // Add "אחר" at the end if not already there
-    const options = allSources.filter((s) => s !== 'אחר');
+  // Return source names with "אחר" at the end
+  const options = sourceOptions.map(s => s.name);
+  if (!options.includes('אחר')) {
     options.push('אחר');
-    return options;
-  }, [existingSources]);
+  }
+  
+  return options;
+}
 
-  return sourceOptions;
+// Hook to get all sources (including inactive) for the settings page
+export function useAllSourceOptions() {
+  return useQuery({
+    queryKey: ['source-options-all'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('source_options')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      return (data || []) as SourceOption[];
+    },
+  });
 }
