@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 
 interface AddLeadDialogProps {
@@ -17,6 +18,7 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
@@ -161,13 +163,9 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                   <SelectValue placeholder="בחר מדינה" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                  <SelectItem value="אחר">אחר</SelectItem>
+                  {countryOptions.map((country) => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

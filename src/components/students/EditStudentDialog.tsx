@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { cn } from '@/lib/utils';
 
 interface Advisor {
@@ -45,6 +46,7 @@ interface EditStudentDialogProps {
 
 export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditStudentDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
   const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
@@ -459,12 +461,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   <SelectValue placeholder="בחר מדינה" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                  {countryOptions.map((country) => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -11,6 +11,7 @@ import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { useCountryOptions } from '@/hooks/useCountryOptions';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
@@ -18,6 +19,7 @@ interface AddStudentDialogProps {
 
 export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const sourceOptions = useSourceOptions();
+  const countryOptions = useCountryOptions();
   const [open, setOpen] = useState(false);
 
   const [sourceSelection, setSourceSelection] = useState('');
@@ -203,12 +205,9 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                   <SelectValue placeholder="בחר מדינה" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                  <SelectItem value="קנדה">קנדה</SelectItem>
-                  <SelectItem value="הולנד">הולנד</SelectItem>
-                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
+                  {countryOptions.map((country) => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

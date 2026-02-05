@@ -8,17 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
-
-const sourceOptions = [
-  'לינקדאין',
-  'פייסבוק',
-  'גוגל',
-  'פודקאסט',
-  'המלצה ממועמד עבר',
-  'קהילת לימודים באנגליה',
-  'אינסטגרם',
-  'אחר',
-];
+import { useSourceOptions } from '@/hooks/useSourceOptions';
 
 interface EditLeadDialogProps {
   lead: (Lead & { leadsYear?: string }) | null;
@@ -28,6 +18,7 @@ interface EditLeadDialogProps {
 }
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
+  const sourceOptions = useSourceOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [formData, setFormData] = useState<(Lead & { leadsYear?: string }) | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
