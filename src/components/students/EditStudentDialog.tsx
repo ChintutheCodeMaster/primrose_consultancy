@@ -48,7 +48,6 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const sourceOptions = useSourceOptions();
   const countryOptions = useCountryOptions();
   const [formData, setFormData] = useState<Student | null>(null);
-  const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
   const [packageCostText, setPackageCostText] = useState('');
