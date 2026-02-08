@@ -36,20 +36,70 @@ export default function Dashboard() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showNewStudentsDialog, setShowNewStudentsDialog] = useState(false);
 
+  // Helper to format student data for Excel
+  const formatStudentData = (s: any) => ({
+    'שם': s.name,
+    'אימייל': s.email || '',
+    'טלפון': s.phone,
+    'סטטוס': s.status,
+    'סוג תואר': s.degree_type,
+    'תחום עניין': s.interested_field || '',
+    'מדינה מועדפת': s.interested_country || '',
+    'מדינת יעד': s.target_country || '',
+    'אוניברסיטת יעד': s.target_university || '',
+    'תוכנית': s.program || '',
+    'שנת סיום': s.graduation_year || '',
+    'מקור': s.source || '',
+    'יועץ': s.advisor_name || '',
+    'עלות חבילה': s.package_cost || 0,
+    'סכום ששולם': s.amount_paid || 0,
+    'שולם': s.is_paid ? 'כן' : 'לא',
+    'הערות תשלום': s.payment_notes || '',
+    'הסכם נחתם': s.signed_agreement ? 'כן' : 'לא',
+    'סיכום פגישה': s.meeting_summary || '',
+    'אוניברסיטאות מקבלות': s.accepted_universities?.map((u: any) => u.name).join(', ') || '',
+    'תאריך יצירה': s.created_at ? format(new Date(s.created_at), 'dd/MM/yyyy') : '',
+  });
+
   // Export all data to Excel
   const exportToExcel = async () => {
     setIsExporting(true);
     try {
-      // Fetch all leads
+      // Fetch all leads with year info
       const { data: leads } = await supabase
         .from('leads')
         .select('*')
+        .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
 
-      // Fetch all students with accepted universities
-      const { data: students } = await supabase
+      // Fetch leads that did not continue
+      const { data: leadsDidNotContinue } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('did_not_continue', true)
+        .order('created_at', { ascending: false });
+
+      // Fetch active students (no graduation_year, not did_not_continue)
+      const { data: activeStudents } = await supabase
         .from('students')
         .select('*, accepted_universities(*)')
+        .is('graduation_year', null)
+        .eq('did_not_continue', false)
+        .order('created_at', { ascending: false });
+
+      // Fetch past clients (has graduation_year)
+      const { data: pastClients } = await supabase
+        .from('students')
+        .select('*, accepted_universities(*)')
+        .not('graduation_year', 'is', null)
+        .eq('did_not_continue', false)
+        .order('graduation_year', { ascending: false });
+
+      // Fetch students that did not continue
+      const { data: studentsDidNotContinue } = await supabase
+        .from('students')
+        .select('*, accepted_universities(*)')
+        .eq('did_not_continue', true)
         .order('created_at', { ascending: false });
 
       // Fetch all advisors
@@ -58,11 +108,43 @@ export default function Dashboard() {
         .select('*')
         .order('name', { ascending: true });
 
+      // Fetch sidebar categories to get available years
+      const { data: sidebarCategories } = await supabase
+        .from('sidebar_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
       // Create workbook
       const wb = XLSX.utils.book_new();
 
-      // Leads sheet
-      if (leads && leads.length > 0) {
+      // ===== LEADS SECTION =====
+      // Group leads by year
+      const leadsYears = sidebarCategories?.filter(c => c.category_type === 'leads') || [];
+      
+      if (leadsYears.length > 0) {
+        leadsYears.forEach(yearCat => {
+          const yearLeads = leads?.filter(l => l.leads_year === yearCat.year_value) || [];
+          if (yearLeads.length > 0) {
+            const leadsData = yearLeads.map(l => ({
+              'שם': l.name,
+              'אימייל': l.email,
+              'טלפון': l.phone,
+              'סטטוס': l.status,
+              'סוג תואר': l.degree_type,
+              'תחום עניין': l.interested_field || '',
+              'מדינה מועדפת': l.interested_country || '',
+              'מקור': l.source || '',
+              'סיכום פגישה': l.meeting_summary || '',
+              'תאריך יצירה': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
+              'קשר אחרון': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
+            }));
+            const sheet = XLSX.utils.json_to_sheet(leadsData);
+            XLSX.utils.book_append_sheet(wb, sheet, `מתעניינים ${yearCat.display_label}`.substring(0, 31));
+          }
+        });
+      } else if (leads && leads.length > 0) {
+        // Fallback: all leads in one sheet
         const leadsData = leads.map(l => ({
           'שם': l.name,
           'אימייל': l.email,
@@ -73,58 +155,101 @@ export default function Dashboard() {
           'מדינה מועדפת': l.interested_country || '',
           'מקור': l.source || '',
           'סיכום פגישה': l.meeting_summary || '',
-          'לא המשיך': l.did_not_continue ? 'כן' : 'לא',
           'תאריך יצירה': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
           'קשר אחרון': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
         }));
-        const leadsSheet = XLSX.utils.json_to_sheet(leadsData);
-        XLSX.utils.book_append_sheet(wb, leadsSheet, 'מתעניינים');
+        const sheet = XLSX.utils.json_to_sheet(leadsData);
+        XLSX.utils.book_append_sheet(wb, sheet, 'מתעניינים');
       }
 
-      // Students sheet
-      if (students && students.length > 0) {
-        const studentsData = students.map(s => ({
-          'שם': s.name,
-          'אימייל': s.email,
-          'טלפון': s.phone,
-          'סטטוס': s.status,
-          'סוג תואר': s.degree_type,
-          'תחום עניין': s.interested_field || '',
-          'מדינה מועדפת': s.interested_country || '',
-          'מדינת יעד': s.target_country || '',
-          'אוניברסיטת יעד': s.target_university || '',
-          'תוכנית': s.program || '',
-          'שנת סיום': s.graduation_year || '',
-          'מקור': s.source || '',
-          'יועץ': s.advisor_name || '',
-          'עלות חבילה': s.package_cost || 0,
-          'סכום ששולם': s.amount_paid || 0,
-          'שולם': s.is_paid ? 'כן' : 'לא',
-          'הערות תשלום': s.payment_notes || '',
-          'הסכם נחתם': s.signed_agreement ? 'כן' : 'לא',
-          'סיכום פגישה': s.meeting_summary || '',
-          'לא המשיך': s.did_not_continue ? 'כן' : 'לא',
-          'אוניברסיטאות מקבלות': s.accepted_universities?.map((u: any) => u.name).join(', ') || '',
-          'תאריך יצירה': s.created_at ? format(new Date(s.created_at), 'dd/MM/yyyy') : '',
+      // ===== ACTIVE STUDENTS SECTION =====
+      if (activeStudents && activeStudents.length > 0) {
+        const studentsData = activeStudents.map(formatStudentData);
+        const sheet = XLSX.utils.json_to_sheet(studentsData);
+        XLSX.utils.book_append_sheet(wb, sheet, 'סטודנטים פעילים');
+      }
+
+      // ===== PAST CLIENTS SECTION - BY YEAR =====
+      const pastClientsYears = sidebarCategories?.filter(c => c.category_type === 'past_clients') || [];
+      
+      if (pastClientsYears.length > 0 && pastClients && pastClients.length > 0) {
+        pastClientsYears.forEach(yearCat => {
+          const yearClients = pastClients.filter(s => s.graduation_year === yearCat.year_value);
+          if (yearClients.length > 0) {
+            const clientsData = yearClients.map(formatStudentData);
+            const sheet = XLSX.utils.json_to_sheet(clientsData);
+            XLSX.utils.book_append_sheet(wb, sheet, `לקוחות עבר ${yearCat.display_label}`.substring(0, 31));
+          }
+        });
+      } else if (pastClients && pastClients.length > 0) {
+        // Fallback: Group by graduation_year
+        const yearGroups = new Map<string, any[]>();
+        pastClients.forEach(s => {
+          const year = s.graduation_year || 'לא ידוע';
+          if (!yearGroups.has(year)) yearGroups.set(year, []);
+          yearGroups.get(year)!.push(s);
+        });
+        
+        yearGroups.forEach((clients, year) => {
+          const clientsData = clients.map(formatStudentData);
+          const sheet = XLSX.utils.json_to_sheet(clientsData);
+          XLSX.utils.book_append_sheet(wb, sheet, `לקוחות עבר ${year}`.substring(0, 31));
+        });
+      }
+
+      // ===== DID NOT CONTINUE SECTION =====
+      const allDidNotContinue = [
+        ...(leadsDidNotContinue || []).map(l => ({ ...l, type: 'lead' })),
+        ...(studentsDidNotContinue || []).map(s => ({ ...s, type: 'student' }))
+      ];
+      
+      if (allDidNotContinue.length > 0) {
+        const dncData = allDidNotContinue.map(item => ({
+          'שם': item.name,
+          'אימייל': item.email || '',
+          'טלפון': item.phone,
+          'סוג': item.type === 'lead' ? 'מתעניין' : 'סטודנט',
+          'סוג תואר': item.degree_type,
+          'תחום עניין': item.interested_field || '',
+          'מדינה מועדפת': item.interested_country || '',
+          'מקור': item.source || '',
+          'סיכום פגישה': item.meeting_summary || '',
+          'תאריך יצירה': item.created_at ? format(new Date(item.created_at), 'dd/MM/yyyy') : '',
         }));
-        const studentsSheet = XLSX.utils.json_to_sheet(studentsData);
-        XLSX.utils.book_append_sheet(wb, studentsSheet, 'סטודנטים');
+        const sheet = XLSX.utils.json_to_sheet(dncData);
+        XLSX.utils.book_append_sheet(wb, sheet, 'לא המשיכו');
       }
 
-      // Advisors sheet
-      if (advisors && advisors.length > 0) {
-        const advisorsData = advisors.map(a => ({
+      // ===== ADVISORS SECTION =====
+      const activeAdvisors = advisors?.filter(a => a.is_active) || [];
+      const inactiveAdvisors = advisors?.filter(a => !a.is_active) || [];
+
+      if (activeAdvisors.length > 0) {
+        const advisorsData = activeAdvisors.map(a => ({
           'שם': a.name,
           'אימייל': a.email || '',
           'טלפון': a.phone || '',
-          'פעיל': a.is_active ? 'כן' : 'לא',
           'סוג תשלום': a.payment_type || '',
           'סכום תשלום': a.payment_amount || 0,
           'הערות תשלום': a.payment_notes || '',
           'הערות': a.notes || '',
         }));
-        const advisorsSheet = XLSX.utils.json_to_sheet(advisorsData);
-        XLSX.utils.book_append_sheet(wb, advisorsSheet, 'יועצים');
+        const sheet = XLSX.utils.json_to_sheet(advisorsData);
+        XLSX.utils.book_append_sheet(wb, sheet, 'יועצים פעילים');
+      }
+
+      if (inactiveAdvisors.length > 0) {
+        const advisorsData = inactiveAdvisors.map(a => ({
+          'שם': a.name,
+          'אימייל': a.email || '',
+          'טלפון': a.phone || '',
+          'סוג תשלום': a.payment_type || '',
+          'סכום תשלום': a.payment_amount || 0,
+          'הערות תשלום': a.payment_notes || '',
+          'הערות': a.notes || '',
+        }));
+        const sheet = XLSX.utils.json_to_sheet(advisorsData);
+        XLSX.utils.book_append_sheet(wb, sheet, 'יועצי עבר');
       }
 
       // Download file
