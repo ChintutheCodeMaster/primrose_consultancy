@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useSidebarCategories } from '@/hooks/useSidebarCategories';
+import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 
 const navigation = [
   { name: 'דשבורד', href: '/', icon: LayoutDashboard },
@@ -66,6 +67,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <p className="text-xs text-sidebar-foreground/60">לימודים בחו״ל</p>
           </div>
         </div>
+      </div>
+
+      {/* Global Search */}
+      <div className="px-4 py-3 border-b border-sidebar-border">
+        <GlobalSearchInput 
+          placeholder="חיפוש לקוחות..." 
+          className="w-full"
+        />
       </div>
 
       {/* Navigation */}
