@@ -27,6 +27,7 @@ interface StudentRowProps {
   onEdit?: () => void;
   onMoveToPastClient?: (year: string) => void;
   onDidNotContinue?: () => void;
+  onRestoreToStudent?: () => void;
   onDelete?: () => void;
   showActions?: boolean;
 }
