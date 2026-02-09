@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2 } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2, RotateCcw } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ interface StudentRowProps {
   onEdit?: () => void;
   onMoveToPastClient?: (year: string) => void;
   onDidNotContinue?: () => void;
+  onRestoreToStudent?: () => void;
   onDelete?: () => void;
   showActions?: boolean;
 }
@@ -42,7 +43,7 @@ const agreementTypeLabels: Record<AgreementType, string> = {
   mba: 'MBA',
 };
 
-export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onDelete, showActions = true }: StudentRowProps) {
+export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onRestoreToStudent, onDelete, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
   const [agreementType, setAgreementType] = useState<AgreementType>(
     student.paymentType === 'hourly' ? 'hourly' : 
@@ -221,6 +222,30 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              {onRestoreToStudent && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1 text-primary hover:text-primary hover:border-primary">
+                      <RotateCcw className="h-3 w-3" />
+                      החזר לסטודנט
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>החזרת לקוח עבר לסטודנט פעיל</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        פעולה זו תחזיר את "{student.name}" להיות סטודנט פעיל. שנת הסיום תימחק והסטטוס ישתנה לפעיל.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogAction onClick={onRestoreToStudent}>
+                        החזר לסטודנט
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
               {onDelete && (
                 <AlertDialog>
