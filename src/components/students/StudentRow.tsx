@@ -246,7 +246,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              }
+              )}
               {onDelete && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
