@@ -230,6 +230,22 @@ export default function PastClients() {
     toast.success('הסטודנט נמחק בהצלחה');
   };
 
+  const handleRestoreToStudent = async (studentId: string) => {
+    const { error } = await supabase
+      .from('students')
+      .update({ graduation_year: null, status: 'active' })
+      .eq('id', studentId);
+    
+    if (error) {
+      toast.error('שגיאה בהחזרת הסטודנט');
+      return;
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    toast.success('הסטודנט הוחזר לרשימת הסטודנטים הפעילים');
+  };
+
   const handleImportStudents = async (students: ImportedStudent[]) => {
     const studentsToInsert = students.map(student => ({
       name: student.name,
