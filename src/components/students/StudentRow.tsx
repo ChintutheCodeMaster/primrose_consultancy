@@ -223,6 +223,30 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
+              {onRestoreToStudent && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1 text-primary hover:text-primary hover:border-primary">
+                      <RotateCcw className="h-3 w-3" />
+                      החזר לסטודנט
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>החזרת לקוח עבר לסטודנט פעיל</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        פעולה זו תחזיר את "{student.name}" להיות סטודנט פעיל. שנת הסיום תימחק והסטטוס ישתנה לפעיל.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogAction onClick={onRestoreToStudent}>
+                        החזר לסטודנט
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              }
               {onDelete && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
