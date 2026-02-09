@@ -43,7 +43,7 @@ const agreementTypeLabels: Record<AgreementType, string> = {
   mba: 'MBA',
 };
 
-export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onDelete, showActions = true }: StudentRowProps) {
+export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onRestoreToStudent, onDelete, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
   const [agreementType, setAgreementType] = useState<AgreementType>(
     student.paymentType === 'hourly' ? 'hourly' : 
