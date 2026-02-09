@@ -452,6 +452,7 @@ export default function PastClients() {
                   student={student} 
                   onEdit={() => setEditingStudent(student)}
                   showActions={true}
+                  onRestoreToStudent={() => handleRestoreToStudent(student.id)}
                   onDelete={() => handleDeleteStudent(student.id)}
                 />
               </div>
