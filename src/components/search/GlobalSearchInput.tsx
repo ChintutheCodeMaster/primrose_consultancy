@@ -78,7 +78,7 @@ export function GlobalSearchInput({
       // Search in leads
       const { data: leads } = await supabase
         .from('leads')
-        .select('id, name, email, phone, did_not_continue, created_at')
+        .select('id, name, email, phone, did_not_continue, created_at, leads_year')
         .or(`name.ilike.%${term}%,email.ilike.%${term}%,phone.ilike.%${term}%`);
 
       if (leads) {
@@ -87,6 +87,8 @@ export function GlobalSearchInput({
           const yearPath = leadYear <= 2025 ? '2025-ומטה' : leadYear.toString();
           
           if (lead.did_not_continue) {
+            const leadYear = new Date(lead.created_at).getFullYear();
+            const yearPath = leadYear <= 2025 ? '2025-ומטה' : leadYear.toString();
             results.push({
               id: lead.id,
               name: lead.name,
@@ -97,14 +99,15 @@ export function GlobalSearchInput({
               navigateTo: `/did-not-continue/${yearPath}?highlight=${lead.id}`
             });
           } else {
+            const yearPath = lead.leads_year || '26';
             results.push({
               id: lead.id,
               name: lead.name,
               email: lead.email,
               phone: lead.phone,
               location: 'leads',
-              locationLabel: 'מתעניינים',
-              navigateTo: `/leads?highlight=${lead.id}`
+              locationLabel: `מתעניינים '${yearPath}`,
+              navigateTo: `/leads/${yearPath}?highlight=${lead.id}`
             });
           }
         });
