@@ -10,10 +10,10 @@ export default function TempExportEmails() {
     setStatus('מושך נתונים...');
     const { data, error } = await supabase
       .from('students')
-      .select('name, email, amount_paid, graduation_year')
+      .select('name, email, amount_paid')
+      .eq('graduation_year', '2025')
       .eq('did_not_continue', false)
-      .gt('amount_paid', 0)
-      .or('graduation_year.is.null,graduation_year.eq.2026')
+      .gte('amount_paid', 500)
       .order('name');
 
     if (error || !data) {
@@ -21,57 +21,36 @@ export default function TempExportEmails() {
       return;
     }
 
-    // Deduplicate: keep the entry with higher amount_paid, prefer real email
-    const seen = new Map<string, typeof data[0]>();
-    
-    // Normalize name for dedup
-    const normalize = (name: string) => {
-      return name
-        .replace(/\s*2$/, '') // remove trailing " 2"
-        .replace(/ג'יניאו/, "ג'יניאנו") // normalize variant
-        .replace(/עבודה שעתית/, '') // remove "עבודה שעתית" suffix
-        .trim();
-    };
+    // Filter out entries without real email and deduplicate by email
+    const seenEmails = new Map<string, typeof data[0]>();
 
     for (const row of data) {
-      const key = normalize(row.name);
-      const existing = seen.get(key);
-      if (!existing) {
-        seen.set(key, row);
-      } else {
-        // Keep the one with a real email, or higher amount
-        const existingHasEmail = existing.email && !existing.email.includes('לא צוין') && !existing.email.includes('pending');
-        const newHasEmail = row.email && !row.email.includes('לא צוין') && !row.email.includes('pending');
-        
-        if (!existingHasEmail && newHasEmail) {
-          seen.set(key, { ...row, amount_paid: (existing.amount_paid || 0) + (row.amount_paid || 0) });
-        } else if (existingHasEmail) {
-          seen.set(key, { ...existing, amount_paid: (existing.amount_paid || 0) + (row.amount_paid || 0) });
-        } else if ((row.amount_paid || 0) > (existing.amount_paid || 0)) {
-          seen.set(key, row);
-        }
+      const email = (row.email || '').trim().toLowerCase();
+      if (!email || email.includes('לא צוין') || email.includes('pending') || email === '') continue;
+      
+      const existing = seenEmails.get(email);
+      if (!existing || (row.amount_paid || 0) > (existing.amount_paid || 0)) {
+        seenEmails.set(email, row);
       }
     }
 
-    const rows = Array.from(seen.values()).map((s) => ({
-      'שם': s.name.replace(/\s*2$/, '').replace(/עבודה שעתית/, '').trim(),
+    const rows = Array.from(seenEmails.values()).map((s) => ({
+      'שם': s.name.replace(/\s*2$/, '').trim(),
       'אימייל': s.email || '',
-      'סכום ששולם': s.amount_paid,
-      'סוג': s.graduation_year === '2026' ? 'לקוח עבר 2026' : 'סטודנט פעיל',
     }));
 
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'רשימת סטודנטים');
-    ws['!cols'] = [{ wch: 25 }, { wch: 35 }, { wch: 15 }, { wch: 18 }];
-    XLSX.writeFile(wb, 'students_and_past_clients_2026.xlsx');
-    setStatus(`הורד בהצלחה! ${rows.length} רשומות (אחרי הסרת כפילויות)`);
+    XLSX.utils.book_append_sheet(wb, ws, 'לקוחות עבר 2025');
+    ws['!cols'] = [{ wch: 25 }, { wch: 35 }];
+    XLSX.writeFile(wb, 'past_clients_2025_emails.xlsx');
+    setStatus(`הורד בהצלחה! ${rows.length} רשומות (ללא כפילויות מייל)`);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4" dir="rtl">
-      <h1 className="text-2xl font-bold">ייצוא סטודנטים ולקוחות עבר 2026</h1>
-      <p className="text-muted-foreground">כולל כל מי ששילם (ללא כפילויות)</p>
+      <h1 className="text-2xl font-bold">ייצוא מיילים - לקוחות עבר 2025</h1>
+      <p className="text-muted-foreground">שולם 500₪ ומעלה, ללא כפילויות מייל</p>
       <Button onClick={exportToExcel} size="lg">הורד אקסל</Button>
       <p>{status}</p>
     </div>
