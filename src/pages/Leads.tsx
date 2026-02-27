@@ -340,7 +340,7 @@ export default function Leads() {
                 lead={lead} 
                 onEdit={() => handleEditLead(lead)}
                 onConvert={() => handleConvertClick(lead)}
-                onDidNotContinue={() => handleDidNotContinue(lead.id)}
+                onDidNotContinue={() => setDiscontinuingLead(lead)}
                 onDelete={() => handleDeleteLead(lead.id)}
               />
             </div>
