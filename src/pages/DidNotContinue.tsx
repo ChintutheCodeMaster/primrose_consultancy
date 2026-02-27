@@ -229,7 +229,8 @@ export default function DidNotContinue() {
         meeting_summary: updatedLead.meetingSummary,
         status: updatedLead.status,
         package_notes: updatedLead.packageNotes,
-        leads_year: (updatedLead as any).leadsYear,
+        leads_year: updatedLead.leadsYear,
+        advisor_name: updatedLead.advisorName,
       })
       .eq('id', updatedLead.id);
 
