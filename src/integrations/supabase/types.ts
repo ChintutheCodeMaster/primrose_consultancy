@@ -150,6 +150,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          advisor_name: string | null
           created_at: string
           degree_type: string
           did_not_continue: boolean | null
@@ -167,6 +168,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          advisor_name?: string | null
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null
@@ -184,6 +186,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          advisor_name?: string | null
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null

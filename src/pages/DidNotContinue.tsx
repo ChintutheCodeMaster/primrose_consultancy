@@ -29,6 +29,9 @@ interface FullLead {
   meeting_summary: string | null;
   created_at: string;
   last_contact_at: string;
+  advisor_name: string | null;
+  package_notes: string | null;
+  leads_year: string | null;
 }
 
 interface FullStudent {
@@ -171,6 +174,9 @@ export default function DidNotContinue() {
     interestedCountry: lead.interested_country || '',
     interestedField: lead.interested_field || '',
     meetingSummary: lead.meeting_summary || '',
+    packageNotes: lead.package_notes || '',
+    leadsYear: lead.leads_year || '',
+    advisorName: lead.advisor_name || '',
     createdAt: new Date(lead.created_at),
     lastContactAt: new Date(lead.last_contact_at),
   });
@@ -223,7 +229,8 @@ export default function DidNotContinue() {
         meeting_summary: updatedLead.meetingSummary,
         status: updatedLead.status,
         package_notes: updatedLead.packageNotes,
-        leads_year: (updatedLead as any).leadsYear,
+        leads_year: updatedLead.leadsYear,
+        advisor_name: updatedLead.advisorName,
       })
       .eq('id', updatedLead.id);
 

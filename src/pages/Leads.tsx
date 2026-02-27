@@ -71,6 +71,7 @@ export default function Leads() {
         createdAt: new Date(lead.created_at),
         lastContactAt: new Date(lead.last_contact_at),
         leadsYear: lead.leads_year || '',
+        advisorName: lead.advisor_name || '',
       }));
     }
   });
@@ -142,12 +143,12 @@ export default function Leads() {
     toast.success('הליד נוסף בהצלחה!');
   };
 
-  const handleEditLead = (lead: Lead & { leadsYear?: string }) => {
+  const handleEditLead = (lead: Lead) => {
     setEditingLead(lead);
     setIsEditOpen(true);
   };
 
-  const handleSaveLead = async (updatedLead: Lead & { leadsYear?: string }) => {
+  const handleSaveLead = async (updatedLead: Lead) => {
     const { error } = await supabase
       .from('leads')
       .update({
@@ -162,6 +163,7 @@ export default function Leads() {
         meeting_summary: updatedLead.meetingSummary,
         package_notes: updatedLead.packageNotes,
         leads_year: updatedLead.leadsYear,
+        advisor_name: updatedLead.advisorName,
       })
       .eq('id', updatedLead.id);
     
