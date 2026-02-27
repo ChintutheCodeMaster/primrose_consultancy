@@ -45,13 +45,17 @@ interface FullStudent {
   created_at: string;
   package_cost: number | null;
   payment_notes: string | null;
+  payment_type: string | null;
+  package_notes: string | null;
+  amount_paid: number | null;
   advisor_name: string | null;
   is_paid: boolean | null;
   signed_agreement: boolean | null;
   target_country: string | null;
   target_university: string | null;
   program: string | null;
-  accepted_universities: { name: string; acceptance_letter_url: string | null }[];
+  graduation_year: string | null;
+  accepted_universities: { id?: string; name: string; country?: string | null; acceptance_letter_url: string | null }[];
 }
 
 const degreeTypeLabels: Record<string, string> = {
