@@ -11,6 +11,7 @@ interface MultiAdvisorSelectProps {
   value: string; // comma-separated advisor names
   onChange: (value: string) => void;
   placeholder?: string;
+  includeInactive?: boolean;
 }
 
 export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יועצים' }: MultiAdvisorSelectProps) {
