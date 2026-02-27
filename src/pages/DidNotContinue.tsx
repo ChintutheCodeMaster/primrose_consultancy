@@ -59,6 +59,7 @@ interface FullStudent {
   target_university: string | null;
   program: string | null;
   graduation_year: string | null;
+  discontinue_reason: string | null;
   accepted_universities: { id?: string; name: string; country?: string | null; acceptance_letter_url: string | null }[];
 }
 
