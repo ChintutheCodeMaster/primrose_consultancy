@@ -805,6 +805,7 @@ export default function DidNotContinue() {
         open={!!editingLead}
         onOpenChange={(open) => !open && setEditingLead(null)}
         onSave={handleEditLead}
+        includeInactiveAdvisors={true}
       />
 
       <EditStudentDialog
