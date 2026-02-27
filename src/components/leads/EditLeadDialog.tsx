@@ -27,23 +27,32 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
   const [formData, setFormData] = useState<Lead | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
+  // Only initialize form when lead changes or dialog opens, NOT when sourceOptions changes
   useEffect(() => {
-    if (lead) {
+    if (lead && open) {
       setFormData({ ...lead });
-      // Check if the source is a predefined option or custom
-      if (lead.source && sourceOptions.includes(lead.source)) {
-        setSourceSelection(lead.source);
+      setInitialized(false);
+    }
+  }, [lead, open]);
+
+  // Set source selection once sourceOptions are loaded
+  useEffect(() => {
+    if (formData && sourceOptions.length > 0 && !initialized) {
+      if (formData.source && sourceOptions.includes(formData.source)) {
+        setSourceSelection(formData.source);
         setCustomSource('');
-      } else if (lead.source) {
+      } else if (formData.source) {
         setSourceSelection('אחר');
-        setCustomSource(lead.source);
+        setCustomSource(formData.source);
       } else {
         setSourceSelection('');
         setCustomSource('');
       }
+      setInitialized(true);
     }
-  }, [lead, sourceOptions]);
+  }, [formData, sourceOptions, initialized]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
