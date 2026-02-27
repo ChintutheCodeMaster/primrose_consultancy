@@ -6,12 +6,15 @@ import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown } from 'lucide-react';
+import { Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown, Pencil } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
+import { EditStudentDialog } from '@/components/students/EditStudentDialog';
+import { Lead, Student } from '@/types/crm';
 
 interface FullLead {
   id: string;
@@ -42,13 +45,17 @@ interface FullStudent {
   created_at: string;
   package_cost: number | null;
   payment_notes: string | null;
+  payment_type: string | null;
+  package_notes: string | null;
+  amount_paid: number | null;
   advisor_name: string | null;
   is_paid: boolean | null;
   signed_agreement: boolean | null;
   target_country: string | null;
   target_university: string | null;
   program: string | null;
-  accepted_universities: { name: string; acceptance_letter_url: string | null }[];
+  graduation_year: string | null;
+  accepted_universities: { id?: string; name: string; country?: string | null; acceptance_letter_url: string | null }[];
 }
 
 const degreeTypeLabels: Record<string, string> = {
@@ -66,6 +73,8 @@ export default function DidNotContinue() {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedLead, setSelectedLead] = useState<FullLead | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<FullStudent | null>(null);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -150,7 +159,116 @@ export default function DidNotContinue() {
     }
   });
 
-  // Handle highlight parameter for scrolling to specific item
+  // Convert FullLead to Lead type for EditLeadDialog
+  const convertToLeadType = (lead: FullLead): Lead => ({
+    id: lead.id,
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+    source: lead.source || '',
+    status: lead.status as any,
+    degreeType: (lead.degree_type === 'doctorate' ? 'phd' : lead.degree_type) as any,
+    interestedCountry: lead.interested_country || '',
+    interestedField: lead.interested_field || '',
+    meetingSummary: lead.meeting_summary || '',
+    createdAt: new Date(lead.created_at),
+    lastContactAt: new Date(lead.last_contact_at),
+  });
+
+  // Convert FullStudent to Student type for EditStudentDialog
+  const convertToStudentType = (student: FullStudent): Student => ({
+    id: student.id,
+    name: student.name,
+    email: student.email || '',
+    phone: student.phone,
+    source: student.source || '',
+    status: student.status as any,
+    degreeType: (student.degree_type === 'doctorate' ? 'phd' : student.degree_type) as any,
+    interestedCountry: student.interested_country || '',
+    interestedField: student.interested_field || '',
+    meetingSummary: student.meeting_summary || '',
+    createdAt: new Date(student.created_at),
+    advisorName: student.advisor_name || '',
+    paymentType: (student.payment_type as any) || 'package',
+    packageCost: Number(student.package_cost) || 0,
+    amountPaid: Number(student.amount_paid) || 0,
+    paymentNotes: student.payment_notes || '',
+    packageNotes: student.package_notes || '',
+    isPaid: student.is_paid || false,
+    signedAgreement: student.signed_agreement || false,
+    targetCountry: student.target_country || '',
+    targetUniversity: student.target_university || '',
+    program: student.program || '',
+    graduationYear: student.graduation_year || '',
+    notes: [],
+    acceptedUniversities: (student.accepted_universities || []).map((uni: any) => ({
+      id: uni.id,
+      name: uni.name,
+      country: uni.country || '',
+      acceptanceLetterUrl: uni.acceptance_letter_url,
+    })),
+  });
+
+  const handleEditLead = async (updatedLead: Lead) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        name: updatedLead.name,
+        email: updatedLead.email,
+        phone: updatedLead.phone,
+        degree_type: updatedLead.degreeType,
+        interested_country: updatedLead.interestedCountry,
+        interested_field: updatedLead.interestedField,
+        source: updatedLead.source,
+        meeting_summary: updatedLead.meetingSummary,
+        status: updatedLead.status,
+        package_notes: updatedLead.packageNotes,
+        leads_year: (updatedLead as any).leadsYear,
+      })
+      .eq('id', updatedLead.id);
+
+    if (error) {
+      toast.error('שגיאה בעדכון המתעניין');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+    toast.success('המתעניין עודכן בהצלחה');
+  };
+
+  const handleEditStudent = async (updatedStudent: Student) => {
+    const { error } = await supabase
+      .from('students')
+      .update({
+        name: updatedStudent.name,
+        email: updatedStudent.email,
+        phone: updatedStudent.phone,
+        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+        interested_country: updatedStudent.interestedCountry,
+        interested_field: updatedStudent.interestedField,
+        source: updatedStudent.source,
+        meeting_summary: updatedStudent.meetingSummary,
+        status: updatedStudent.status,
+        advisor_name: updatedStudent.advisorName,
+        package_cost: updatedStudent.packageCost,
+        amount_paid: updatedStudent.amountPaid ?? 0,
+        payment_notes: updatedStudent.paymentNotes,
+        payment_type: updatedStudent.paymentType || 'package',
+        is_paid: updatedStudent.isPaid,
+        signed_agreement: updatedStudent.signedAgreement,
+        target_country: updatedStudent.targetCountry,
+        target_university: updatedStudent.targetUniversity,
+        program: updatedStudent.program,
+      })
+      .eq('id', updatedStudent.id);
+
+    if (error) {
+      toast.error('שגיאה בעדכון הסטודנט');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+    toast.success('הסטודנט עודכן בהצלחה');
+  };
+
   useEffect(() => {
     const itemId = searchParams.get('highlight');
     if (itemId) {
@@ -301,18 +419,32 @@ export default function DidNotContinue() {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          restoreLeadMutation.mutate(lead.id);
-                        }}
-                        className="gap-1"
-                      >
-                        <Undo2 className="h-4 w-4" />
-                        החזר לרשימה
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingLead(convertToLeadType(lead));
+                          }}
+                          className="gap-1"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          עריכה
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            restoreLeadMutation.mutate(lead.id);
+                          }}
+                          className="gap-1"
+                        >
+                          <Undo2 className="h-4 w-4" />
+                          החזר לרשימה
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -361,18 +493,32 @@ export default function DidNotContinue() {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          restoreStudentMutation.mutate(student.id);
-                        }}
-                        className="gap-1"
-                      >
-                        <Undo2 className="h-4 w-4" />
-                        החזר לרשימה
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingStudent(convertToStudentType(student));
+                          }}
+                          className="gap-1"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          עריכה
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            restoreStudentMutation.mutate(student.id);
+                          }}
+                          className="gap-1"
+                        >
+                          <Undo2 className="h-4 w-4" />
+                          החזר לרשימה
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -646,6 +792,20 @@ export default function DidNotContinue() {
           )}
         </DialogContent>
       </Dialog>
+
+      <EditLeadDialog
+        lead={editingLead}
+        open={!!editingLead}
+        onOpenChange={(open) => !open && setEditingLead(null)}
+        onSave={handleEditLead}
+      />
+
+      <EditStudentDialog
+        student={editingStudent}
+        open={!!editingStudent}
+        onOpenChange={(open) => !open && setEditingStudent(null)}
+        onSave={handleEditStudent}
+      />
     </MainLayout>
   );
 }

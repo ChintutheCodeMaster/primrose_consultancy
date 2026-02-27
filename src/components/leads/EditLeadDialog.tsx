@@ -39,7 +39,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
         setCustomSource('');
       }
     }
-  }, [lead]);
+  }, [lead, sourceOptions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
