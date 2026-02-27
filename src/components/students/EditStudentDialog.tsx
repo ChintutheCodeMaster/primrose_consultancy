@@ -133,7 +133,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   }, [student]);
 
   // Sync source selection only once when student changes (not on sourceOptions reference changes)
-  const sourceOptionsRef = React.useRef(sourceOptions);
+  const sourceOptionsRef = useRef(sourceOptions);
   sourceOptionsRef.current = sourceOptions;
   
   useEffect(() => {
