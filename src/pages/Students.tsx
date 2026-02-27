@@ -528,7 +528,7 @@ export default function Students() {
                   student={student}
                   onEdit={() => setEditingStudent(student)}
                   onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
-                  onDidNotContinue={() => handleDidNotContinue(student.id)}
+                  onDidNotContinue={() => setDiscontinuingStudent(student)}
                   onDelete={() => handleDeleteStudent(student.id)}
                 />
               </div>
