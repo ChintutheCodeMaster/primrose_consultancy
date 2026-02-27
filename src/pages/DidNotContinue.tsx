@@ -792,6 +792,20 @@ export default function DidNotContinue() {
           )}
         </DialogContent>
       </Dialog>
+
+      <EditLeadDialog
+        lead={editingLead}
+        open={!!editingLead}
+        onOpenChange={(open) => !open && setEditingLead(null)}
+        onSave={handleEditLead}
+      />
+
+      <EditStudentDialog
+        student={editingStudent}
+        open={!!editingStudent}
+        onOpenChange={(open) => !open && setEditingStudent(null)}
+        onSave={handleEditStudent}
+      />
     </MainLayout>
   );
 }
