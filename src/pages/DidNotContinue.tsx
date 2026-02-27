@@ -32,6 +32,7 @@ interface FullLead {
   advisor_name: string | null;
   package_notes: string | null;
   leads_year: string | null;
+  discontinue_reason: string | null;
 }
 
 interface FullStudent {
