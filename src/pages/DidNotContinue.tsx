@@ -536,11 +536,10 @@ export default function DidNotContinue() {
                             <span>{format(new Date(student.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
-                        {student.discontinue_reason && (
-                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
-                            <strong>סיבה:</strong> {student.discontinue_reason}
-                          </div>
-                        )}
+                        <InlineReasonEditor
+                          reason={student.discontinue_reason}
+                          onSave={(reason) => saveStudentReasonMutation.mutate({ id: student.id, reason })}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button
