@@ -21,7 +21,7 @@ interface EditLeadDialogProps {
   includeInactiveAdvisors?: boolean;
 }
 
-export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
+export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInactiveAdvisors = false }: EditLeadDialogProps) {
   const sourceOptions = useSourceOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [formData, setFormData] = useState<Lead | null>(null);
