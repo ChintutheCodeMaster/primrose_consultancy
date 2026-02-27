@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown, Pencil } from 'lucide-react';
+import { InlineReasonEditor } from '@/components/InlineReasonEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -161,6 +162,36 @@ export default function DidNotContinue() {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       toast.success('הסטודנט הוחזר לרשימה');
       setSelectedStudent(null);
+    }
+  });
+
+  // Save discontinue reason for lead
+  const saveLeadReasonMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { error } = await supabase
+        .from('leads')
+        .update({ discontinue_reason: reason || null })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      toast.success('הסיבה עודכנה');
+    }
+  });
+
+  // Save discontinue reason for student
+  const saveStudentReasonMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { error } = await supabase
+        .from('students')
+        .update({ discontinue_reason: reason || null })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('הסיבה עודכנה');
     }
   });
 
@@ -427,11 +458,10 @@ export default function DidNotContinue() {
                             <span>{format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
-                        {lead.discontinue_reason && (
-                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
-                            <strong>סיבה:</strong> {lead.discontinue_reason}
-                          </div>
-                        )}
+                        <InlineReasonEditor
+                          reason={lead.discontinue_reason}
+                          onSave={(reason) => saveLeadReasonMutation.mutate({ id: lead.id, reason })}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -506,11 +536,10 @@ export default function DidNotContinue() {
                             <span>{format(new Date(student.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
-                        {student.discontinue_reason && (
-                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
-                            <strong>סיבה:</strong> {student.discontinue_reason}
-                          </div>
-                        )}
+                        <InlineReasonEditor
+                          reason={student.discontinue_reason}
+                          onSave={(reason) => saveStudentReasonMutation.mutate({ id: student.id, reason })}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button
