@@ -32,6 +32,7 @@ interface FullLead {
   advisor_name: string | null;
   package_notes: string | null;
   leads_year: string | null;
+  discontinue_reason: string | null;
 }
 
 interface FullStudent {
@@ -58,6 +59,7 @@ interface FullStudent {
   target_university: string | null;
   program: string | null;
   graduation_year: string | null;
+  discontinue_reason: string | null;
   accepted_universities: { id?: string; name: string; country?: string | null; acceptance_letter_url: string | null }[];
 }
 
@@ -425,6 +427,11 @@ export default function DidNotContinue() {
                             <span>{format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
+                        {lead.discontinue_reason && (
+                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
+                            <strong>סיבה:</strong> {lead.discontinue_reason}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -499,6 +506,11 @@ export default function DidNotContinue() {
                             <span>{format(new Date(student.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
+                        {student.discontinue_reason && (
+                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
+                            <strong>סיבה:</strong> {student.discontinue_reason}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -605,6 +617,16 @@ export default function DidNotContinue() {
                   </span>
                 </div>
               </div>
+
+              {/* Discontinue Reason */}
+              {selectedLead.discontinue_reason && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-destructive">למה לא המשיך/ה:</h4>
+                  <div className="bg-destructive/10 rounded-lg p-4 text-sm">
+                    {selectedLead.discontinue_reason}
+                  </div>
+                </div>
+              )}
 
               {/* Meeting Summary */}
               {selectedLead.meeting_summary && (
@@ -771,6 +793,16 @@ export default function DidNotContinue() {
                         )}
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Discontinue Reason */}
+              {selectedStudent.discontinue_reason && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-destructive">למה לא המשיך/ה:</h4>
+                  <div className="bg-destructive/10 rounded-lg p-4 text-sm">
+                    {selectedStudent.discontinue_reason}
                   </div>
                 </div>
               )}

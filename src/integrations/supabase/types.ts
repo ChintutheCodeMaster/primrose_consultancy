@@ -154,6 +154,7 @@ export type Database = {
           created_at: string
           degree_type: string
           did_not_continue: boolean | null
+          discontinue_reason: string | null
           email: string
           id: string
           interested_country: string | null
@@ -172,6 +173,7 @@ export type Database = {
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null
+          discontinue_reason?: string | null
           email: string
           id?: string
           interested_country?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null
+          discontinue_reason?: string | null
           email?: string
           id?: string
           interested_country?: string | null
@@ -472,6 +475,7 @@ export type Database = {
           created_at: string
           degree_type: string
           did_not_continue: boolean | null
+          discontinue_reason: string | null
           dismissed_from_attention: boolean | null
           email: string | null
           graduation_year: string | null
@@ -504,6 +508,7 @@ export type Database = {
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null
+          discontinue_reason?: string | null
           dismissed_from_attention?: boolean | null
           email?: string | null
           graduation_year?: string | null
@@ -536,6 +541,7 @@ export type Database = {
           created_at?: string
           degree_type?: string
           did_not_continue?: boolean | null
+          discontinue_reason?: string | null
           dismissed_from_attention?: boolean | null
           email?: string | null
           graduation_year?: string | null

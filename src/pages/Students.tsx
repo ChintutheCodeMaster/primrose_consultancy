@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { differenceInDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { DiscontinueReasonDialog } from '@/components/DiscontinueReasonDialog';
 
 export default function Students() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
   const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [discontinuingStudent, setDiscontinuingStudent] = useState<Student | null>(null);
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
@@ -313,10 +315,10 @@ export default function Students() {
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
-  const handleDidNotContinue = async (studentId: string) => {
+  const handleDidNotContinue = async (studentId: string, reason: string) => {
     const { error } = await supabase
       .from('students')
-      .update({ did_not_continue: true })
+      .update({ did_not_continue: true, discontinue_reason: reason || null })
       .eq('id', studentId);
     
     if (error) {
@@ -526,7 +528,7 @@ export default function Students() {
                   student={student}
                   onEdit={() => setEditingStudent(student)}
                   onMoveToPastClient={(year) => handleMoveToPastClient(student.id, year)}
-                  onDidNotContinue={() => handleDidNotContinue(student.id)}
+                  onDidNotContinue={() => setDiscontinuingStudent(student)}
                   onDelete={() => handleDeleteStudent(student.id)}
                 />
               </div>
@@ -539,6 +541,19 @@ export default function Students() {
           open={!!editingStudent}
           onOpenChange={(open) => !open && setEditingStudent(null)}
           onSave={handleEditStudent}
+        />
+
+        <DiscontinueReasonDialog
+          open={!!discontinuingStudent}
+          onOpenChange={(open) => !open && setDiscontinuingStudent(null)}
+          onConfirm={(reason) => {
+            if (discontinuingStudent) {
+              handleDidNotContinue(discontinuingStudent.id, reason);
+              setDiscontinuingStudent(null);
+            }
+          }}
+          entityName={discontinuingStudent?.name || ''}
+          entityType="student"
         />
 
         {!isLoading && filteredStudents.length === 0 && (

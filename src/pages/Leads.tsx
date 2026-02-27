@@ -14,6 +14,7 @@ import { Loader2, ArrowUpDown, Upload } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { DiscontinueReasonDialog } from '@/components/DiscontinueReasonDialog';
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -36,6 +37,9 @@ export default function Leads() {
   
   // Import dialog state
   const [isImportOpen, setIsImportOpen] = useState(false);
+
+  // Discontinue dialog state
+  const [discontinuingLead, setDiscontinuingLead] = useState<Lead | null>(null);
 
   // Fetch leads from Supabase filtered by year
   const { data: leads = [], isLoading } = useQuery({
@@ -181,10 +185,10 @@ export default function Leads() {
     setIsConvertOpen(true);
   };
 
-  const handleDidNotContinue = async (leadId: string) => {
+  const handleDidNotContinue = async (leadId: string, reason: string) => {
     const { error } = await supabase
       .from('leads')
-      .update({ did_not_continue: true })
+      .update({ did_not_continue: true, discontinue_reason: reason || null })
       .eq('id', leadId);
     
     if (error) {
@@ -336,7 +340,7 @@ export default function Leads() {
                 lead={lead} 
                 onEdit={() => handleEditLead(lead)}
                 onConvert={() => handleConvertClick(lead)}
-                onDidNotContinue={() => handleDidNotContinue(lead.id)}
+                onDidNotContinue={() => setDiscontinuingLead(lead)}
                 onDelete={() => handleDeleteLead(lead.id)}
               />
             </div>
@@ -364,6 +368,20 @@ export default function Leads() {
         open={isConvertOpen}
         onOpenChange={setIsConvertOpen}
         onConvert={handleConvertToStudent}
+      />
+
+      {/* Discontinue Reason Dialog */}
+      <DiscontinueReasonDialog
+        open={!!discontinuingLead}
+        onOpenChange={(open) => !open && setDiscontinuingLead(null)}
+        onConfirm={(reason) => {
+          if (discontinuingLead) {
+            handleDidNotContinue(discontinuingLead.id, reason);
+            setDiscontinuingLead(null);
+          }
+        }}
+        entityName={discontinuingLead?.name || ''}
+        entityType="lead"
       />
 
       {/* Import Dialog */}
