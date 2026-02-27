@@ -38,6 +38,9 @@ export default function Leads() {
   // Import dialog state
   const [isImportOpen, setIsImportOpen] = useState(false);
 
+  // Discontinue dialog state
+  const [discontinuingLead, setDiscontinuingLead] = useState<Lead | null>(null);
+
   // Fetch leads from Supabase filtered by year
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ['leads', year],
