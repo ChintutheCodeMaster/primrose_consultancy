@@ -315,10 +315,10 @@ export default function Students() {
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
-  const handleDidNotContinue = async (studentId: string) => {
+  const handleDidNotContinue = async (studentId: string, reason: string) => {
     const { error } = await supabase
       .from('students')
-      .update({ did_not_continue: true })
+      .update({ did_not_continue: true, discontinue_reason: reason || null })
       .eq('id', studentId);
     
     if (error) {
