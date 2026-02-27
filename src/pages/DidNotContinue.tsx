@@ -165,6 +165,36 @@ export default function DidNotContinue() {
     }
   });
 
+  // Save discontinue reason for lead
+  const saveLeadReasonMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { error } = await supabase
+        .from('leads')
+        .update({ discontinue_reason: reason || null })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      toast.success('הסיבה עודכנה');
+    }
+  });
+
+  // Save discontinue reason for student
+  const saveStudentReasonMutation = useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { error } = await supabase
+        .from('students')
+        .update({ discontinue_reason: reason || null })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('הסיבה עודכנה');
+    }
+  });
+
   // Convert FullLead to Lead type for EditLeadDialog
   const convertToLeadType = (lead: FullLead): Lead => ({
     id: lead.id,
