@@ -59,7 +59,7 @@ export function InlineReasonEditor({ reason, onSave }: InlineReasonEditorProps) 
         }}
         title="לחצ/י לעריכה"
       >
-        <strong>סיבה:</strong> {reason}
+        <strong>למה לא המשיכו:</strong> {reason}
       </div>
     );
   }
