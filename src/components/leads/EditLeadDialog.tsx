@@ -102,7 +102,6 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
             />
           </div>
 
