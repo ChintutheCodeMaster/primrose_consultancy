@@ -69,6 +69,8 @@ export default function DidNotContinue() {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [selectedLead, setSelectedLead] = useState<FullLead | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<FullStudent | null>(null);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
