@@ -155,7 +155,116 @@ export default function DidNotContinue() {
     }
   });
 
-  // Handle highlight parameter for scrolling to specific item
+  // Convert FullLead to Lead type for EditLeadDialog
+  const convertToLeadType = (lead: FullLead): Lead => ({
+    id: lead.id,
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+    source: lead.source || '',
+    status: lead.status as any,
+    degreeType: (lead.degree_type === 'doctorate' ? 'phd' : lead.degree_type) as any,
+    interestedCountry: lead.interested_country || '',
+    interestedField: lead.interested_field || '',
+    meetingSummary: lead.meeting_summary || '',
+    createdAt: new Date(lead.created_at),
+    lastContactAt: new Date(lead.last_contact_at),
+  });
+
+  // Convert FullStudent to Student type for EditStudentDialog
+  const convertToStudentType = (student: FullStudent): Student => ({
+    id: student.id,
+    name: student.name,
+    email: student.email || '',
+    phone: student.phone,
+    source: student.source || '',
+    status: student.status as any,
+    degreeType: (student.degree_type === 'doctorate' ? 'phd' : student.degree_type) as any,
+    interestedCountry: student.interested_country || '',
+    interestedField: student.interested_field || '',
+    meetingSummary: student.meeting_summary || '',
+    createdAt: new Date(student.created_at),
+    advisorName: student.advisor_name || '',
+    paymentType: (student.payment_type as any) || 'package',
+    packageCost: Number(student.package_cost) || 0,
+    amountPaid: Number(student.amount_paid) || 0,
+    paymentNotes: student.payment_notes || '',
+    packageNotes: student.package_notes || '',
+    isPaid: student.is_paid || false,
+    signedAgreement: student.signed_agreement || false,
+    targetCountry: student.target_country || '',
+    targetUniversity: student.target_university || '',
+    program: student.program || '',
+    graduationYear: student.graduation_year || '',
+    notes: [],
+    acceptedUniversities: (student.accepted_universities || []).map((uni: any) => ({
+      id: uni.id,
+      name: uni.name,
+      country: uni.country || '',
+      acceptanceLetterUrl: uni.acceptance_letter_url,
+    })),
+  });
+
+  const handleEditLead = async (updatedLead: Lead) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        name: updatedLead.name,
+        email: updatedLead.email,
+        phone: updatedLead.phone,
+        degree_type: updatedLead.degreeType,
+        interested_country: updatedLead.interestedCountry,
+        interested_field: updatedLead.interestedField,
+        source: updatedLead.source,
+        meeting_summary: updatedLead.meetingSummary,
+        status: updatedLead.status,
+        package_notes: updatedLead.packageNotes,
+        leads_year: (updatedLead as any).leadsYear,
+      })
+      .eq('id', updatedLead.id);
+
+    if (error) {
+      toast.error('שגיאה בעדכון המתעניין');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+    toast.success('המתעניין עודכן בהצלחה');
+  };
+
+  const handleEditStudent = async (updatedStudent: Student) => {
+    const { error } = await supabase
+      .from('students')
+      .update({
+        name: updatedStudent.name,
+        email: updatedStudent.email,
+        phone: updatedStudent.phone,
+        degree_type: updatedStudent.degreeType === 'phd' ? 'doctorate' : updatedStudent.degreeType,
+        interested_country: updatedStudent.interestedCountry,
+        interested_field: updatedStudent.interestedField,
+        source: updatedStudent.source,
+        meeting_summary: updatedStudent.meetingSummary,
+        status: updatedStudent.status,
+        advisor_name: updatedStudent.advisorName,
+        package_cost: updatedStudent.packageCost,
+        amount_paid: updatedStudent.amountPaid ?? 0,
+        payment_notes: updatedStudent.paymentNotes,
+        payment_type: updatedStudent.paymentType || 'package',
+        is_paid: updatedStudent.isPaid,
+        signed_agreement: updatedStudent.signedAgreement,
+        target_country: updatedStudent.targetCountry,
+        target_university: updatedStudent.targetUniversity,
+        program: updatedStudent.program,
+      })
+      .eq('id', updatedStudent.id);
+
+    if (error) {
+      toast.error('שגיאה בעדכון הסטודנט');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+    toast.success('הסטודנט עודכן בהצלחה');
+  };
+
   useEffect(() => {
     const itemId = searchParams.get('highlight');
     if (itemId) {
