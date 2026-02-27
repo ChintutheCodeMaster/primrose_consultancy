@@ -14,6 +14,7 @@ export interface Lead {
   interestedField: string;
   meetingSummary: string;
   packageNotes?: string;
+  leadsYear?: string;
   advisorName?: string;
   createdAt: Date;
   lastContactAt: Date;
