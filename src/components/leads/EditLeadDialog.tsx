@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
+import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from '@/types/crm';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EditLeadDialogProps {
   lead: (Lead & { leadsYear?: string }) | null;
