@@ -142,7 +142,7 @@ export default function Leads() {
     toast.success('הליד נוסף בהצלחה!');
   };
 
-  const handleEditLead = (lead: Lead & { leadsYear?: string }) => {
+  const handleEditLead = (lead: Lead) => {
     setEditingLead(lead);
     setIsEditOpen(true);
   };
