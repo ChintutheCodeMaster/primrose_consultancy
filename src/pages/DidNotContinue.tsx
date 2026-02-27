@@ -458,11 +458,10 @@ export default function DidNotContinue() {
                             <span>{format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: he })}</span>
                           </div>
                         </div>
-                        {lead.discontinue_reason && (
-                          <div className="mt-2 text-sm text-muted-foreground bg-muted/50 rounded px-3 py-1.5">
-                            <strong>סיבה:</strong> {lead.discontinue_reason}
-                          </div>
-                        )}
+                        <InlineReasonEditor
+                          reason={lead.discontinue_reason}
+                          onSave={(reason) => saveLeadReasonMutation.mutate({ id: lead.id, reason })}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button
