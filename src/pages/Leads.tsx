@@ -14,6 +14,7 @@ import { Loader2, ArrowUpDown, Upload } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { DiscontinueReasonDialog } from '@/components/DiscontinueReasonDialog';
 
 export default function Leads() {
   const navigate = useNavigate();
