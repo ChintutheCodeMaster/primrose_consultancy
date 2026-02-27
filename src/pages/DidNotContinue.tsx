@@ -618,6 +618,16 @@ export default function DidNotContinue() {
                 </div>
               </div>
 
+              {/* Discontinue Reason */}
+              {selectedLead.discontinue_reason && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-destructive">למה לא המשיך/ה:</h4>
+                  <div className="bg-destructive/10 rounded-lg p-4 text-sm">
+                    {selectedLead.discontinue_reason}
+                  </div>
+                </div>
+              )}
+
               {/* Meeting Summary */}
               {selectedLead.meeting_summary && (
                 <div className="space-y-2">
