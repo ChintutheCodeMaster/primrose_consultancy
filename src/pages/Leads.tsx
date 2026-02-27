@@ -370,6 +370,20 @@ export default function Leads() {
         onConvert={handleConvertToStudent}
       />
 
+      {/* Discontinue Reason Dialog */}
+      <DiscontinueReasonDialog
+        open={!!discontinuingLead}
+        onOpenChange={(open) => !open && setDiscontinuingLead(null)}
+        onConfirm={(reason) => {
+          if (discontinuingLead) {
+            handleDidNotContinue(discontinuingLead.id, reason);
+            setDiscontinuingLead(null);
+          }
+        }}
+        entityName={discontinuingLead?.name || ''}
+        entityType="lead"
+      />
+
       {/* Import Dialog */}
       <ImportLeadsExcelDialog
         open={isImportOpen}
