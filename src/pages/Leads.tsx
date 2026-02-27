@@ -71,6 +71,7 @@ export default function Leads() {
         createdAt: new Date(lead.created_at),
         lastContactAt: new Date(lead.last_contact_at),
         leadsYear: lead.leads_year || '',
+        advisorName: lead.advisor_name || '',
       }));
     }
   });
