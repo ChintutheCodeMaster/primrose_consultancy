@@ -186,6 +186,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
               value={formData.advisorName || ''}
               onChange={(v) => setFormData({ ...formData, advisorName: v })}
               placeholder="בחר יועץ/ת"
+              includeInactive={includeInactiveAdvisors}
             />
           </div>
 
