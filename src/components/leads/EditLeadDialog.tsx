@@ -18,9 +18,10 @@ interface EditLeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (lead: Lead) => void;
+  includeInactiveAdvisors?: boolean;
 }
 
-export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
+export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInactiveAdvisors = false }: EditLeadDialogProps) {
   const sourceOptions = useSourceOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
   const [formData, setFormData] = useState<Lead | null>(null);
@@ -185,6 +186,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
               value={formData.advisorName || ''}
               onChange={(v) => setFormData({ ...formData, advisorName: v })}
               placeholder="בחר יועץ/ת"
+              includeInactive={includeInactiveAdvisors}
             />
           </div>
 
