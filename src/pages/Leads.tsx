@@ -185,10 +185,10 @@ export default function Leads() {
     setIsConvertOpen(true);
   };
 
-  const handleDidNotContinue = async (leadId: string) => {
+  const handleDidNotContinue = async (leadId: string, reason: string) => {
     const { error } = await supabase
       .from('leads')
-      .update({ did_not_continue: true })
+      .update({ did_not_continue: true, discontinue_reason: reason || null })
       .eq('id', leadId);
     
     if (error) {
