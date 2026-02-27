@@ -34,6 +34,7 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
   const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [discontinuingStudent, setDiscontinuingStudent] = useState<Student | null>(null);
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
