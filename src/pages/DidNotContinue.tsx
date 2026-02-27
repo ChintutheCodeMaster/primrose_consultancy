@@ -174,6 +174,9 @@ export default function DidNotContinue() {
     interestedCountry: lead.interested_country || '',
     interestedField: lead.interested_field || '',
     meetingSummary: lead.meeting_summary || '',
+    packageNotes: lead.package_notes || '',
+    leadsYear: lead.leads_year || '',
+    advisorName: lead.advisor_name || '',
     createdAt: new Date(lead.created_at),
     lastContactAt: new Date(lead.last_contact_at),
   });
