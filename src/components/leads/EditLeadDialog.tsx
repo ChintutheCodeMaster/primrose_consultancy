@@ -180,6 +180,15 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDia
           </div>
 
           <div className="space-y-2">
+            <Label>יועץ/ת</Label>
+            <MultiAdvisorSelect
+              value={formData.advisorName || ''}
+              onChange={(v) => setFormData({ ...formData, advisorName: v })}
+              placeholder="בחר יועץ/ת"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="meetingSummary">סיכום פגישה</Label>
             <Textarea
               id="meetingSummary"
