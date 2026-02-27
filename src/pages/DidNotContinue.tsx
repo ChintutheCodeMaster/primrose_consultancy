@@ -419,18 +419,32 @@ export default function DidNotContinue() {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          restoreLeadMutation.mutate(lead.id);
-                        }}
-                        className="gap-1"
-                      >
-                        <Undo2 className="h-4 w-4" />
-                        החזר לרשימה
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingLead(convertToLeadType(lead));
+                          }}
+                          className="gap-1"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          עריכה
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            restoreLeadMutation.mutate(lead.id);
+                          }}
+                          className="gap-1"
+                        >
+                          <Undo2 className="h-4 w-4" />
+                          החזר לרשימה
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))
