@@ -29,6 +29,9 @@ interface FullLead {
   meeting_summary: string | null;
   created_at: string;
   last_contact_at: string;
+  advisor_name: string | null;
+  package_notes: string | null;
+  leads_year: string | null;
 }
 
 interface FullStudent {
