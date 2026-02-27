@@ -14,10 +14,10 @@ import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { supabase } from '@/integrations/supabase/client';
 
 interface EditLeadDialogProps {
-  lead: (Lead & { leadsYear?: string }) | null;
+  lead: Lead | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (lead: Lead & { leadsYear?: string }) => void;
+  onSave: (lead: Lead) => void;
 }
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
