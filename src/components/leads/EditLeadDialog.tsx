@@ -18,6 +18,7 @@ interface EditLeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (lead: Lead) => void;
+  includeInactiveAdvisors?: boolean;
 }
 
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
