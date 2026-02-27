@@ -543,6 +543,19 @@ export default function Students() {
           onSave={handleEditStudent}
         />
 
+        <DiscontinueReasonDialog
+          open={!!discontinuingStudent}
+          onOpenChange={(open) => !open && setDiscontinuingStudent(null)}
+          onConfirm={(reason) => {
+            if (discontinuingStudent) {
+              handleDidNotContinue(discontinuingStudent.id, reason);
+              setDiscontinuingStudent(null);
+            }
+          }}
+          entityName={discontinuingStudent?.name || ''}
+          entityType="student"
+        />
+
         {!isLoading && filteredStudents.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">לא נמצאו סטודנטים</p>
