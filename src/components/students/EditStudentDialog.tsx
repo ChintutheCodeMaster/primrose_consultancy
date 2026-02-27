@@ -132,11 +132,15 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     setAmountPaidText(String(Number.isFinite(normalizedAmountPaid) ? normalizedAmountPaid : ''));
   }, [student]);
 
-  // Sync source selection (does not touch formData)
+  // Sync source selection only once when student changes (not on sourceOptions reference changes)
+  const sourceOptionsRef = useRef(sourceOptions);
+  sourceOptionsRef.current = sourceOptions;
+  
   useEffect(() => {
     if (!student) return;
     const currentSource = student.source || '';
-    if (sourceOptions.includes(currentSource)) {
+    const opts = sourceOptionsRef.current;
+    if (opts.includes(currentSource)) {
       setSourceSelection(currentSource);
       setCustomSource('');
     } else if (currentSource) {
@@ -146,7 +150,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       setSourceSelection('');
       setCustomSource('');
     }
-  }, [student, sourceOptions]);
+  }, [student]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
