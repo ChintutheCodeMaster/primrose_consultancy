@@ -14,17 +14,20 @@ interface MultiAdvisorSelectProps {
   includeInactive?: boolean;
 }
 
-export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יועצים' }: MultiAdvisorSelectProps) {
+export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יועצים', includeInactive = false }: MultiAdvisorSelectProps) {
   const [open, setOpen] = useState(false);
   
   const { data: advisors = [] } = useQuery({
-    queryKey: ['advisors-active'],
+    queryKey: ['advisors-select', includeInactive],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('advisors')
         .select('id, name')
-        .eq('is_active', true)
         .order('name');
+      if (!includeInactive) {
+        query = query.eq('is_active', true);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return data as { id: string; name: string }[];
     },
