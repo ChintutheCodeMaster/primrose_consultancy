@@ -23,7 +23,7 @@ interface EditLeadDialogProps {
 export function EditLeadDialog({ lead, open, onOpenChange, onSave }: EditLeadDialogProps) {
   const sourceOptions = useSourceOptions();
   const { data: leadsCategories = [] } = useCategoriesByType('leads');
-  const [formData, setFormData] = useState<(Lead & { leadsYear?: string }) | null>(null);
+  const [formData, setFormData] = useState<Lead | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
 
