@@ -290,6 +290,24 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
+  const openProjectFile = async (storedValue: string) => {
+    try {
+      if (storedValue.startsWith('http://') || storedValue.startsWith('https://')) {
+        window.open(storedValue, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      const { data, error } = await supabase.storage
+        .from('project-files')
+        .createSignedUrl(storedValue, 3600);
+
+      if (error || !data?.signedUrl) throw error;
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      toast.error('לא ניתן לפתוח את הקובץ כרגע');
+    }
+  };
+
   // ── Collab Form ──
   const collabFormContent = (
     <form onSubmit={handleCollabSubmit} className="space-y-4">
@@ -388,10 +406,15 @@ export default function Projects() {
           <Label>צירוף קובץ (חשבונית / חוזה)</Label>
           <div className="flex items-center gap-2">
             <Input type="file" onChange={handleFileUpload} disabled={uploadingFile} className="flex-1" />
-            {fileUrl && (
-              <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                <Button type="button" variant="outline" size="icon"><ExternalLink className="h-4 w-4" /></Button>
-              </a>
+            {filePath && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => openProjectFile(filePath)}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
             )}
           </div>
           {uploadingFile && <p className="text-xs text-muted-foreground mt-1">מעלה...</p>}
@@ -530,7 +553,9 @@ export default function Projects() {
                                     <TableCell><span className="text-sm max-w-[120px] truncate block">{project.notes || '-'}</span></TableCell>
                                     <TableCell>
                                       {project.file_url ? (
-                                        <a href={project.file_url} target="_blank" rel="noopener noreferrer"><FileText className="h-4 w-4 text-primary hover:text-primary/80" /></a>
+                                        <button type="button" onClick={() => openProjectFile(project.file_url!)}>
+                                          <FileText className="h-4 w-4 text-primary hover:text-primary/80" />
+                                        </button>
                                       ) : '-'}
                                     </TableCell>
                                     <TableCell>
