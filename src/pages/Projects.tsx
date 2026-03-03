@@ -487,6 +487,9 @@ export default function Projects() {
             {collaborations.map(collab => {
               const collabProjects = projectsByCollab(collab.id);
               const isOpen = openCollabs.has(collab.id);
+              const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
+              const totalExpense = collabProjects.filter(p => p.payment_direction === 'expense').reduce((sum, p) => sum + (p.amount || 0), 0);
+              const net = totalIncome - totalExpense;
               return (
                 <Card key={collab.id}>
                   <Collapsible open={isOpen} onOpenChange={() => toggleCollab(collab.id)}>
@@ -503,6 +506,15 @@ export default function Projects() {
                               <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5">
                                 {collab.category && <span>{collab.category}</span>}
                                 <span>{collabProjects.length} פרויקטים</span>
+                                {collabProjects.length > 0 && (
+                                  <>
+                                    <span className="text-green-600">+₪{totalIncome.toLocaleString()}</span>
+                                    {totalExpense > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
+                                    <span className={cn('font-medium', net >= 0 ? 'text-green-700' : 'text-red-700')}>
+                                      נטו: ₪{net.toLocaleString()}
+                                    </span>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
