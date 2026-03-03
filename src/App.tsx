@@ -21,6 +21,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import TempExportEmails from "./pages/TempExportEmails";
+import Projects from "./pages/Projects";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/agreement-template" element={<PasswordGate><AgreementTemplate /></PasswordGate>} />
           <Route path="/student-portal/:studentId" element={<PasswordGate><StudentPortalManagement /></PasswordGate>} />
           <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
+          <Route path="/projects" element={<PasswordGate><Projects /></PasswordGate>} />
           <Route path="/settings" element={<PasswordGate><Settings /></PasswordGate>} />
           <Route path="/temp-export" element={<TempExportEmails />} />
           <Route path="*" element={<NotFound />} />
