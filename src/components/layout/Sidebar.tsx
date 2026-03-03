@@ -216,21 +216,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Analytics */}
-        <Link
-          to="/analytics"
-          onClick={handleClick}
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-            location.pathname === '/analytics'
-              ? 'bg-sidebar-accent text-sidebar-primary'
-              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}
-        >
-          <BarChart3 className="h-5 w-5" />
-          אנליטיקס
-        </Link>
-
         {/* Advisors - Direct Link */}
         <Link
           to="/advisors"
@@ -244,6 +229,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         >
           <UserCircle className="h-5 w-5" />
           יועצים
+        </Link>
+
+        {/* Analytics */}
+        <Link
+          to="/analytics"
+          onClick={handleClick}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            location.pathname === '/analytics'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}
+        >
+          <BarChart3 className="h-5 w-5" />
+          אנליטיקס
         </Link>
 
         {/* Projects */}
