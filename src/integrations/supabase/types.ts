@@ -208,6 +208,60 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          amount: number | null
+          category: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          invoice_date: string | null
+          name: string
+          notes: string | null
+          payment_date: string | null
+          payment_direction: string
+          status: string
+        }
+        Insert: {
+          amount?: number | null
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_date?: string | null
+          name: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_direction?: string
+          status?: string
+        }
+        Update: {
+          amount?: number | null
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_date?: string | null
+          name?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_direction?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sidebar_categories: {
         Row: {
           category_type: string
