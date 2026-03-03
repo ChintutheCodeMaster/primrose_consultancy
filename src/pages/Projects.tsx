@@ -280,7 +280,8 @@ export default function Projects() {
     if (!file) return;
     setUploadingFile(true);
     try {
-      const fileName = `${Date.now()}-${file.name}`;
+      const sanitized = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const fileName = `${Date.now()}-${sanitized}`;
       const { error } = await supabase.storage.from('project-files').upload(fileName, file);
       if (error) throw error;
       const { data: urlData } = supabase.storage.from('project-files').getPublicUrl(fileName);
