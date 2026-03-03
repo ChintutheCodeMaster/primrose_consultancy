@@ -90,7 +90,7 @@ export default function Projects() {
   const [addingProjectForCollabId, setAddingProjectForCollabId] = useState<string | null>(null);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState<ProjectFormData>(initialProjectForm);
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [filePath, setFilePath] = useState<string | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
@@ -186,7 +186,7 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: fileUrl,
+        file_url: filePath,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
       });
@@ -211,7 +211,7 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: fileUrl,
+        file_url: filePath,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
       }).eq('id', id);
@@ -248,7 +248,7 @@ export default function Projects() {
   };
 
   const closeCollabDialog = () => { setIsAddCollabOpen(false); setEditingCollab(null); setCollabForm(initialCollabForm); };
-  const closeProjectDialog = () => { setAddingProjectForCollabId(null); setEditingProject(null); setProjectForm(initialProjectForm); setFileUrl(null); };
+  const closeProjectDialog = () => { setAddingProjectForCollabId(null); setEditingProject(null); setProjectForm(initialProjectForm); setFilePath(null); };
 
   const openEditCollab = (c: Collaboration) => {
     setEditingCollab(c);
@@ -258,7 +258,7 @@ export default function Projects() {
   const openEditProject = (p: Project) => {
     setEditingProject(p);
     setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
-    setFileUrl(p.file_url);
+    setFilePath(p.file_url);
   };
 
   const handleCollabSubmit = (e: React.FormEvent) => {
@@ -284,8 +284,7 @@ export default function Projects() {
       const fileName = `${Date.now()}-${sanitized}`;
       const { error } = await supabase.storage.from('project-files').upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
       if (error) throw error;
-      const { data: urlData } = supabase.storage.from('project-files').getPublicUrl(fileName);
-      setFileUrl(urlData.publicUrl);
+      setFilePath(fileName);
       toast.success('קובץ הועלה');
     } catch { toast.error('שגיאה בהעלאת קובץ'); }
     finally { setUploadingFile(false); }
