@@ -299,18 +299,30 @@ export default function Projects() {
     }
 
     try {
+      let storagePath = storedValue;
+
       if (storedValue.startsWith('http://') || storedValue.startsWith('https://')) {
-        popup.location.href = storedValue;
-        return;
+        const parsed = new URL(storedValue);
+        const publicPrefix = '/storage/v1/object/public/project-files/';
+        const signPrefix = '/storage/v1/object/sign/project-files/';
+
+        if (parsed.pathname.includes(publicPrefix)) {
+          storagePath = decodeURIComponent(parsed.pathname.split(publicPrefix)[1] || '');
+        } else if (parsed.pathname.includes(signPrefix)) {
+          storagePath = decodeURIComponent(parsed.pathname.split(signPrefix)[1] || '');
+        }
       }
+
+      if (!storagePath) throw new Error('Missing storage path');
 
       const { data, error } = await supabase.storage
         .from('project-files')
-        .createSignedUrl(storedValue, 3600);
+        .createSignedUrl(storagePath, 3600);
 
       if (error || !data?.signedUrl) throw error;
       popup.location.href = data.signedUrl;
-    } catch {
+    } catch (err) {
+      console.error('openProjectFile failed', err);
       popup.close();
       toast.error('לא ניתן לפתוח את הקובץ כרגע');
     }
