@@ -291,9 +291,16 @@ export default function Projects() {
   };
 
   const openProjectFile = async (storedValue: string) => {
+    const popup = window.open('about:blank', '_blank');
+
+    if (!popup) {
+      toast.error('הדפדפן חסם פתיחת חלון חדש. יש לאפשר popups לאתר הזה.');
+      return;
+    }
+
     try {
       if (storedValue.startsWith('http://') || storedValue.startsWith('https://')) {
-        window.open(storedValue, '_blank', 'noopener,noreferrer');
+        popup.location.href = storedValue;
         return;
       }
 
@@ -302,8 +309,9 @@ export default function Projects() {
         .createSignedUrl(storedValue, 3600);
 
       if (error || !data?.signedUrl) throw error;
-      window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+      popup.location.href = data.signedUrl;
     } catch {
+      popup.close();
       toast.error('לא ניתן לפתוח את הקובץ כרגע');
     }
   };
