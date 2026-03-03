@@ -124,6 +124,39 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborations: {
+        Row: {
+          category: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+        }
+        Insert: {
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+        }
+        Update: {
+          category?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       country_options: {
         Row: {
           created_at: string
@@ -212,6 +245,7 @@ export type Database = {
         Row: {
           amount: number | null
           category: string | null
+          collaboration_id: string | null
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
@@ -224,11 +258,13 @@ export type Database = {
           notes: string | null
           payment_date: string | null
           payment_direction: string
+          payment_notes: string | null
           status: string
         }
         Insert: {
           amount?: number | null
           category?: string | null
+          collaboration_id?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
@@ -241,11 +277,13 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           payment_direction?: string
+          payment_notes?: string | null
           status?: string
         }
         Update: {
           amount?: number | null
           category?: string | null
+          collaboration_id?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
@@ -258,9 +296,18 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           payment_direction?: string
+          payment_notes?: string | null
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_collaboration_id_fkey"
+            columns: ["collaboration_id"]
+            isOneToOne: false
+            referencedRelation: "collaborations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sidebar_categories: {
         Row: {
