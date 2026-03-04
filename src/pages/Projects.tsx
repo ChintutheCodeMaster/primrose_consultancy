@@ -294,30 +294,7 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
-  const extractProjectFilePath = (storedValue: string) => {
-    const trimmedValue = storedValue.trim();
-    if (!trimmedValue) return '';
-
-    // Already a plain storage path
-    if (!trimmedValue.startsWith('http://') && !trimmedValue.startsWith('https://')) {
-      return decodeURIComponent(trimmedValue.replace(/^project-files\//, ''));
-    }
-
-    try {
-      const parsed = new URL(trimmedValue);
-      const bucketSegment = '/project-files/';
-      const segmentIndex = parsed.pathname.indexOf(bucketSegment);
-
-      if (segmentIndex === -1) return '';
-
-      const extracted = parsed.pathname.slice(segmentIndex + bucketSegment.length);
-      return decodeURIComponent(extracted).replace(/^project-files\//, '');
-    } catch {
-      return '';
-    }
-  };
-
-  const openProjectFile = async (storedValue: string) => {
+  const openProjectFile = async (project: Project) => {
     const popup = window.open('about:blank', '_blank');
 
     if (!popup) {
@@ -326,16 +303,24 @@ export default function Projects() {
     }
 
     try {
-      const storagePath = extractProjectFilePath(storedValue);
-      if (!storagePath) throw new Error('Missing storage path');
+      const bucket = project.storage_bucket || 'project-files';
+      const path = project.storage_path || project.file_url;
+      if (!path) throw new Error('Missing storage path');
 
-      const bucket = supabase.storage.from('project-files');
-      const { data, error } = await bucket.createSignedUrl(storagePath, 3600);
+      // Clean path: remove any leading bucket name or URL artifacts
+      const cleanPath = path.replace(/^project-files\//, '');
 
-      if (error) throw error;
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(cleanPath, 3600);
 
-      const fallbackPublicUrl = bucket.getPublicUrl(storagePath).data.publicUrl;
-      popup.location.href = data?.signedUrl || fallbackPublicUrl;
+      if (error || !data?.signedUrl) {
+        // Fallback: try public URL
+        const publicUrl = supabase.storage.from(bucket).getPublicUrl(cleanPath).data.publicUrl;
+        popup.location.href = publicUrl;
+        return;
+      }
+      popup.location.href = data.signedUrl;
     } catch (err) {
       console.error('openProjectFile failed', err);
       popup.close();
