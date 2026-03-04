@@ -354,6 +354,21 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
+  const buildAbsoluteSignedUrl = (signedUrl: string) => {
+    if (signedUrl.startsWith('http://') || signedUrl.startsWith('https://')) {
+      return signedUrl;
+    }
+
+    const baseUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    const normalized = signedUrl.startsWith('/') ? signedUrl : `/${signedUrl}`;
+
+    if (normalized.startsWith('/storage/v1/')) {
+      return `${baseUrl}${normalized}`;
+    }
+
+    return `${baseUrl}/storage/v1${normalized}`;
+  };
+
   const openProjectFile = async (project: Project) => {
     const popup = window.open('about:blank', '_blank');
 
@@ -373,9 +388,13 @@ export default function Projects() {
 
     for (const path of candidates) {
       const { data: signedData, error: signedError } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
+      const rawSignedUrl =
+        (signedData as any)?.signedUrl ||
+        (signedData as any)?.signedURL ||
+        (signedData as any)?.signed_url;
 
-      if (!signedError && signedData?.signedUrl) {
-        popup.location.href = signedData.signedUrl;
+      if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
+        popup.location.href = buildAbsoluteSignedUrl(rawSignedUrl);
         return;
       }
 
@@ -387,7 +406,7 @@ export default function Projects() {
     }
 
     popup.location.href = supabase.storage.from(bucket).getPublicUrl(candidates[0]).data.publicUrl;
-toast('נפתח קישור ציבורי כגיבוי');
+    toast('נפתח קישור ציבורי כגיבוי');
   };
 
   // ── Collab Form ──
