@@ -290,6 +290,29 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
+  const extractProjectFilePath = (storedValue: string) => {
+    const trimmedValue = storedValue.trim();
+    if (!trimmedValue) return '';
+
+    // Already a plain storage path
+    if (!trimmedValue.startsWith('http://') && !trimmedValue.startsWith('https://')) {
+      return decodeURIComponent(trimmedValue.replace(/^project-files\//, ''));
+    }
+
+    try {
+      const parsed = new URL(trimmedValue);
+      const bucketSegment = '/project-files/';
+      const segmentIndex = parsed.pathname.indexOf(bucketSegment);
+
+      if (segmentIndex === -1) return '';
+
+      const extracted = parsed.pathname.slice(segmentIndex + bucketSegment.length);
+      return decodeURIComponent(extracted).replace(/^project-files\//, '');
+    } catch {
+      return '';
+    }
+  };
+
   const openProjectFile = async (storedValue: string) => {
     const popup = window.open('about:blank', '_blank');
 
@@ -299,28 +322,16 @@ export default function Projects() {
     }
 
     try {
-      let storagePath = storedValue;
-
-      if (storedValue.startsWith('http://') || storedValue.startsWith('https://')) {
-        const parsed = new URL(storedValue);
-        const publicPrefix = '/storage/v1/object/public/project-files/';
-        const signPrefix = '/storage/v1/object/sign/project-files/';
-
-        if (parsed.pathname.includes(publicPrefix)) {
-          storagePath = decodeURIComponent(parsed.pathname.split(publicPrefix)[1] || '');
-        } else if (parsed.pathname.includes(signPrefix)) {
-          storagePath = decodeURIComponent(parsed.pathname.split(signPrefix)[1] || '');
-        }
-      }
-
+      const storagePath = extractProjectFilePath(storedValue);
       if (!storagePath) throw new Error('Missing storage path');
 
-      const { data, error } = await supabase.storage
-        .from('project-files')
-        .createSignedUrl(storagePath, 3600);
+      const bucket = supabase.storage.from('project-files');
+      const { data, error } = await bucket.createSignedUrl(storagePath, 3600);
 
-      if (error || !data?.signedUrl) throw error;
-      popup.location.href = data.signedUrl;
+      if (error) throw error;
+
+      const fallbackPublicUrl = bucket.getPublicUrl(storagePath).data.publicUrl;
+      popup.location.href = data?.signedUrl || fallbackPublicUrl;
     } catch (err) {
       console.error('openProjectFile failed', err);
       popup.close();
