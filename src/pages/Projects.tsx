@@ -259,10 +259,33 @@ export default function Projects() {
     setCollabForm({ name: c.name, contact_name: c.contact_name || '', contact_phone: c.contact_phone || '', contact_email: c.contact_email || '', category: c.category || '', notes: c.notes || '' });
   };
 
+  const normalizeStoragePath = (value?: string | null) => {
+    if (!value) return null;
+
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      return decodeURIComponent(trimmed.replace(/^project-files\//, '').split('?')[0]);
+    }
+
+    try {
+      const parsed = new URL(trimmed);
+      const marker = '/project-files/';
+      const markerIndex = parsed.pathname.indexOf(marker);
+      if (markerIndex === -1) return null;
+
+      const rawPath = parsed.pathname.slice(markerIndex + marker.length);
+      return decodeURIComponent(rawPath).replace(/^project-files\//, '').split('?')[0];
+    } catch {
+      return null;
+    }
+  };
+
   const openEditProject = (p: Project) => {
     setEditingProject(p);
     setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
-    setFilePath(p.storage_path || p.file_url);
+    setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
   const handleCollabSubmit = (e: React.FormEvent) => {
@@ -304,19 +327,15 @@ export default function Projects() {
 
     try {
       const bucket = project.storage_bucket || 'project-files';
-      const path = project.storage_path || project.file_url;
+      const path = normalizeStoragePath(project.storage_path) || normalizeStoragePath(project.file_url);
       if (!path) throw new Error('Missing storage path');
-
-      // Clean path: remove any leading bucket name or URL artifacts
-      const cleanPath = path.replace(/^project-files\//, '');
 
       const { data, error } = await supabase.storage
         .from(bucket)
-        .createSignedUrl(cleanPath, 3600);
+        .createSignedUrl(path, 3600);
 
       if (error || !data?.signedUrl) {
-        // Fallback: try public URL
-        const publicUrl = supabase.storage.from(bucket).getPublicUrl(cleanPath).data.publicUrl;
+        const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
         popup.location.href = publicUrl;
         return;
       }
