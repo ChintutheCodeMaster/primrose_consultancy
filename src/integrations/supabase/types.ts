@@ -260,6 +260,8 @@ export type Database = {
           payment_direction: string
           payment_notes: string | null
           status: string
+          storage_bucket: string | null
+          storage_path: string | null
         }
         Insert: {
           amount?: number | null
@@ -279,6 +281,8 @@ export type Database = {
           payment_direction?: string
           payment_notes?: string | null
           status?: string
+          storage_bucket?: string | null
+          storage_path?: string | null
         }
         Update: {
           amount?: number | null
@@ -298,6 +302,8 @@ export type Database = {
           payment_direction?: string
           payment_notes?: string | null
           status?: string
+          storage_bucket?: string | null
+          storage_path?: string | null
         }
         Relationships: [
           {

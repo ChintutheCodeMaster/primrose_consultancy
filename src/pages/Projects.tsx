@@ -45,6 +45,8 @@ interface Project {
   contact_email: string | null;
   category: string | null;
   file_url: string | null;
+  storage_bucket: string | null;
+  storage_path: string | null;
   notes: string | null;
   payment_notes: string | null;
   created_at: string;
@@ -186,10 +188,11 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: filePath,
+        storage_bucket: filePath ? 'project-files' : null,
+        storage_path: filePath || null,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
-      });
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -211,10 +214,11 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: filePath,
+        storage_bucket: filePath ? 'project-files' : null,
+        storage_path: filePath || null,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
-      }).eq('id', id);
+      } as any).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -258,7 +262,7 @@ export default function Projects() {
   const openEditProject = (p: Project) => {
     setEditingProject(p);
     setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
-    setFilePath(p.file_url);
+    setFilePath(p.storage_path || p.file_url);
   };
 
   const handleCollabSubmit = (e: React.FormEvent) => {
@@ -290,30 +294,7 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
-  const extractProjectFilePath = (storedValue: string) => {
-    const trimmedValue = storedValue.trim();
-    if (!trimmedValue) return '';
-
-    // Already a plain storage path
-    if (!trimmedValue.startsWith('http://') && !trimmedValue.startsWith('https://')) {
-      return decodeURIComponent(trimmedValue.replace(/^project-files\//, ''));
-    }
-
-    try {
-      const parsed = new URL(trimmedValue);
-      const bucketSegment = '/project-files/';
-      const segmentIndex = parsed.pathname.indexOf(bucketSegment);
-
-      if (segmentIndex === -1) return '';
-
-      const extracted = parsed.pathname.slice(segmentIndex + bucketSegment.length);
-      return decodeURIComponent(extracted).replace(/^project-files\//, '');
-    } catch {
-      return '';
-    }
-  };
-
-  const openProjectFile = async (storedValue: string) => {
+  const openProjectFile = async (project: Project) => {
     const popup = window.open('about:blank', '_blank');
 
     if (!popup) {
@@ -322,16 +303,24 @@ export default function Projects() {
     }
 
     try {
-      const storagePath = extractProjectFilePath(storedValue);
-      if (!storagePath) throw new Error('Missing storage path');
+      const bucket = project.storage_bucket || 'project-files';
+      const path = project.storage_path || project.file_url;
+      if (!path) throw new Error('Missing storage path');
 
-      const bucket = supabase.storage.from('project-files');
-      const { data, error } = await bucket.createSignedUrl(storagePath, 3600);
+      // Clean path: remove any leading bucket name or URL artifacts
+      const cleanPath = path.replace(/^project-files\//, '');
 
-      if (error) throw error;
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .createSignedUrl(cleanPath, 3600);
 
-      const fallbackPublicUrl = bucket.getPublicUrl(storagePath).data.publicUrl;
-      popup.location.href = data?.signedUrl || fallbackPublicUrl;
+      if (error || !data?.signedUrl) {
+        // Fallback: try public URL
+        const publicUrl = supabase.storage.from(bucket).getPublicUrl(cleanPath).data.publicUrl;
+        popup.location.href = publicUrl;
+        return;
+      }
+      popup.location.href = data.signedUrl;
     } catch (err) {
       console.error('openProjectFile failed', err);
       popup.close();
@@ -442,7 +431,7 @@ export default function Projects() {
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={() => openProjectFile(filePath)}
+                onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: filePath } as Project)}
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -594,9 +583,9 @@ export default function Projects() {
                                     </TableCell>
                                     <TableCell><span className="text-sm max-w-[120px] truncate block">{project.payment_notes || '-'}</span></TableCell>
                                     <TableCell><span className="text-sm max-w-[120px] truncate block">{project.notes || '-'}</span></TableCell>
-                                    <TableCell>
-                                      {project.file_url ? (
-                                        <button type="button" onClick={() => openProjectFile(project.file_url!)}>
+                                     <TableCell>
+                                      {(project.storage_path || project.file_url) ? (
+                                        <button type="button" onClick={() => openProjectFile(project)}>
                                           <FileText className="h-4 w-4 text-primary hover:text-primary/80" />
                                         </button>
                                       ) : '-'}
