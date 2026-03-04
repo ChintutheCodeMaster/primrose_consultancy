@@ -387,7 +387,7 @@ export default function Projects() {
     }
 
     popup.location.href = supabase.storage.from(bucket).getPublicUrl(candidates[0]).data.publicUrl;
-    toast.message('נפתח קישור ציבורי כגיבוי');
+toast('נפתח קישור ציבורי כגיבוי');
   };
 
   // ── Collab Form ──
