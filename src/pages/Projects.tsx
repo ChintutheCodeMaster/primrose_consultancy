@@ -188,10 +188,11 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: filePath,
+        storage_bucket: filePath ? 'project-files' : null,
+        storage_path: filePath || null,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
-      });
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -213,10 +214,11 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        file_url: filePath,
+        storage_bucket: filePath ? 'project-files' : null,
+        storage_path: filePath || null,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
-      }).eq('id', id);
+      } as any).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -260,7 +262,7 @@ export default function Projects() {
   const openEditProject = (p: Project) => {
     setEditingProject(p);
     setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
-    setFilePath(p.file_url);
+    setFilePath(p.storage_path || p.file_url);
   };
 
   const handleCollabSubmit = (e: React.FormEvent) => {
