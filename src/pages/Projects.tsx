@@ -204,7 +204,8 @@ export default function Projects() {
   });
 
   const updateProjectMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: ProjectFormData }) => {
+    mutationFn: async ({ id, data, currentProject }: { id: string; data: ProjectFormData; currentProject: Project }) => {
+      const nextPath = filePath || normalizeStoragePath(currentProject.storage_path) || normalizeStoragePath(currentProject.file_url);
       const { error } = await supabase.from('projects').update({
         name: data.name,
         description: data.description || null,
@@ -214,8 +215,8 @@ export default function Projects() {
         invoice_date: data.invoice_date || null,
         status: data.status,
         category: data.category || null,
-        storage_bucket: filePath ? 'project-files' : null,
-        storage_path: filePath || null,
+        storage_bucket: nextPath ? (currentProject.storage_bucket || 'project-files') : null,
+        storage_path: nextPath || null,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
       } as any).eq('id', id);
@@ -259,6 +260,14 @@ export default function Projects() {
     setCollabForm({ name: c.name, contact_name: c.contact_name || '', contact_phone: c.contact_phone || '', contact_email: c.contact_email || '', category: c.category || '', notes: c.notes || '' });
   };
 
+  const safeDecode = (value: string) => {
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
+  };
+
   const normalizeStoragePath = (value?: string | null) => {
     if (!value) return null;
 
@@ -266,20 +275,48 @@ export default function Projects() {
     if (!trimmed) return null;
 
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      return decodeURIComponent(trimmed.replace(/^project-files\//, '').split('?')[0]);
+      return safeDecode(trimmed).replace(/^project-files\//, '').split('?')[0].replace(/^\/+/, '');
     }
 
     try {
       const parsed = new URL(trimmed);
-      const marker = '/project-files/';
-      const markerIndex = parsed.pathname.indexOf(marker);
-      if (markerIndex === -1) return null;
+      const knownMarkers = [
+        '/storage/v1/object/sign/project-files/',
+        '/storage/v1/object/public/project-files/',
+        '/storage/v1/object/authenticated/project-files/',
+        '/project-files/',
+      ];
 
-      const rawPath = parsed.pathname.slice(markerIndex + marker.length);
-      return decodeURIComponent(rawPath).replace(/^project-files\//, '').split('?')[0];
+      for (const marker of knownMarkers) {
+        const markerIndex = parsed.pathname.indexOf(marker);
+        if (markerIndex !== -1) {
+          const rawPath = parsed.pathname.slice(markerIndex + marker.length);
+          return safeDecode(rawPath).split('?')[0].replace(/^\/+/, '');
+        }
+      }
+
+      return null;
     } catch {
       return null;
     }
+  };
+
+  const getProjectPathCandidates = (project: Project) => {
+    const candidates = new Set<string>();
+    const add = (raw?: string | null) => {
+      const normalized = normalizeStoragePath(raw);
+      if (!normalized) return;
+      candidates.add(normalized);
+      const lastPart = normalized.split('/').pop();
+      if (lastPart && lastPart !== normalized) {
+        candidates.add(lastPart);
+      }
+    };
+
+    add(project.storage_path);
+    add(project.file_url);
+
+    return Array.from(candidates);
   };
 
   const openEditProject = (p: Project) => {
@@ -298,7 +335,7 @@ export default function Projects() {
   const handleProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectForm.name.trim()) return;
-    if (editingProject) updateProjectMutation.mutate({ id: editingProject.id, data: projectForm });
+    if (editingProject) updateProjectMutation.mutate({ id: editingProject.id, data: projectForm, currentProject: editingProject });
     else if (addingProjectForCollabId) addProjectMutation.mutate({ collabId: addingProjectForCollabId, data: projectForm });
   };
 
@@ -325,26 +362,32 @@ export default function Projects() {
       return;
     }
 
-    try {
-      const bucket = project.storage_bucket || 'project-files';
-      const path = normalizeStoragePath(project.storage_path) || normalizeStoragePath(project.file_url);
-      if (!path) throw new Error('Missing storage path');
+    const bucket = project.storage_bucket || 'project-files';
+    const candidates = getProjectPathCandidates(project);
 
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(path, 3600);
+    if (candidates.length === 0) {
+      popup.close();
+      toast.error('לא נמצא נתיב קובץ לפרויקט הזה');
+      return;
+    }
 
-      if (error || !data?.signedUrl) {
-        const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
-        popup.location.href = publicUrl;
+    for (const path of candidates) {
+      const { data: signedData, error: signedError } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
+
+      if (!signedError && signedData?.signedUrl) {
+        popup.location.href = signedData.signedUrl;
         return;
       }
-      popup.location.href = data.signedUrl;
-    } catch (err) {
-      console.error('openProjectFile failed', err);
-      popup.close();
-      toast.error('לא ניתן לפתוח את הקובץ כרגע');
+
+      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
+      if (!downloadError && downloadedFile) {
+        popup.location.href = URL.createObjectURL(downloadedFile);
+        return;
+      }
     }
+
+    popup.location.href = supabase.storage.from(bucket).getPublicUrl(candidates[0]).data.publicUrl;
+    toast.message('נפתח קישור ציבורי כגיבוי');
   };
 
   // ── Collab Form ──
