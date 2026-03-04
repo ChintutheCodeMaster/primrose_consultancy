@@ -431,7 +431,7 @@ export default function Projects() {
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={() => openProjectFile(filePath)}
+                onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: filePath } as Project)}
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -583,9 +583,9 @@ export default function Projects() {
                                     </TableCell>
                                     <TableCell><span className="text-sm max-w-[120px] truncate block">{project.payment_notes || '-'}</span></TableCell>
                                     <TableCell><span className="text-sm max-w-[120px] truncate block">{project.notes || '-'}</span></TableCell>
-                                    <TableCell>
-                                      {project.file_url ? (
-                                        <button type="button" onClick={() => openProjectFile(project.file_url!)}>
+                                     <TableCell>
+                                      {(project.storage_path || project.file_url) ? (
+                                        <button type="button" onClick={() => openProjectFile(project)}>
                                           <FileText className="h-4 w-4 text-primary hover:text-primary/80" />
                                         </button>
                                       ) : '-'}
