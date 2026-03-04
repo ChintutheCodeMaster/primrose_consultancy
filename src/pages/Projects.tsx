@@ -45,6 +45,8 @@ interface Project {
   contact_email: string | null;
   category: string | null;
   file_url: string | null;
+  storage_bucket: string | null;
+  storage_path: string | null;
   notes: string | null;
   payment_notes: string | null;
   created_at: string;
