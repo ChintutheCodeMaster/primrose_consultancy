@@ -754,6 +754,36 @@ export default function Projects() {
             {projectFormContent}
           </DialogContent>
         </Dialog>
+
+        {/* File Preview Dialog */}
+        <Dialog open={!!previewUrl || previewLoading} onOpenChange={open => { if (!open) closePreview(); }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+            <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
+              <DialogTitle>תצוגה מקדימה</DialogTitle>
+              <div className="flex items-center gap-2">
+                {previewDownloadUrl && (
+                  <Button variant="outline" size="sm" onClick={handleDownloadFile}>
+                    <Download className="h-4 w-4 ml-1" />
+                    הורדה
+                  </Button>
+                )}
+              </div>
+            </DialogHeader>
+            <div className="flex-1 min-h-[70vh]">
+              {previewLoading ? (
+                <div className="flex items-center justify-center h-[70vh]">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-[70vh] border-0"
+                  title="תצוגה מקדימה של קובץ"
+                />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
