@@ -1076,39 +1076,50 @@ export default function Analytics() {
             </div>
           </CardHeader>
           <CardContent>
-            {projectTableData.length > 0 ? (
+            {collabGroupedData.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead className="text-right font-bold">פרויקט</TableHead>
                       <TableHead className="text-right font-bold">גוף שת״פ</TableHead>
+                      <TableHead className="text-right font-bold">פרויקט</TableHead>
                       <TableHead className="text-right font-bold">סוג</TableHead>
                       <TableHead className="text-right font-bold">סכום</TableHead>
                       <TableHead className="text-right font-bold">תאריך תשלום</TableHead>
-                      <TableHead className="text-right font-bold">שנה</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {projectTableData.map((row, index) => (
-                      <TableRow key={index} className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
-                        <TableCell className="font-medium">{row.name}</TableCell>
-                        <TableCell>{row.collab}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                            row.direction === 'income' 
-                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
-                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                          }`}>
-                            {row.direction === 'income' ? 'הכנסה' : 'הוצאה'}
-                          </span>
-                        </TableCell>
-                        <TableCell className={`font-semibold ${row.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
-                          ₪{row.amount.toLocaleString()}
-                        </TableCell>
-                        <TableCell>{row.date ? new Date(row.date).toLocaleDateString('he-IL') : '-'}</TableCell>
-                        <TableCell>{row.year}</TableCell>
-                      </TableRow>
+                    {collabGroupedData.map(([collabName, data]) => (
+                      <>
+                        {data.projects.map((project, pIdx) => (
+                          <TableRow key={`${collabName}-${pIdx}`} className={pIdx % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
+                            {pIdx === 0 && (
+                              <TableCell rowSpan={data.projects.length} className="font-bold align-top border-l">
+                                <div>{collabName}</div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">₪{data.income.toLocaleString()}</span>}
+                                  {data.income > 0 && data.expense > 0 && ' | '}
+                                  {data.expense > 0 && <span className="text-destructive">-₪{data.expense.toLocaleString()}</span>}
+                                </div>
+                              </TableCell>
+                            )}
+                            <TableCell>{project.name}</TableCell>
+                            <TableCell>
+                              <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                                project.direction === 'income' 
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                              }`}>
+                                {project.direction === 'income' ? 'הכנסה' : 'הוצאה'}
+                              </span>
+                            </TableCell>
+                            <TableCell className={`font-semibold ${project.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
+                              ₪{project.amount.toLocaleString()}
+                            </TableCell>
+                            <TableCell>{project.date ? new Date(project.date).toLocaleDateString('he-IL') : '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </>
                     ))}
                   </TableBody>
                 </Table>
