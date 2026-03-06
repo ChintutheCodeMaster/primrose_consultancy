@@ -97,6 +97,7 @@ export default function Projects() {
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
   // ── Queries ──
