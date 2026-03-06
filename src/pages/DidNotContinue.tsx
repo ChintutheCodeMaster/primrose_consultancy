@@ -195,7 +195,71 @@ export default function DidNotContinue() {
     }
   });
 
-  // Convert FullLead to Lead type for EditLeadDialog
+  // Move lead to students did-not-continue
+  const moveLeadToStudentsMutation = useMutation({
+    mutationFn: async (lead: FullLead) => {
+      const { error: insertError } = await supabase
+        .from('students')
+        .insert({
+          name: lead.name,
+          email: lead.email || '',
+          phone: lead.phone,
+          degree_type: lead.degree_type,
+          interested_country: lead.interested_country,
+          interested_field: lead.interested_field,
+          source: lead.source,
+          meeting_summary: lead.meeting_summary,
+          advisor_name: lead.advisor_name,
+          package_notes: lead.package_notes,
+          did_not_continue: true,
+          discontinue_reason: lead.discontinue_reason,
+        });
+      if (insertError) throw insertError;
+      const { error: deleteError } = await supabase.from('leads').delete().eq('id', lead.id);
+      if (deleteError) throw deleteError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('הועבר לסטודנטים בהצלחה');
+      setSelectedLead(null);
+    },
+    onError: () => toast.error('שגיאה בהעברה'),
+  });
+
+  // Move student to leads did-not-continue
+  const moveStudentToLeadsMutation = useMutation({
+    mutationFn: async (student: FullStudent) => {
+      const { error: insertError } = await supabase
+        .from('leads')
+        .insert({
+          name: student.name,
+          email: student.email || '',
+          phone: student.phone,
+          degree_type: student.degree_type,
+          interested_country: student.interested_country,
+          interested_field: student.interested_field,
+          source: student.source,
+          meeting_summary: student.meeting_summary,
+          advisor_name: student.advisor_name,
+          package_notes: student.package_notes,
+          did_not_continue: true,
+          discontinue_reason: student.discontinue_reason,
+        });
+      if (insertError) throw insertError;
+      const { error: deleteError } = await supabase.from('students').delete().eq('id', student.id);
+      if (deleteError) throw deleteError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('הועבר למתעניינים בהצלחה');
+      setSelectedStudent(null);
+    },
+    onError: () => toast.error('שגיאה בהעברה'),
+  });
+
+
   const convertToLeadType = (lead: FullLead): Lead => ({
     id: lead.id,
     name: lead.name,
