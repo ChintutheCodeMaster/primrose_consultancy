@@ -426,55 +426,26 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
-  // Projects income/expense by year
+  // Projects income/expense - build detailed table data
   const collabMap = (collaborations || []).reduce((acc, c) => {
     acc[c.id] = c.name;
     return acc;
   }, {} as Record<string, string>);
 
-  const projectsByYear = (projects || []).reduce((acc, project) => {
-    if (!project.payment_date || !project.amount) return acc;
-    const year = new Date(project.payment_date).getFullYear().toString();
-    if (!acc[year]) acc[year] = { income: 0, expense: 0 };
-    if (project.payment_direction === 'income') {
-      acc[year].income += Number(project.amount);
-    } else {
-      acc[year].expense += Number(project.amount);
-    }
-    return acc;
-  }, {} as Record<string, { income: number; expense: number }>);
+  const projectTableData = (projects || [])
+    .filter(p => p.amount && Number(p.amount) > 0)
+    .map(p => ({
+      name: p.name,
+      collab: p.collaboration_id ? (collabMap[p.collaboration_id] || '-') : '-',
+      amount: Number(p.amount),
+      direction: p.payment_direction,
+      date: p.payment_date,
+      year: p.payment_date ? new Date(p.payment_date).getFullYear().toString() : '-',
+    }))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-  const projectsByYearData = Object.entries(projectsByYear)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([year, data]) => ({
-      year,
-      income: data.income,
-      expense: data.expense,
-      net: data.income - data.expense,
-    }));
-
-  const projectsByCollab = (projects || []).reduce((acc, project) => {
-    if (!project.amount || Number(project.amount) === 0) return acc;
-    const collabName = project.collaboration_id ? (collabMap[project.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
-    if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0 };
-    if (project.payment_direction === 'income') {
-      acc[collabName].income += Number(project.amount);
-    } else {
-      acc[collabName].expense += Number(project.amount);
-    }
-    return acc;
-  }, {} as Record<string, { income: number; expense: number }>);
-
-  const projectsByCollabData = Object.entries(projectsByCollab)
-    .sort(([, a], [, b]) => (b.income - b.expense) - (a.income - a.expense))
-    .map(([name, data]) => ({
-      name,
-      income: data.income,
-      expense: data.expense,
-    }));
-
-  const totalProjectIncome = (projects || []).filter(p => p.payment_direction === 'income').reduce((s, p) => s + Number(p.amount || 0), 0);
-  const totalProjectExpense = (projects || []).filter(p => p.payment_direction === 'expense').reduce((s, p) => s + Number(p.amount || 0), 0);
+  const totalProjectIncome = projectTableData.filter(p => p.direction === 'income').reduce((s, p) => s + p.amount, 0);
+  const totalProjectExpense = projectTableData.filter(p => p.direction === 'expense').reduce((s, p) => s + p.amount, 0);
 
   return (
     <MainLayout>
@@ -1085,57 +1056,54 @@ export default function Analytics() {
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
               הכנסות פרויקטים ושת״פ
-              <span className="text-sm font-normal text-muted-foreground mr-auto">
-                סה״כ: ₪{totalProjectIncome.toLocaleString()} הכנסות | ₪{totalProjectExpense.toLocaleString()} הוצאות | יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}
-              </span>
             </CardTitle>
+            <div className="flex gap-4 text-sm mt-2">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">הכנסות: ₪{totalProjectIncome.toLocaleString()}</span>
+              <span className="text-destructive font-semibold">הוצאות: ₪{totalProjectExpense.toLocaleString()}</span>
+              <span className="font-semibold">יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}</span>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* By Year */}
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי שנה (תאריך תשלום)</h3>
-                {projectsByYearData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={projectsByYearData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="year" />
-                      <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
-                      <Legend />
-                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[4, 4, 0, 0]}>
-                        <LabelList dataKey="income" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
-                      </Bar>
-                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[4, 4, 0, 0]}>
-                        <LabelList dataKey="expense" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
-                )}
+            {projectTableData.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="text-right font-bold">פרויקט</TableHead>
+                      <TableHead className="text-right font-bold">גוף שת״פ</TableHead>
+                      <TableHead className="text-right font-bold">סוג</TableHead>
+                      <TableHead className="text-right font-bold">סכום</TableHead>
+                      <TableHead className="text-right font-bold">תאריך תשלום</TableHead>
+                      <TableHead className="text-right font-bold">שנה</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {projectTableData.map((row, index) => (
+                      <TableRow key={index} className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
+                        <TableCell className="font-medium">{row.name}</TableCell>
+                        <TableCell>{row.collab}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                            row.direction === 'income' 
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}>
+                            {row.direction === 'income' ? 'הכנסה' : 'הוצאה'}
+                          </span>
+                        </TableCell>
+                        <TableCell className={`font-semibold ${row.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
+                          ₪{row.amount.toLocaleString()}
+                        </TableCell>
+                        <TableCell>{row.date ? new Date(row.date).toLocaleDateString('he-IL') : '-'}</TableCell>
+                        <TableCell>{row.year}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-
-              {/* By Collaboration */}
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי גוף שיתוף פעולה</h3>
-                {projectsByCollabData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={projectsByCollabData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                      <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
-                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
-                      <Legend />
-                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
-                )}
-              </div>
-            </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+            )}
           </CardContent>
         </Card>
       </div>
