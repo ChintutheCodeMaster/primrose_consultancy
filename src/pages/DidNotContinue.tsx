@@ -213,6 +213,7 @@ export default function DidNotContinue() {
           package_notes: lead.package_notes,
           did_not_continue: true,
           discontinue_reason: lead.discontinue_reason,
+          created_at: lead.created_at,
         });
       if (insertError) throw insertError;
       const { error: deleteError } = await supabase.from('leads').delete().eq('id', lead.id);
@@ -245,6 +246,7 @@ export default function DidNotContinue() {
           package_notes: student.package_notes,
           did_not_continue: true,
           discontinue_reason: student.discontinue_reason,
+          created_at: student.created_at,
         });
       if (insertError) throw insertError;
       const { error: deleteError } = await supabase.from('students').delete().eq('id', student.id);
