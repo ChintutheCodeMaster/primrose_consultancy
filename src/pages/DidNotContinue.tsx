@@ -667,6 +667,15 @@ export default function DidNotContinue() {
                 </div>
               )}
 
+              {selectedLead.package_notes && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
+                  <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
+                    {selectedLead.package_notes}
+                  </div>
+                </div>
+              )}
+
               {/* Action */}
               <div className="flex justify-end pt-4 border-t">
                 <Button
