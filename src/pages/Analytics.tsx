@@ -1154,6 +1154,41 @@ export default function Analytics() {
             )}
           </CardContent>
         </Card>
+
+        {/* Projects by Year and Collaboration Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              הכנסות פרויקטים ושת״פ לפי שנה וגוף
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {projectsByYearCollabData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={projectsByYearCollabData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" />
+                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                  <Legend />
+                  {allCollabNames.map((name, index) => (
+                    <Bar 
+                      key={name} 
+                      dataKey={name} 
+                      name={name} 
+                      stackId="a"
+                      fill={COLORS[index % COLORS.length]} 
+                      radius={index === allCollabNames.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );
