@@ -97,6 +97,7 @@ export default function Projects() {
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
   // ── Queries ──
@@ -356,6 +357,20 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
+  const blobToDataUrl = (blob: Blob) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to convert blob to data URL'));
+        }
+      };
+      reader.onerror = () => reject(reader.error || new Error('FileReader failed'));
+      reader.readAsDataURL(blob);
+    });
+
   const openProjectFile = async (project: Project) => {
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
@@ -365,42 +380,67 @@ export default function Projects() {
       return;
     }
 
-    if (previewUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
+    if (previewDownloadUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewDownloadUrl);
     }
 
     setPreviewLoading(true);
     setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
 
-    for (const path of candidates) {
-      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
-      if (!downloadError && downloadedFile) {
-        const blobUrl = URL.createObjectURL(downloadedFile);
-        setPreviewUrl(blobUrl);
-        setPreviewLoading(false);
+    try {
+      for (const path of candidates) {
+        const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
+        if (downloadError || !downloadedFile) continue;
+
+        const downloadUrl = URL.createObjectURL(downloadedFile);
+        const isPdf = downloadedFile.type.includes('pdf') || path.toLowerCase().endsWith('.pdf');
+
+        let viewUrl = downloadUrl;
+        if (isPdf) {
+          try {
+            viewUrl = await blobToDataUrl(downloadedFile);
+          } catch {
+            viewUrl = downloadUrl;
+          }
+        }
+
+        setPreviewUrl(viewUrl);
+        setPreviewDownloadUrl(downloadUrl);
         return;
       }
-    }
 
-    setPreviewLoading(false);
-    toast.error('לא הצלחנו לטעון תצוגה מקדימה. אפשר להוריד את הקובץ במקום.');
+      toast.error('לא הצלחנו לטעון תצוגה מקדימה. אפשר להוריד את הקובץ במקום.');
+    } catch (error) {
+      console.error('Failed to open project file', error);
+      toast.error('אירעה שגיאה בפתיחת הקובץ. נסי שוב.');
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const handleDownloadFile = () => {
-    if (!previewUrl) return;
-    const a = document.createElement('a');
-    a.href = previewUrl;
-    a.download = '';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    if (!previewDownloadUrl) return;
+
+    try {
+      const a = document.createElement('a');
+      a.href = previewDownloadUrl;
+      a.download = '';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Failed to download project file', error);
+      toast.error('לא הצלחנו להוריד את הקובץ.');
+    }
   };
 
   const closePreview = () => {
-    if (previewUrl && previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
+    if (previewDownloadUrl && previewDownloadUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewDownloadUrl);
     }
     setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
   };
 
   // ── Collab Form ──
@@ -720,7 +760,7 @@ export default function Projects() {
             <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
               <DialogTitle>תצוגה מקדימה</DialogTitle>
               <div className="flex items-center gap-2">
-                {previewUrl && (
+                {previewDownloadUrl && (
                   <Button variant="outline" size="sm" onClick={handleDownloadFile}>
                     <Download className="h-4 w-4 ml-1" />
                     הורדה
