@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2, UserPlus, GraduationCap, Users, History } from 'lucide-react';
+import { Search, Loader2, UserPlus, GraduationCap, Users, History, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -226,11 +226,20 @@ export function GlobalSearchInput({
             setShowDropdown(true);
           }
         }}
-        className="pr-10"
+        className="pr-10 pl-10"
       />
       
       {isSearching && (
         <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+      )}
+
+      {!isSearching && searchTerm && (
+        <button
+          onClick={() => handleSearch('')}
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
       )}
 
       {/* Global Search Results Dropdown */}
