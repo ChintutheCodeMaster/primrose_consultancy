@@ -392,8 +392,14 @@ export default function Projects() {
       const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
       if (!downloadError && downloadedFile) {
         const blobUrl = URL.createObjectURL(downloadedFile);
-        // Open inline in a new tab (no download attribute = browser displays PDF)
-        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
         return;
       }
