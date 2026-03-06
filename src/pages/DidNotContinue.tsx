@@ -338,8 +338,8 @@ export default function DidNotContinue() {
     const filtered = leads.filter(lead =>
       isInYearRange(lead.created_at) &&
       (lead.name.includes(searchTerm) ||
-      lead.email.includes(searchTerm) ||
-      lead.phone.includes(searchTerm))
+      (lead.email || '').includes(searchTerm) ||
+      (lead.phone || '').includes(searchTerm))
     );
     return filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
