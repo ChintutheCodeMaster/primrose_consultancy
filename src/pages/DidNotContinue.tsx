@@ -935,7 +935,16 @@ export default function DidNotContinue() {
                 </div>
               )}
 
-              {/* Meeting Summary */}
+              {/* Package Notes */}
+              {selectedStudent.package_notes && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
+                  <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
+                    {selectedStudent.package_notes}
+                  </div>
+                </div>
+              )}
+
               {selectedStudent.meeting_summary && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm text-muted-foreground">סיכום פגישה:</h4>
