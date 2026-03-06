@@ -3,26 +3,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+export type DiscontinueDestination = 'leads' | 'students';
 
 interface DiscontinueReasonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string, destination: DiscontinueDestination) => void;
   entityName: string;
   entityType: 'lead' | 'student';
 }
 
 export function DiscontinueReasonDialog({ open, onOpenChange, onConfirm, entityName, entityType }: DiscontinueReasonDialogProps) {
   const [reason, setReason] = useState('');
+  const [destination, setDestination] = useState<DiscontinueDestination>(entityType === 'lead' ? 'leads' : 'students');
 
   const handleConfirm = () => {
-    onConfirm(reason.trim());
+    onConfirm(reason.trim(), destination);
     setReason('');
+    setDestination(entityType === 'lead' ? 'leads' : 'students');
     onOpenChange(false);
   };
 
   const handleCancel = () => {
     setReason('');
+    setDestination(entityType === 'lead' ? 'leads' : 'students');
     onOpenChange(false);
   };
 
@@ -36,6 +42,21 @@ export function DiscontinueReasonDialog({ open, onOpenChange, onConfirm, entityN
           <p className="text-sm text-muted-foreground">
             {entityType === 'lead' ? 'המתעניין' : 'הסטודנט'} <strong>{entityName}</strong> יועבר לרשימת "לא המשיכו".
           </p>
+          
+          <div className="space-y-2">
+            <Label>לאן לשייך ברשימת "לא המשיכו"?</Label>
+            <RadioGroup value={destination} onValueChange={(v) => setDestination(v as DiscontinueDestination)}>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="leads" id="dest-leads" />
+                <Label htmlFor="dest-leads" className="cursor-pointer font-normal">מתעניינים</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="students" id="dest-students" />
+                <Label htmlFor="dest-students" className="cursor-pointer font-normal">סטודנטים</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="reason">למה לא המשיך/ה? (אופציונלי)</Label>
             <Textarea
