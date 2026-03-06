@@ -426,26 +426,38 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
-  // Projects income/expense - build detailed table data
+  // Projects income/expense - group by collaboration
   const collabMap = (collaborations || []).reduce((acc, c) => {
     acc[c.id] = c.name;
     return acc;
   }, {} as Record<string, string>);
 
-  const projectTableData = (projects || [])
+  // Group projects by collaboration
+  const projectsByCollabGrouped = (projects || [])
     .filter(p => p.amount && Number(p.amount) > 0)
-    .map(p => ({
-      name: p.name,
-      collab: p.collaboration_id ? (collabMap[p.collaboration_id] || '-') : '-',
-      amount: Number(p.amount),
-      direction: p.payment_direction,
-      date: p.payment_date,
-      year: p.payment_date ? new Date(p.payment_date).getFullYear().toString() : '-',
-    }))
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    .reduce((acc, p) => {
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0, projects: [] as { name: string; amount: number; direction: string; date: string | null }[] };
+      const amount = Number(p.amount);
+      if (p.payment_direction === 'income') {
+        acc[collabName].income += amount;
+      } else {
+        acc[collabName].expense += amount;
+      }
+      acc[collabName].projects.push({
+        name: p.name,
+        amount,
+        direction: p.payment_direction,
+        date: p.payment_date,
+      });
+      return acc;
+    }, {} as Record<string, { income: number; expense: number; projects: { name: string; amount: number; direction: string; date: string | null }[] }>);
 
-  const totalProjectIncome = projectTableData.filter(p => p.direction === 'income').reduce((s, p) => s + p.amount, 0);
-  const totalProjectExpense = projectTableData.filter(p => p.direction === 'expense').reduce((s, p) => s + p.amount, 0);
+  const collabGroupedData = Object.entries(projectsByCollabGrouped)
+    .sort(([, a], [, b]) => (b.income - b.expense) - (a.income - a.expense));
+
+  const totalProjectIncome = collabGroupedData.reduce((s, [, d]) => s + d.income, 0);
+  const totalProjectExpense = collabGroupedData.reduce((s, [, d]) => s + d.expense, 0);
 
   return (
     <MainLayout>
@@ -1064,39 +1076,50 @@ export default function Analytics() {
             </div>
           </CardHeader>
           <CardContent>
-            {projectTableData.length > 0 ? (
+            {collabGroupedData.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead className="text-right font-bold">פרויקט</TableHead>
                       <TableHead className="text-right font-bold">גוף שת״פ</TableHead>
+                      <TableHead className="text-right font-bold">פרויקט</TableHead>
                       <TableHead className="text-right font-bold">סוג</TableHead>
                       <TableHead className="text-right font-bold">סכום</TableHead>
                       <TableHead className="text-right font-bold">תאריך תשלום</TableHead>
-                      <TableHead className="text-right font-bold">שנה</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {projectTableData.map((row, index) => (
-                      <TableRow key={index} className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
-                        <TableCell className="font-medium">{row.name}</TableCell>
-                        <TableCell>{row.collab}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                            row.direction === 'income' 
-                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
-                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                          }`}>
-                            {row.direction === 'income' ? 'הכנסה' : 'הוצאה'}
-                          </span>
-                        </TableCell>
-                        <TableCell className={`font-semibold ${row.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
-                          ₪{row.amount.toLocaleString()}
-                        </TableCell>
-                        <TableCell>{row.date ? new Date(row.date).toLocaleDateString('he-IL') : '-'}</TableCell>
-                        <TableCell>{row.year}</TableCell>
-                      </TableRow>
+                    {collabGroupedData.map(([collabName, data]) => (
+                      <>
+                        {data.projects.map((project, pIdx) => (
+                          <TableRow key={`${collabName}-${pIdx}`} className={pIdx % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
+                            {pIdx === 0 && (
+                              <TableCell rowSpan={data.projects.length} className="font-bold align-top border-l">
+                                <div>{collabName}</div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">₪{data.income.toLocaleString()}</span>}
+                                  {data.income > 0 && data.expense > 0 && ' | '}
+                                  {data.expense > 0 && <span className="text-destructive">-₪{data.expense.toLocaleString()}</span>}
+                                </div>
+                              </TableCell>
+                            )}
+                            <TableCell>{project.name}</TableCell>
+                            <TableCell>
+                              <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                                project.direction === 'income' 
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                              }`}>
+                                {project.direction === 'income' ? 'הכנסה' : 'הוצאה'}
+                              </span>
+                            </TableCell>
+                            <TableCell className={`font-semibold ${project.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
+                              ₪{project.amount.toLocaleString()}
+                            </TableCell>
+                            <TableCell>{project.date ? new Date(project.date).toLocaleDateString('he-IL') : '-'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </>
                     ))}
                   </TableBody>
                 </Table>
