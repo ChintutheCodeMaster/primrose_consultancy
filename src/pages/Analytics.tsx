@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter, DollarSign } from 'lucide-react';
+import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter, DollarSign, Briefcase } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -91,7 +91,32 @@ export default function Analytics() {
     },
   });
 
-  const isLoading = studentsLoading || leadsLoading || incomeLoading;
+  // Fetch projects data
+  const { data: projects, isLoading: projectsLoading } = useQuery({
+    queryKey: ['analytics-projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, amount, payment_date, payment_direction, collaboration_id')
+        .not('payment_date', 'is', null);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch collaborations for names
+  const { data: collaborations, isLoading: collabsLoading } = useQuery({
+    queryKey: ['analytics-collaborations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('collaborations')
+        .select('id, name');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading;
 
   // Filter data by season
   const filteredStudents = useMemo(() => {
@@ -401,6 +426,56 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
+  // Projects income/expense by year
+  const collabMap = (collaborations || []).reduce((acc, c) => {
+    acc[c.id] = c.name;
+    return acc;
+  }, {} as Record<string, string>);
+
+  const projectsByYear = (projects || []).reduce((acc, project) => {
+    if (!project.payment_date || !project.amount) return acc;
+    const year = new Date(project.payment_date).getFullYear().toString();
+    if (!acc[year]) acc[year] = { income: 0, expense: 0 };
+    if (project.payment_direction === 'income') {
+      acc[year].income += Number(project.amount);
+    } else {
+      acc[year].expense += Number(project.amount);
+    }
+    return acc;
+  }, {} as Record<string, { income: number; expense: number }>);
+
+  const projectsByYearData = Object.entries(projectsByYear)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([year, data]) => ({
+      year,
+      income: data.income,
+      expense: data.expense,
+      net: data.income - data.expense,
+    }));
+
+  const projectsByCollab = (projects || []).reduce((acc, project) => {
+    if (!project.amount || Number(project.amount) === 0) return acc;
+    const collabName = project.collaboration_id ? (collabMap[project.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+    if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0 };
+    if (project.payment_direction === 'income') {
+      acc[collabName].income += Number(project.amount);
+    } else {
+      acc[collabName].expense += Number(project.amount);
+    }
+    return acc;
+  }, {} as Record<string, { income: number; expense: number }>);
+
+  const projectsByCollabData = Object.entries(projectsByCollab)
+    .sort(([, a], [, b]) => (b.income - b.expense) - (a.income - a.expense))
+    .map(([name, data]) => ({
+      name,
+      income: data.income,
+      expense: data.expense,
+    }));
+
+  const totalProjectIncome = (projects || []).filter(p => p.payment_direction === 'income').reduce((s, p) => s + Number(p.amount || 0), 0);
+  const totalProjectExpense = (projects || []).filter(p => p.payment_direction === 'expense').reduce((s, p) => s + Number(p.amount || 0), 0);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -516,7 +591,66 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        {/* Funnel Chart */}
+        {/* Projects Income Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              הכנסות פרויקטים ושת״פ
+              <span className="text-sm font-normal text-muted-foreground mr-auto">
+                סה״כ: ₪{totalProjectIncome.toLocaleString()} הכנסות | ₪{totalProjectExpense.toLocaleString()} הוצאות | יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* By Year */}
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי שנה (תאריך תשלום)</h3>
+                {projectsByYearData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={projectsByYearData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="year" />
+                      <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                      <Legend />
+                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[4, 4, 0, 0]}>
+                        <LabelList dataKey="income" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
+                      </Bar>
+                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                        <LabelList dataKey="expense" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+                )}
+              </div>
+
+              {/* By Collaboration */}
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי גוף שיתוף פעולה</h3>
+                {projectsByCollabData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={projectsByCollabData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                      <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
+                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                      <Legend />
+                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
