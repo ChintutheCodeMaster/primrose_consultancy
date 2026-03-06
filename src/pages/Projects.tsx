@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2, Download, X, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2, Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -98,7 +98,6 @@ export default function Projects() {
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
 
   // ── Queries ──
 
@@ -357,31 +356,6 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
-  const getBackendBaseUrl = () => {
-    const directUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/$/, '');
-    if (directUrl) return directUrl;
-
-    const projectId = (import.meta.env.VITE_SUPABASE_PROJECT_ID || '').trim();
-    return projectId ? `https://${projectId}.supabase.co` : '';
-  };
-
-  const buildAbsoluteSignedUrl = (signedUrl: string) => {
-    if (signedUrl.startsWith('http://') || signedUrl.startsWith('https://')) {
-      return signedUrl;
-    }
-
-    const baseUrl = getBackendBaseUrl();
-    if (!baseUrl) return null;
-
-    const normalized = signedUrl.startsWith('/') ? signedUrl : `/${signedUrl}`;
-
-    if (normalized.startsWith('/storage/v1/')) {
-      return `${baseUrl}${normalized}`;
-    }
-
-    return `${baseUrl}/storage/v1${normalized}`;
-  };
-
   const openProjectFile = async (project: Project) => {
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
@@ -391,45 +365,31 @@ export default function Projects() {
       return;
     }
 
+    if (previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
     setPreviewLoading(true);
     setPreviewUrl(null);
-    setPreviewDownloadUrl(null);
 
     for (const path of candidates) {
       const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
       if (!downloadError && downloadedFile) {
         const blobUrl = URL.createObjectURL(downloadedFile);
         setPreviewUrl(blobUrl);
-        setPreviewDownloadUrl(blobUrl);
         setPreviewLoading(false);
         return;
-      }
-
-      const { data: signedData, error: signedError } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
-      const rawSignedUrl =
-        (signedData as any)?.signedUrl ||
-        (signedData as any)?.signedURL ||
-        (signedData as any)?.signed_url;
-
-      if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
-        const finalUrl = buildAbsoluteSignedUrl(rawSignedUrl);
-        if (finalUrl) {
-          setPreviewUrl(finalUrl);
-          setPreviewDownloadUrl(finalUrl);
-          setPreviewLoading(false);
-          return;
-        }
       }
     }
 
     setPreviewLoading(false);
-    toast.error('לא הצלחנו לפתוח את הקובץ. נסי להעלות אותו מחדש.');
+    toast.error('לא הצלחנו לטעון תצוגה מקדימה. אפשר להוריד את הקובץ במקום.');
   };
 
   const handleDownloadFile = () => {
-    if (!previewDownloadUrl) return;
+    if (!previewUrl) return;
     const a = document.createElement('a');
-    a.href = previewDownloadUrl;
+    a.href = previewUrl;
     a.download = '';
     document.body.appendChild(a);
     a.click();
@@ -441,7 +401,6 @@ export default function Projects() {
       URL.revokeObjectURL(previewUrl);
     }
     setPreviewUrl(null);
-    setPreviewDownloadUrl(null);
   };
 
   // ── Collab Form ──
@@ -761,7 +720,7 @@ export default function Projects() {
             <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
               <DialogTitle>תצוגה מקדימה</DialogTitle>
               <div className="flex items-center gap-2">
-                {previewDownloadUrl && (
+                {previewUrl && (
                   <Button variant="outline" size="sm" onClick={handleDownloadFile}>
                     <Download className="h-4 w-4 ml-1" />
                     הורדה
