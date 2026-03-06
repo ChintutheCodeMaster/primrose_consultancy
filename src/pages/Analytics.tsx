@@ -591,7 +591,66 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        {/* Funnel Chart */}
+        {/* Projects Income Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              הכנסות פרויקטים ושת״פ
+              <span className="text-sm font-normal text-muted-foreground mr-auto">
+                סה״כ: ₪{totalProjectIncome.toLocaleString()} הכנסות | ₪{totalProjectExpense.toLocaleString()} הוצאות | יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* By Year */}
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי שנה (תאריך תשלום)</h3>
+                {projectsByYearData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={projectsByYearData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="year" />
+                      <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                      <Legend />
+                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[4, 4, 0, 0]}>
+                        <LabelList dataKey="income" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
+                      </Bar>
+                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                        <LabelList dataKey="expense" position="top" fill="hsl(var(--foreground))" fontSize={11} formatter={(v: number) => `₪${(v/1000).toFixed(1)}k`} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+                )}
+              </div>
+
+              {/* By Collaboration */}
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">לפי גוף שיתוף פעולה</h3>
+                {projectsByCollabData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={projectsByCollabData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                      <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
+                      <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                      <Legend />
+                      <Bar dataKey="income" name="הכנסות" fill="#10B981" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="expense" name="הוצאות" fill="#EF4444" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
