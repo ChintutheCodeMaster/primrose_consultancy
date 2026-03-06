@@ -354,12 +354,22 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
+  const getBackendBaseUrl = () => {
+    const directUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/$/, '');
+    if (directUrl) return directUrl;
+
+    const projectId = (import.meta.env.VITE_SUPABASE_PROJECT_ID || '').trim();
+    return projectId ? `https://${projectId}.supabase.co` : '';
+  };
+
   const buildAbsoluteSignedUrl = (signedUrl: string) => {
     if (signedUrl.startsWith('http://') || signedUrl.startsWith('https://')) {
       return signedUrl;
     }
 
-    const baseUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    const baseUrl = getBackendBaseUrl();
+    if (!baseUrl) return null;
+
     const normalized = signedUrl.startsWith('/') ? signedUrl : `/${signedUrl}`;
 
     if (normalized.startsWith('/storage/v1/')) {
@@ -387,14 +397,6 @@ export default function Projects() {
     }
 
     for (const path of candidates) {
-      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
-      if (!downloadError && downloadedFile) {
-        const blobUrl = URL.createObjectURL(downloadedFile);
-        popup.location.href = blobUrl;
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-        return;
-      }
-
       const { data: signedData, error: signedError } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
       const rawSignedUrl =
         (signedData as any)?.signedUrl ||
@@ -402,13 +404,24 @@ export default function Projects() {
         (signedData as any)?.signed_url;
 
       if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
-        popup.location.href = buildAbsoluteSignedUrl(rawSignedUrl);
+        const finalUrl = buildAbsoluteSignedUrl(rawSignedUrl);
+        if (finalUrl) {
+          popup.location.href = finalUrl;
+          return;
+        }
+      }
+
+      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
+      if (!downloadError && downloadedFile) {
+        const blobUrl = URL.createObjectURL(downloadedFile);
+        popup.location.href = blobUrl;
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
         return;
       }
     }
 
-    popup.location.href = supabase.storage.from(bucket).getPublicUrl(candidates[0]).data.publicUrl;
-    toast('נפתח קישור ציבורי כגיבוי');
+    popup.close();
+    toast.error('לא הצלחנו לפתוח את הקובץ. נסי להעלות אותו מחדש.');
   };
 
   // ── Collab Form ──
