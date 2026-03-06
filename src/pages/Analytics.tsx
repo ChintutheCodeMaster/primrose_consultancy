@@ -426,26 +426,38 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
-  // Projects income/expense - build detailed table data
+  // Projects income/expense - group by collaboration
   const collabMap = (collaborations || []).reduce((acc, c) => {
     acc[c.id] = c.name;
     return acc;
   }, {} as Record<string, string>);
 
-  const projectTableData = (projects || [])
+  // Group projects by collaboration
+  const projectsByCollabGrouped = (projects || [])
     .filter(p => p.amount && Number(p.amount) > 0)
-    .map(p => ({
-      name: p.name,
-      collab: p.collaboration_id ? (collabMap[p.collaboration_id] || '-') : '-',
-      amount: Number(p.amount),
-      direction: p.payment_direction,
-      date: p.payment_date,
-      year: p.payment_date ? new Date(p.payment_date).getFullYear().toString() : '-',
-    }))
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    .reduce((acc, p) => {
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0, projects: [] as { name: string; amount: number; direction: string; date: string | null }[] };
+      const amount = Number(p.amount);
+      if (p.payment_direction === 'income') {
+        acc[collabName].income += amount;
+      } else {
+        acc[collabName].expense += amount;
+      }
+      acc[collabName].projects.push({
+        name: p.name,
+        amount,
+        direction: p.payment_direction,
+        date: p.payment_date,
+      });
+      return acc;
+    }, {} as Record<string, { income: number; expense: number; projects: { name: string; amount: number; direction: string; date: string | null }[] }>);
 
-  const totalProjectIncome = projectTableData.filter(p => p.direction === 'income').reduce((s, p) => s + p.amount, 0);
-  const totalProjectExpense = projectTableData.filter(p => p.direction === 'expense').reduce((s, p) => s + p.amount, 0);
+  const collabGroupedData = Object.entries(projectsByCollabGrouped)
+    .sort(([, a], [, b]) => (b.income - b.expense) - (a.income - a.expense));
+
+  const totalProjectIncome = collabGroupedData.reduce((s, [, d]) => s + d.income, 0);
+  const totalProjectExpense = collabGroupedData.reduce((s, [, d]) => s + d.expense, 0);
 
   return (
     <MainLayout>
