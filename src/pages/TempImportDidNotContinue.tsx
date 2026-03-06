@@ -276,7 +276,7 @@ export default function TempImportDidNotContinue() {
       <p className="text-lg">{status}</p>
 
       {duplicatesInFile.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 max-w-md">
+        <div className="bg-warning/10 border border-warning/30 rounded p-3 max-w-md">
           <p className="font-medium">כפילויות שמוזגו בקובץ:</p>
           <ul className="text-sm">
             {duplicatesInFile.map((name, i) => (
