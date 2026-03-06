@@ -397,6 +397,14 @@ export default function Projects() {
     }
 
     for (const path of candidates) {
+      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
+      if (!downloadError && downloadedFile) {
+        const blobUrl = URL.createObjectURL(downloadedFile);
+        popup.location.href = blobUrl;
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        return;
+      }
+
       const { data: signedData, error: signedError } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
       const rawSignedUrl =
         (signedData as any)?.signedUrl ||
@@ -409,14 +417,6 @@ export default function Projects() {
           popup.location.href = finalUrl;
           return;
         }
-      }
-
-      const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
-      if (!downloadError && downloadedFile) {
-        const blobUrl = URL.createObjectURL(downloadedFile);
-        popup.location.href = blobUrl;
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-        return;
       }
     }
 
