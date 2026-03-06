@@ -459,6 +459,31 @@ export default function Analytics() {
   const totalProjectIncome = collabGroupedData.reduce((s, [, d]) => s + d.income, 0);
   const totalProjectExpense = collabGroupedData.reduce((s, [, d]) => s + d.expense, 0);
 
+  // Projects by year and collaboration for stacked bar chart
+  const projectsByYearCollab = (projects || [])
+    .filter(p => p.amount && Number(p.amount) > 0 && p.payment_date)
+    .reduce((acc, p) => {
+      const year = new Date(p.payment_date!).getFullYear().toString();
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      if (!acc[year]) acc[year] = {} as Record<string, number>;
+      if (!acc[year][collabName]) acc[year][collabName] = 0;
+      const amount = Number(p.amount);
+      acc[year][collabName] += p.payment_direction === 'income' ? amount : -amount;
+      return acc;
+    }, {} as Record<string, Record<string, number>>);
+
+  const allCollabNames = [...new Set((projects || [])
+    .filter(p => p.amount && Number(p.amount) > 0)
+    .map(p => p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך')
+  )];
+
+  const projectsByYearCollabData = Object.entries(projectsByYearCollab)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([year, collabs]) => ({
+      year,
+      ...collabs,
+    }));
+
   return (
     <MainLayout>
       <div className="space-y-8">
