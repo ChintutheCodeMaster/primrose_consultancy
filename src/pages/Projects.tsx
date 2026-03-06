@@ -720,7 +720,7 @@ export default function Projects() {
             <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
               <DialogTitle>תצוגה מקדימה</DialogTitle>
               <div className="flex items-center gap-2">
-                {previewDownloadUrl && (
+                {previewUrl && (
                   <Button variant="outline" size="sm" onClick={handleDownloadFile}>
                     <Download className="h-4 w-4 ml-1" />
                     הורדה
