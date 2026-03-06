@@ -749,11 +749,17 @@ export default function Projects() {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : previewUrl ? (
-                <iframe
-                  src={previewUrl}
-                  className="w-full h-[70vh] border-0"
-                  title="תצוגה מקדימה של קובץ"
-                />
+                <object
+                  data={previewUrl}
+                  type="application/pdf"
+                  className="w-full h-[70vh]"
+                >
+                  <iframe
+                    src={previewUrl}
+                    className="w-full h-[70vh] border-0"
+                    title="תצוגה מקדימה של קובץ"
+                  />
+                </object>
               ) : null}
             </div>
           </DialogContent>
