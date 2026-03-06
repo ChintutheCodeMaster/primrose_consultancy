@@ -14,7 +14,7 @@ import { Loader2, ArrowUpDown, Upload } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { DiscontinueReasonDialog } from '@/components/DiscontinueReasonDialog';
+import { DiscontinueReasonDialog, DiscontinueDestination } from '@/components/DiscontinueReasonDialog';
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -185,20 +185,55 @@ export default function Leads() {
     setIsConvertOpen(true);
   };
 
-  const handleDidNotContinue = async (leadId: string, reason: string) => {
-    const { error } = await supabase
-      .from('leads')
-      .update({ did_not_continue: true, discontinue_reason: reason || null })
-      .eq('id', leadId);
-    
-    if (error) {
-      toast.error('שגיאה בעדכון');
-      return;
+  const handleDidNotContinue = async (leadId: string, reason: string, destination: DiscontinueDestination) => {
+    if (destination === 'students') {
+      // Move lead to students table as did_not_continue
+      const lead = leads.find(l => l.id === leadId);
+      if (!lead) return;
+      
+      const { error: insertError } = await supabase
+        .from('students')
+        .insert({
+          name: lead.name,
+          email: lead.email || '',
+          phone: lead.phone,
+          degree_type: lead.degreeType === 'phd' ? 'doctorate' : lead.degreeType,
+          interested_country: lead.interestedCountry || null,
+          interested_field: lead.interestedField || null,
+          source: lead.source || null,
+          meeting_summary: lead.meetingSummary || null,
+          advisor_name: lead.advisorName || null,
+          package_notes: lead.packageNotes || null,
+          did_not_continue: true,
+          discontinue_reason: reason || null,
+        });
+      
+      if (insertError) {
+        toast.error('שגיאה בהעברה לסטודנטים');
+        return;
+      }
+      
+      // Delete from leads
+      await supabase.from('leads').delete().eq('id', leadId);
+      
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('המתעניין הועבר לרשימת "לא המשיכו" בסטודנטים');
+    } else {
+      const { error } = await supabase
+        .from('leads')
+        .update({ did_not_continue: true, discontinue_reason: reason || null })
+        .eq('id', leadId);
+      
+      if (error) {
+        toast.error('שגיאה בעדכון');
+        return;
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      toast.success('המתעניין הועבר לרשימת "לא המשיכו"');
     }
-    
-    queryClient.invalidateQueries({ queryKey: ['leads'] });
-    queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
-    toast.success('המתעניין הועבר לרשימת "לא המשיכו"');
   };
 
   const handleDeleteLead = async (leadId: string) => {
@@ -374,9 +409,9 @@ export default function Leads() {
       <DiscontinueReasonDialog
         open={!!discontinuingLead}
         onOpenChange={(open) => !open && setDiscontinuingLead(null)}
-        onConfirm={(reason) => {
+        onConfirm={(reason, destination) => {
           if (discontinuingLead) {
-            handleDidNotContinue(discontinuingLead.id, reason);
+            handleDidNotContinue(discontinuingLead.id, reason, destination);
             setDiscontinuingLead(null);
           }
         }}
