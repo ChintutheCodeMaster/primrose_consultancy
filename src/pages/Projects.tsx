@@ -357,20 +357,6 @@ export default function Projects() {
     finally { setUploadingFile(false); }
   };
 
-  const blobToDataUrl = (blob: Blob) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          resolve(reader.result);
-        } else {
-          reject(new Error('Failed to convert blob to data URL'));
-        }
-      };
-      reader.onerror = () => reject(reader.error || new Error('FileReader failed'));
-      reader.readAsDataURL(blob);
-    });
-
   const openProjectFile = async (project: Project) => {
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
@@ -393,20 +379,9 @@ export default function Projects() {
         const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
         if (downloadError || !downloadedFile) continue;
 
-        const downloadUrl = URL.createObjectURL(downloadedFile);
-        const isPdf = downloadedFile.type.includes('pdf') || path.toLowerCase().endsWith('.pdf');
-
-        let viewUrl = downloadUrl;
-        if (isPdf) {
-          try {
-            viewUrl = await blobToDataUrl(downloadedFile);
-          } catch {
-            viewUrl = downloadUrl;
-          }
-        }
-
-        setPreviewUrl(viewUrl);
-        setPreviewDownloadUrl(downloadUrl);
+        const blobUrl = URL.createObjectURL(downloadedFile);
+        setPreviewUrl(blobUrl);
+        setPreviewDownloadUrl(blobUrl);
         return;
       }
 
