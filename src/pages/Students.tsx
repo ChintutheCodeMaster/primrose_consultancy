@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { differenceInDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { DiscontinueReasonDialog } from '@/components/DiscontinueReasonDialog';
+import { DiscontinueReasonDialog, DiscontinueDestination } from '@/components/DiscontinueReasonDialog';
 
 export default function Students() {
   const navigate = useNavigate();
@@ -315,20 +315,55 @@ export default function Students() {
     toast.success('הסטודנט עודכן בהצלחה!');
   };
 
-  const handleDidNotContinue = async (studentId: string, reason: string) => {
-    const { error } = await supabase
-      .from('students')
-      .update({ did_not_continue: true, discontinue_reason: reason || null })
-      .eq('id', studentId);
-    
-    if (error) {
-      toast.error('שגיאה בעדכון');
-      return;
+  const handleDidNotContinue = async (studentId: string, reason: string, destination: DiscontinueDestination) => {
+    if (destination === 'leads') {
+      // Move student to leads table as did_not_continue
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const { error: insertError } = await supabase
+        .from('leads')
+        .insert({
+          name: student.name,
+          email: student.email || '',
+          phone: student.phone,
+          degree_type: student.degreeType === 'phd' ? 'doctorate' : student.degreeType,
+          interested_country: student.interestedCountry || null,
+          interested_field: student.interestedField || null,
+          source: student.source || null,
+          meeting_summary: student.meetingSummary || null,
+          advisor_name: student.advisorName || null,
+          package_notes: student.packageNotes || null,
+          did_not_continue: true,
+          discontinue_reason: reason || null,
+        });
+      
+      if (insertError) {
+        toast.error('שגיאה בהעברה למתעניינים');
+        return;
+      }
+      
+      // Delete from students
+      await supabase.from('students').delete().eq('id', studentId);
+      
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
+      toast.success('הסטודנט הועבר לרשימת "לא המשיכו" במתעניינים');
+    } else {
+      const { error } = await supabase
+        .from('students')
+        .update({ did_not_continue: true, discontinue_reason: reason || null })
+        .eq('id', studentId);
+      
+      if (error) {
+        toast.error('שגיאה בעדכון');
+        return;
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
+      toast.success('הסטודנט הועבר לרשימת "לא המשיכו"');
     }
-    
-    queryClient.invalidateQueries({ queryKey: ['students'] });
-    queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-    toast.success('הסטודנט הועבר לרשימת "לא המשיכו"');
   };
 
   const handleDeleteStudent = async (studentId: string) => {
@@ -546,9 +581,9 @@ export default function Students() {
         <DiscontinueReasonDialog
           open={!!discontinuingStudent}
           onOpenChange={(open) => !open && setDiscontinuingStudent(null)}
-          onConfirm={(reason) => {
+          onConfirm={(reason, destination) => {
             if (discontinuingStudent) {
-              handleDidNotContinue(discontinuingStudent.id, reason);
+              handleDidNotContinue(discontinuingStudent.id, reason, destination);
               setDiscontinuingStudent(null);
             }
           }}
