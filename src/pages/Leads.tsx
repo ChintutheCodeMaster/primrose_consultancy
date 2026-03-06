@@ -206,6 +206,7 @@ export default function Leads() {
           package_notes: lead.packageNotes || null,
           did_not_continue: true,
           discontinue_reason: reason || null,
+          created_at: lead.createdAt.toISOString(),
         });
       
       if (insertError) {
