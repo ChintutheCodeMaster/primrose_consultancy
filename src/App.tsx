@@ -21,6 +21,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import TempExportEmails from "./pages/TempExportEmails";
+import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/projects" element={<PasswordGate><Projects /></PasswordGate>} />
           <Route path="/settings" element={<PasswordGate><Settings /></PasswordGate>} />
           <Route path="/temp-export" element={<TempExportEmails />} />
+          <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
