@@ -426,6 +426,56 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
+  // Projects income/expense by year
+  const collabMap = (collaborations || []).reduce((acc, c) => {
+    acc[c.id] = c.name;
+    return acc;
+  }, {} as Record<string, string>);
+
+  const projectsByYear = (projects || []).reduce((acc, project) => {
+    if (!project.payment_date || !project.amount) return acc;
+    const year = new Date(project.payment_date).getFullYear().toString();
+    if (!acc[year]) acc[year] = { income: 0, expense: 0 };
+    if (project.payment_direction === 'income') {
+      acc[year].income += Number(project.amount);
+    } else {
+      acc[year].expense += Number(project.amount);
+    }
+    return acc;
+  }, {} as Record<string, { income: number; expense: number }>);
+
+  const projectsByYearData = Object.entries(projectsByYear)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([year, data]) => ({
+      year,
+      income: data.income,
+      expense: data.expense,
+      net: data.income - data.expense,
+    }));
+
+  const projectsByCollab = (projects || []).reduce((acc, project) => {
+    if (!project.amount || Number(project.amount) === 0) return acc;
+    const collabName = project.collaboration_id ? (collabMap[project.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+    if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0 };
+    if (project.payment_direction === 'income') {
+      acc[collabName].income += Number(project.amount);
+    } else {
+      acc[collabName].expense += Number(project.amount);
+    }
+    return acc;
+  }, {} as Record<string, { income: number; expense: number }>);
+
+  const projectsByCollabData = Object.entries(projectsByCollab)
+    .sort(([, a], [, b]) => (b.income - b.expense) - (a.income - a.expense))
+    .map(([name, data]) => ({
+      name,
+      income: data.income,
+      expense: data.expense,
+    }));
+
+  const totalProjectIncome = (projects || []).filter(p => p.payment_direction === 'income').reduce((s, p) => s + Number(p.amount || 0), 0);
+  const totalProjectExpense = (projects || []).filter(p => p.payment_direction === 'expense').reduce((s, p) => s + Number(p.amount || 0), 0);
+
   return (
     <MainLayout>
       <div className="space-y-8">
