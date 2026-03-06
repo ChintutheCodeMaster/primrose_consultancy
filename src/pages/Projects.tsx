@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2, Download, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -96,6 +96,9 @@ export default function Projects() {
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
 
   // ── Queries ──
 
@@ -388,19 +391,17 @@ export default function Projects() {
       return;
     }
 
+    setPreviewLoading(true);
+    setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
+
     for (const path of candidates) {
       const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
       if (!downloadError && downloadedFile) {
         const blobUrl = URL.createObjectURL(downloadedFile);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        setPreviewUrl(blobUrl);
+        setPreviewDownloadUrl(blobUrl);
+        setPreviewLoading(false);
         return;
       }
 
@@ -413,19 +414,34 @@ export default function Projects() {
       if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
         const finalUrl = buildAbsoluteSignedUrl(rawSignedUrl);
         if (finalUrl) {
-          const a = document.createElement('a');
-          a.href = finalUrl;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          setPreviewUrl(finalUrl);
+          setPreviewDownloadUrl(finalUrl);
+          setPreviewLoading(false);
           return;
         }
       }
     }
 
+    setPreviewLoading(false);
     toast.error('לא הצלחנו לפתוח את הקובץ. נסי להעלות אותו מחדש.');
+  };
+
+  const handleDownloadFile = () => {
+    if (!previewDownloadUrl) return;
+    const a = document.createElement('a');
+    a.href = previewDownloadUrl;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const closePreview = () => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
   };
 
   // ── Collab Form ──
@@ -736,6 +752,36 @@ export default function Projects() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>עריכת פרויקט</DialogTitle></DialogHeader>
             {projectFormContent}
+          </DialogContent>
+        </Dialog>
+
+        {/* File Preview Dialog */}
+        <Dialog open={!!previewUrl || previewLoading} onOpenChange={open => { if (!open) closePreview(); }}>
+          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+            <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
+              <DialogTitle>תצוגה מקדימה</DialogTitle>
+              <div className="flex items-center gap-2">
+                {previewDownloadUrl && (
+                  <Button variant="outline" size="sm" onClick={handleDownloadFile}>
+                    <Download className="h-4 w-4 ml-1" />
+                    הורדה
+                  </Button>
+                )}
+              </div>
+            </DialogHeader>
+            <div className="flex-1 min-h-[70vh]">
+              {previewLoading ? (
+                <div className="flex items-center justify-center h-[70vh]">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-[70vh] border-0"
+                  title="תצוגה מקדימה של קובץ"
+                />
+              ) : null}
+            </div>
           </DialogContent>
         </Dialog>
       </div>
