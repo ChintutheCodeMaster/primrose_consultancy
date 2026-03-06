@@ -391,19 +391,17 @@ export default function Projects() {
       return;
     }
 
+    setPreviewLoading(true);
+    setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
+
     for (const path of candidates) {
       const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
       if (!downloadError && downloadedFile) {
         const blobUrl = URL.createObjectURL(downloadedFile);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        setPreviewUrl(blobUrl);
+        setPreviewDownloadUrl(blobUrl);
+        setPreviewLoading(false);
         return;
       }
 
@@ -416,19 +414,34 @@ export default function Projects() {
       if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
         const finalUrl = buildAbsoluteSignedUrl(rawSignedUrl);
         if (finalUrl) {
-          const a = document.createElement('a');
-          a.href = finalUrl;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+          setPreviewUrl(finalUrl);
+          setPreviewDownloadUrl(finalUrl);
+          setPreviewLoading(false);
           return;
         }
       }
     }
 
+    setPreviewLoading(false);
     toast.error('לא הצלחנו לפתוח את הקובץ. נסי להעלות אותו מחדש.');
+  };
+
+  const handleDownloadFile = () => {
+    if (!previewDownloadUrl) return;
+    const a = document.createElement('a');
+    a.href = previewDownloadUrl;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const closePreview = () => {
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setPreviewDownloadUrl(null);
   };
 
   // ── Collab Form ──
