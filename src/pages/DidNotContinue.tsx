@@ -747,21 +747,22 @@ export default function DidNotContinue() {
                 </div>
               )}
 
+              {/* Package Notes */}
+              {selectedLead.package_notes && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
+                  <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
+                    {selectedLead.package_notes}
+                  </div>
+                </div>
+              )}
+
               {/* Meeting Summary */}
               {selectedLead.meeting_summary && (
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm text-muted-foreground">סיכום פגישה:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm">
                     {selectedLead.meeting_summary}
-                  </div>
-                </div>
-              )}
-
-              {selectedLead.package_notes && (
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
-                  <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
-                    {selectedLead.package_notes}
                   </div>
                 </div>
               )}
