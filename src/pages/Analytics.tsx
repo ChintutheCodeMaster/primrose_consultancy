@@ -91,7 +91,32 @@ export default function Analytics() {
     },
   });
 
-  const isLoading = studentsLoading || leadsLoading || incomeLoading;
+  // Fetch projects data
+  const { data: projects, isLoading: projectsLoading } = useQuery({
+    queryKey: ['analytics-projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, amount, payment_date, payment_direction, collaboration_id')
+        .not('payment_date', 'is', null);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch collaborations for names
+  const { data: collaborations, isLoading: collabsLoading } = useQuery({
+    queryKey: ['analytics-collaborations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('collaborations')
+        .select('id, name');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading;
 
   // Filter data by season
   const filteredStudents = useMemo(() => {
