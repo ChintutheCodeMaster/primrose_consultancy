@@ -380,18 +380,10 @@ export default function Projects() {
   };
 
   const openProjectFile = async (project: Project) => {
-    const popup = window.open('about:blank', '_blank');
-
-    if (!popup) {
-      toast.error('הדפדפן חסם פתיחת חלון חדש. יש לאפשר popups לאתר הזה.');
-      return;
-    }
-
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
 
     if (candidates.length === 0) {
-      popup.close();
       toast.error('לא נמצא נתיב קובץ לפרויקט הזה');
       return;
     }
@@ -400,7 +392,16 @@ export default function Projects() {
       const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
       if (!downloadError && downloadedFile) {
         const blobUrl = URL.createObjectURL(downloadedFile);
-        popup.location.href = blobUrl;
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        // Extract a readable filename from the path
+        const fileName = path.split('/').pop() || 'file';
+        a.download = '';  // Empty string lets browser decide to open inline for PDFs
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
         return;
       }
@@ -414,13 +415,18 @@ export default function Projects() {
       if (!signedError && typeof rawSignedUrl === 'string' && rawSignedUrl.length > 0) {
         const finalUrl = buildAbsoluteSignedUrl(rawSignedUrl);
         if (finalUrl) {
-          popup.location.href = finalUrl;
+          const a = document.createElement('a');
+          a.href = finalUrl;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
           return;
         }
       }
     }
 
-    popup.close();
     toast.error('לא הצלחנו לפתוח את הקובץ. נסי להעלות אותו מחדש.');
   };
 
