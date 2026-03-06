@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter, DollarSign } from 'lucide-react';
+import { Loader2, Users, UserPlus, TrendingUp, ArrowRight, Filter, DollarSign, Briefcase } from 'lucide-react';
 import {
   BarChart,
   Bar,
