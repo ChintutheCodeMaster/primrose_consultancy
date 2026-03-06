@@ -33,17 +33,6 @@ function parseDateStr(dateStr: string): string | null {
     }
   }
   
-  // Try D.M.YYYY format like 3.7.2022
-  const match2 = cleaned.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if (match2) {
-    const day = parseInt(match2[1]);
-    const month = parseInt(match2[2]);
-    const year = parseInt(match2[3]);
-    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      return new Date(year, month - 1, day).toISOString();
-    }
-  }
-  
   return null;
 }
 
@@ -52,10 +41,7 @@ function mapDegreeType(raw: string): string {
   if (lower.includes('ראשון') || lower === 'ראשון') return 'bachelor';
   if (lower.includes('שני') || lower === 'שני') return 'master';
   if (lower.includes('דוקטורט') || lower.includes('phd')) return 'phd';
-  if (lower.includes('אחר')) return 'bachelor';
-  if (lower.includes('מלגה')) return 'bachelor';
-  if (lower.includes('וטרינריה')) return 'bachelor';
-  return 'bachelor'; // default
+  return 'bachelor';
 }
 
 function cleanHtml(text: string): string {
@@ -65,6 +51,14 @@ function cleanHtml(text: string): string {
     .replace(/<[^>]*>/g, '')
     .replace(/\*\*/g, '')
     .trim();
+}
+
+function getLeadsYear(dateStr: string | null): string {
+  // All go to "2025 ומטה" category, so leads_year should reflect actual year
+  if (!dateStr) return '22'; // default
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  return String(year).slice(-2); // e.g. "21", "22", "23"
 }
 
 export default function TempImportDidNotContinue() {
@@ -92,17 +86,27 @@ export default function TempImportDidNotContinue() {
         }
 
         const headers = rows[0] as string[];
-        const nameIdx = headers.indexOf('שם');
-        const summaryIdx = headers.indexOf('סיכום פגישה');
-        const degreeIdx = headers.indexOf('סוג תואר');
-        const dateIdx = headers.indexOf('תאריך התחלה');
-        const advisorIdx = headers.indexOf('יועץ מלווה');
-        const sourceIdx = headers.indexOf('מקור הפנייה');
-        const costIdx = headers.indexOf('עלות שירות- שולם');
-        const packageIdx = headers.indexOf('הערות חבילה');
-        const reasonIdx = headers.indexOf('למה לא המשיכו');
-        const phoneIdx = headers.indexOf('טלפון');
-        const emailIdx = headers.indexOf('אימייל');
+        console.log('Headers found:', headers);
+        
+        // Find column indices by header name
+        const findCol = (name: string) => {
+          const idx = headers.findIndex(h => h && String(h).trim().includes(name));
+          return idx;
+        };
+
+        const nameIdx = findCol('שם');
+        const summaryIdx = findCol('סיכום פגישה');
+        const degreeIdx = findCol('סוג תואר');
+        const dateIdx = findCol('תאריך התחלה');
+        const advisorIdx = findCol('יועץ מלווה');
+        const sourceIdx = findCol('מקור הפנייה');
+        const costIdx = findCol('עלות שירות');
+        const packageIdx = findCol('הערות חבילה');
+        const reasonIdx = findCol('למה לא המשיכו');
+        const phoneIdx = findCol('טלפון');
+        const emailIdx = findCol('אימייל');
+
+        console.log('Column indices:', { nameIdx, summaryIdx, degreeIdx, dateIdx, advisorIdx, sourceIdx, costIdx, packageIdx, reasonIdx, phoneIdx, emailIdx });
 
         const parsed: ParsedRecord[] = [];
         const nameMap = new Map<string, number>();
@@ -115,48 +119,45 @@ export default function TempImportDidNotContinue() {
           const name = String(row[nameIdx] || '').trim();
           if (!name) continue;
 
-          const costStr = String(row[costIdx] || '').trim();
-          const packageStr = String(row[packageIdx] || '').trim();
+          const costStr = costIdx >= 0 ? cleanHtml(String(row[costIdx] || '')) : '';
+          const packageStr = packageIdx >= 0 ? cleanHtml(String(row[packageIdx] || '')) : '';
           const packageNotes = [costStr, packageStr].filter(Boolean).join(' | ');
 
           const record: ParsedRecord = {
             name,
-            meeting_summary: cleanHtml(String(row[summaryIdx] || '')),
-            degree_type: mapDegreeType(String(row[degreeIdx] || '')),
-            created_at: parseDateStr(String(row[dateIdx] || '')),
-            advisor_name: String(row[advisorIdx] || '').trim(),
-            source: String(row[sourceIdx] || '').trim(),
-            package_notes: cleanHtml(packageNotes),
-            discontinue_reason: cleanHtml(String(row[reasonIdx] || '')),
-            phone: String(row[phoneIdx] || '').replace(/\*/g, '').trim() || '0000000000',
-            email: String(row[emailIdx] || '').replace(/[<>]/g, '').trim(),
+            meeting_summary: summaryIdx >= 0 ? cleanHtml(String(row[summaryIdx] || '')) : '',
+            degree_type: degreeIdx >= 0 ? mapDegreeType(String(row[degreeIdx] || '')) : 'bachelor',
+            created_at: dateIdx >= 0 ? parseDateStr(String(row[dateIdx] || '')) : null,
+            advisor_name: advisorIdx >= 0 ? String(row[advisorIdx] || '').trim() : '',
+            source: sourceIdx >= 0 ? String(row[sourceIdx] || '').trim() : '',
+            package_notes: packageNotes,
+            discontinue_reason: reasonIdx >= 0 ? cleanHtml(String(row[reasonIdx] || '')) : '',
+            phone: phoneIdx >= 0 ? String(row[phoneIdx] || '').replace(/\*/g, '').replace(/[<>]/g, '').trim() : '',
+            email: emailIdx >= 0 ? String(row[emailIdx] || '').replace(/[<>]/g, '').trim() : '',
           };
 
-          // Handle duplicates within file - keep the more detailed one
+          // Handle duplicates within file - merge the more detailed one
           const existingIdx = nameMap.get(name);
           if (existingIdx !== undefined) {
             dupes.push(name);
             const existing = parsed[existingIdx];
-            // Keep the one with more content
             const existingLen = Object.values(existing).join('').length;
             const newLen = Object.values(record).join('').length;
             if (newLen > existingLen) {
-              // Merge: keep longer fields
               parsed[existingIdx] = {
                 ...record,
                 meeting_summary: record.meeting_summary.length > existing.meeting_summary.length ? record.meeting_summary : existing.meeting_summary,
                 package_notes: [existing.package_notes, record.package_notes].filter(Boolean).join(' | '),
                 discontinue_reason: record.discontinue_reason || existing.discontinue_reason,
-                phone: record.phone !== '0000000000' ? record.phone : existing.phone,
+                phone: record.phone || existing.phone,
                 email: record.email || existing.email,
               };
             } else {
-              // Merge new info into existing
               parsed[existingIdx] = {
                 ...existing,
                 package_notes: [existing.package_notes, record.package_notes].filter(Boolean).join(' | '),
                 discontinue_reason: existing.discontinue_reason || record.discontinue_reason,
-                phone: existing.phone !== '0000000000' ? existing.phone : record.phone,
+                phone: existing.phone || record.phone,
                 email: existing.email || record.email,
               };
             }
@@ -183,29 +184,23 @@ export default function TempImportDidNotContinue() {
     setStatus('בודק כפילויות מול בסיס הנתונים...');
 
     try {
-      // Get existing students to check duplicates
-      const { data: existingStudents } = await supabase
-        .from('students')
-        .select('name')
-        .eq('did_not_continue', true);
-
-      const existingNames = new Set(
-        (existingStudents || []).map(s => s.name.trim().toLowerCase())
-      );
-
-      // Also check leads
+      // Check duplicates against existing leads AND students
       const { data: existingLeads } = await supabase
         .from('leads')
-        .select('name')
-        .eq('did_not_continue', true);
+        .select('name');
 
-      const existingLeadNames = new Set(
-        (existingLeads || []).map(l => l.name.trim().toLowerCase())
-      );
+      const { data: existingStudents } = await supabase
+        .from('students')
+        .select('name');
+
+      const existingNames = new Set([
+        ...(existingLeads || []).map(l => l.name.trim().toLowerCase()),
+        ...(existingStudents || []).map(s => s.name.trim().toLowerCase()),
+      ]);
 
       const toInsert = records.filter(r => {
         const nameLower = r.name.trim().toLowerCase();
-        return !existingNames.has(nameLower) && !existingLeadNames.has(nameLower);
+        return !existingNames.has(nameLower);
       });
 
       const skipped = records.length - toInsert.length;
@@ -215,7 +210,7 @@ export default function TempImportDidNotContinue() {
         setStatus(`מייבא ${toInsert.length} רשומות...`);
       }
 
-      // Insert in batches of 50
+      // Insert into LEADS table in batches
       let inserted = 0;
       const batchSize = 50;
       
@@ -229,14 +224,14 @@ export default function TempImportDidNotContinue() {
           source: r.source || null,
           package_notes: r.package_notes || null,
           discontinue_reason: r.discontinue_reason || null,
-          phone: r.phone,
-          email: r.email || null,
+          phone: r.phone || '0000000000',
+          email: r.email || '',
           did_not_continue: true,
-          status: 'active',
-          graduation_year: null,
+          status: 'new',
+          leads_year: getLeadsYear(r.created_at),
         }));
 
-        const { error } = await supabase.from('students').insert(batch);
+        const { error } = await supabase.from('leads').insert(batch);
         if (error) {
           console.error('Batch error:', error);
           toast.error(`שגיאה בבאצ' ${i / batchSize + 1}: ${error.message}`);
@@ -245,7 +240,7 @@ export default function TempImportDidNotContinue() {
         }
       }
 
-      setStatus(`הושלם! ${inserted} רשומות חדשות הוכנסו, ${skipped} כפילויות דולגו`);
+      setStatus(`הושלם! ${inserted} רשומות חדשות הוכנסו למתעניינים, ${skipped} כפילויות דולגו`);
       toast.success(`יובאו ${inserted} רשומות בהצלחה!`);
     } catch (err: any) {
       console.error(err);
@@ -259,7 +254,7 @@ export default function TempImportDidNotContinue() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8" dir="rtl">
       <h1 className="text-2xl font-bold">ייבוא לקוחות שלא המשיכו</h1>
-      <p className="text-muted-foreground">כל הרשומות ייווצרו עם did_not_continue=true</p>
+      <p className="text-muted-foreground">כל הרשומות ייווצרו כמתעניינים (leads) עם did_not_continue=true</p>
       
       <input
         ref={fileInputRef}
@@ -298,6 +293,8 @@ export default function TempImportDidNotContinue() {
                   <th className="text-right p-1">תאריך</th>
                   <th className="text-right p-1">יועץ</th>
                   <th className="text-right p-1">טלפון</th>
+                  <th className="text-right p-1">אימייל</th>
+                  <th className="text-right p-1">סיבה</th>
                 </tr>
               </thead>
               <tbody>
@@ -308,7 +305,9 @@ export default function TempImportDidNotContinue() {
                     <td className="p-1">{r.degree_type}</td>
                     <td className="p-1">{r.created_at ? new Date(r.created_at).toLocaleDateString('he-IL') : '-'}</td>
                     <td className="p-1">{r.advisor_name || '-'}</td>
-                    <td className="p-1">{r.phone}</td>
+                    <td className="p-1">{r.phone || '-'}</td>
+                    <td className="p-1 text-xs">{r.email || '-'}</td>
+                    <td className="p-1 text-xs max-w-32 truncate">{r.discontinue_reason || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -316,7 +315,7 @@ export default function TempImportDidNotContinue() {
           </div>
 
           <Button onClick={doImport} disabled={importing} size="lg">
-            {importing ? 'מייבא...' : `ייבא ${records.length} רשומות`}
+            {importing ? 'מייבא...' : `ייבא ${records.length} רשומות למתעניינים`}
           </Button>
         </>
       )}
