@@ -545,6 +545,18 @@ export default function DidNotContinue() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
+                            moveLeadToStudentsMutation.mutate(lead);
+                          }}
+                          className="gap-1"
+                        >
+                          <ArrowRightLeft className="h-4 w-4" />
+                          העבר לסטודנטים
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
                             restoreLeadMutation.mutate(lead.id);
                           }}
                           className="gap-1"
@@ -617,6 +629,18 @@ export default function DidNotContinue() {
                         >
                           <Pencil className="h-4 w-4" />
                           עריכה
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveStudentToLeadsMutation.mutate(student);
+                          }}
+                          className="gap-1"
+                        >
+                          <ArrowRightLeft className="h-4 w-4" />
+                          העבר למתעניינים
                         </Button>
                         <Button
                           variant="outline"
