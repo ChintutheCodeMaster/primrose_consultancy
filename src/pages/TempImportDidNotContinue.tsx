@@ -294,6 +294,7 @@ export default function TempImportDidNotContinue() {
                   <th className="text-right p-1">יועץ</th>
                   <th className="text-right p-1">טלפון</th>
                   <th className="text-right p-1">אימייל</th>
+                  <th className="text-right p-1">הערות חבילה</th>
                   <th className="text-right p-1">סיבה</th>
                 </tr>
               </thead>
@@ -307,6 +308,7 @@ export default function TempImportDidNotContinue() {
                     <td className="p-1">{r.advisor_name || '-'}</td>
                     <td className="p-1">{r.phone || '-'}</td>
                     <td className="p-1 text-xs">{r.email || '-'}</td>
+                    <td className="p-1 text-xs max-w-32 truncate">{r.package_notes || '-'}</td>
                     <td className="p-1 text-xs max-w-32 truncate">{r.discontinue_reason || '-'}</td>
                   </tr>
                 ))}
