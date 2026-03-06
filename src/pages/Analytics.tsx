@@ -459,6 +459,31 @@ export default function Analytics() {
   const totalProjectIncome = collabGroupedData.reduce((s, [, d]) => s + d.income, 0);
   const totalProjectExpense = collabGroupedData.reduce((s, [, d]) => s + d.expense, 0);
 
+  // Projects by year and collaboration for stacked bar chart
+  const projectsByYearCollab = (projects || [])
+    .filter(p => p.amount && Number(p.amount) > 0 && p.payment_date)
+    .reduce((acc, p) => {
+      const year = new Date(p.payment_date!).getFullYear().toString();
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      if (!acc[year]) acc[year] = {} as Record<string, number>;
+      if (!acc[year][collabName]) acc[year][collabName] = 0;
+      const amount = Number(p.amount);
+      acc[year][collabName] += p.payment_direction === 'income' ? amount : -amount;
+      return acc;
+    }, {} as Record<string, Record<string, number>>);
+
+  const allCollabNames = [...new Set((projects || [])
+    .filter(p => p.amount && Number(p.amount) > 0)
+    .map(p => p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך')
+  )];
+
+  const projectsByYearCollabData = Object.entries(projectsByYearCollab)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([year, collabs]) => ({
+      year,
+      ...collabs,
+    }));
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -1124,6 +1149,41 @@ export default function Analytics() {
                   </TableBody>
                 </Table>
               </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Projects by Year and Collaboration Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              הכנסות פרויקטים ושת״פ לפי שנה וגוף
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {projectsByYearCollabData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={projectsByYearCollabData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" />
+                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                  <Legend />
+                  {allCollabNames.map((name, index) => (
+                    <Bar 
+                      key={name} 
+                      dataKey={name} 
+                      name={name} 
+                      stackId="a"
+                      fill={COLORS[index % COLORS.length]} 
+                      radius={index === allCollabNames.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
               <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
             )}
