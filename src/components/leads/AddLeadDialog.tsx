@@ -89,7 +89,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                 dir="ltr"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
+                
               />
             </div>
           </div>
