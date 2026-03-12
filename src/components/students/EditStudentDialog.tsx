@@ -51,6 +51,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [packageCostText, setPackageCostText] = useState('');
   const [amountPaidText, setAmountPaidText] = useState('');
   const [newUniversityName, setNewUniversityName] = useState('');
