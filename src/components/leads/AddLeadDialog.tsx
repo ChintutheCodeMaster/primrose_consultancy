@@ -89,7 +89,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                 dir="ltr"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
+                
               />
             </div>
           </div>
@@ -101,7 +101,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
+              
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
