@@ -177,12 +177,24 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="field">תחום לימודים</Label>
-              <Input
-                id="field"
-                value={formData.interestedField}
-                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
-                placeholder="לדוגמה: פסיכולוגיה"
-              />
+              <Select value={fieldSelection} onValueChange={setFieldSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר תחום" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {FIELD_OPTIONS.map((field) => (
+                    <SelectItem key={field} value={field}>{field}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן תחום אחר..."
+                  value={customField}
+                  onChange={(e) => setCustomField(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
           <div className="space-y-2">
