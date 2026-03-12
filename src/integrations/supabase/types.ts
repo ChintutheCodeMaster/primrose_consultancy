@@ -188,7 +188,7 @@ export type Database = {
           degree_type: string
           did_not_continue: boolean | null
           discontinue_reason: string | null
-          email: string
+          email: string | null
           id: string
           interested_country: string | null
           interested_field: string | null
@@ -197,7 +197,7 @@ export type Database = {
           meeting_summary: string | null
           name: string
           package_notes: string | null
-          phone: string
+          phone: string | null
           source: string | null
           status: string
         }
@@ -207,7 +207,7 @@ export type Database = {
           degree_type?: string
           did_not_continue?: boolean | null
           discontinue_reason?: string | null
-          email: string
+          email?: string | null
           id?: string
           interested_country?: string | null
           interested_field?: string | null
@@ -216,7 +216,7 @@ export type Database = {
           meeting_summary?: string | null
           name: string
           package_notes?: string | null
-          phone: string
+          phone?: string | null
           source?: string | null
           status?: string
         }
@@ -226,7 +226,7 @@ export type Database = {
           degree_type?: string
           did_not_continue?: boolean | null
           discontinue_reason?: string | null
-          email?: string
+          email?: string | null
           id?: string
           interested_country?: string | null
           interested_field?: string | null
@@ -235,7 +235,7 @@ export type Database = {
           meeting_summary?: string | null
           name?: string
           package_notes?: string | null
-          phone?: string
+          phone?: string | null
           source?: string | null
           status?: string
         }
@@ -598,7 +598,7 @@ export type Database = {
           payment_notes: string | null
           payment_reminder_date: string | null
           payment_type: string | null
-          phone: string
+          phone: string | null
           program: string | null
           signed_agreement: boolean | null
           source: string | null
@@ -631,7 +631,7 @@ export type Database = {
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
-          phone: string
+          phone?: string | null
           program?: string | null
           signed_agreement?: boolean | null
           source?: string | null
@@ -664,7 +664,7 @@ export type Database = {
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
-          phone?: string
+          phone?: string | null
           program?: string | null
           signed_agreement?: boolean | null
           source?: string | null
