@@ -24,6 +24,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [selectedYear, setSelectedYear] = useState(defaultYear || '');
   const [formData, setFormData] = useState({
     name: '',
