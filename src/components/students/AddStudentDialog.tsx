@@ -105,6 +105,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setFieldSelection('');
+    setCustomField('');
     setPackageCostText('');
     setAmountPaidText('');
   };
