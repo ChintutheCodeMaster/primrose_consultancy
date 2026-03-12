@@ -12,6 +12,7 @@ import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { supabase } from '@/integrations/supabase/client';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface EditLeadDialogProps {
   lead: Lead | null;
