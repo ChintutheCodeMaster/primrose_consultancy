@@ -172,8 +172,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     e.preventDefault();
     if (formData) {
       // Parse numeric values from text fields
+      const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
       const finalFormData = {
         ...formData,
+        interestedField: finalField,
         packageCost: parseCurrencyInput(packageCostText),
         amountPaid: parseCurrencyInput(amountPaidText),
       };
