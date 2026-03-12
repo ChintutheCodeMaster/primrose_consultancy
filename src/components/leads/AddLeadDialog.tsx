@@ -43,7 +43,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    onAdd({ ...formData, source: finalSource, leadsYear: selectedYear || defaultYear || '27' });
+    const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+    onAdd({ ...formData, source: finalSource, interestedField: finalField, leadsYear: selectedYear || defaultYear || '27' });
     setOpen(false);
     setFormData({
       name: '',
