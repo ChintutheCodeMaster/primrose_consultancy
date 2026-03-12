@@ -60,6 +60,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setFieldSelection('');
+    setCustomField('');
     setSelectedYear(defaultYear || '');
   };
 
