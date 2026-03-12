@@ -149,9 +149,9 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           
           <div className="space-y-2">
             <Label htmlFor="email">אימייל</Label>
-            <Input
+             <Input
               id="email"
-              type="email"
+              type="text"
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
