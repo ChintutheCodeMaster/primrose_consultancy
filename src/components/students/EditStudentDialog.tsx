@@ -153,6 +153,19 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       setSourceSelection('');
       setCustomSource('');
     }
+    // Initialize field selection
+    const fieldOptions = FIELD_OPTIONS as readonly string[];
+    const currentField = student.interestedField || '';
+    if (fieldOptions.includes(currentField)) {
+      setFieldSelection(currentField);
+      setCustomField('');
+    } else if (currentField) {
+      setFieldSelection('אחר');
+      setCustomField(currentField);
+    } else {
+      setFieldSelection('');
+      setCustomField('');
+    }
   }, [student]);
 
   const handleSubmit = async (e: React.FormEvent) => {
