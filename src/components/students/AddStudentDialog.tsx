@@ -12,6 +12,7 @@ import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/cr
 import { supabase } from '@/integrations/supabase/client';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
