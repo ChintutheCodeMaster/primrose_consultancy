@@ -62,6 +62,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+    const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
     
     // Validate source is required
     if (!finalSource.trim()) {
@@ -72,6 +73,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     const finalFormData = {
       ...formData,
       source: finalSource,
+      interestedField: finalField,
       packageCost: parseNumber(packageCostText),
       amountPaid: parseNumber(amountPaidText),
     };
