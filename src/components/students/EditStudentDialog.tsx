@@ -22,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { cn } from '@/lib/utils';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface Advisor {
   id: string;
@@ -50,6 +51,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [formData, setFormData] = useState<Student | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [packageCostText, setPackageCostText] = useState('');
   const [amountPaidText, setAmountPaidText] = useState('');
   const [newUniversityName, setNewUniversityName] = useState('');
@@ -150,14 +153,29 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       setSourceSelection('');
       setCustomSource('');
     }
+    // Initialize field selection
+    const fieldOptions = FIELD_OPTIONS as readonly string[];
+    const currentField = student.interestedField || '';
+    if (fieldOptions.includes(currentField)) {
+      setFieldSelection(currentField);
+      setCustomField('');
+    } else if (currentField) {
+      setFieldSelection('אחר');
+      setCustomField(currentField);
+    } else {
+      setFieldSelection('');
+      setCustomField('');
+    }
   }, [student]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData) {
       // Parse numeric values from text fields
+      const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
       const finalFormData = {
         ...formData,
+        interestedField: finalField,
         packageCost: parseCurrencyInput(packageCostText),
         amountPaid: parseCurrencyInput(amountPaidText),
       };
@@ -368,11 +386,24 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">תחום לימודים</Label>
-              <Input
-                id="interestedField"
-                value={formData.interestedField}
-                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
-              />
+              <Select value={fieldSelection} onValueChange={setFieldSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר תחום" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {FIELD_OPTIONS.map((field) => (
+                    <SelectItem key={field} value={field}>{field}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן תחום אחר..."
+                  value={customField}
+                  onChange={(e) => setCustomField(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
 

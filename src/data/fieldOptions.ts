@@ -1,0 +1,18 @@
+export const FIELD_OPTIONS = [
+  'LLM',
+  'MBA',
+  'INTERNATIONAL RELATIONS',
+  'NEUROSCIENCE',
+  'BACHELORS GENERAL',
+  'MASTERS GENERAL',
+  'REAL ESTATE',
+  'ARTS',
+  'FINANCE',
+  'COMPUTER SCIENCE',
+  'PSYCHOLOGY',
+  'ARCHITECTURE',
+  'PHD / DOCTORAL PROGRAMS',
+  'אחר',
+] as const;
+
+export type FieldOption = typeof FIELD_OPTIONS[number];

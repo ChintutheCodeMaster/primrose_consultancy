@@ -12,6 +12,7 @@ import { Lead, LeadStatus, DegreeType, degreeTypeLabels, leadStatusLabels } from
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { supabase } from '@/integrations/supabase/client';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface EditLeadDialogProps {
   lead: Lead | null;
@@ -27,6 +28,8 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
   const [formData, setFormData] = useState<Lead | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [initialized, setInitialized] = useState(false);
 
   // Only initialize form when lead changes or dialog opens, NOT when sourceOptions changes
@@ -50,6 +53,18 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
         setSourceSelection('');
         setCustomSource('');
       }
+      // Initialize field selection
+      const fieldOptions = FIELD_OPTIONS as readonly string[];
+      if (formData.interestedField && fieldOptions.includes(formData.interestedField)) {
+        setFieldSelection(formData.interestedField);
+        setCustomField('');
+      } else if (formData.interestedField) {
+        setFieldSelection('אחר');
+        setCustomField(formData.interestedField);
+      } else {
+        setFieldSelection('');
+        setCustomField('');
+      }
       setInitialized(true);
     }
   }, [formData, sourceOptions, initialized]);
@@ -58,7 +73,8 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
     e.preventDefault();
     if (formData) {
       const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-      onSave({ ...formData, source: finalSource, lastContactAt: new Date() });
+      const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+      onSave({ ...formData, source: finalSource, interestedField: finalField, lastContactAt: new Date() });
       onOpenChange(false);
     }
   };
@@ -158,11 +174,24 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">תחום לימודים</Label>
-              <Input
-                id="interestedField"
-                value={formData.interestedField}
-                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
-              />
+              <Select value={fieldSelection} onValueChange={setFieldSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר תחום" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {FIELD_OPTIONS.map((field) => (
+                    <SelectItem key={field} value={field}>{field}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן תחום אחר..."
+                  value={customField}
+                  onChange={(e) => setCustomField(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
 

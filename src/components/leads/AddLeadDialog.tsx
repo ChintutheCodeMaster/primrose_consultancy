@@ -10,6 +10,7 @@ import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface AddLeadDialogProps {
   onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => void;
@@ -23,6 +24,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const [open, setOpen] = useState(false);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [selectedYear, setSelectedYear] = useState(defaultYear || '');
   const [formData, setFormData] = useState({
     name: '',
@@ -40,7 +43,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    onAdd({ ...formData, source: finalSource, leadsYear: selectedYear || defaultYear || '27' });
+    const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+    onAdd({ ...formData, source: finalSource, interestedField: finalField, leadsYear: selectedYear || defaultYear || '27' });
     setOpen(false);
     setFormData({
       name: '',
@@ -56,6 +60,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setFieldSelection('');
+    setCustomField('');
     setSelectedYear(defaultYear || '');
   };
 
@@ -171,12 +177,24 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="field">תחום לימודים</Label>
-              <Input
-                id="field"
-                value={formData.interestedField}
-                onChange={(e) => setFormData({ ...formData, interestedField: e.target.value })}
-                placeholder="לדוגמה: פסיכולוגיה"
-              />
+              <Select value={fieldSelection} onValueChange={setFieldSelection}>
+                <SelectTrigger>
+                  <SelectValue placeholder="בחר תחום" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {FIELD_OPTIONS.map((field) => (
+                    <SelectItem key={field} value={field}>{field}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldSelection === 'אחר' && (
+                <Input
+                  placeholder="הזן תחום אחר..."
+                  value={customField}
+                  onChange={(e) => setCustomField(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
           <div className="space-y-2">
