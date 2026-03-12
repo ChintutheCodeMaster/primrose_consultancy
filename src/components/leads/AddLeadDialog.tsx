@@ -10,6 +10,7 @@ import { Lead, LeadStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { useCategoriesByType } from '@/hooks/useSidebarCategories';
+import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
 interface AddLeadDialogProps {
   onAdd: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => void;
