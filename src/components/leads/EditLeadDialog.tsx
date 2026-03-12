@@ -28,6 +28,8 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
   const [formData, setFormData] = useState<Lead | null>(null);
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [fieldSelection, setFieldSelection] = useState('');
+  const [customField, setCustomField] = useState('');
   const [initialized, setInitialized] = useState(false);
 
   // Only initialize form when lead changes or dialog opens, NOT when sourceOptions changes
