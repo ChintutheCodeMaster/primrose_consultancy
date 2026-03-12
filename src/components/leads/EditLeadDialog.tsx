@@ -53,6 +53,18 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
         setSourceSelection('');
         setCustomSource('');
       }
+      // Initialize field selection
+      const fieldOptions = FIELD_OPTIONS as readonly string[];
+      if (formData.interestedField && fieldOptions.includes(formData.interestedField)) {
+        setFieldSelection(formData.interestedField);
+        setCustomField('');
+      } else if (formData.interestedField) {
+        setFieldSelection('אחר');
+        setCustomField(formData.interestedField);
+      } else {
+        setFieldSelection('');
+        setCustomField('');
+      }
       setInitialized(true);
     }
   }, [formData, sourceOptions, initialized]);
