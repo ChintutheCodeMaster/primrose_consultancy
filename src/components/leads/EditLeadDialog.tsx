@@ -73,7 +73,8 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
     e.preventDefault();
     if (formData) {
       const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-      onSave({ ...formData, source: finalSource, lastContactAt: new Date() });
+      const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+      onSave({ ...formData, source: finalSource, interestedField: finalField, lastContactAt: new Date() });
       onOpenChange(false);
     }
   };
