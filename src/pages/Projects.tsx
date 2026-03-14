@@ -593,7 +593,12 @@ export default function Projects() {
                               <Building2 className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                              <CardTitle className="text-lg">{collab.name}</CardTitle>
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                {collab.name}
+                                {pendingPaymentCount > 0 && (
+                                  <span className="inline-flex h-2 w-2 rounded-full bg-warning" title={`${pendingPaymentCount} ממתינים לתשלום`} />
+                                )}
+                              </CardTitle>
                               <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5">
                                 {collab.category && <span>{collab.category}</span>}
                                 <span>{collabProjects.length} פרויקטים</span>
