@@ -532,56 +532,7 @@ export default function Dashboard() {
     return false;
   });
   
-  // Fetch all students with payment_date for income calculation (includes past clients)
-  const { data: allStudentsForIncome = [] } = useQuery({
-    queryKey: ['students-income'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('students')
-        .select('id, is_paid, amount_paid, payment_date')
-        .eq('is_paid', true)
-        .not('payment_date', 'is', null);
-      
-      if (error) throw error;
-      return data || [];
-    }
-  });
-
   // Fetch ALL students created this month (regardless of status)
-  const { data: allNewStudentsThisMonth = [] } = useQuery({
-    queryKey: ['all-new-students-this-month'],
-    queryFn: async () => {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-      
-      const { data, error } = await supabase
-        .from('students')
-        .select('id, name, created_at, graduation_year, did_not_continue')
-        .gte('created_at', startOfMonth.toISOString())
-        .lte('created_at', endOfMonth.toISOString())
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    }
-  });
-
-  // Date constants for filtering
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-
-  // Total income this month - based on payment_date (when payment was marked as paid)
-  // Includes ALL students (active + past clients)
-  const totalIncomeThisMonth = allStudentsForIncome
-    .filter(s => {
-      const paymentDate = new Date(s.payment_date);
-      return paymentDate.getMonth() === currentMonth && 
-             paymentDate.getFullYear() === currentYear;
-    })
-    .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
-  
-  // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
   const didNotContinueNew = allNewStudentsThisMonth.filter(s => s.did_not_continue);
