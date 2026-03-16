@@ -310,6 +310,33 @@ export default function Analytics() {
       value: count,
     }));
 
+  // Students by university (target_university + accepted_universities)
+  const filteredStudentIds = new Set((filteredStudents || []).map(s => s.id));
+  const studentsByUniversity: Record<string, number> = {};
+  
+  // Count target universities
+  (filteredStudents || []).forEach(student => {
+    if (student.target_university) {
+      studentsByUniversity[student.target_university] = (studentsByUniversity[student.target_university] || 0) + 1;
+    }
+  });
+  
+  // Count accepted universities (only for filtered students)
+  (acceptedUniversities || []).forEach(au => {
+    if (filteredStudentIds.has(au.student_id) && au.name) {
+      // Only count if not already counted as target university for the same student
+      studentsByUniversity[au.name] = (studentsByUniversity[au.name] || 0) + 1;
+    }
+  });
+
+  const studentsByUniversityData = Object.entries(studentsByUniversity)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10)
+    .map(([name, count]) => ({
+      name,
+      value: count,
+    }));
+
   // Average package cost by season
   const avgCostBySeason = SEASON_YEARS.map(year => {
     const seasonStudents = (students || []).filter(s => s.graduation_year === year && s.package_cost && s.package_cost > 0);
