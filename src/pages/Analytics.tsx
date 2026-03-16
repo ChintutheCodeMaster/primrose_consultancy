@@ -104,6 +104,18 @@ export default function Analytics() {
     },
   });
 
+  // Fetch accepted universities
+  const { data: acceptedUniversities, isLoading: uniLoading } = useQuery({
+    queryKey: ['analytics-accepted-universities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('accepted_universities')
+        .select('name, student_id');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Fetch collaborations for names
   const { data: collaborations, isLoading: collabsLoading } = useQuery({
     queryKey: ['analytics-collaborations'],
