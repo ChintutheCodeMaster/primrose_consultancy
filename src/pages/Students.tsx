@@ -164,7 +164,7 @@ export default function Students() {
   const hasActiveFilters = statusFilter !== 'all' || advisorFilter !== 'all' || 
     paymentFilter !== 'all' || countryFilter !== 'all' || degreeFilter !== 'all' ||
     fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
-    acceptedFilter !== 'all' || attentionFilter;
+    acceptedFilter !== 'all' || universityFilter !== 'all' || attentionFilter;
 
   const clearAllFilters = () => {
     setStatusFilter('all');
