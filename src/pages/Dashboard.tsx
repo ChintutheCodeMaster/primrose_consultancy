@@ -532,21 +532,6 @@ export default function Dashboard() {
     return false;
   });
   
-  // Fetch all students with payment_date for income calculation (includes past clients)
-  const { data: allStudentsForIncome = [] } = useQuery({
-    queryKey: ['students-income'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('students')
-        .select('id, is_paid, amount_paid, payment_date')
-        .eq('is_paid', true)
-        .not('payment_date', 'is', null);
-      
-      if (error) throw error;
-      return data || [];
-    }
-  });
-
   // Fetch ALL students created this month (regardless of status)
   const { data: allNewStudentsThisMonth = [] } = useQuery({
     queryKey: ['all-new-students-this-month'],
@@ -567,20 +552,6 @@ export default function Dashboard() {
     }
   });
 
-  // Date constants for filtering
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-
-  // Total income this month - based on payment_date (when payment was marked as paid)
-  // Includes ALL students (active + past clients)
-  const totalIncomeThisMonth = allStudentsForIncome
-    .filter(s => {
-      const paymentDate = new Date(s.payment_date);
-      return paymentDate.getMonth() === currentMonth && 
-             paymentDate.getFullYear() === currentYear;
-    })
-    .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
-  
   // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
@@ -749,7 +720,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div 
             onClick={() => navigate('/students')}
             className="cursor-pointer"
@@ -769,16 +740,6 @@ export default function Dashboard() {
               value={studentsNeedingAttention.length}
               icon={AlertTriangle}
               className={studentsNeedingAttention.length > 0 ? 'border-warning bg-warning/5' : ''}
-            />
-          </div>
-          <div 
-            onClick={() => navigate('/analytics')}
-            className="cursor-pointer"
-          >
-            <StatCard
-              title="הכנסות החודש"
-              value={`₪${totalIncomeThisMonth.toLocaleString()}`}
-              icon={DollarSign}
             />
           </div>
           <div 
