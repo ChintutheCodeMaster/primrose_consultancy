@@ -214,10 +214,13 @@ export default function Students() {
         (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
         (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
       const matchesAttention = !attentionFilter || studentNeedsAttention(student);
+      const matchesUniversity = universityFilter === 'all' ||
+        student.targetUniversity === universityFilter ||
+        student.acceptedUniversities.some(u => u.name === universityFilter);
       
       return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
              matchesCountry && matchesDegree && matchesField && matchesSource && 
-             matchesCost && matchesAccepted && matchesAttention;
+             matchesCost && matchesAccepted && matchesAttention && matchesUniversity;
     });
     
     // Sort by date
