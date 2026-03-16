@@ -35,6 +35,17 @@ export default function Dashboard() {
   const [isExporting, setIsExporting] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showNewStudentsDialog, setShowNewStudentsDialog] = useState(false);
+  const [showExportReminder, setShowExportReminder] = useState(() => {
+    const lastDismissed = localStorage.getItem('export-reminder-dismissed');
+    if (!lastDismissed) return true;
+    const daysSince = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
+    return daysSince >= 14;
+  });
+
+  const dismissExportReminder = () => {
+    localStorage.setItem('export-reminder-dismissed', Date.now().toString());
+    setShowExportReminder(false);
+  };
 
   // Helper to format student data for Excel
   const formatStudentData = (s: any) => ({
@@ -661,7 +672,39 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Global Search */}
+        {/* Export Reminder */}
+        {showExportReminder && (
+          <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between gap-4 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <Download className="h-5 w-5 text-primary shrink-0" />
+              <p className="text-sm text-foreground">
+                תזכורת: כדאי לייצא גיבוי של הנתונים לאקסל 📋
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                onClick={() => {
+                  exportToExcel();
+                  dismissExportReminder();
+                }}
+                disabled={isExporting}
+                className="gap-1.5"
+              >
+                {isExporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                ייצוא
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                onClick={dismissExportReminder}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="sticky top-0 z-40 bg-background pb-4 mb-4 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
