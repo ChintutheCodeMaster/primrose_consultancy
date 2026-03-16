@@ -1044,6 +1044,7 @@ export default function Analytics() {
             </CardContent>
           </Card>
 
+          <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
