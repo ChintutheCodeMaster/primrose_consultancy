@@ -26,6 +26,7 @@ export default function PastClients() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [universityFilter, setUniversityFilter] = useState<string>('all');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);
@@ -112,13 +113,17 @@ export default function PastClients() {
   const filterOptions = useMemo(() => {
     const advisors = [...new Set(pastClients.map(s => s.advisorName).filter(Boolean))];
     const sources = [...new Set(pastClients.map(s => s.source).filter(Boolean))];
-    return { advisors, sources };
+    const universities = [...new Set([
+      ...pastClients.map(s => s.targetUniversity).filter(Boolean),
+      ...pastClients.flatMap(s => s.acceptedUniversities.map(u => u.name)).filter(Boolean),
+    ])].sort();
+    return { advisors, sources, universities };
   }, [pastClients]);
 
   // Check if any filter is active
   const hasActiveFilters = advisorFilter !== 'all' || paymentFilter !== 'all' || 
     degreeFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
-    acceptedFilter !== 'all';
+    acceptedFilter !== 'all' || universityFilter !== 'all';
 
   const clearAllFilters = () => {
     setAdvisorFilter('all');
@@ -127,6 +132,7 @@ export default function PastClients() {
     setSourceFilter('all');
     setCostFilter('all');
     setAcceptedFilter('all');
+    setUniversityFilter('all');
   };
 
   const filteredClients = useMemo(() => {
@@ -152,9 +158,12 @@ export default function PastClients() {
       const matchesAccepted = acceptedFilter === 'all' ||
         (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
         (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
+      const matchesUniversity = universityFilter === 'all' ||
+        student.targetUniversity === universityFilter ||
+        student.acceptedUniversities.some(u => u.name === universityFilter);
       
       return matchesSearch && matchesAdvisor && matchesPayment && matchesDegree && 
-             matchesSource && matchesCost && matchesAccepted;
+             matchesSource && matchesCost && matchesAccepted && matchesUniversity;
     });
     
     return filtered.sort((a, b) => {
@@ -162,7 +171,7 @@ export default function PastClients() {
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [pastClients, searchTerm, advisorFilter, paymentFilter, degreeFilter, sourceFilter, costFilter, acceptedFilter, sortOrder]);
+  }, [pastClients, searchTerm, advisorFilter, paymentFilter, degreeFilter, sourceFilter, costFilter, acceptedFilter, universityFilter, sortOrder]);
 
   const handleEditStudent = async (updatedStudent: Student) => {
     // Get current student to check if isPaid status changed
@@ -422,6 +431,20 @@ export default function PastClients() {
               <SelectItem value="no">טרם התקבל</SelectItem>
             </SelectContent>
           </Select>
+
+          {filterOptions.universities.length > 0 && (
+            <Select value={universityFilter} onValueChange={setUniversityFilter}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="אוניברסיטה" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+                {filterOptions.universities.map((uni) => (
+                  <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-muted-foreground">

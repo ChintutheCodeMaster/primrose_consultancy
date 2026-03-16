@@ -29,6 +29,7 @@ export default function Students() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [universityFilter, setUniversityFilter] = useState<string>('all');
   const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -152,14 +153,18 @@ export default function Students() {
     const countries = [...new Set(students.map(s => s.interestedCountry).filter(Boolean))];
     const fields = [...new Set(students.map(s => s.interestedField).filter(Boolean))];
     const sources = [...new Set(students.map(s => s.source).filter(Boolean))];
-    return { advisors, countries, fields, sources };
+    const universities = [...new Set([
+      ...students.map(s => s.targetUniversity).filter(Boolean),
+      ...students.flatMap(s => s.acceptedUniversities.map(u => u.name)).filter(Boolean),
+    ])].sort();
+    return { advisors, countries, fields, sources, universities };
   }, [students]);
 
   // Check if any filter is active
   const hasActiveFilters = statusFilter !== 'all' || advisorFilter !== 'all' || 
     paymentFilter !== 'all' || countryFilter !== 'all' || degreeFilter !== 'all' ||
     fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
-    acceptedFilter !== 'all' || attentionFilter;
+    acceptedFilter !== 'all' || universityFilter !== 'all' || attentionFilter;
 
   const clearAllFilters = () => {
     setStatusFilter('all');
@@ -171,6 +176,7 @@ export default function Students() {
     setSourceFilter('all');
     setCostFilter('all');
     setAcceptedFilter('all');
+    setUniversityFilter('all');
     setAttentionFilter(false);
     setSearchParams({});
   };
@@ -208,10 +214,13 @@ export default function Students() {
         (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
         (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
       const matchesAttention = !attentionFilter || studentNeedsAttention(student);
+      const matchesUniversity = universityFilter === 'all' ||
+        student.targetUniversity === universityFilter ||
+        student.acceptedUniversities.some(u => u.name === universityFilter);
       
       return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
              matchesCountry && matchesDegree && matchesField && matchesSource && 
-             matchesCost && matchesAccepted && matchesAttention;
+             matchesCost && matchesAccepted && matchesAttention && matchesUniversity;
     });
     
     // Sort by date
@@ -220,7 +229,7 @@ export default function Students() {
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, sortOrder]);
+  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, universityFilter, sortOrder]);
 
   const handleAddStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
     const { error } = await supabase.from('students').insert({
@@ -480,7 +489,7 @@ export default function Students() {
           </div>
 
           {/* Filter Row 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             <Select value={fieldFilter} onValueChange={setFieldFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="תחום לימודים" />
@@ -528,6 +537,20 @@ export default function Students() {
                 <SelectItem value="no">טרם התקבל</SelectItem>
               </SelectContent>
             </Select>
+
+            {filterOptions.universities.length > 0 && (
+              <Select value={universityFilter} onValueChange={setUniversityFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="אוניברסיטה" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+                  {filterOptions.universities.map((uni) => (
+                    <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
               <SelectTrigger>
