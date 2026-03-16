@@ -123,7 +123,7 @@ export default function PastClients() {
   // Check if any filter is active
   const hasActiveFilters = advisorFilter !== 'all' || paymentFilter !== 'all' || 
     degreeFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
-    acceptedFilter !== 'all';
+    acceptedFilter !== 'all' || universityFilter !== 'all';
 
   const clearAllFilters = () => {
     setAdvisorFilter('all');
