@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
+import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
