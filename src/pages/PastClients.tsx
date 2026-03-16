@@ -171,7 +171,7 @@ export default function PastClients() {
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [pastClients, searchTerm, advisorFilter, paymentFilter, degreeFilter, sourceFilter, costFilter, acceptedFilter, sortOrder]);
+  }, [pastClients, searchTerm, advisorFilter, paymentFilter, degreeFilter, sourceFilter, costFilter, acceptedFilter, universityFilter, sortOrder]);
 
   const handleEditStudent = async (updatedStudent: Student) => {
     // Get current student to check if isPaid status changed

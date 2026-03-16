@@ -229,7 +229,7 @@ export default function Students() {
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, sortOrder]);
+  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, universityFilter, sortOrder]);
 
   const handleAddStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
     const { error } = await supabase.from('students').insert({
