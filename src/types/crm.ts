@@ -111,7 +111,6 @@ export const leadStatusLabels: Record<LeadStatus, string> = {
 
 export const studentStatusLabels: Record<StudentStatus, string> = {
   active: 'פעיל',
-  application_phase: 'בשלב הגשה',
   accepted: 'התקבל',
   enrolled: 'נרשם',
   graduated: 'סיים',
