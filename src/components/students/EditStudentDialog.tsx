@@ -504,12 +504,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="targetUniversity">אוניברסיטה נבחרת</Label>
-              <Input
-                id="targetUniversity"
+              <Label htmlFor="targetUniversity">אוניברסיטאות יעד</Label>
+              <MultiUniversitySelect
                 value={formData.targetUniversity}
-                onChange={(e) => setFormData({ ...formData, targetUniversity: e.target.value })}
-                placeholder="האוניברסיטה שהסטודנט בחר ללכת אליה"
+                onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
               />
             </div>
           </div>

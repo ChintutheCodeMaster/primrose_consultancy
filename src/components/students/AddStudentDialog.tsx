@@ -337,12 +337,10 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="university">אוניברסיטה יעד</Label>
-            <Input
-              id="university"
+            <Label htmlFor="university">אוניברסיטאות יעד</Label>
+            <MultiUniversitySelect
               value={formData.targetUniversity}
-              onChange={(e) => setFormData({ ...formData, targetUniversity: e.target.value })}
-              placeholder="לדוגמה: University of Manchester"
+              onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
             />
           </div>
 
