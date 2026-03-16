@@ -251,7 +251,6 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">פעיל</SelectItem>
-                  <SelectItem value="application_phase">בשלב הגשה</SelectItem>
                   <SelectItem value="accepted">התקבל</SelectItem>
                   <SelectItem value="enrolled">נרשם</SelectItem>
                   <SelectItem value="graduated">סיים</SelectItem>

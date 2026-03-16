@@ -1,5 +1,5 @@
 export type LeadStatus = 'new' | 'contacted' | 'meeting_scheduled' | 'proposal_sent' | 'converted' | 'lost';
-export type StudentStatus = 'active' | 'application_phase' | 'accepted' | 'enrolled' | 'graduated' | 'paused';
+export type StudentStatus = 'active' | 'accepted' | 'enrolled' | 'graduated' | 'paused';
 export type DegreeType = 'bachelor' | 'master' | 'phd';
 
 export interface Lead {
@@ -111,7 +111,6 @@ export const leadStatusLabels: Record<LeadStatus, string> = {
 
 export const studentStatusLabels: Record<StudentStatus, string> = {
   active: 'פעיל',
-  application_phase: 'בשלב הגשה',
   accepted: 'התקבל',
   enrolled: 'נרשם',
   graduated: 'סיים',
@@ -129,7 +128,6 @@ export const leadStatusColors: Record<LeadStatus, string> = {
 
 export const studentStatusColors: Record<StudentStatus, string> = {
   active: 'bg-success/20 text-success',
-  application_phase: 'bg-warning/20 text-warning-foreground',
   accepted: 'bg-accent text-accent-foreground',
   enrolled: 'bg-primary/20 text-primary',
   graduated: 'bg-primary text-primary-foreground',

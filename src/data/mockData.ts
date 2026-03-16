@@ -93,7 +93,7 @@ export const mockStudents: Student[] = [
     name: 'שירה אברהם',
     email: 'shira@email.com',
     phone: '052-3334455',
-    status: 'application_phase',
+    status: 'active',
     degreeType: 'master',
     interestedCountry: 'ארה"ב',
     interestedField: 'קולנוע',
