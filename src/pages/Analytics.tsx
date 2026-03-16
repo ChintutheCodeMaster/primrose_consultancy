@@ -128,7 +128,7 @@ export default function Analytics() {
     },
   });
 
-  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading;
+  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading || uniLoading;
 
   // Filter data by season
   const filteredStudents = useMemo(() => {
