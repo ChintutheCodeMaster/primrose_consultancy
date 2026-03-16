@@ -538,19 +538,17 @@ export default function Students() {
               </SelectContent>
             </Select>
 
-            {filterOptions.universities.length > 0 && (
-              <Select value={universityFilter} onValueChange={setUniversityFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="אוניברסיטה" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">כל האוניברסיטאות</SelectItem>
-                  {filterOptions.universities.map((uni) => (
-                    <SelectItem key={uni} value={uni}>{uni}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select value={universityFilter} onValueChange={setUniversityFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="אוניברסיטה" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+                {filterOptions.universities.map((uni) => (
+                  <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
               <SelectTrigger>
