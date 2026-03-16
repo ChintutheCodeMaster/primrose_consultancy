@@ -432,6 +432,20 @@ export default function PastClients() {
             </SelectContent>
           </Select>
 
+          {filterOptions.universities.length > 0 && (
+            <Select value={universityFilter} onValueChange={setUniversityFilter}>
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="אוניברסיטה" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+                {filterOptions.universities.map((uni) => (
+                  <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-muted-foreground">
               <X className="h-4 w-4 ml-1" />
