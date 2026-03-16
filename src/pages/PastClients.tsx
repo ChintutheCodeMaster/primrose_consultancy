@@ -26,6 +26,7 @@ export default function PastClients() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [universityFilter, setUniversityFilter] = useState<string>('all');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [reviewClients, setReviewClients] = useState<ParsedClient[]>([]);

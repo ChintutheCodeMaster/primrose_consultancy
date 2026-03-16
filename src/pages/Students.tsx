@@ -29,6 +29,7 @@ export default function Students() {
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [costFilter, setCostFilter] = useState<string>('all');
   const [acceptedFilter, setAcceptedFilter] = useState<string>('all');
+  const [universityFilter, setUniversityFilter] = useState<string>('all');
   const [attentionFilter, setAttentionFilter] = useState<boolean>(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
