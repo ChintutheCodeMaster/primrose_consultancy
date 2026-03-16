@@ -1,5 +1,5 @@
 export type LeadStatus = 'new' | 'contacted' | 'meeting_scheduled' | 'proposal_sent' | 'converted' | 'lost';
-export type StudentStatus = 'active' | 'application_phase' | 'accepted' | 'enrolled' | 'graduated' | 'paused';
+export type StudentStatus = 'active' | 'accepted' | 'enrolled' | 'graduated' | 'paused';
 export type DegreeType = 'bachelor' | 'master' | 'phd';
 
 export interface Lead {
