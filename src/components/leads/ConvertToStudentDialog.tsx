@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Lead, Student } from '@/types/crm';
 import { UserCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 
 interface Advisor {
   id: string;
