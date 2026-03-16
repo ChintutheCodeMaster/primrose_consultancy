@@ -489,7 +489,7 @@ export default function Students() {
           </div>
 
           {/* Filter Row 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             <Select value={fieldFilter} onValueChange={setFieldFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="תחום לימודים" />
