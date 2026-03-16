@@ -552,6 +552,7 @@ export default function Students() {
               </Select>
             )}
 
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
               <SelectTrigger>
                 <ArrowUpDown className="h-4 w-4 ml-2" />
                 <SelectValue placeholder="מיון" />
