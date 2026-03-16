@@ -158,9 +158,12 @@ export default function PastClients() {
       const matchesAccepted = acceptedFilter === 'all' ||
         (acceptedFilter === 'yes' && student.acceptedUniversities.length > 0) ||
         (acceptedFilter === 'no' && student.acceptedUniversities.length === 0);
+      const matchesUniversity = universityFilter === 'all' ||
+        student.targetUniversity === universityFilter ||
+        student.acceptedUniversities.some(u => u.name === universityFilter);
       
       return matchesSearch && matchesAdvisor && matchesPayment && matchesDegree && 
-             matchesSource && matchesCost && matchesAccepted;
+             matchesSource && matchesCost && matchesAccepted && matchesUniversity;
     });
     
     return filtered.sort((a, b) => {
