@@ -132,6 +132,7 @@ export default function PastClients() {
     setSourceFilter('all');
     setCostFilter('all');
     setAcceptedFilter('all');
+    setUniversityFilter('all');
   };
 
   const filteredClients = useMemo(() => {

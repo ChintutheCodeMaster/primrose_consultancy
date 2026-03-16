@@ -176,6 +176,7 @@ export default function Students() {
     setSourceFilter('all');
     setCostFilter('all');
     setAcceptedFilter('all');
+    setUniversityFilter('all');
     setAttentionFilter(false);
     setSearchParams({});
   };
