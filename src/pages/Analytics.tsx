@@ -1011,7 +1011,39 @@ export default function Analytics() {
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-2">
+          {/* Students by University */}
+          <Card>
+            <CardHeader>
+              <CardTitle>התפלגות לפי אוניברסיטה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {studentsByUniversityData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={studentsByUniversityData} layout="vertical" margin={{ left: 20, right: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={160} 
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(value) => value.length > 22 ? value.substring(0, 22) + '...' : value}
+                    />
+                    <Tooltip />
+                    <Bar dataKey="value" name="סטודנטים" radius={[0, 4, 4, 0]}>
+                      {studentsByUniversityData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                      <LabelList dataKey="value" position="right" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+              )}
+            </CardContent>
+          </Card>
+
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
