@@ -35,6 +35,17 @@ export default function Dashboard() {
   const [isExporting, setIsExporting] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showNewStudentsDialog, setShowNewStudentsDialog] = useState(false);
+  const [showExportReminder, setShowExportReminder] = useState(() => {
+    const lastDismissed = localStorage.getItem('export-reminder-dismissed');
+    if (!lastDismissed) return true;
+    const daysSince = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
+    return daysSince >= 14;
+  });
+
+  const dismissExportReminder = () => {
+    localStorage.setItem('export-reminder-dismissed', Date.now().toString());
+    setShowExportReminder(false);
+  };
 
   // Helper to format student data for Excel
   const formatStudentData = (s: any) => ({
