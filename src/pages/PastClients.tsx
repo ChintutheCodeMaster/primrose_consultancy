@@ -113,7 +113,11 @@ export default function PastClients() {
   const filterOptions = useMemo(() => {
     const advisors = [...new Set(pastClients.map(s => s.advisorName).filter(Boolean))];
     const sources = [...new Set(pastClients.map(s => s.source).filter(Boolean))];
-    return { advisors, sources };
+    const universities = [...new Set([
+      ...pastClients.map(s => s.targetUniversity).filter(Boolean),
+      ...pastClients.flatMap(s => s.acceptedUniversities.map(u => u.name)).filter(Boolean),
+    ])].sort();
+    return { advisors, sources, universities };
   }, [pastClients]);
 
   // Check if any filter is active

@@ -153,7 +153,11 @@ export default function Students() {
     const countries = [...new Set(students.map(s => s.interestedCountry).filter(Boolean))];
     const fields = [...new Set(students.map(s => s.interestedField).filter(Boolean))];
     const sources = [...new Set(students.map(s => s.source).filter(Boolean))];
-    return { advisors, countries, fields, sources };
+    const universities = [...new Set([
+      ...students.map(s => s.targetUniversity).filter(Boolean),
+      ...students.flatMap(s => s.acceptedUniversities.map(u => u.name)).filter(Boolean),
+    ])].sort();
+    return { advisors, countries, fields, sources, universities };
   }, [students]);
 
   // Check if any filter is active
