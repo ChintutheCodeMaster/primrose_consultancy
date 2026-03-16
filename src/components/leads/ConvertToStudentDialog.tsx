@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Lead, Student } from '@/types/crm';
 import { UserCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 
 interface Advisor {
   id: string;
@@ -99,12 +100,10 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetUniversity">אוניברסיטה יעד (אופציונלי)</Label>
-            <Input
-              id="targetUniversity"
+            <Label htmlFor="targetUniversity">אוניברסיטאות יעד (אופציונלי)</Label>
+            <MultiUniversitySelect
               value={targetUniversity}
-              onChange={(e) => setTargetUniversity(e.target.value)}
-              placeholder="לדוגמה: University of Manchester"
+              onChange={setTargetUniversity}
             />
           </div>
 

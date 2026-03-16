@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
+import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
@@ -503,12 +504,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="targetUniversity">אוניברסיטה נבחרת</Label>
-              <Input
-                id="targetUniversity"
+              <Label htmlFor="targetUniversity">אוניברסיטאות יעד</Label>
+              <MultiUniversitySelect
                 value={formData.targetUniversity}
-                onChange={(e) => setFormData({ ...formData, targetUniversity: e.target.value })}
-                placeholder="האוניברסיטה שהסטודנט בחר ללכת אליה"
+                onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
               />
             </div>
           </div>

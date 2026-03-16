@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
+import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
@@ -336,12 +337,10 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="university">אוניברסיטה יעד</Label>
-            <Input
-              id="university"
+            <Label htmlFor="university">אוניברסיטאות יעד</Label>
+            <MultiUniversitySelect
               value={formData.targetUniversity}
-              onChange={(e) => setFormData({ ...formData, targetUniversity: e.target.value })}
-              placeholder="לדוגמה: University of Manchester"
+              onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
             />
           </div>
 
