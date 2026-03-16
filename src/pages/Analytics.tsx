@@ -1017,30 +1017,42 @@ export default function Analytics() {
               <CardTitle>התפלגות לפי אוניברסיטה</CardTitle>
             </CardHeader>
             <CardContent>
-              {studentsByUniversityData.length > 0 ? (
+              <div className="flex items-center justify-center">
                 <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={studentsByUniversityData} layout="vertical" margin={{ left: 20, right: 40 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      width={160} 
-                      tick={{ fontSize: 11 }}
-                      tickFormatter={(value) => value.length > 22 ? value.substring(0, 22) + '...' : value}
-                    />
-                    <Tooltip />
-                    <Bar dataKey="value" name="סטודנטים" radius={[0, 4, 4, 0]}>
+                  <PieChart>
+                    <Pie
+                      data={studentsByUniversityData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={false}
+                    >
                       {studentsByUniversityData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
-                      <LabelList dataKey="value" position="right" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
-                    </Bar>
-                  </BarChart>
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [value, name]} />
+                    <Legend 
+                      layout="vertical" 
+                      verticalAlign="middle" 
+                      align="right"
+                      wrapperStyle={{ paddingRight: '20px' }}
+                      formatter={(value, entry: any) => {
+                        const item = studentsByUniversityData.find(d => d.name === value);
+                        const total = studentsByUniversityData.reduce((sum, d) => sum + d.value, 0);
+                        const percent = item ? Math.round((item.value / total) * 100) : 0;
+                        return (
+                          <span style={{ color: 'hsl(var(--foreground))', fontWeight: 500 }}>
+                            {value}: {item?.value} ({percent}%)
+                          </span>
+                        );
+                      }}
+                    />
+                  </PieChart>
                 </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
