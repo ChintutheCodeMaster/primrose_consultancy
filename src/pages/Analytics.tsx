@@ -104,6 +104,18 @@ export default function Analytics() {
     },
   });
 
+  // Fetch accepted universities
+  const { data: acceptedUniversities, isLoading: uniLoading } = useQuery({
+    queryKey: ['analytics-accepted-universities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('accepted_universities')
+        .select('name, student_id');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   // Fetch collaborations for names
   const { data: collaborations, isLoading: collabsLoading } = useQuery({
     queryKey: ['analytics-collaborations'],
@@ -116,7 +128,7 @@ export default function Analytics() {
     },
   });
 
-  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading;
+  const isLoading = studentsLoading || leadsLoading || incomeLoading || projectsLoading || collabsLoading || uniLoading;
 
   // Filter data by season
   const filteredStudents = useMemo(() => {
@@ -295,6 +307,33 @@ export default function Analytics() {
     .slice(0, 8)
     .map(([field, count]) => ({
       name: field,
+      value: count,
+    }));
+
+  // Students by university (target_university + accepted_universities)
+  const filteredStudentIds = new Set((filteredStudents || []).map(s => s.id));
+  const studentsByUniversity: Record<string, number> = {};
+  
+  // Count target universities
+  (filteredStudents || []).forEach(student => {
+    if (student.target_university) {
+      studentsByUniversity[student.target_university] = (studentsByUniversity[student.target_university] || 0) + 1;
+    }
+  });
+  
+  // Count accepted universities (only for filtered students)
+  (acceptedUniversities || []).forEach(au => {
+    if (filteredStudentIds.has(au.student_id) && au.name) {
+      // Only count if not already counted as target university for the same student
+      studentsByUniversity[au.name] = (studentsByUniversity[au.name] || 0) + 1;
+    }
+  });
+
+  const studentsByUniversityData = Object.entries(studentsByUniversity)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10)
+    .map(([name, count]) => ({
+      name,
       value: count,
     }));
 
@@ -969,6 +1008,39 @@ export default function Analytics() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Students by University */}
+          <Card>
+            <CardHeader>
+              <CardTitle>התפלגות לפי אוניברסיטה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {studentsByUniversityData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={studentsByUniversityData} layout="vertical" margin={{ left: 20, right: 40 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={160} 
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(value) => value.length > 22 ? value.substring(0, 22) + '...' : value}
+                    />
+                    <Tooltip />
+                    <Bar dataKey="value" name="סטודנטים" radius={[0, 4, 4, 0]}>
+                      {studentsByUniversityData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                      <LabelList dataKey="value" position="right" fill="hsl(var(--foreground))" fontSize={12} fontWeight={600} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+              )}
             </CardContent>
           </Card>
 
