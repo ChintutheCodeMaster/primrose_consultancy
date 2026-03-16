@@ -128,7 +128,6 @@ export const leadStatusColors: Record<LeadStatus, string> = {
 
 export const studentStatusColors: Record<StudentStatus, string> = {
   active: 'bg-success/20 text-success',
-  application_phase: 'bg-warning/20 text-warning-foreground',
   accepted: 'bg-accent text-accent-foreground',
   enrolled: 'bg-primary/20 text-primary',
   graduated: 'bg-primary text-primary-foreground',

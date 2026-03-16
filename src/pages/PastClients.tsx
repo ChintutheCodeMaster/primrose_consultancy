@@ -57,7 +57,7 @@ export default function PastClients() {
         source: student.source || '',
         meetingSummary: student.meeting_summary || '',
         createdAt: new Date(student.created_at),
-        status: student.status as 'active' | 'application_phase' | 'accepted' | 'enrolled' | 'graduated' | 'paused',
+        status: student.status as 'active' | 'accepted' | 'enrolled' | 'graduated' | 'paused',
         advisorName: student.advisor_name || '',
          paymentType: (student.payment_type as 'hourly' | 'package' | 'other') || 'package',
         packageCost: Number(student.package_cost) || 0,
