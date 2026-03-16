@@ -749,7 +749,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div 
             onClick={() => navigate('/students')}
             className="cursor-pointer"
@@ -769,16 +769,6 @@ export default function Dashboard() {
               value={studentsNeedingAttention.length}
               icon={AlertTriangle}
               className={studentsNeedingAttention.length > 0 ? 'border-warning bg-warning/5' : ''}
-            />
-          </div>
-          <div 
-            onClick={() => navigate('/analytics')}
-            className="cursor-pointer"
-          >
-            <StatCard
-              title="הכנסות החודש"
-              value={`₪${totalIncomeThisMonth.toLocaleString()}`}
-              icon={DollarSign}
             />
           </div>
           <div 
