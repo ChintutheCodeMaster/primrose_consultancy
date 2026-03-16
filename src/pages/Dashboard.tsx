@@ -533,6 +533,26 @@ export default function Dashboard() {
   });
   
   // Fetch ALL students created this month (regardless of status)
+  const { data: allNewStudentsThisMonth = [] } = useQuery({
+    queryKey: ['all-new-students-this-month'],
+    queryFn: async () => {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, name, created_at, graduation_year, did_not_continue')
+        .gte('created_at', startOfMonth.toISOString())
+        .lte('created_at', endOfMonth.toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
   const didNotContinueNew = allNewStudentsThisMonth.filter(s => s.did_not_continue);
