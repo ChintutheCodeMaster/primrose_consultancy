@@ -212,11 +212,27 @@ export default function AdvisorPortal() {
   }, []);
 
   useEffect(() => {
+    const fetchScholarshipOpts = async () => {
+      const { data } = await supabase
+        .from('scholarship_options')
+        .select('name')
+        .order('sort_order');
+      if (data) setScholarshipOptions(data.map(d => d.name));
+    };
+    fetchScholarshipOpts();
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (uniDropdownRef.current && !uniDropdownRef.current.contains(event.target as Node)) {
         setUniDropdownOpen(false);
         setUniSearch('');
         setShowAddCustomUni(false);
+      }
+      if (scholarshipDropdownRef.current && !scholarshipDropdownRef.current.contains(event.target as Node)) {
+        setScholarshipDropdownOpen(false);
+        setScholarshipSearch('');
+        setShowAddCustomScholarship(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
