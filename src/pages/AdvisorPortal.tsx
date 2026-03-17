@@ -279,6 +279,7 @@ export default function AdvisorPortal() {
     toast({ title: `${trimmed} נוספה לרשימה` });
   };
 
+  const fetchAdvisorData = async () => {
     setLoading(true);
     
     // Fetch advisor info (including password)
