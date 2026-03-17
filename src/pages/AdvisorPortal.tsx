@@ -685,39 +685,95 @@ export default function AdvisorPortal() {
                             <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <div>
-                              <Label>מדינה *</Label>
-                              <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="בחר מדינה" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                                  <SelectItem value="קנדה">קנדה</SelectItem>
-                                  <SelectItem value="הולנד">הולנד</SelectItem>
-                                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                                  <SelectItem value="אירלנד">אירלנד</SelectItem>
-                                  <SelectItem value="צרפת">צרפת</SelectItem>
-                                  <SelectItem value="ספרד">ספרד</SelectItem>
-                                  <SelectItem value="אחר">אחר</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label>שם האוניברסיטה *</Label>
-                              <UniversityAutocomplete
-                                value={newUniversityName}
-                                onChange={setNewUniversityName}
-                                onSelectSuggestion={(suggestion) => {
-                                  setNewUniversityName(suggestion.name);
-                                  if (suggestion.country && !newUniversityCountry) {
-                                    setNewUniversityCountry(suggestion.country);
-                                  }
-                                }}
-                                placeholder="לדוגמה: University of Manchester"
-                              />
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label>מדינה *</Label>
+                                <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="בחר מדינה" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {countryOptions.map((country) => (
+                                      <SelectItem key={country} value={country}>{country}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>אוניברסיטה *</Label>
+                                <div ref={uniDropdownRef} className="relative">
+                                  <div
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                    onClick={() => setUniDropdownOpen(!uniDropdownOpen)}
+                                  >
+                                    <span className={newUniversityName ? "" : "text-muted-foreground"}>
+                                      {newUniversityName || "בחר אוניברסיטה"}
+                                    </span>
+                                    <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                  </div>
+                                  {uniDropdownOpen && (
+                                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                      <div className="p-2">
+                                        <Input
+                                          value={uniSearch}
+                                          onChange={(e) => setUniSearch(e.target.value)}
+                                          placeholder="חפש אוניברסיטה..."
+                                          className="h-8 text-sm"
+                                          autoFocus
+                                        />
+                                      </div>
+                                      <div className="max-h-48 overflow-y-auto">
+                                        {universityOptions
+                                          .filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase()))
+                                          .map(option => (
+                                            <button
+                                              key={option}
+                                              type="button"
+                                              className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
+                                              onClick={() => {
+                                                setNewUniversityName(option);
+                                                setUniDropdownOpen(false);
+                                                setUniSearch('');
+                                              }}
+                                            >
+                                              {option}
+                                            </button>
+                                          ))}
+                                        {universityOptions.filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase())).length === 0 && (
+                                          <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                        )}
+                                      </div>
+                                      <div className="border-t p-2">
+                                        {!showAddCustomUni ? (
+                                          <button
+                                            type="button"
+                                            className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                            onClick={() => setShowAddCustomUni(true)}
+                                          >
+                                            <Plus className="h-4 w-4" />
+                                            הוסף אוניברסיטה חדשה
+                                          </button>
+                                        ) : (
+                                          <div className="flex gap-2">
+                                            <Input
+                                              value={customUniValue}
+                                              onChange={(e) => setCustomUniValue(e.target.value)}
+                                              placeholder="שם האוניברסיטה..."
+                                              className="h-8 text-sm flex-1"
+                                              dir="ltr"
+                                              autoFocus
+                                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomUniversity())}
+                                            />
+                                            <Button type="button" size="sm" className="h-8" onClick={handleAddCustomUniversity}>
+                                              הוסף
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                               {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
