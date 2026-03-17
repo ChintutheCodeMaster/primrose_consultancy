@@ -645,7 +645,7 @@ export default function AdvisorPortal() {
 
   const currentStudents = activeTab === "active" ? activeStudents : pastStudents;
   const filteredStudents = currentStudents.filter(s => 
-    s.name.includes(searchTerm) || s.email.includes(searchTerm) || s.phone.includes(searchTerm)
+    s.name.includes(searchTerm) || (s.email && s.email.includes(searchTerm)) || (s.phone && s.phone.includes(searchTerm))
   );
 
   if (loading) {
