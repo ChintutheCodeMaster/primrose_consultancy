@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { UniversityAutocomplete } from "@/components/ui/university-autocomplete";
+import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { 
   GraduationCap, 
   User, 
