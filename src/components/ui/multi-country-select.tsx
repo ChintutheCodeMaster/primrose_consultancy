@@ -1,97 +1,197 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronDown, X } from 'lucide-react';
-
-const COUNTRIES = [
-  'אנגליה',
-  'ארה״ב',
-  'קנדה',
-  'הולנד',
-  'גרמניה',
-  'אוסטרליה',
-  'צרפת',
-  'איטליה',
-  'ספרד',
-  'אירלנד',
-];
+import { Input } from '@/components/ui/input';
+import { X, ChevronDown, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface MultiCountrySelectProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
-export function MultiCountrySelect({ value, onChange, placeholder = 'בחר מדינות' }: MultiCountrySelectProps) {
-  const [open, setOpen] = useState(false);
-  
-  // Parse comma-separated string to array
-  const selectedCountries = value ? value.split(', ').filter(Boolean) : [];
+export function MultiCountrySelect({
+  value,
+  onChange,
+  placeholder = "בחר מדינות",
+  className
+}: MultiCountrySelectProps) {
+  const [options, setOptions] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [customValue, setCustomValue] = useState('');
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const toggleCountry = (country: string) => {
-    const newSelection = selectedCountries.includes(country)
-      ? selectedCountries.filter(c => c !== country)
-      : [...selectedCountries, country];
-    
-    onChange(newSelection.join(', '));
+  const selectedValues = value ? value.split(', ').filter(Boolean) : [];
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const { data } = await supabase
+        .from('country_options')
+        .select('name')
+        .eq('is_active', true)
+        .order('sort_order');
+      if (data) {
+        const names = data.map(d => d.name);
+        if (!names.includes('אחר')) names.push('אחר');
+        setOptions(names);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setSearch('');
+        setShowAddCustom(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleOption = (option: string) => {
+    const newSelected = selectedValues.includes(option)
+      ? selectedValues.filter(v => v !== option)
+      : [...selectedValues, option];
+    onChange(newSelected.join(', '));
   };
 
-  const removeCountry = (country: string) => {
-    const newSelection = selectedCountries.filter(c => c !== country);
-    onChange(newSelection.join(', '));
+  const removeOption = (option: string) => {
+    onChange(selectedValues.filter(v => v !== option).join(', '));
   };
+
+  const handleAddCustom = async () => {
+    const trimmed = customValue.trim();
+    if (!trimmed) return;
+
+    const { error } = await supabase
+      .from('country_options')
+      .insert({ name: trimmed, sort_order: options.length + 1, is_active: true });
+
+    if (error) {
+      if (error.code === '23505') {
+        // Already exists, just select it
+      } else {
+        toast.error('שגיאה בהוספת מדינה');
+        return;
+      }
+    }
+
+    if (!options.includes(trimmed)) {
+      setOptions(prev => {
+        const withoutOther = prev.filter(o => o !== 'אחר');
+        return [...withoutOther, trimmed, 'אחר'];
+      });
+    }
+
+    if (!selectedValues.includes(trimmed)) {
+      onChange([...selectedValues, trimmed].join(', '));
+    }
+
+    setCustomValue('');
+    setShowAddCustom(false);
+    toast.success(`${trimmed} נוספה לרשימה`);
+  };
+
+  const filteredOptions = options.filter(opt =>
+    opt.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal h-auto min-h-10"
-        >
-          <div className="flex flex-wrap gap-1 flex-1">
-            {selectedCountries.length > 0 ? (
-              selectedCountries.map((country) => (
-                <Badge
-                  key={country}
-                  variant="secondary"
-                  className="gap-1 text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeCountry(country);
-                  }}
-                >
-                  {country}
-                  <X className="h-3 w-3 cursor-pointer hover:text-destructive" />
-                </Badge>
-              ))
-            ) : (
-              <span className="text-muted-foreground">{placeholder}</span>
+    <div ref={wrapperRef} className={cn("relative", className)}>
+      <div
+        className="min-h-10 px-3 py-2 border rounded-md bg-background cursor-pointer flex flex-wrap gap-1 items-center"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {selectedValues.length === 0 && (
+          <span className="text-muted-foreground text-sm">{placeholder}</span>
+        )}
+        {selectedValues.map(val => (
+          <Badge key={val} variant="secondary" className="gap-1 text-xs">
+            {val}
+            <X
+              className="h-3 w-3 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeOption(val);
+              }}
+            />
+          </Badge>
+        ))}
+        <ChevronDown className="h-4 w-4 text-muted-foreground mr-auto flex-shrink-0" />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+          <div className="p-2">
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="חפש מדינה..."
+              className="h-8 text-sm"
+              autoFocus
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filteredOptions.map(option => (
+              <button
+                key={option}
+                type="button"
+                className={cn(
+                  "w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2",
+                  selectedValues.includes(option) && "bg-primary/10 font-medium"
+                )}
+                onClick={() => toggleOption(option)}
+              >
+                <span className={cn(
+                  "w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-xs",
+                  selectedValues.includes(option) ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30"
+                )}>
+                  {selectedValues.includes(option) && "✓"}
+                </span>
+                {option}
+              </button>
+            ))}
+            {filteredOptions.length === 0 && (
+              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 mr-2" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-2 bg-popover z-50" align="start">
-        <div className="space-y-1">
-          {COUNTRIES.map((country) => (
-            <div
-              key={country}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
-              onClick={() => toggleCountry(country)}
-            >
-              <Checkbox
-                checked={selectedCountries.includes(country)}
-                onCheckedChange={() => toggleCountry(country)}
-              />
-              <span className="text-sm">{country}</span>
-            </div>
-          ))}
+          <div className="border-t p-2">
+            {!showAddCustom ? (
+              <button
+                type="button"
+                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                onClick={() => setShowAddCustom(true)}
+              >
+                <Plus className="h-4 w-4" />
+                הוסף מדינה חדשה
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)}
+                  placeholder="שם המדינה..."
+                  className="h-8 text-sm flex-1"
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustom())}
+                />
+                <Button type="button" size="sm" className="h-8" onClick={handleAddCustom}>
+                  הוסף
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 }
