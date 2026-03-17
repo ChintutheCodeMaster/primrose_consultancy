@@ -259,7 +259,26 @@ export default function AdvisorPortal() {
     toast({ title: `${trimmed} נוספה לרשימה` });
   };
 
-  const fetchAdvisorData = async () => {
+  const handleAddCustomScholarship = async () => {
+    const trimmed = customScholarshipValue.trim();
+    if (!trimmed) return;
+    const { error } = await supabase
+      .from('scholarship_options')
+      .insert({ name: trimmed, sort_order: scholarshipOptions.length + 1 });
+    if (error && error.code !== '23505') {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף מלגה", variant: "destructive" });
+      return;
+    }
+    if (!scholarshipOptions.includes(trimmed)) {
+      setScholarshipOptions(prev => [...prev, trimmed]);
+    }
+    setNewScholarshipName(trimmed);
+    setCustomScholarshipValue('');
+    setShowAddCustomScholarship(false);
+    setScholarshipDropdownOpen(false);
+    toast({ title: `${trimmed} נוספה לרשימה` });
+  };
+
     setLoading(true);
     
     // Fetch advisor info (including password)
