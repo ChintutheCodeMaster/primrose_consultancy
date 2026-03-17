@@ -121,7 +121,7 @@ const documentCategories = [
   { value: "general", label: "כללי" },
   { value: "start", label: "תחילת תהליך" },
   { value: "application", label: "הגשות" },
-  { value: "acceptance", label: "קבלות" },
+  { value: "acceptance", label: "לאן התקבל/ה" },
 ];
 
 export default function AdvisorPortal() {
