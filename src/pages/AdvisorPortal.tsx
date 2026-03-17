@@ -890,7 +890,7 @@ export default function AdvisorPortal() {
                           </Dialog>
                         </div>
                         {acceptedUniversities.length === 0 ? (
-                          <p className="text-center text-muted-foreground py-4 text-sm">אין קבלות לאוניברסיטאות</p>
+                          <p className="text-center text-muted-foreground py-4 text-sm">אין אוניברסיטאות</p>
                         ) : (
                           <div className="space-y-2">
                             {acceptedUniversities.map((uni) => (
