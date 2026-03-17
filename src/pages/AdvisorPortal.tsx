@@ -643,6 +643,7 @@ export default function AdvisorPortal() {
     }
   };
 
+  const currentStudents = activeTab === "active" ? activeStudents : pastStudents;
   const filteredStudents = currentStudents.filter(s => 
     s.name.includes(searchTerm) || s.email.includes(searchTerm) || s.phone.includes(searchTerm)
   );
