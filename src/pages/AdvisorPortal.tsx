@@ -768,188 +768,302 @@ export default function AdvisorPortal() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Accepted Universities */}
                   <Card className="border-green-200 bg-green-50/30">
-                    <CardHeader className="flex flex-row items-center justify-between">
+                    <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-green-600" />
-                        קבלות ({acceptedUniversities.length})
+                        קבלות ({acceptedUniversities.length + scholarships.length})
                       </CardTitle>
-                      <Dialog open={isAddAcceptanceOpen} onOpenChange={setIsAddAcceptanceOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                            <Plus className="h-4 w-4 ml-1" />
-                            הוסף קבלה
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label>מדינה *</Label>
-                                <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="בחר מדינה" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {countryOptions.map((country) => (
-                                      <SelectItem key={country} value={country}>{country}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <Label>אוניברסיטה *</Label>
-                                <div ref={uniDropdownRef} className="relative">
-                                  <div
-                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
-                                    onClick={() => setUniDropdownOpen(!uniDropdownOpen)}
-                                  >
-                                    <span className={newUniversityName ? "" : "text-muted-foreground"}>
-                                      {newUniversityName || "בחר אוניברסיטה"}
-                                    </span>
-                                    <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
-                                  </div>
-                                  {uniDropdownOpen && (
-                                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
-                                      <div className="p-2">
-                                        <Input
-                                          value={uniSearch}
-                                          onChange={(e) => setUniSearch(e.target.value)}
-                                          placeholder="חפש אוניברסיטה..."
-                                          className="h-8 text-sm"
-                                          autoFocus
-                                        />
-                                      </div>
-                                      <div className="max-h-48 overflow-y-auto">
-                                        {universityOptions
-                                          .filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase()))
-                                          .map(option => (
-                                            <button
-                                              key={option}
-                                              type="button"
-                                              className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
-                                              onClick={() => {
-                                                setNewUniversityName(option);
-                                                setUniDropdownOpen(false);
-                                                setUniSearch('');
-                                              }}
-                                            >
-                                              {option}
-                                            </button>
-                                          ))}
-                                        {universityOptions.filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase())).length === 0 && (
-                                          <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
-                                        )}
-                                      </div>
-                                      <div className="border-t p-2">
-                                        {!showAddCustomUni ? (
-                                          <button
-                                            type="button"
-                                            className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
-                                            onClick={() => setShowAddCustomUni(true)}
-                                          >
-                                            <Plus className="h-4 w-4" />
-                                            הוסף אוניברסיטה חדשה
-                                          </button>
-                                        ) : (
-                                          <div className="flex gap-2">
-                                            <Input
-                                              value={customUniValue}
-                                              onChange={(e) => setCustomUniValue(e.target.value)}
-                                              placeholder="שם האוניברסיטה..."
-                                              className="h-8 text-sm flex-1"
-                                              dir="ltr"
-                                              autoFocus
-                                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomUniversity())}
-                                            />
-                                            <Button type="button" size="sm" className="h-8" onClick={handleAddCustomUniversity}>
-                                              הוסף
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
-                              {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                              הוסף
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
                     </CardHeader>
-                    <CardContent>
-                      {acceptedUniversities.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-8">אין קבלות עדיין</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {acceptedUniversities.map((uni) => (
-                            <div
-                              key={uni.id}
-                              className="flex items-center gap-3 p-3 rounded-lg border bg-white"
-                            >
-                              <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{uni.name}</p>
-                                {uni.country && (
-                                  <p className="text-xs text-muted-foreground">{uni.country}</p>
-                                )}
-                              </div>
-                              {uni.acceptance_letter_url ? (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => window.open(uni.acceptance_letter_url!, "_blank")}
-                                  className="gap-1"
-                                >
-                                  <FileText className="h-3 w-3" />
-                                  מכתב קבלה
-                                </Button>
-                              ) : (
-                                <>
-                                  <input
-                                    type="file"
-                                    className="hidden"
-                                    id={`upload-${uni.id}`}
-                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) uploadAcceptanceLetter(uni.id, file);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={uploadingAcceptance === uni.id}
-                                    onClick={() => document.getElementById(`upload-${uni.id}`)?.click()}
-                                    className="gap-1"
-                                  >
-                                    {uploadingAcceptance === uni.id ? (
-                                      <Loader2 className="h-3 w-3 animate-spin" />
-                                    ) : (
-                                      <Upload className="h-3 w-3" />
-                                    )}
-                                    העלה מכתב
-                                  </Button>
-                                </>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive"
-                                onClick={() => deleteAcceptedUniversity(uni.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
+                    <CardContent className="space-y-6">
+                      {/* Universities sub-section */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-sm">אוניברסיטאות ({acceptedUniversities.length})</h4>
+                          <Dialog open={isAddAcceptanceOpen} onOpenChange={setIsAddAcceptanceOpen}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-100">
+                                <Plus className="h-4 w-4 ml-1" />
+                                הוסף
                               </Button>
-                            </div>
-                          ))}
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>מדינה *</Label>
+                                    <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="בחר מדינה" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {countryOptions.map((country) => (
+                                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div>
+                                    <Label>אוניברסיטה *</Label>
+                                    <div ref={uniDropdownRef} className="relative">
+                                      <div
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                        onClick={() => setUniDropdownOpen(!uniDropdownOpen)}
+                                      >
+                                        <span className={newUniversityName ? "" : "text-muted-foreground"}>
+                                          {newUniversityName || "בחר אוניברסיטה"}
+                                        </span>
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                      </div>
+                                      {uniDropdownOpen && (
+                                        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                          <div className="p-2">
+                                            <Input
+                                              value={uniSearch}
+                                              onChange={(e) => setUniSearch(e.target.value)}
+                                              placeholder="חפש אוניברסיטה..."
+                                              className="h-8 text-sm"
+                                              autoFocus
+                                            />
+                                          </div>
+                                          <div className="max-h-48 overflow-y-auto">
+                                            {universityOptions
+                                              .filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase()))
+                                              .map(option => (
+                                                <button
+                                                  key={option}
+                                                  type="button"
+                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  onClick={() => {
+                                                    setNewUniversityName(option);
+                                                    setUniDropdownOpen(false);
+                                                    setUniSearch('');
+                                                  }}
+                                                >
+                                                  {option}
+                                                </button>
+                                              ))}
+                                            {universityOptions.filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase())).length === 0 && (
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                            )}
+                                          </div>
+                                          <div className="border-t p-2">
+                                            {!showAddCustomUni ? (
+                                              <button
+                                                type="button"
+                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                onClick={() => setShowAddCustomUni(true)}
+                                              >
+                                                <Plus className="h-4 w-4" />
+                                                הוסף אוניברסיטה חדשה
+                                              </button>
+                                            ) : (
+                                              <div className="flex gap-2">
+                                                <Input
+                                                  value={customUniValue}
+                                                  onChange={(e) => setCustomUniValue(e.target.value)}
+                                                  placeholder="שם האוניברסיטה..."
+                                                  className="h-8 text-sm flex-1"
+                                                  dir="ltr"
+                                                  autoFocus
+                                                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomUniversity())}
+                                                />
+                                                <Button type="button" size="sm" className="h-8" onClick={handleAddCustomUniversity}>
+                                                  הוסף
+                                                </Button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
+                                  {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                                  הוסף
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
-                      )}
+                        {acceptedUniversities.length === 0 ? (
+                          <p className="text-center text-muted-foreground py-4 text-sm">אין קבלות לאוניברסיטאות</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {acceptedUniversities.map((uni) => (
+                              <div key={uni.id} className="flex items-center gap-3 p-3 rounded-lg border bg-white">
+                                <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium truncate">{uni.name}</p>
+                                  {uni.country && <p className="text-xs text-muted-foreground">{uni.country}</p>}
+                                </div>
+                                {uni.acceptance_letter_url ? (
+                                  <Button variant="outline" size="sm" onClick={() => window.open(uni.acceptance_letter_url!, "_blank")} className="gap-1">
+                                    <FileText className="h-3 w-3" />
+                                    מכתב קבלה
+                                  </Button>
+                                ) : (
+                                  <>
+                                    <input type="file" className="hidden" id={`upload-${uni.id}`} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                      onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadAcceptanceLetter(uni.id, file); }} />
+                                    <Button variant="outline" size="sm" disabled={uploadingAcceptance === uni.id}
+                                      onClick={() => document.getElementById(`upload-${uni.id}`)?.click()} className="gap-1">
+                                      {uploadingAcceptance === uni.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                                      העלה מכתב
+                                    </Button>
+                                  </>
+                                )}
+                                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteAcceptedUniversity(uni.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Divider */}
+                      <div className="border-t border-green-200" />
+
+                      {/* Scholarships sub-section */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-sm">מלגות ({scholarships.length})</h4>
+                          <Dialog open={isAddScholarshipOpen} onOpenChange={setIsAddScholarshipOpen}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-100">
+                                <Plus className="h-4 w-4 ml-1" />
+                                הוסף
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>הוספת מלגה</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>שם המלגה *</Label>
+                                  <div ref={scholarshipDropdownRef} className="relative">
+                                    <div
+                                      className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                      onClick={() => setScholarshipDropdownOpen(!scholarshipDropdownOpen)}
+                                    >
+                                      <span className={newScholarshipName ? "" : "text-muted-foreground"}>
+                                        {newScholarshipName || "בחר מלגה"}
+                                      </span>
+                                      <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                    </div>
+                                    {scholarshipDropdownOpen && (
+                                      <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                        <div className="p-2">
+                                          <Input
+                                            value={scholarshipSearch}
+                                            onChange={(e) => setScholarshipSearch(e.target.value)}
+                                            placeholder="חפש מלגה..."
+                                            className="h-8 text-sm"
+                                            autoFocus
+                                          />
+                                        </div>
+                                        <div className="max-h-48 overflow-y-auto">
+                                          {scholarshipOptions
+                                            .filter(opt => opt.toLowerCase().includes(scholarshipSearch.toLowerCase()))
+                                            .map(option => (
+                                              <button
+                                                key={option}
+                                                type="button"
+                                                className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newScholarshipName === option ? "bg-primary/10 font-medium" : ""}`}
+                                                onClick={() => {
+                                                  setNewScholarshipName(option);
+                                                  setScholarshipDropdownOpen(false);
+                                                  setScholarshipSearch('');
+                                                }}
+                                              >
+                                                {option}
+                                              </button>
+                                            ))}
+                                          {scholarshipOptions.filter(opt => opt.toLowerCase().includes(scholarshipSearch.toLowerCase())).length === 0 && (
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                          )}
+                                        </div>
+                                        <div className="border-t p-2">
+                                          {!showAddCustomScholarship ? (
+                                            <button
+                                              type="button"
+                                              className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                              onClick={() => setShowAddCustomScholarship(true)}
+                                            >
+                                              <Plus className="h-4 w-4" />
+                                              הוסף מלגה חדשה
+                                            </button>
+                                          ) : (
+                                            <div className="flex gap-2">
+                                              <Input
+                                                value={customScholarshipValue}
+                                                onChange={(e) => setCustomScholarshipValue(e.target.value)}
+                                                placeholder="שם המלגה..."
+                                                className="h-8 text-sm flex-1"
+                                                autoFocus
+                                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomScholarship())}
+                                              />
+                                              <Button type="button" size="sm" className="h-8" onClick={handleAddCustomScholarship}>
+                                                הוסף
+                                              </Button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label>סכום מלגה</Label>
+                                  <Input
+                                    value={newScholarshipAmount}
+                                    onChange={(e) => setNewScholarshipAmount(e.target.value)}
+                                    placeholder="לדוגמה: $10,000"
+                                    dir="ltr"
+                                  />
+                                </div>
+                                <div>
+                                  <Label>הערות</Label>
+                                  <Textarea
+                                    value={newScholarshipNotes}
+                                    onChange={(e) => setNewScholarshipNotes(e.target.value)}
+                                    placeholder="הערות נוספות..."
+                                    rows={2}
+                                  />
+                                </div>
+                                <Button onClick={addScholarship} disabled={savingScholarship || !newScholarshipName.trim()} className="w-full">
+                                  {savingScholarship ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                                  הוסף
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                        {scholarships.length === 0 ? (
+                          <p className="text-center text-muted-foreground py-4 text-sm">אין מלגות</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {scholarships.map((sch) => (
+                              <div key={sch.id} className="flex items-center gap-3 p-3 rounded-lg border bg-white">
+                                <GraduationCap className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium truncate">{sch.name}</p>
+                                  {sch.amount && <p className="text-xs text-muted-foreground">סכום: {sch.amount}</p>}
+                                  {sch.notes && <p className="text-xs text-muted-foreground">{sch.notes}</p>}
+                                </div>
+                                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteScholarship(sch.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
 
