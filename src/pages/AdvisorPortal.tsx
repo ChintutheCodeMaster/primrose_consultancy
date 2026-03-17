@@ -164,6 +164,14 @@ export default function AdvisorPortal() {
   const [savingAcceptance, setSavingAcceptance] = useState(false);
   const acceptanceFileRef = useRef<HTMLInputElement>(null);
   const [uploadingAcceptance, setUploadingAcceptance] = useState<string | null>(null);
+  const [universityOptions, setUniversityOptions] = useState<string[]>([]);
+  const [uniSearch, setUniSearch] = useState('');
+  const [showAddCustomUni, setShowAddCustomUni] = useState(false);
+  const [customUniValue, setCustomUniValue] = useState('');
+  const [uniDropdownOpen, setUniDropdownOpen] = useState(false);
+  const uniDropdownRef = useRef<HTMLDivElement>(null);
+
+  const countryOptions = useCountryOptions();
 
   useEffect(() => {
     if (advisorId) {
