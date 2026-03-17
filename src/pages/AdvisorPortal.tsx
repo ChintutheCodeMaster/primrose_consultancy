@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { UniversityAutocomplete } from "@/components/ui/university-autocomplete";
+import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { 
   GraduationCap, 
   User, 
@@ -164,12 +164,63 @@ export default function AdvisorPortal() {
   const [savingAcceptance, setSavingAcceptance] = useState(false);
   const acceptanceFileRef = useRef<HTMLInputElement>(null);
   const [uploadingAcceptance, setUploadingAcceptance] = useState<string | null>(null);
+  const [universityOptions, setUniversityOptions] = useState<string[]>([]);
+  const [uniSearch, setUniSearch] = useState('');
+  const [showAddCustomUni, setShowAddCustomUni] = useState(false);
+  const [customUniValue, setCustomUniValue] = useState('');
+  const [uniDropdownOpen, setUniDropdownOpen] = useState(false);
+  const uniDropdownRef = useRef<HTMLDivElement>(null);
+
+  const countryOptions = useCountryOptions();
 
   useEffect(() => {
     if (advisorId) {
       fetchAdvisorData();
     }
   }, [advisorId]);
+
+  useEffect(() => {
+    const fetchUniOptions = async () => {
+      const { data } = await supabase
+        .from('target_university_options')
+        .select('name')
+        .order('sort_order');
+      if (data) setUniversityOptions(data.map(d => d.name));
+    };
+    fetchUniOptions();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (uniDropdownRef.current && !uniDropdownRef.current.contains(event.target as Node)) {
+        setUniDropdownOpen(false);
+        setUniSearch('');
+        setShowAddCustomUni(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleAddCustomUniversity = async () => {
+    const trimmed = customUniValue.trim();
+    if (!trimmed) return;
+    const { error } = await supabase
+      .from('target_university_options')
+      .insert({ name: trimmed, sort_order: universityOptions.length + 1 });
+    if (error && error.code !== '23505') {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף אוניברסיטה", variant: "destructive" });
+      return;
+    }
+    if (!universityOptions.includes(trimmed)) {
+      setUniversityOptions(prev => [...prev, trimmed]);
+    }
+    setNewUniversityName(trimmed);
+    setCustomUniValue('');
+    setShowAddCustomUni(false);
+    setUniDropdownOpen(false);
+    toast({ title: `${trimmed} נוספה לרשימה` });
+  };
 
   const fetchAdvisorData = async () => {
     setLoading(true);
@@ -634,39 +685,95 @@ export default function AdvisorPortal() {
                             <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <div>
-                              <Label>מדינה *</Label>
-                              <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="בחר מדינה" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="אנגליה">אנגליה</SelectItem>
-                                  <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                                  <SelectItem value="קנדה">קנדה</SelectItem>
-                                  <SelectItem value="הולנד">הולנד</SelectItem>
-                                  <SelectItem value="גרמניה">גרמניה</SelectItem>
-                                  <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                                  <SelectItem value="אירלנד">אירלנד</SelectItem>
-                                  <SelectItem value="צרפת">צרפת</SelectItem>
-                                  <SelectItem value="ספרד">ספרד</SelectItem>
-                                  <SelectItem value="אחר">אחר</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label>שם האוניברסיטה *</Label>
-                              <UniversityAutocomplete
-                                value={newUniversityName}
-                                onChange={setNewUniversityName}
-                                onSelectSuggestion={(suggestion) => {
-                                  setNewUniversityName(suggestion.name);
-                                  if (suggestion.country && !newUniversityCountry) {
-                                    setNewUniversityCountry(suggestion.country);
-                                  }
-                                }}
-                                placeholder="לדוגמה: University of Manchester"
-                              />
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label>מדינה *</Label>
+                                <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="בחר מדינה" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {countryOptions.map((country) => (
+                                      <SelectItem key={country} value={country}>{country}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>אוניברסיטה *</Label>
+                                <div ref={uniDropdownRef} className="relative">
+                                  <div
+                                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                    onClick={() => setUniDropdownOpen(!uniDropdownOpen)}
+                                  >
+                                    <span className={newUniversityName ? "" : "text-muted-foreground"}>
+                                      {newUniversityName || "בחר אוניברסיטה"}
+                                    </span>
+                                    <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                  </div>
+                                  {uniDropdownOpen && (
+                                    <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                      <div className="p-2">
+                                        <Input
+                                          value={uniSearch}
+                                          onChange={(e) => setUniSearch(e.target.value)}
+                                          placeholder="חפש אוניברסיטה..."
+                                          className="h-8 text-sm"
+                                          autoFocus
+                                        />
+                                      </div>
+                                      <div className="max-h-48 overflow-y-auto">
+                                        {universityOptions
+                                          .filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase()))
+                                          .map(option => (
+                                            <button
+                                              key={option}
+                                              type="button"
+                                              className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
+                                              onClick={() => {
+                                                setNewUniversityName(option);
+                                                setUniDropdownOpen(false);
+                                                setUniSearch('');
+                                              }}
+                                            >
+                                              {option}
+                                            </button>
+                                          ))}
+                                        {universityOptions.filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase())).length === 0 && (
+                                          <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                        )}
+                                      </div>
+                                      <div className="border-t p-2">
+                                        {!showAddCustomUni ? (
+                                          <button
+                                            type="button"
+                                            className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                            onClick={() => setShowAddCustomUni(true)}
+                                          >
+                                            <Plus className="h-4 w-4" />
+                                            הוסף אוניברסיטה חדשה
+                                          </button>
+                                        ) : (
+                                          <div className="flex gap-2">
+                                            <Input
+                                              value={customUniValue}
+                                              onChange={(e) => setCustomUniValue(e.target.value)}
+                                              placeholder="שם האוניברסיטה..."
+                                              className="h-8 text-sm flex-1"
+                                              dir="ltr"
+                                              autoFocus
+                                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomUniversity())}
+                                            />
+                                            <Button type="button" size="sm" className="h-8" onClick={handleAddCustomUniversity}>
+                                              הוסף
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                               {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
