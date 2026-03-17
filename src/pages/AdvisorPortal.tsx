@@ -349,7 +349,7 @@ export default function AdvisorPortal() {
     setLoadingStudent(true);
 
     // Fetch all data in parallel
-    const [checklistResult, documentsResult, conversationsResult, universitiesResult] = await Promise.all([
+    const [checklistResult, documentsResult, conversationsResult, universitiesResult, scholarshipsResult] = await Promise.all([
       supabase
         .from("student_checklist_items")
         .select("*")
@@ -369,6 +369,11 @@ export default function AdvisorPortal() {
         .from("accepted_universities")
         .select("*")
         .eq("student_id", student.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("student_scholarships")
+        .select("*")
+        .eq("student_id", student.id)
         .order("created_at", { ascending: false })
     ]);
 
@@ -376,6 +381,7 @@ export default function AdvisorPortal() {
     setDocuments(documentsResult.data || []);
     setConversations(conversationsResult.data || []);
     setAcceptedUniversities(universitiesResult.data || []);
+    setScholarships(scholarshipsResult.data || []);
     setLoadingStudent(false);
   };
 
