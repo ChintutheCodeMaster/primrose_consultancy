@@ -179,7 +179,50 @@ export default function AdvisorPortal() {
     }
   }, [advisorId]);
 
-  const fetchAdvisorData = async () => {
+  useEffect(() => {
+    const fetchUniOptions = async () => {
+      const { data } = await supabase
+        .from('target_university_options')
+        .select('name')
+        .order('sort_order');
+      if (data) setUniversityOptions(data.map(d => d.name));
+    };
+    fetchUniOptions();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (uniDropdownRef.current && !uniDropdownRef.current.contains(event.target as Node)) {
+        setUniDropdownOpen(false);
+        setUniSearch('');
+        setShowAddCustomUni(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleAddCustomUniversity = async () => {
+    const trimmed = customUniValue.trim();
+    if (!trimmed) return;
+    const { error } = await supabase
+      .from('target_university_options')
+      .insert({ name: trimmed, sort_order: universityOptions.length + 1 });
+    if (error && error.code !== '23505') {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף אוניברסיטה", variant: "destructive" });
+      return;
+    }
+    if (!universityOptions.includes(trimmed)) {
+      setUniversityOptions(prev => [...prev, trimmed]);
+    }
+    setNewUniversityName(trimmed);
+    setCustomUniValue('');
+    setShowAddCustomUni(false);
+    setUniDropdownOpen(false);
+    toast({ title: `${trimmed} נוספה לרשימה` });
+  };
+
+
     setLoading(true);
     
     // Fetch advisor info (including password)
