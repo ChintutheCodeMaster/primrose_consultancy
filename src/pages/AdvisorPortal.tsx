@@ -606,7 +606,43 @@ export default function AdvisorPortal() {
     }
   };
 
-  const currentStudents = activeTab === "active" ? activeStudents : pastStudents;
+  // Scholarship functions
+  const addScholarship = async () => {
+    if (!newScholarshipName.trim() || !selectedStudent) return;
+    
+    setSavingScholarship(true);
+    const { error } = await supabase.from("student_scholarships").insert({
+      student_id: selectedStudent.id,
+      name: newScholarshipName,
+      amount: newScholarshipAmount || null,
+      notes: newScholarshipNotes || null,
+    });
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף מלגה", variant: "destructive" });
+    } else {
+      toast({ title: "המלגה נוספה בהצלחה" });
+      setNewScholarshipName("");
+      setNewScholarshipAmount("");
+      setNewScholarshipNotes("");
+      setIsAddScholarshipOpen(false);
+      selectStudent(selectedStudent);
+    }
+    setSavingScholarship(false);
+  };
+
+  const deleteScholarship = async (scholarshipId: string) => {
+    const { error } = await supabase
+      .from("student_scholarships")
+      .delete()
+      .eq("id", scholarshipId);
+
+    if (!error) {
+      setScholarships(prev => prev.filter(s => s.id !== scholarshipId));
+      toast({ title: "המלגה נמחקה" });
+    }
+  };
+
   const filteredStudents = currentStudents.filter(s => 
     s.name.includes(searchTerm) || s.email.includes(searchTerm) || s.phone.includes(searchTerm)
   );
