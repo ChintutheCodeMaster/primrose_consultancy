@@ -121,7 +121,7 @@ const documentCategories = [
   { value: "general", label: "כללי" },
   { value: "start", label: "תחילת תהליך" },
   { value: "application", label: "הגשות" },
-  { value: "acceptance", label: "קבלות" },
+  { value: "acceptance", label: "לאן התקבל/ה" },
 ];
 
 export default function AdvisorPortal() {
@@ -771,7 +771,7 @@ export default function AdvisorPortal() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-green-600" />
-                        קבלות ({acceptedUniversities.length + scholarships.length})
+                        לאן התקבל/ה ({acceptedUniversities.length + scholarships.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -890,7 +890,7 @@ export default function AdvisorPortal() {
                           </Dialog>
                         </div>
                         {acceptedUniversities.length === 0 ? (
-                          <p className="text-center text-muted-foreground py-4 text-sm">אין קבלות לאוניברסיטאות</p>
+                          <p className="text-center text-muted-foreground py-4 text-sm">אין אוניברסיטאות</p>
                         ) : (
                           <div className="space-y-2">
                             {acceptedUniversities.map((uni) => (
