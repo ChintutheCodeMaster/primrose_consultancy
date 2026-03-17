@@ -83,6 +83,13 @@ interface AcceptedUniversity {
   acceptance_letter_url: string | null;
 }
 
+interface Scholarship {
+  id: string;
+  name: string;
+  amount: string | null;
+  notes: string | null;
+}
+
 interface ChecklistItem {
   id: string;
   title: string;
