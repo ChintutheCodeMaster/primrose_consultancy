@@ -315,6 +315,27 @@ export type Database = {
           },
         ]
       }
+      scholarship_options: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       sidebar_categories: {
         Row: {
           category_type: string
@@ -566,6 +587,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "student_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_scholarships: {
+        Row: {
+          amount: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          student_id: string
+        }
+        Insert: {
+          amount?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          student_id: string
+        }
+        Update: {
+          amount?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_scholarships_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
