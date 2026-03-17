@@ -178,6 +178,20 @@ export default function AdvisorPortal() {
   const [uniDropdownOpen, setUniDropdownOpen] = useState(false);
   const uniDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Scholarship states
+  const [scholarships, setScholarships] = useState<Scholarship[]>([]);
+  const [scholarshipOptions, setScholarshipOptions] = useState<string[]>([]);
+  const [newScholarshipName, setNewScholarshipName] = useState("");
+  const [newScholarshipAmount, setNewScholarshipAmount] = useState("");
+  const [newScholarshipNotes, setNewScholarshipNotes] = useState("");
+  const [isAddScholarshipOpen, setIsAddScholarshipOpen] = useState(false);
+  const [savingScholarship, setSavingScholarship] = useState(false);
+  const [scholarshipDropdownOpen, setScholarshipDropdownOpen] = useState(false);
+  const [scholarshipSearch, setScholarshipSearch] = useState('');
+  const [showAddCustomScholarship, setShowAddCustomScholarship] = useState(false);
+  const [customScholarshipValue, setCustomScholarshipValue] = useState('');
+  const scholarshipDropdownRef = useRef<HTMLDivElement>(null);
+
   const countryOptions = useCountryOptions();
 
   useEffect(() => {
