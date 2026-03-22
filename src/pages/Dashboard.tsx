@@ -923,9 +923,41 @@ export default function Dashboard() {
                     </div>
                   );
                 })
-              ) : (
+              ) : pendingPaymentProjects.length === 0 ? (
                 <div className="text-center py-8 bg-card rounded-xl border border-border/50">
                   <p className="text-muted-foreground">🎉 אין סטודנטים שדורשים תשומת לב</p>
+                </div>
+              ) : null}
+
+              {/* Pending Payment Projects */}
+              {pendingPaymentProjects.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-warning" />
+                    שת״פ ממתין לתשלום ({pendingPaymentProjects.length})
+                  </h3>
+                  {pendingPaymentProjects.map((project) => (
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-3 bg-warning/10 rounded-lg mb-2 cursor-pointer hover:bg-warning/20 transition-colors"
+                      onClick={() => navigate('/projects')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center">
+                          <DollarSign className="h-4 w-4 text-warning" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{project.name}</p>
+                          {project.collaborationName && (
+                            <p className="text-xs text-muted-foreground">{project.collaborationName}</p>
+                          )}
+                        </div>
+                      </div>
+                      {project.amount != null && (
+                        <span className="text-sm font-medium text-foreground">₪{project.amount.toLocaleString()}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
