@@ -69,6 +69,7 @@ interface ProjectFormData {
   amount: string;
   payment_date: string;
   invoice_date: string;
+  payment_request_date: string;
   status: string;
   category: string;
   notes: string;
@@ -76,7 +77,7 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', payment_date: '', invoice_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
 const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
