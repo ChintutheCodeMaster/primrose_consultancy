@@ -438,6 +438,7 @@ export default function Projects() {
     }
     setPreviewUrl(null);
     setPreviewDownloadUrl(null);
+    setPreviewMimeType(null);
   };
 
   // ── Collab Form ──
