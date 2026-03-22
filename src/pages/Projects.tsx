@@ -68,6 +68,7 @@ interface ProjectFormData {
   description: string;
   payment_direction: string;
   amount: string;
+  net_amount: string;
   payment_date: string;
   invoice_date: string;
   payment_request_date: string;
