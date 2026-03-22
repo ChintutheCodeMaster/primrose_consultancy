@@ -191,6 +191,7 @@ export default function Projects() {
         amount: data.amount ? parseFloat(data.amount) : null,
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
+        payment_request_date: data.payment_request_date || null,
         status: data.status,
         category: data.category || null,
         storage_bucket: filePath ? 'project-files' : null,
