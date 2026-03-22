@@ -37,6 +37,7 @@ interface Project {
   description: string | null;
   payment_direction: string;
   amount: number | null;
+  net_amount: number | null;
   payment_date: string | null;
   invoice_date: string | null;
   payment_request_date: string | null;
