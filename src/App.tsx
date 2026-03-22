@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import TempExportEmails from "./pages/TempExportEmails";
 import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
+import SignedAgreements from "./pages/SignedAgreements";
 
 const queryClient = new QueryClient();
 
