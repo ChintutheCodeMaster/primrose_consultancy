@@ -685,7 +685,14 @@ export default function Projects() {
                                         {directionLabels[project.payment_direction] || project.payment_direction}
                                       </Badge>
                                     </TableCell>
-                                    <TableCell>{project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}</TableCell>
+                                    <TableCell>
+                                      <div>
+                                        {project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}
+                                        {(project as any).net_amount != null && (
+                                          <p className="text-xs text-muted-foreground">נטו: ₪{(project as any).net_amount.toLocaleString()}</p>
+                                        )}
+                                      </div>
+                                    </TableCell>
                                     <TableCell>{project.payment_request_date ? format(new Date(project.payment_request_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.invoice_date ? format(new Date(project.invoice_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
