@@ -644,9 +644,9 @@ export default function Projects() {
                                 <span>{collabProjects.length} פרויקטים</span>
                                 {collabProjects.length > 0 && (
                                   <>
-                                    {totalExpense > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
+                                    {totalExpense > 0 && totalIncome > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
                                     <span className={cn('font-medium', net >= 0 ? 'text-green-700' : 'text-red-700')}>
-                                      הכנסות כולל: ₪{net.toLocaleString()}
+                                      {totalIncome > 0 && totalExpense === 0 ? 'הכנסות כולל' : totalExpense > 0 && totalIncome === 0 ? 'הוצאות כולל' : 'הכנסות כולל'}: ₪{Math.abs(net).toLocaleString()}
                                     </span>
                                     {totalNetAmount > 0 && (
                                       <span className="text-muted-foreground">
