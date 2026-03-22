@@ -619,6 +619,7 @@ export default function Projects() {
               const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
               const totalExpense = collabProjects.filter(p => p.payment_direction === 'expense').reduce((sum, p) => sum + (p.amount || 0), 0);
               const net = totalIncome - totalExpense;
+              const totalNetAmount = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.net_amount || 0), 0);
               const pendingPaymentCount = collabProjects.filter(p => p.status === 'pending_payment').length;
               return (
                 <Card key={collab.id}>
