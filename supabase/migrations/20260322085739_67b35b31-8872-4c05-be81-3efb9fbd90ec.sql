@@ -1,0 +1,1 @@
+ALTER TABLE public.projects ADD COLUMN payment_request_date date;
