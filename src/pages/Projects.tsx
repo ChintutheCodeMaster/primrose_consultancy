@@ -490,6 +490,10 @@ export default function Projects() {
         </div>
         <div>
           <Label>מתי נשלחה דרישת תשלום</Label>
+          <Input type="date" value={projectForm.payment_request_date} onChange={e => setProjectForm(p => ({ ...p, payment_request_date: e.target.value }))} />
+        </div>
+        <div>
+          <Label>מתי הופקה חשבונית</Label>
           <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
         </div>
         <div>
