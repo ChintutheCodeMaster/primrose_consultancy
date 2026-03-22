@@ -100,6 +100,7 @@ export default function Projects() {
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -574,6 +575,16 @@ export default function Projects() {
           </Dialog>
         </div>
 
+        {/* Search */}
+        <div className="relative">
+          <Input
+            placeholder="חיפוש לפי שם גוף שת״פ, פרויקט, איש קשר..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="max-w-md"
+          />
+        </div>
+
         {/* Content */}
         {loadingCollabs ? (
           <div className="text-center py-12 text-muted-foreground">טוען...</div>
@@ -587,7 +598,22 @@ export default function Projects() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {collaborations.map(collab => {
+            {collaborations.filter(collab => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.trim().toLowerCase();
+              const collabProjects = projectsByCollab(collab.id);
+              const collabMatch = collab.name.toLowerCase().includes(q) ||
+                (collab.contact_name || '').toLowerCase().includes(q) ||
+                (collab.contact_email || '').toLowerCase().includes(q) ||
+                (collab.contact_phone || '').toLowerCase().includes(q) ||
+                (collab.category || '').toLowerCase().includes(q);
+              const projectMatch = collabProjects.some(p =>
+                p.name.toLowerCase().includes(q) ||
+                (p.description || '').toLowerCase().includes(q) ||
+                (p.notes || '').toLowerCase().includes(q)
+              );
+              return collabMatch || projectMatch;
+            }).map(collab => {
               const collabProjects = projectsByCollab(collab.id);
               const isOpen = openCollabs.has(collab.id);
               const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
