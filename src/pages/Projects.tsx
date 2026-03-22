@@ -100,6 +100,7 @@ export default function Projects() {
   const [uploadingFile, setUploadingFile] = useState(false);
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
