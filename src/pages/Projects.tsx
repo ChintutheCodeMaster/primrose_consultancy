@@ -39,6 +39,7 @@ interface Project {
   amount: number | null;
   payment_date: string | null;
   invoice_date: string | null;
+  payment_request_date: string | null;
   status: string;
   contact_name: string | null;
   contact_phone: string | null;
@@ -68,6 +69,7 @@ interface ProjectFormData {
   amount: string;
   payment_date: string;
   invoice_date: string;
+  payment_request_date: string;
   status: string;
   category: string;
   notes: string;
@@ -75,7 +77,7 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', payment_date: '', invoice_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
 const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
@@ -189,6 +191,7 @@ export default function Projects() {
         amount: data.amount ? parseFloat(data.amount) : null,
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
+        payment_request_date: data.payment_request_date || null,
         status: data.status,
         category: data.category || null,
         storage_bucket: filePath ? 'project-files' : null,
@@ -216,6 +219,7 @@ export default function Projects() {
         amount: data.amount ? parseFloat(data.amount) : null,
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
+        payment_request_date: data.payment_request_date || null,
         status: data.status,
         category: data.category || null,
         storage_bucket: nextPath ? (currentProject.storage_bucket || 'project-files') : null,
@@ -324,7 +328,7 @@ export default function Projects() {
 
   const openEditProject = (p: Project) => {
     setEditingProject(p);
-    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
+    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
     setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
@@ -486,6 +490,10 @@ export default function Projects() {
         </div>
         <div>
           <Label>מתי נשלחה דרישת תשלום</Label>
+          <Input type="date" value={projectForm.payment_request_date} onChange={e => setProjectForm(p => ({ ...p, payment_request_date: e.target.value }))} />
+        </div>
+        <div>
+          <Label>מתי הופקה חשבונית</Label>
           <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
         </div>
         <div>
@@ -649,6 +657,7 @@ export default function Projects() {
                                   <TableHead className="text-right">כיוון</TableHead>
                                   <TableHead className="text-right">סכום</TableHead>
                                   <TableHead className="text-right">דרישת תשלום</TableHead>
+                                  <TableHead className="text-right">חשבונית</TableHead>
                                   <TableHead className="text-right">מתי שולם</TableHead>
                                   <TableHead className="text-right">סטטוס</TableHead>
                                   <TableHead className="text-right">הערות תשלום</TableHead>
@@ -672,6 +681,7 @@ export default function Projects() {
                                       </Badge>
                                     </TableCell>
                                     <TableCell>{project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}</TableCell>
+                                    <TableCell>{project.payment_request_date ? format(new Date(project.payment_request_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.invoice_date ? format(new Date(project.invoice_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>

@@ -259,6 +259,7 @@ export type Database = {
           payment_date: string | null
           payment_direction: string
           payment_notes: string | null
+          payment_request_date: string | null
           status: string
           storage_bucket: string | null
           storage_path: string | null
@@ -280,6 +281,7 @@ export type Database = {
           payment_date?: string | null
           payment_direction?: string
           payment_notes?: string | null
+          payment_request_date?: string | null
           status?: string
           storage_bucket?: string | null
           storage_path?: string | null
@@ -301,6 +303,7 @@ export type Database = {
           payment_date?: string | null
           payment_direction?: string
           payment_notes?: string | null
+          payment_request_date?: string | null
           status?: string
           storage_bucket?: string | null
           storage_path?: string | null
