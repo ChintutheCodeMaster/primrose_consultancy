@@ -902,7 +902,7 @@ export default function AdvisorPortal() {
                                   {uni.country && <p className="text-xs text-muted-foreground">{uni.country}</p>}
                                 </div>
                                 {uni.acceptance_letter_url ? (
-                                  <Button variant="outline" size="sm" onClick={() => window.open(uni.acceptance_letter_url!, "_blank")} className="gap-1">
+                                  <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
                                     <FileText className="h-3 w-3" />
                                     מכתב קבלה
                                   </Button>
