@@ -1329,7 +1329,7 @@ export default function AdvisorPortal() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => window.open(doc.file_url, "_blank")}
+                                onClick={() => openExternalFile(doc.file_url, doc.name)}
                               >
                                 <ExternalLink className="h-4 w-4" />
                               </Button>
