@@ -37,6 +37,7 @@ interface Project {
   description: string | null;
   payment_direction: string;
   amount: number | null;
+  net_amount: number | null;
   payment_date: string | null;
   invoice_date: string | null;
   payment_request_date: string | null;
@@ -67,6 +68,7 @@ interface ProjectFormData {
   description: string;
   payment_direction: string;
   amount: string;
+  net_amount: string;
   payment_date: string;
   invoice_date: string;
   payment_request_date: string;
@@ -77,7 +79,7 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
 const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
@@ -189,6 +191,7 @@ export default function Projects() {
         description: data.description || null,
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
+        net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -217,6 +220,7 @@ export default function Projects() {
         description: data.description || null,
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
+        net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -328,7 +332,7 @@ export default function Projects() {
 
   const openEditProject = (p: Project) => {
     setEditingProject(p);
-    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
+    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', net_amount: (p as any).net_amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
     setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
@@ -487,6 +491,7 @@ export default function Projects() {
         <div>
           <Label>סכום</Label>
           <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
+          <Input type="text" inputMode="decimal" placeholder="סכום לאחר ניכוי מס (אופציונלי)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
         </div>
         <div>
           <Label>מתי נשלחה דרישת תשלום</Label>
@@ -680,7 +685,14 @@ export default function Projects() {
                                         {directionLabels[project.payment_direction] || project.payment_direction}
                                       </Badge>
                                     </TableCell>
-                                    <TableCell>{project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}</TableCell>
+                                    <TableCell>
+                                      <div>
+                                        {project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}
+                                        {(project as any).net_amount != null && (
+                                          <p className="text-xs text-muted-foreground">נטו: ₪{(project as any).net_amount.toLocaleString()}</p>
+                                        )}
+                                      </div>
+                                    </TableCell>
                                     <TableCell>{project.payment_request_date ? format(new Date(project.payment_request_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.invoice_date ? format(new Date(project.invoice_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
