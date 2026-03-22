@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { 
   GraduationCap, 

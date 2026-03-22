@@ -43,7 +43,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
 
       const { error: uploadError } = await supabase.storage
         .from('advisor-contracts')
-        .upload(fileName, file);
+        .upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
 
       if (uploadError) throw uploadError;
 
