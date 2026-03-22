@@ -485,12 +485,12 @@ export default function Projects() {
           <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
         </div>
         <div>
-          <Label>תאריך תשלום</Label>
-          <Input type="date" value={projectForm.payment_date} onChange={e => setProjectForm(p => ({ ...p, payment_date: e.target.value }))} />
+          <Label>מתי נשלחה דרישת תשלום</Label>
+          <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
         </div>
         <div>
-          <Label>תאריך חשבונית</Label>
-          <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
+          <Label>מתי שולם</Label>
+          <Input type="date" value={projectForm.payment_date} onChange={e => setProjectForm(p => ({ ...p, payment_date: e.target.value }))} />
         </div>
         <div>
           <Label>סטטוס</Label>
@@ -648,8 +648,8 @@ export default function Projects() {
                                   <TableHead className="text-right">פרויקט</TableHead>
                                   <TableHead className="text-right">כיוון</TableHead>
                                   <TableHead className="text-right">סכום</TableHead>
-                                  <TableHead className="text-right">תאריך תשלום</TableHead>
-                                  <TableHead className="text-right">חשבונית</TableHead>
+                                  <TableHead className="text-right">דרישת תשלום</TableHead>
+                                  <TableHead className="text-right">מתי שולם</TableHead>
                                   <TableHead className="text-right">סטטוס</TableHead>
                                   <TableHead className="text-right">הערות תשלום</TableHead>
                                   <TableHead className="text-right">הערות</TableHead>
@@ -672,8 +672,8 @@ export default function Projects() {
                                       </Badge>
                                     </TableCell>
                                     <TableCell>{project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}</TableCell>
-                                    <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.invoice_date ? format(new Date(project.invoice_date), 'dd/MM/yyyy') : '-'}</TableCell>
+                                    <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>
                                       <Badge className={statusColors[project.status] || ''}>{statusLabels[project.status] || project.status}</Badge>
                                     </TableCell>
