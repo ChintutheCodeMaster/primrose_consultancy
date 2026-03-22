@@ -567,7 +567,7 @@ export default function AdvisorPortal() {
     
     const { error: uploadError } = await supabase.storage
       .from("acceptance-letters")
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
 
     if (uploadError) {
       toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
