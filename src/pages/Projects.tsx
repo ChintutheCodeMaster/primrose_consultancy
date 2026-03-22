@@ -575,6 +575,16 @@ export default function Projects() {
           </Dialog>
         </div>
 
+        {/* Search */}
+        <div className="relative">
+          <Input
+            placeholder="חיפוש לפי שם גוף שת״פ, פרויקט, איש קשר..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="max-w-md"
+          />
+        </div>
+
         {/* Content */}
         {loadingCollabs ? (
           <div className="text-center py-12 text-muted-foreground">טוען...</div>
