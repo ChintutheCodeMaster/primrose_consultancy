@@ -196,7 +196,7 @@ export default function StudentPortalManagement() {
     
     const { error: uploadError } = await supabase.storage
       .from("student-documents")
-      .upload(fileName, selectedFile);
+      .upload(fileName, selectedFile, { contentType: selectedFile.type, cacheControl: "3600" });
 
     if (uploadError) {
       toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
