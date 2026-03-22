@@ -328,7 +328,7 @@ export default function Projects() {
 
   const openEditProject = (p: Project) => {
     setEditingProject(p);
-    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
+    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
     setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
