@@ -873,7 +873,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-warning" />
-                דורשים תשומת לב ({studentsNeedingAttention.length})
+                דורשים תשומת לב ({studentsNeedingAttention.length + pendingPaymentProjects.length})
               </h2>
               <Link to="/students?filter=attention" className="text-sm text-primary hover:underline">
                 הצג הכל
