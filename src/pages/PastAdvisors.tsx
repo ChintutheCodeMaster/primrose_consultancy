@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Search, Phone, Mail, FileText, ExternalLink, RotateCcw, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { openExternalFile } from '@/lib/file-open';
 
 export default function PastAdvisors() {
   const navigate = useNavigate();

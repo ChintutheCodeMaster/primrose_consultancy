@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy, History } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { openExternalFile } from '@/lib/file-open';
 import { AdvisorForm, AdvisorFormData } from '@/components/advisors/AdvisorForm';
 
 interface Advisor {
