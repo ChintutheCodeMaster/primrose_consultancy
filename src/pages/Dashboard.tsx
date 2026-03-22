@@ -809,9 +809,9 @@ export default function Dashboard() {
           >
             <StatCard
               title="דורשים תשומת לב"
-              value={studentsNeedingAttention.length}
+              value={studentsNeedingAttention.length + pendingPaymentProjects.length}
               icon={AlertTriangle}
-              className={studentsNeedingAttention.length > 0 ? 'border-warning bg-warning/5' : ''}
+              className={(studentsNeedingAttention.length + pendingPaymentProjects.length) > 0 ? 'border-warning bg-warning/5' : ''}
             />
           </div>
           <div 
