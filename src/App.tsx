@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import TempExportEmails from "./pages/TempExportEmails";
 import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
+import SignedAgreements from "./pages/SignedAgreements";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/student-portal/:studentId" element={<PasswordGate><StudentPortalManagement /></PasswordGate>} />
           <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
           <Route path="/projects" element={<PasswordGate><Projects /></PasswordGate>} />
+          <Route path="/signed-agreements" element={<PasswordGate><SignedAgreements /></PasswordGate>} />
           <Route path="/settings" element={<PasswordGate><Settings /></PasswordGate>} />
           <Route path="/temp-export" element={<TempExportEmails />} />
           <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
