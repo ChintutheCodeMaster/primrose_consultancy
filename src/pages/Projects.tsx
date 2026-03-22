@@ -104,6 +104,7 @@ export default function Projects() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewMimeType, setPreviewMimeType] = useState<string | null>(null);
 
   // ── Queries ──
 
@@ -382,15 +383,27 @@ export default function Projects() {
     setPreviewLoading(true);
     setPreviewUrl(null);
     setPreviewDownloadUrl(null);
+    setPreviewMimeType(null);
 
     try {
       for (const path of candidates) {
         const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
         if (downloadError || !downloadedFile) continue;
 
-        const blobUrl = URL.createObjectURL(downloadedFile);
+        const ext = path.split('.').pop()?.toLowerCase() || '';
+        const mimeMap: Record<string, string> = {
+          pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+          png: 'image/png', webp: 'image/webp', gif: 'image/gif',
+          doc: 'application/msword',
+          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        };
+        const mime = mimeMap[ext] || downloadedFile.type || 'application/octet-stream';
+        const correctBlob = new Blob([downloadedFile], { type: mime });
+        const blobUrl = URL.createObjectURL(correctBlob);
+
         setPreviewUrl(blobUrl);
         setPreviewDownloadUrl(blobUrl);
+        setPreviewMimeType(mime);
         return;
       }
 
@@ -425,6 +438,7 @@ export default function Projects() {
     }
     setPreviewUrl(null);
     setPreviewDownloadUrl(null);
+    setPreviewMimeType(null);
   };
 
   // ── Collab Form ──
@@ -808,17 +822,26 @@ export default function Projects() {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : previewUrl ? (
-                <object
-                  data={previewUrl}
-                  type="application/pdf"
-                  className="w-full h-[70vh]"
-                >
-                  <iframe
-                    src={previewUrl}
-                    className="w-full h-[70vh] border-0"
-                    title="תצוגה מקדימה של קובץ"
-                  />
-                </object>
+                previewMimeType?.startsWith('image/') ? (
+                  <div className="flex items-center justify-center h-[70vh] p-4">
+                    <img src={previewUrl} alt="תצוגה מקדימה" className="max-w-full max-h-full object-contain" />
+                  </div>
+                ) : previewMimeType === 'application/pdf' ? (
+                  <object data={previewUrl} type="application/pdf" className="w-full h-[70vh]">
+                    <iframe src={previewUrl} className="w-full h-[70vh] border-0" title="תצוגה מקדימה של קובץ" />
+                  </object>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
+                    <FileText className="h-16 w-16 text-muted-foreground" />
+                    <p className="text-muted-foreground">אין תצוגה מקדימה לסוג קובץ זה</p>
+                    {previewDownloadUrl && (
+                      <Button onClick={handleDownloadFile}>
+                        <Download className="h-4 w-4 ml-1" />
+                        הורדה
+                      </Button>
+                    )}
+                  </div>
+                )
               ) : null}
             </div>
           </DialogContent>
