@@ -402,12 +402,13 @@ export default function Advisors() {
                 )}
 
                 {viewingAdvisor.contract_url && (
-                  <a
-                    href={viewingAdvisor.contract_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
                     className="flex items-center gap-2 text-sm text-primary hover:underline p-4 border rounded-lg"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openExternalFile(viewingAdvisor.contract_url, `advisor-contract-${viewingAdvisor.name}`);
+                    }}
                   >
                     <FileText className="h-4 w-4" />
                     צפה בחוזה החתום
