@@ -412,7 +412,7 @@ export default function Advisors() {
                   >
                     <FileText className="h-4 w-4" />
                     צפה בחוזה החתום
-                  </a>
+                  </button>
                 )}
 
                 {viewingAdvisor.notes && (

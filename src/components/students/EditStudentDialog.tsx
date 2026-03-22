@@ -595,15 +595,14 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                           
                           {uni.acceptanceLetterUrl ? (
                             <div className="flex items-center gap-1">
-                              <a
-                                href={uni.acceptanceLetterUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                type="button"
                                 className="flex items-center gap-1 text-sm text-primary hover:underline"
+                                onClick={() => openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`)}
                               >
                                 <FileText className="h-4 w-4" />
                                 מכתב קבלה
-                              </a>
+                              </button>
                               <Button
                                 type="button"
                                 variant="ghost"

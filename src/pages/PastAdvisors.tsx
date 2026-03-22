@@ -127,7 +127,7 @@ export default function PastAdvisors() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(advisor.contract_url, '_blank')}
+                        onClick={() => openExternalFile(advisor.contract_url, `advisor-contract-${advisor.name}`)}
                       >
                         <FileText className="h-4 w-4 ml-1" />
                         חוזה
