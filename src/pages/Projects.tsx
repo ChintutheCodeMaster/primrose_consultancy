@@ -619,6 +619,7 @@ export default function Projects() {
               const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
               const totalExpense = collabProjects.filter(p => p.payment_direction === 'expense').reduce((sum, p) => sum + (p.amount || 0), 0);
               const net = totalIncome - totalExpense;
+              const totalNetAmount = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.net_amount || 0), 0);
               const pendingPaymentCount = collabProjects.filter(p => p.status === 'pending_payment').length;
               return (
                 <Card key={collab.id}>
@@ -643,11 +644,15 @@ export default function Projects() {
                                 <span>{collabProjects.length} פרויקטים</span>
                                 {collabProjects.length > 0 && (
                                   <>
-                                    <span className="text-green-600">+₪{totalIncome.toLocaleString()}</span>
                                     {totalExpense > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
                                     <span className={cn('font-medium', net >= 0 ? 'text-green-700' : 'text-red-700')}>
-                                      נטו: ₪{net.toLocaleString()}
+                                      הכנסות כולל: ₪{net.toLocaleString()}
                                     </span>
+                                    {totalNetAmount > 0 && (
+                                      <span className="text-muted-foreground">
+                                        הכנסות לאחר ניכוי: ₪{totalNetAmount.toLocaleString()}
+                                      </span>
+                                    )}
                                   </>
                                 )}
                               </div>
