@@ -491,6 +491,7 @@ export default function Projects() {
         <div>
           <Label>סכום</Label>
           <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
+          <Input type="text" inputMode="decimal" placeholder="סכום לאחר ניכוי מס (אופציונלי)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
         </div>
         <div>
           <Label>מתי נשלחה דרישת תשלום</Label>
