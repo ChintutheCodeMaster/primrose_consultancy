@@ -681,6 +681,7 @@ export default function Projects() {
                                       </Badge>
                                     </TableCell>
                                     <TableCell>{project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}</TableCell>
+                                    <TableCell>{project.payment_request_date ? format(new Date(project.payment_request_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.invoice_date ? format(new Date(project.invoice_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>{project.payment_date ? format(new Date(project.payment_date), 'dd/MM/yyyy') : '-'}</TableCell>
                                     <TableCell>
