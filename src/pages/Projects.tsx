@@ -598,7 +598,22 @@ export default function Projects() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {collaborations.map(collab => {
+            {collaborations.filter(collab => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.trim().toLowerCase();
+              const collabProjects = projectsByCollab(collab.id);
+              const collabMatch = collab.name.toLowerCase().includes(q) ||
+                (collab.contact_name || '').toLowerCase().includes(q) ||
+                (collab.contact_email || '').toLowerCase().includes(q) ||
+                (collab.contact_phone || '').toLowerCase().includes(q) ||
+                (collab.category || '').toLowerCase().includes(q);
+              const projectMatch = collabProjects.some(p =>
+                p.name.toLowerCase().includes(q) ||
+                (p.description || '').toLowerCase().includes(q) ||
+                (p.notes || '').toLowerCase().includes(q)
+              );
+              return collabMatch || projectMatch;
+            }).map(collab => {
               const collabProjects = projectsByCollab(collab.id);
               const isOpen = openCollabs.has(collab.id);
               const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
