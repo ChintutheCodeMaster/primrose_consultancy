@@ -383,15 +383,27 @@ export default function Projects() {
     setPreviewLoading(true);
     setPreviewUrl(null);
     setPreviewDownloadUrl(null);
+    setPreviewMimeType(null);
 
     try {
       for (const path of candidates) {
         const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
         if (downloadError || !downloadedFile) continue;
 
-        const blobUrl = URL.createObjectURL(downloadedFile);
+        const ext = path.split('.').pop()?.toLowerCase() || '';
+        const mimeMap: Record<string, string> = {
+          pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+          png: 'image/png', webp: 'image/webp', gif: 'image/gif',
+          doc: 'application/msword',
+          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        };
+        const mime = mimeMap[ext] || downloadedFile.type || 'application/octet-stream';
+        const correctBlob = new Blob([downloadedFile], { type: mime });
+        const blobUrl = URL.createObjectURL(correctBlob);
+
         setPreviewUrl(blobUrl);
         setPreviewDownloadUrl(blobUrl);
+        setPreviewMimeType(mime);
         return;
       }
 
