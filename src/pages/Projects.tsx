@@ -485,12 +485,12 @@ export default function Projects() {
           <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
         </div>
         <div>
-          <Label>תאריך תשלום</Label>
-          <Input type="date" value={projectForm.payment_date} onChange={e => setProjectForm(p => ({ ...p, payment_date: e.target.value }))} />
+          <Label>מתי נשלחה דרישת תשלום</Label>
+          <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
         </div>
         <div>
-          <Label>תאריך חשבונית</Label>
-          <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
+          <Label>מתי שולם</Label>
+          <Input type="date" value={projectForm.payment_date} onChange={e => setProjectForm(p => ({ ...p, payment_date: e.target.value }))} />
         </div>
         <div>
           <Label>סטטוס</Label>
