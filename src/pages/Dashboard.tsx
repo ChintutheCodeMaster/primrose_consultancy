@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check } from 'lucide-react';
+import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check, Briefcase } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { differenceInDays, format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -563,6 +563,35 @@ export default function Dashboard() {
     }
   });
 
+  // Fetch projects with pending_payment status
+  const { data: pendingPaymentProjects = [] } = useQuery({
+    queryKey: ['pending-payment-projects'],
+    queryFn: async () => {
+      const { data: projects, error } = await supabase
+        .from('projects')
+        .select('id, name, amount, collaboration_id')
+        .eq('status', 'pending_payment');
+      
+      if (error) throw error;
+      
+      // Get collaboration names
+      const collabIds = [...new Set((projects || []).map(p => p.collaboration_id).filter(Boolean))];
+      let collabMap = new Map<string, string>();
+      if (collabIds.length > 0) {
+        const { data: collabs } = await supabase
+          .from('collaborations')
+          .select('id, name')
+          .in('id', collabIds);
+        collabMap = new Map((collabs || []).map(c => [c.id, c.name]));
+      }
+      
+      return (projects || []).map(p => ({
+        ...p,
+        collaborationName: p.collaboration_id ? collabMap.get(p.collaboration_id) || '' : '',
+      }));
+    }
+  });
+
   // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
@@ -780,9 +809,9 @@ export default function Dashboard() {
           >
             <StatCard
               title="דורשים תשומת לב"
-              value={studentsNeedingAttention.length}
+              value={studentsNeedingAttention.length + pendingPaymentProjects.length}
               icon={AlertTriangle}
-              className={studentsNeedingAttention.length > 0 ? 'border-warning bg-warning/5' : ''}
+              className={(studentsNeedingAttention.length + pendingPaymentProjects.length) > 0 ? 'border-warning bg-warning/5' : ''}
             />
           </div>
           <div 
@@ -844,7 +873,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-warning" />
-                דורשים תשומת לב ({studentsNeedingAttention.length})
+                דורשים תשומת לב ({studentsNeedingAttention.length + pendingPaymentProjects.length})
               </h2>
               <Link to="/students?filter=attention" className="text-sm text-primary hover:underline">
                 הצג הכל
@@ -894,9 +923,41 @@ export default function Dashboard() {
                     </div>
                   );
                 })
-              ) : (
+              ) : pendingPaymentProjects.length === 0 ? (
                 <div className="text-center py-8 bg-card rounded-xl border border-border/50">
                   <p className="text-muted-foreground">🎉 אין סטודנטים שדורשים תשומת לב</p>
+                </div>
+              ) : null}
+
+              {/* Pending Payment Projects */}
+              {pendingPaymentProjects.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-warning" />
+                    שת״פ ממתין לתשלום ({pendingPaymentProjects.length})
+                  </h3>
+                  {pendingPaymentProjects.map((project) => (
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-3 bg-warning/10 rounded-lg mb-2 cursor-pointer hover:bg-warning/20 transition-colors"
+                      onClick={() => navigate('/projects')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center">
+                          <DollarSign className="h-4 w-4 text-warning" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-foreground">{project.name}</p>
+                          {project.collaborationName && (
+                            <p className="text-xs text-muted-foreground">{project.collaborationName}</p>
+                          )}
+                        </div>
+                      </div>
+                      {project.amount != null && (
+                        <span className="text-sm font-medium text-foreground">₪{project.amount.toLocaleString()}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
