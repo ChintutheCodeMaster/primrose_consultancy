@@ -822,17 +822,26 @@ export default function Projects() {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : previewUrl ? (
-                <object
-                  data={previewUrl}
-                  type="application/pdf"
-                  className="w-full h-[70vh]"
-                >
-                  <iframe
-                    src={previewUrl}
-                    className="w-full h-[70vh] border-0"
-                    title="תצוגה מקדימה של קובץ"
-                  />
-                </object>
+                previewMimeType?.startsWith('image/') ? (
+                  <div className="flex items-center justify-center h-[70vh] p-4">
+                    <img src={previewUrl} alt="תצוגה מקדימה" className="max-w-full max-h-full object-contain" />
+                  </div>
+                ) : previewMimeType === 'application/pdf' ? (
+                  <object data={previewUrl} type="application/pdf" className="w-full h-[70vh]">
+                    <iframe src={previewUrl} className="w-full h-[70vh] border-0" title="תצוגה מקדימה של קובץ" />
+                  </object>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
+                    <FileText className="h-16 w-16 text-muted-foreground" />
+                    <p className="text-muted-foreground">אין תצוגה מקדימה לסוג קובץ זה</p>
+                    {previewDownloadUrl && (
+                      <Button onClick={handleDownloadFile}>
+                        <Download className="h-4 w-4 ml-1" />
+                        הורדה
+                      </Button>
+                    )}
+                  </div>
+                )
               ) : null}
             </div>
           </DialogContent>
