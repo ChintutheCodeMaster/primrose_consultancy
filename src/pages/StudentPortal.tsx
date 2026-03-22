@@ -415,7 +415,7 @@ export default function StudentPortal() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(doc.file_url, "_blank")}
+                      onClick={() => openExternalFile(doc.file_url, doc.name)}
                     >
                       <Download className="h-4 w-4 ml-1" />
                       הורד
