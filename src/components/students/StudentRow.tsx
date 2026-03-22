@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { openExternalFile } from '@/lib/file-open';
 import { useNavigate } from 'react-router-dom';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
 import {
