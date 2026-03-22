@@ -104,6 +104,7 @@ export default function Projects() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewMimeType, setPreviewMimeType] = useState<string | null>(null);
 
   // ── Queries ──
 
