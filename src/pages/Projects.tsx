@@ -11,11 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2, Download, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { openExternalFile } from '@/lib/file-open';
 
 // ── Types ──
 
@@ -101,10 +102,6 @@ export default function Projects() {
 
   const [openCollabs, setOpenCollabs] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewDownloadUrl, setPreviewDownloadUrl] = useState<string | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [previewMimeType, setPreviewMimeType] = useState<string | null>(null);
 
   // ── Queries ──
 
@@ -370,75 +367,32 @@ export default function Projects() {
   const openProjectFile = async (project: Project) => {
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
+    const directUrl = project.file_url?.trim();
 
-    if (candidates.length === 0) {
+    if (candidates.length === 0 && !directUrl) {
       toast.error('לא נמצא נתיב קובץ לפרויקט הזה');
       return;
     }
 
-    if (previewDownloadUrl?.startsWith('blob:')) {
-      URL.revokeObjectURL(previewDownloadUrl);
-    }
-
-    setPreviewLoading(true);
-    setPreviewUrl(null);
-    setPreviewDownloadUrl(null);
-    setPreviewMimeType(null);
-
     try {
-      for (const path of candidates) {
-        const { data: downloadedFile, error: downloadError } = await supabase.storage.from(bucket).download(path);
-        if (downloadError || !downloadedFile) continue;
-
-        const ext = path.split('.').pop()?.toLowerCase() || '';
-        const mimeMap: Record<string, string> = {
-          pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg',
-          png: 'image/png', webp: 'image/webp', gif: 'image/gif',
-          doc: 'application/msword',
-          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        };
-        const mime = mimeMap[ext] || downloadedFile.type || 'application/octet-stream';
-        const correctBlob = new Blob([downloadedFile], { type: mime });
-        const blobUrl = URL.createObjectURL(correctBlob);
-
-        setPreviewUrl(blobUrl);
-        setPreviewDownloadUrl(blobUrl);
-        setPreviewMimeType(mime);
+      if (directUrl) {
+        await openExternalFile(directUrl, project.name);
         return;
       }
 
-      toast.error('לא הצלחנו לטעון תצוגה מקדימה. אפשר להוריד את הקובץ במקום.');
+      for (const path of candidates) {
+        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+        if (!data?.publicUrl) continue;
+
+        await openExternalFile(data.publicUrl, path.split('/').pop() || project.name);
+        return;
+      }
+
+      toast.error('לא הצלחנו לפתוח את הקובץ');
     } catch (error) {
       console.error('Failed to open project file', error);
       toast.error('אירעה שגיאה בפתיחת הקובץ. נסי שוב.');
-    } finally {
-      setPreviewLoading(false);
     }
-  };
-
-  const handleDownloadFile = () => {
-    if (!previewDownloadUrl) return;
-
-    try {
-      const a = document.createElement('a');
-      a.href = previewDownloadUrl;
-      a.download = '';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Failed to download project file', error);
-      toast.error('לא הצלחנו להוריד את הקובץ.');
-    }
-  };
-
-  const closePreview = () => {
-    if (previewDownloadUrl && previewDownloadUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(previewDownloadUrl);
-    }
-    setPreviewUrl(null);
-    setPreviewDownloadUrl(null);
-    setPreviewMimeType(null);
   };
 
   // ── Collab Form ──
@@ -799,51 +753,6 @@ export default function Projects() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>עריכת פרויקט</DialogTitle></DialogHeader>
             {projectFormContent}
-          </DialogContent>
-        </Dialog>
-
-        {/* File Preview Dialog */}
-        <Dialog open={!!previewUrl || previewLoading} onOpenChange={open => { if (!open) closePreview(); }}>
-          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-            <DialogHeader className="px-4 pt-4 pb-2 flex flex-row items-center justify-between">
-              <DialogTitle>תצוגה מקדימה</DialogTitle>
-              <div className="flex items-center gap-2">
-                {previewDownloadUrl && (
-                  <Button variant="outline" size="sm" onClick={handleDownloadFile}>
-                    <Download className="h-4 w-4 ml-1" />
-                    הורדה
-                  </Button>
-                )}
-              </div>
-            </DialogHeader>
-            <div className="flex-1 min-h-[70vh]">
-              {previewLoading ? (
-                <div className="flex items-center justify-center h-[70vh]">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : previewUrl ? (
-                previewMimeType?.startsWith('image/') ? (
-                  <div className="flex items-center justify-center h-[70vh] p-4">
-                    <img src={previewUrl} alt="תצוגה מקדימה" className="max-w-full max-h-full object-contain" />
-                  </div>
-                ) : previewMimeType === 'application/pdf' ? (
-                  <object data={previewUrl} type="application/pdf" className="w-full h-[70vh]">
-                    <iframe src={previewUrl} className="w-full h-[70vh] border-0" title="תצוגה מקדימה של קובץ" />
-                  </object>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-[70vh] gap-4">
-                    <FileText className="h-16 w-16 text-muted-foreground" />
-                    <p className="text-muted-foreground">אין תצוגה מקדימה לסוג קובץ זה</p>
-                    {previewDownloadUrl && (
-                      <Button onClick={handleDownloadFile}>
-                        <Download className="h-4 w-4 ml-1" />
-                        הורדה
-                      </Button>
-                    )}
-                  </div>
-                )
-              ) : null}
-            </div>
           </DialogContent>
         </Dialog>
       </div>
