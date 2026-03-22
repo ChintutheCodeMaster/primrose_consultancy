@@ -563,6 +563,35 @@ export default function Dashboard() {
     }
   });
 
+  // Fetch projects with pending_payment status
+  const { data: pendingPaymentProjects = [] } = useQuery({
+    queryKey: ['pending-payment-projects'],
+    queryFn: async () => {
+      const { data: projects, error } = await supabase
+        .from('projects')
+        .select('id, name, amount, collaboration_id')
+        .eq('status', 'pending_payment');
+      
+      if (error) throw error;
+      
+      // Get collaboration names
+      const collabIds = [...new Set((projects || []).map(p => p.collaboration_id).filter(Boolean))];
+      let collabMap = new Map<string, string>();
+      if (collabIds.length > 0) {
+        const { data: collabs } = await supabase
+          .from('collaborations')
+          .select('id, name')
+          .in('id', collabIds);
+        collabMap = new Map((collabs || []).map(c => [c.id, c.name]));
+      }
+      
+      return (projects || []).map(p => ({
+        ...p,
+        collaborationName: p.collaboration_id ? collabMap.get(p.collaboration_id) || '' : '',
+      }));
+    }
+  });
+
   // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
