@@ -657,6 +657,7 @@ export default function Projects() {
                                   <TableHead className="text-right">כיוון</TableHead>
                                   <TableHead className="text-right">סכום</TableHead>
                                   <TableHead className="text-right">דרישת תשלום</TableHead>
+                                  <TableHead className="text-right">חשבונית</TableHead>
                                   <TableHead className="text-right">מתי שולם</TableHead>
                                   <TableHead className="text-right">סטטוס</TableHead>
                                   <TableHead className="text-right">הערות תשלום</TableHead>
