@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Search, Phone, Mail, FileText, ExternalLink, RotateCcw, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { openExternalFile } from '@/lib/file-open';
 
 export default function PastAdvisors() {
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ export default function PastAdvisors() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(advisor.contract_url, '_blank')}
+                        onClick={() => openExternalFile(advisor.contract_url, `advisor-contract-${advisor.name}`)}
                       >
                         <FileText className="h-4 w-4 ml-1" />
                         חוזה

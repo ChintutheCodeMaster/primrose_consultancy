@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { 
   GraduationCap, 
@@ -446,7 +447,7 @@ export default function AdvisorPortal() {
     
     const { error: uploadError } = await supabase.storage
       .from("student-documents")
-      .upload(fileName, selectedFile);
+      .upload(fileName, selectedFile, { contentType: selectedFile.type, cacheControl: "3600" });
 
     if (uploadError) {
       toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
@@ -566,7 +567,7 @@ export default function AdvisorPortal() {
     
     const { error: uploadError } = await supabase.storage
       .from("acceptance-letters")
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
 
     if (uploadError) {
       toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
@@ -901,7 +902,7 @@ export default function AdvisorPortal() {
                                   {uni.country && <p className="text-xs text-muted-foreground">{uni.country}</p>}
                                 </div>
                                 {uni.acceptance_letter_url ? (
-                                  <Button variant="outline" size="sm" onClick={() => window.open(uni.acceptance_letter_url!, "_blank")} className="gap-1">
+                                  <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
                                     <FileText className="h-3 w-3" />
                                     מכתב קבלה
                                   </Button>
@@ -1328,7 +1329,7 @@ export default function AdvisorPortal() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => window.open(doc.file_url, "_blank")}
+                                onClick={() => openExternalFile(doc.file_url, doc.name)}
                               >
                                 <ExternalLink className="h-4 w-4" />
                               </Button>

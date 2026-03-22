@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
+import { openExternalFile } from "@/lib/file-open";
 import { 
   GraduationCap, 
   FileText, 
@@ -294,7 +295,7 @@ export default function StudentPortal() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.open(uni.acceptance_letter_url!, "_blank")}
+                              onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)}
                               className="gap-1"
                             >
                               <Download className="h-4 w-4" />
@@ -414,7 +415,7 @@ export default function StudentPortal() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(doc.file_url, "_blank")}
+                      onClick={() => openExternalFile(doc.file_url, doc.name)}
                     >
                       <Download className="h-4 w-4 ml-1" />
                       הורד

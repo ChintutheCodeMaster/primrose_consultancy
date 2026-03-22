@@ -22,6 +22,7 @@ import { he } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
+import { openExternalFile } from '@/lib/file-open';
 import { cn } from '@/lib/utils';
 import { FIELD_OPTIONS } from '@/data/fieldOptions';
 
@@ -258,7 +259,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
       const { error: uploadError } = await supabase.storage
         .from('acceptance-letters')
-        .upload(fileName, file);
+        .upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
 
       if (uploadError) throw uploadError;
 
@@ -594,15 +595,14 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                           
                           {uni.acceptanceLetterUrl ? (
                             <div className="flex items-center gap-1">
-                              <a
-                                href={uni.acceptanceLetterUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                type="button"
                                 className="flex items-center gap-1 text-sm text-primary hover:underline"
+                                onClick={() => openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`)}
                               >
                                 <FileText className="h-4 w-4" />
                                 מכתב קבלה
-                              </a>
+                              </button>
                               <Button
                                 type="button"
                                 variant="ghost"

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { openExternalFile } from '@/lib/file-open';
 import { useNavigate } from 'react-router-dom';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
 import {
@@ -371,15 +372,16 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 <span>{uni.name}</span>
                 {uni.country && <span className="text-success/70">({uni.country})</span>}
                 {uni.acceptanceLetterUrl && (
-                  <a 
-                    href={uni.acceptanceLetterUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <button 
+                    type="button"
                     className="mr-1 hover:text-success/80"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`);
+                    }}
                   >
                     <FileText className="h-3 w-3" />
-                  </a>
+                  </button>
                 )}
               </div>
             ))}
