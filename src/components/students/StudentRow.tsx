@@ -381,7 +381,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     }}
                   >
                     <FileText className="h-3 w-3" />
-                  </a>
+                  </button>
                 )}
               </div>
             ))}
