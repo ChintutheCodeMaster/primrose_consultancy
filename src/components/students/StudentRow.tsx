@@ -372,12 +372,13 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 <span>{uni.name}</span>
                 {uni.country && <span className="text-success/70">({uni.country})</span>}
                 {uni.acceptanceLetterUrl && (
-                  <a 
-                    href={uni.acceptanceLetterUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <button 
+                    type="button"
                     className="mr-1 hover:text-success/80"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`);
+                    }}
                   >
                     <FileText className="h-3 w-3" />
                   </a>
