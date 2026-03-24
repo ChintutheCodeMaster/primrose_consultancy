@@ -384,7 +384,7 @@ export default function Advisors() {
             
             {viewingAdvisor && (
               <div className="space-y-4 mt-4">
-                {(viewingAdvisor.email || viewingAdvisor.phone) && (
+                {(viewingAdvisor.email || viewingAdvisor.phone || viewingAdvisor.residence) && (
                   <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                     <h4 className="font-medium text-sm text-muted-foreground mb-2">פרטי התקשרות</h4>
                     {viewingAdvisor.phone && (
@@ -397,6 +397,12 @@ export default function Advisors() {
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <span dir="ltr">{viewingAdvisor.email}</span>
+                      </div>
+                    )}
+                    {viewingAdvisor.residence && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Home className="h-4 w-4 text-muted-foreground" />
+                        {viewingAdvisor.residence}
                       </div>
                     )}
                   </div>

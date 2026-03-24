@@ -107,6 +107,18 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
             />
           </div>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="residence" className="flex items-center gap-1">
+            <Home className="h-3.5 w-3.5" />
+            מקום מגורים
+          </Label>
+          <Input
+            id="residence"
+            value={formData.residence}
+            onChange={(e) => onFormDataChange({ ...formData, residence: e.target.value })}
+            placeholder="לדוגמה: תל אביב"
+          />
+        </div>
       </div>
 
       <div className="p-4 bg-primary/5 rounded-lg space-y-3">
