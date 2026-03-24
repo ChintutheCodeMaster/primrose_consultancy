@@ -36,6 +36,7 @@ const initialFormData: AdvisorFormData = {
   notes: '',
   is_active: true,
   portal_password: '',
+  residence: '',
 };
 
 export default function Advisors() {
