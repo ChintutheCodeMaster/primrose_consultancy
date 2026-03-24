@@ -174,6 +174,7 @@ export default function Advisors() {
       notes: advisor.notes || '',
       is_active: advisor.is_active ?? true,
       portal_password: (advisor as any).portal_password || '',
+      residence: advisor.residence || '',
     });
   };
 
