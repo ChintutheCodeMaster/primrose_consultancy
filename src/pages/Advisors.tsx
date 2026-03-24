@@ -100,6 +100,7 @@ export default function Advisors() {
         notes: data.notes || null,
         is_active: data.is_active,
         portal_password: data.portal_password || null,
+        residence: data.residence || null,
       });
       if (error) throw error;
     },
