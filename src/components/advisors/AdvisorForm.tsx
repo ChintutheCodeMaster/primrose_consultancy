@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { FileText, Upload, X, Eye, EyeOff, Key } from 'lucide-react';
+import { FileText, Upload, X, Eye, EyeOff, Key, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -17,6 +17,7 @@ export interface AdvisorFormData {
   notes: string;
   is_active: boolean;
   portal_password: string;
+  residence: string;
 }
 
 interface AdvisorFormProps {
@@ -105,6 +106,18 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
               onChange={(e) => onFormDataChange({ ...formData, phone: e.target.value })}
             />
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="residence" className="flex items-center gap-1">
+            <Home className="h-3.5 w-3.5" />
+            מקום מגורים
+          </Label>
+          <Input
+            id="residence"
+            value={formData.residence}
+            onChange={(e) => onFormDataChange({ ...formData, residence: e.target.value })}
+            placeholder="לדוגמה: תל אביב"
+          />
         </div>
       </div>
 

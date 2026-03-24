@@ -1,0 +1,1 @@
+ALTER TABLE public.advisors ADD COLUMN residence text DEFAULT NULL;

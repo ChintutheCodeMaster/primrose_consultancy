@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy, History } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserCircle, Phone, Mail, FileText, Banknote, Link2, ExternalLink, Copy, History, Home } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { openExternalFile } from '@/lib/file-open';
@@ -23,6 +23,7 @@ interface Advisor {
   contract_url: string | null;
   notes: string | null;
   is_active: boolean | null;
+  residence: string | null;
   created_at: string;
 }
 
@@ -35,6 +36,7 @@ const initialFormData: AdvisorFormData = {
   notes: '',
   is_active: true,
   portal_password: '',
+  residence: '',
 };
 
 export default function Advisors() {
@@ -98,6 +100,7 @@ export default function Advisors() {
         notes: data.notes || null,
         is_active: data.is_active,
         portal_password: data.portal_password || null,
+        residence: data.residence || null,
       });
       if (error) throw error;
     },
@@ -123,6 +126,7 @@ export default function Advisors() {
           notes: data.notes || null,
           is_active: data.is_active,
           portal_password: data.portal_password || null,
+          residence: data.residence || null,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -170,6 +174,7 @@ export default function Advisors() {
       notes: advisor.notes || '',
       is_active: advisor.is_active ?? true,
       portal_password: (advisor as any).portal_password || '',
+      residence: advisor.residence || '',
     });
   };
 
@@ -290,7 +295,7 @@ export default function Advisors() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {(advisor.email || advisor.phone) && (
+                  {(advisor.email || advisor.phone || advisor.residence) && (
                     <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                       {advisor.phone && (
                         <span className="flex items-center gap-1">
@@ -302,6 +307,12 @@ export default function Advisors() {
                         <span className="flex items-center gap-1">
                           <Mail className="h-3 w-3" />
                           <span dir="ltr">{advisor.email}</span>
+                        </span>
+                      )}
+                      {advisor.residence && (
+                        <span className="flex items-center gap-1">
+                          <Home className="h-3 w-3" />
+                          {advisor.residence}
                         </span>
                       )}
                     </div>
@@ -373,7 +384,7 @@ export default function Advisors() {
             
             {viewingAdvisor && (
               <div className="space-y-4 mt-4">
-                {(viewingAdvisor.email || viewingAdvisor.phone) && (
+                {(viewingAdvisor.email || viewingAdvisor.phone || viewingAdvisor.residence) && (
                   <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                     <h4 className="font-medium text-sm text-muted-foreground mb-2">פרטי התקשרות</h4>
                     {viewingAdvisor.phone && (
@@ -386,6 +397,12 @@ export default function Advisors() {
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <span dir="ltr">{viewingAdvisor.email}</span>
+                      </div>
+                    )}
+                    {viewingAdvisor.residence && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Home className="h-4 w-4 text-muted-foreground" />
+                        {viewingAdvisor.residence}
                       </div>
                     )}
                   </div>
