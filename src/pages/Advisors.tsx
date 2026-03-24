@@ -23,6 +23,7 @@ interface Advisor {
   contract_url: string | null;
   notes: string | null;
   is_active: boolean | null;
+  residence: string | null;
   created_at: string;
 }
 
