@@ -295,7 +295,7 @@ export default function Advisors() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {(advisor.email || advisor.phone) && (
+                  {(advisor.email || advisor.phone || advisor.residence) && (
                     <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                       {advisor.phone && (
                         <span className="flex items-center gap-1">
@@ -307,6 +307,12 @@ export default function Advisors() {
                         <span className="flex items-center gap-1">
                           <Mail className="h-3 w-3" />
                           <span dir="ltr">{advisor.email}</span>
+                        </span>
+                      )}
+                      {advisor.residence && (
+                        <span className="flex items-center gap-1">
+                          <Home className="h-3 w-3" />
+                          {advisor.residence}
                         </span>
                       )}
                     </div>
