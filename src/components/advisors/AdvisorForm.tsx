@@ -17,6 +17,7 @@ export interface AdvisorFormData {
   notes: string;
   is_active: boolean;
   portal_password: string;
+  residence: string;
 }
 
 interface AdvisorFormProps {
