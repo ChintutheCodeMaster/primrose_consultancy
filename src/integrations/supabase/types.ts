@@ -63,6 +63,7 @@ export type Database = {
           payment_type: string | null
           phone: string | null
           portal_password: string | null
+          residence: string | null
         }
         Insert: {
           contract_url?: string | null
@@ -77,6 +78,7 @@ export type Database = {
           payment_type?: string | null
           phone?: string | null
           portal_password?: string | null
+          residence?: string | null
         }
         Update: {
           contract_url?: string | null
@@ -91,6 +93,7 @@ export type Database = {
           payment_type?: string | null
           phone?: string | null
           portal_password?: string | null
+          residence?: string | null
         }
         Relationships: []
       }
