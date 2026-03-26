@@ -336,7 +336,7 @@ export default function Advisors() {
                   variant="outline"
                   className="flex-1 gap-2"
                   onClick={() => {
-                    const link = `${window.location.origin}/advisor/${editingAdvisor.id}`;
+                    const link = `https://nooga-study-buddy.lovable.app/advisor/${editingAdvisor.id}`;
                     navigator.clipboard.writeText(link);
                     toast.success('קישור לפורטל היועץ הועתק!');
                   }}
@@ -444,7 +444,7 @@ export default function Advisors() {
                     variant="outline"
                     className="flex-1 gap-2"
                     onClick={() => {
-                      const link = `${window.location.origin}/advisor/${viewingAdvisor.id}`;
+                      const link = `https://nooga-study-buddy.lovable.app/advisor/${viewingAdvisor.id}`;
                       navigator.clipboard.writeText(link);
                       toast.success('קישור לפורטל היועץ הועתק!');
                     }}
