@@ -703,7 +703,7 @@ export default function Dashboard() {
 
         {/* Export Reminder */}
         {showExportReminder && (
-          <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between gap-4 animate-fade-in">
+          <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
             <div className="flex items-center gap-3">
               <Download className="h-5 w-5 text-primary shrink-0" />
               <p className="text-sm text-foreground">
@@ -756,7 +756,7 @@ export default function Dashboard() {
                   {searchResults.map((result) => (
                     <div
                       key={`${result.location}-${result.id}`}
-                      className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors gap-2"
                       onClick={() => {
                         navigate(result.navigateTo);
                         setSearchTerm('');
