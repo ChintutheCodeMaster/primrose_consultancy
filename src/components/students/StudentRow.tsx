@@ -104,8 +104,8 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+        <div className="flex items-center gap-4 min-w-0">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <span className="text-lg font-bold">{student.name.charAt(0)}</span>
           </div>
