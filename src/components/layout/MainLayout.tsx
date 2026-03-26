@@ -9,7 +9,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="min-h-screen p-4 pt-16 lg:pt-8 lg:pr-64 lg:pl-4 lg:p-8">
+      <main className="min-h-screen p-4 pt-16 lg:pt-8 lg:pr-72 lg:pl-8 overflow-x-hidden">
         {children}
       </main>
     </div>
