@@ -7,9 +7,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Sidebar />
-      <main className="min-h-screen p-4 pt-16 lg:pt-8 lg:pr-72 lg:pl-8 overflow-x-hidden">
+      <main className="min-h-screen p-3 pt-16 sm:p-4 sm:pt-16 lg:pt-8 lg:pr-72 lg:pl-8 min-w-0">
         {children}
       </main>
     </div>
