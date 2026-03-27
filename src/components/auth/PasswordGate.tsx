@@ -19,6 +19,7 @@ export const PasswordGate = ({ children }: PasswordGateProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === CORRECT_PASSWORD) {
+      localStorage.setItem(AUTH_KEY, "true");
       setIsAuthenticated(true);
       setError("");
     } else {
