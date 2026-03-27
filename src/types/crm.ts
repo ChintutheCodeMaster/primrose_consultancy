@@ -14,6 +14,7 @@ export interface Lead {
   interestedField: string;
   meetingSummary: string;
   websiteInquiry?: string;
+  isFromWebsite?: boolean;
   packageNotes?: string;
   leadsYear?: string;
   advisorName?: string;
