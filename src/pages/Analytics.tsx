@@ -465,6 +465,14 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
+  // Total income - all time
+  const totalIncomeAllTime = (incomeData || []).reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
+
+  // Total income - by selected season
+  const totalIncomeBySeason = (incomeData || [])
+    .filter(s => seasonFilter === 'all' || s.graduation_year === seasonFilter)
+    .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
+
   // Projects income/expense - group by collaboration
   const collabMap = (collaborations || []).reduce((acc, c) => {
     acc[c.id] = c.name;
