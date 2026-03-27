@@ -195,6 +195,7 @@ export type Database = {
           id: string
           interested_country: string | null
           interested_field: string | null
+          is_from_website: boolean
           last_contact_at: string
           leads_year: string | null
           meeting_summary: string | null
@@ -215,6 +216,7 @@ export type Database = {
           id?: string
           interested_country?: string | null
           interested_field?: string | null
+          is_from_website?: boolean
           last_contact_at?: string
           leads_year?: string | null
           meeting_summary?: string | null
@@ -235,6 +237,7 @@ export type Database = {
           id?: string
           interested_country?: string | null
           interested_field?: string | null
+          is_from_website?: boolean
           last_contact_at?: string
           leads_year?: string | null
           meeting_summary?: string | null

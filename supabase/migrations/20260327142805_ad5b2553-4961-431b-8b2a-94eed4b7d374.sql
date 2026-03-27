@@ -1,0 +1,1 @@
+ALTER TABLE public.leads ADD COLUMN is_from_website boolean NOT NULL DEFAULT false;

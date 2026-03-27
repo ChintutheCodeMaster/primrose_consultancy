@@ -38,7 +38,7 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
               <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
                 {lead.name}
               </h3>
-              {lead.source?.includes('אתר WIX') && (
+              {lead.isFromWebsite && (
                 <span className="inline-flex items-center rounded-full bg-accent text-accent-foreground px-2 py-0.5 text-[10px] font-medium">
                   נכנס אוטומטית
                 </span>

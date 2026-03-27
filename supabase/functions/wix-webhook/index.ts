@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
         email,
         phone: phone || null,
         source: sourceField || null,
+        is_from_website: true,
         website_inquiry: inquiry,
         degree_type: 'bachelor',
         leads_year: leadsYear,
