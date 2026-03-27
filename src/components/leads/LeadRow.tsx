@@ -34,9 +34,16 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
             <span className="text-lg font-bold">{lead.name.charAt(0)}</span>
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
-              {lead.name}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
+                {lead.name}
+              </h3>
+              {lead.source?.includes('אתר WIX') && (
+                <span className="inline-flex items-center rounded-full bg-accent text-accent-foreground px-2 py-0.5 text-[10px] font-medium">
+                  נכנס אוטומטית
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 mt-1">
               <StatusBadge variant={leadStatusColors[lead.status]}>
                 {leadStatusLabels[lead.status]}

@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
         name,
         email,
         phone: phone || null,
-        source: sourceField || 'אתר WIX',
+        source: sourceField ? `${sourceField} (אתר WIX)` : 'אתר WIX',
         website_inquiry: inquiry,
         degree_type: 'bachelor',
         leads_year: leadsYear,
