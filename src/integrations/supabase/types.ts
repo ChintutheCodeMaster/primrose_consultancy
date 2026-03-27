@@ -203,6 +203,7 @@ export type Database = {
           phone: string | null
           source: string | null
           status: string
+          website_inquiry: string | null
         }
         Insert: {
           advisor_name?: string | null
@@ -222,6 +223,7 @@ export type Database = {
           phone?: string | null
           source?: string | null
           status?: string
+          website_inquiry?: string | null
         }
         Update: {
           advisor_name?: string | null
@@ -241,6 +243,7 @@ export type Database = {
           phone?: string | null
           source?: string | null
           status?: string
+          website_inquiry?: string | null
         }
         Relationships: []
       }

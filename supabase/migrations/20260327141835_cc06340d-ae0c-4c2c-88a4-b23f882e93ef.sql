@@ -1,0 +1,1 @@
+ALTER TABLE public.leads ADD COLUMN website_inquiry text DEFAULT NULL;
