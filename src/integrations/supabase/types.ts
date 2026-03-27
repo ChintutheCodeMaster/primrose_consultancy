@@ -250,6 +250,33 @@ export type Database = {
         }
         Relationships: []
       }
+      leads_year_settings: {
+        Row: {
+          created_at: string
+          current_year: string
+          id: string
+          next_year: string
+          transition_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_year: string
+          id?: string
+          next_year: string
+          transition_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_year?: string
+          id?: string
+          next_year?: string
+          transition_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           amount: number | null
