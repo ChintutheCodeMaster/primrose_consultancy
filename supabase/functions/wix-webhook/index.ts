@@ -85,13 +85,22 @@ Deno.serve(async (req) => {
     ].filter(Boolean);
     const inquiry = inquiryParts.length > 0 ? inquiryParts.join('\n') : null;
 
-    // leads_year = always current year + 1 (last 2 digits)
-    const now = new Date();
-    const leadsYear = String(now.getFullYear() + 1).slice(-2);
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Determine leads_year from settings
+    let leadsYear = '27'; // fallback
+    const { data: yearSettings } = await supabase
+      .from('leads_year_settings')
+      .select('current_year, next_year, transition_date')
+      .limit(1)
+      .single();
+    
+    if (yearSettings) {
+      const today = new Date().toISOString().split('T')[0];
+      leadsYear = today >= yearSettings.transition_date ? yearSettings.next_year : yearSettings.current_year;
+    }
 
     const { data: leadData, error } = await supabase
       .from('leads')
