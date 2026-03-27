@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check, Briefcase } from 'lucide-react';
+import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check, Briefcase, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { differenceInDays, format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -592,6 +592,26 @@ export default function Dashboard() {
     }
   });
 
+  // Fetch new website leads (is_from_website = true, created in last 7 days)
+  const { data: newWebsiteLeads = [] } = useQuery({
+    queryKey: ['new-website-leads'],
+    queryFn: async () => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { data, error } = await supabase
+        .from('leads')
+        .select('id, name, created_at, source, leads_year')
+        .eq('is_from_website', true)
+        .eq('did_not_continue', false)
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
   // Categorize new students this month
   const activeNewStudents = allNewStudentsThisMonth.filter(s => !s.graduation_year && !s.did_not_continue);
   const pastClientsNew = allNewStudentsThisMonth.filter(s => s.graduation_year && !s.did_not_continue);
@@ -862,6 +882,41 @@ export default function Dashboard() {
                   </Button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* New Website Leads Banner */}
+        {newWebsiteLeads.length > 0 && (
+          <div className="mb-8 bg-primary/10 border border-primary/30 rounded-xl p-4 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {newWebsiteLeads.length === 1 
+                      ? 'נכנס מתעניין חדש מהאתר!' 
+                      : `נכנסו ${newWebsiteLeads.length} מתעניינים חדשים מהאתר!`}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {newWebsiteLeads.map(l => l.name).join(', ')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 shrink-0"
+                onClick={() => {
+                  const year = newWebsiteLeads[0]?.leads_year;
+                  navigate(year ? `/leads/${year}` : '/leads/27');
+                }}
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                צפה במתעניינים
+              </Button>
             </div>
           </div>
         )}
