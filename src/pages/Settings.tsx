@@ -276,9 +276,141 @@ export default function Settings() {
           </Card>
         ))}
 
+        {/* Leads Year Transition Settings */}
+        <LeadsYearSettings />
+
         <SourceOptionsManager />
         <CountryOptionsManager />
       </div>
     </MainLayout>
+  );
+}
+
+function LeadsYearSettings() {
+  const queryClient = useQueryClient();
+
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ['leads-year-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('leads_year_settings')
+        .select('*')
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (updates: { current_year?: string; next_year?: string; transition_date?: string }) => {
+      if (!settings) return;
+      const { error } = await supabase
+        .from('leads_year_settings')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', settings.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads-year-settings'] });
+      toast.success('ההגדרות עודכנו בהצלחה');
+    },
+    onError: () => {
+      toast.error('שגיאה בעדכון ההגדרות');
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center h-32">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!settings) return null;
+
+  const transitionDate = new Date(settings.transition_date + 'T00:00:00');
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Globe className="h-5 w-5 text-primary" />
+          <CardTitle>מתעניינים מהאתר — הגדרת שנה</CardTitle>
+        </div>
+        <CardDescription>
+          הגדרי לאיזו שנה ייכנסו מתעניינים חדשים מהאתר, ומתי לעבור לשנה הבאה
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Current Year */}
+          <div className="space-y-2">
+            <Label>שנה נוכחית (פניות נכנסות לכאן)</Label>
+            <Input
+              value={settings.current_year}
+              onChange={(e) => updateMutation.mutate({ current_year: e.target.value })}
+              placeholder="27"
+              className="text-center text-lg font-semibold"
+            />
+            <p className="text-xs text-muted-foreground">למשל: 27 = מתעניינים 27</p>
+          </div>
+
+          {/* Transition Date */}
+          <div className="space-y-2">
+            <Label>תאריך מעבר</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-right font-normal",
+                    !settings.transition_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  {format(transitionDate, 'dd/MM/yyyy', { locale: he })}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={transitionDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      updateMutation.mutate({ transition_date: format(date, 'yyyy-MM-dd') });
+                    }
+                  }}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-muted-foreground">אחרי תאריך זה, פניות ייכנסו לשנה הבאה</p>
+          </div>
+
+          {/* Next Year */}
+          <div className="space-y-2">
+            <Label>שנה הבאה (אחרי תאריך המעבר)</Label>
+            <Input
+              value={settings.next_year}
+              onChange={(e) => updateMutation.mutate({ next_year: e.target.value })}
+              placeholder="28"
+              className="text-center text-lg font-semibold"
+            />
+            <p className="text-xs text-muted-foreground">למשל: 28 = מתעניינים 28</p>
+          </div>
+        </div>
+
+        {/* Status indicator */}
+        <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+          📌 כרגע פניות חדשות מהאתר נכנסות ל<strong className="text-foreground">מתעניינים {settings.current_year}</strong>.
+          {' '}החל מ-{format(transitionDate, 'dd/MM/yyyy', { locale: he })} הן ייכנסו ל<strong className="text-foreground">מתעניינים {settings.next_year}</strong>.
+        </div>
+      </CardContent>
+    </Card>
   );
 }
