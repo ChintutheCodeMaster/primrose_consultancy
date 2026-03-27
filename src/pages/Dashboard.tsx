@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { StudentRow } from '@/components/students/StudentRow';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
-import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check, Briefcase } from 'lucide-react';
+import { GraduationCap, AlertTriangle, DollarSign, UserCheck, X, Loader2, Search, ExternalLink, UserPlus, Users, History, Download, FileCheck, Check, Briefcase, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { differenceInDays, format } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -589,6 +589,26 @@ export default function Dashboard() {
         ...p,
         collaborationName: p.collaboration_id ? collabMap.get(p.collaboration_id) || '' : '',
       }));
+    }
+  });
+
+  // Fetch new website leads (is_from_website = true, created in last 7 days)
+  const { data: newWebsiteLeads = [] } = useQuery({
+    queryKey: ['new-website-leads'],
+    queryFn: async () => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { data, error } = await supabase
+        .from('leads')
+        .select('id, name, created_at, source, leads_year')
+        .eq('is_from_website', true)
+        .eq('did_not_continue', false)
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
     }
   });
 
