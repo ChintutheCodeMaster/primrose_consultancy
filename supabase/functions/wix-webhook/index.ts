@@ -73,9 +73,17 @@ Deno.serve(async (req) => {
     // Extract source - just the raw value, no "אתר WIX" prefix
     const sourceField = getSubmissionValue(submissions || [], 'איך שמעת', 'מקור', 'source');
 
-    // Extract message/inquiry content
-    const inquiry = getSubmissionValue(submissions || [], 'איך נוכל', 'הודעה', 'הערות', 'message', 'notes', 'פנייה', 'how can we help')
+    // Extract both "how can we help" and "message" fields separately
+    const howCanWeHelp = getSubmissionValue(submissions || [], 'איך נוכל', 'how can we help');
+    const message = getSubmissionValue(submissions || [], 'הודעה', 'הערות', 'message', 'notes', 'פנייה')
       || wixData.message || null;
+    
+    // Combine both into one inquiry field
+    const inquiryParts = [
+      howCanWeHelp ? `איך נוכל לעזור: ${howCanWeHelp}` : null,
+      message ? `הודעה: ${message}` : null,
+    ].filter(Boolean);
+    const inquiry = inquiryParts.length > 0 ? inquiryParts.join('\n') : null;
 
     // leads_year = always current year + 1 (last 2 digits)
     const now = new Date();
