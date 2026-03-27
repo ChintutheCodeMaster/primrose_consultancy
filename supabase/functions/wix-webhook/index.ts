@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     const sourceField = getSubmissionValue(submissions || [], 'איך שמעת', 'מקור', 'source');
 
     // Extract message/inquiry content
-    const inquiry = getSubmissionValue(submissions || [], 'הודעה', 'הערות', 'message', 'notes', 'פנייה')
+    const inquiry = getSubmissionValue(submissions || [], 'איך נוכל', 'הודעה', 'הערות', 'message', 'notes', 'פנייה', 'how can we help')
       || wixData.message || null;
 
     // leads_year = always current year + 1 (last 2 digits)
