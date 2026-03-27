@@ -618,7 +618,7 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              הכנסות החודש - ₪{totalIncomeThisMonth.toLocaleString()}
+              הכנסות החודש - ₪{totalIncomeThisMonth.toLocaleString()} ({incomeThisMonth.length} סטודנטים)
             </CardTitle>
           </CardHeader>
           <CardContent>
