@@ -131,6 +131,16 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
         </div>
       </div>
 
+      {/* Website Inquiry */}
+      {lead.websiteInquiry && (
+        <div className="mt-4 border-t border-border/50 pt-4">
+          <p className="text-xs font-medium text-muted-foreground mb-1">פנייה מהאתר:</p>
+          <p className="text-sm text-card-foreground bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+            {lead.websiteInquiry}
+          </p>
+        </div>
+      )}
+
       {/* Meeting Summary */}
       {lead.meetingSummary && (
         <div className="mt-4 border-t border-border/50 pt-4">

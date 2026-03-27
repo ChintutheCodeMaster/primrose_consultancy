@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     const submissions = wixData.submissions;
     const contact = wixData.contact;
 
-    // Extract name from submissions array (WIX format: [{label, value}])
+    // Extract name from submissions array
     let name = 'לא ידוע';
     if (submissions) {
       const lastName = getSubmissionValue(submissions, 'שם משפחה', 'last name');
@@ -40,14 +40,12 @@ Deno.serve(async (req) => {
         name = firstName;
       }
     }
-    // Fallback to contact info
     if (name === 'לא ידוע' && contact?.name) {
       const { first, last } = contact.name;
       if (first && last) name = `${first} ${last}`;
       else if (first) name = first;
       else if (last) name = last;
     }
-    // Fallback to flat format
     if (name === 'לא ידוע') {
       name = wixData.name || wixData.fullName || wixData["שם"] || 'לא ידוע';
     }
@@ -57,24 +55,31 @@ Deno.serve(async (req) => {
       || contact?.email
       || wixData.email || null;
 
-    // Extract phone
-    const phone = getSubmissionValue(submissions || [], 'טלפון', 'phone', 'נייד')
-      || (contact?.phone && contact.phone !== '' ? contact.phone : null)
-      || wixData.phone || null;
+    // Extract phone - try submissions first, then contact, then field keys
+    let phone = getSubmissionValue(submissions || [], 'טלפון', 'phone', 'נייד');
+    if (!phone && contact?.phone && contact.phone !== '') {
+      phone = contact.phone;
+    }
+    // Try field:comp-* keys that might contain phone
+    if (!phone && wixData) {
+      for (const [key, value] of Object.entries(wixData)) {
+        if (key.startsWith('field:') && typeof value === 'string' && /^0\d{8,9}$/.test(value.replace(/[-\s]/g, ''))) {
+          phone = value;
+          break;
+        }
+      }
+    }
 
-    // Extract source field
+    // Extract source - just the raw value, no "אתר WIX" prefix
     const sourceField = getSubmissionValue(submissions || [], 'איך שמעת', 'מקור', 'source');
 
-    // Extract message/notes
-    const message = getSubmissionValue(submissions || [], 'הודעה', 'הערות', 'message', 'notes')
+    // Extract message/inquiry content
+    const inquiry = getSubmissionValue(submissions || [], 'הודעה', 'הערות', 'message', 'notes', 'פנייה')
       || wixData.message || null;
 
-    // Auto-assign leads_year: if month >= September, use next year
+    // leads_year = always current year + 1 (last 2 digits)
     const now = new Date();
-    const month = now.getMonth(); // 0-based
-    const year = now.getFullYear();
-    const academicYear = month >= 8 ? year + 1 : year;
-    const leadsYear = String(academicYear).slice(-2);
+    const leadsYear = String(now.getFullYear() + 1).slice(-2);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -85,9 +90,9 @@ Deno.serve(async (req) => {
       .insert({
         name,
         email,
-        phone,
-        source: sourceField ? `אתר WIX - ${sourceField}` : 'אתר WIX',
-        meeting_summary: message,
+        phone: phone || null,
+        source: sourceField || 'אתר WIX',
+        website_inquiry: inquiry,
         degree_type: 'bachelor',
         leads_year: leadsYear,
         status: 'new',

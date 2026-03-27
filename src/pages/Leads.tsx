@@ -71,6 +71,7 @@ export default function Leads() {
         interestedCountry: lead.interested_country || '',
         interestedField: lead.interested_field || '',
         meetingSummary: lead.meeting_summary || '',
+        websiteInquiry: (lead as any).website_inquiry || '',
         packageNotes: lead.package_notes || '',
         createdAt: new Date(lead.created_at),
         lastContactAt: new Date(lead.last_contact_at),

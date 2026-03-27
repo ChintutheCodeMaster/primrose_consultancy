@@ -13,6 +13,7 @@ export interface Lead {
   interestedCountry: string;
   interestedField: string;
   meetingSummary: string;
+  websiteInquiry?: string;
   packageNotes?: string;
   leadsYear?: string;
   advisorName?: string;
