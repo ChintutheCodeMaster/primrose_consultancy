@@ -886,6 +886,41 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* New Website Leads Banner */}
+        {newWebsiteLeads.length > 0 && (
+          <div className="mb-8 bg-primary/10 border border-primary/30 rounded-xl p-4 animate-fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {newWebsiteLeads.length === 1 
+                      ? 'נכנס מתעניין חדש מהאתר!' 
+                      : `נכנסו ${newWebsiteLeads.length} מתעניינים חדשים מהאתר!`}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {newWebsiteLeads.map(l => l.name).join(', ')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 shrink-0"
+                onClick={() => {
+                  const year = newWebsiteLeads[0]?.leads_year;
+                  navigate(year ? `/leads/${year}` : '/leads/27');
+                }}
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                צפה במתעניינים
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Students Needing Attention */}
