@@ -5,19 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 
 const CORRECT_PASSWORD = "NogaNoga123";
+const AUTH_KEY = "noga_crm_auth";
 
 interface PasswordGateProps {
   children: React.ReactNode;
 }
 
 export const PasswordGate = ({ children }: PasswordGateProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem(AUTH_KEY) === "true");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === CORRECT_PASSWORD) {
+      localStorage.setItem(AUTH_KEY, "true");
       setIsAuthenticated(true);
       setError("");
     } else {
