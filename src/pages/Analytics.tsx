@@ -465,6 +465,14 @@ export default function Analytics() {
   
   const totalIncomeThisMonth = incomeThisMonth.reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
 
+  // Total income - all time
+  const totalIncomeAllTime = (incomeData || []).reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
+
+  // Total income - by selected season
+  const totalIncomeBySeason = (incomeData || [])
+    .filter(s => seasonFilter === 'all' || s.graduation_year === seasonFilter)
+    .reduce((sum, s) => sum + (Number(s.amount_paid) || 0), 0);
+
   // Projects income/expense - group by collaboration
   const collabMap = (collaborations || []).reduce((acc, c) => {
     acc[c.id] = c.name;
@@ -551,7 +559,7 @@ export default function Analytics() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">סה״כ מתעניינים</CardTitle>
@@ -592,6 +600,24 @@ export default function Analytics() {
                   ? `₪${avgPackageCostData[avgPackageCostData.length - 1]?.average?.toLocaleString() || 0}`
                   : '₪0'}
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">הכנסות {seasonFilter === 'all' ? 'כל העונות' : `עונת ${seasonFilter}`}</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₪{totalIncomeBySeason.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">הכנסות כל הזמנים</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">₪{totalIncomeAllTime.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
