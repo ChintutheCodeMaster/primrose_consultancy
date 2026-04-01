@@ -246,12 +246,14 @@ export default function Students() {
       advisor_name: newStudent.advisorName,
       payment_type: newStudent.paymentType || 'package',
       package_cost: newStudent.packageCost,
+      amount_paid: newStudent.amountPaid || 0,
       payment_notes: newStudent.paymentNotes,
       is_paid: newStudent.isPaid,
       signed_agreement: newStudent.signedAgreement,
       target_country: newStudent.targetCountry,
       target_university: newStudent.targetUniversity,
-      program: newStudent.program
+      program: newStudent.program,
+      payment_date: (newStudent.amountPaid && newStudent.amountPaid > 0) ? new Date().toISOString().split('T')[0] : null
     });
     
     if (error) {
