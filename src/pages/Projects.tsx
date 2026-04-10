@@ -499,16 +499,30 @@ export default function Projects() {
           <div className="flex items-center gap-2">
             <Input type="file" onChange={handleFileUpload} disabled={uploadingFile} className="flex-1" />
             {filePath && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: filePath } as Project)}
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: filePath } as Project)}
+                  title="צפייה בקובץ"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setFilePath(null)}
+                  title="הסרת קובץ"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
+          {filePath && <p className="text-xs text-muted-foreground mt-1">קובץ מצורף: {filePath.replace(/^\d+-/, '')}</p>}
           {uploadingFile && <p className="text-xs text-muted-foreground mt-1">מעלה...</p>}
         </div>
         <div className="col-span-2">
