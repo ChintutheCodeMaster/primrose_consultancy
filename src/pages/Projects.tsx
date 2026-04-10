@@ -213,7 +213,9 @@ export default function Projects() {
 
   const updateProjectMutation = useMutation({
     mutationFn: async ({ id, data, currentProject }: { id: string; data: ProjectFormData; currentProject: Project }) => {
-      const nextPath = filePath || normalizeStoragePath(currentProject.storage_path) || normalizeStoragePath(currentProject.file_url);
+      const nextPath = filePath === ''
+        ? null
+        : (filePath || normalizeStoragePath(currentProject.storage_path) || normalizeStoragePath(currentProject.file_url));
       const { error } = await supabase.from('projects').update({
         name: data.name,
         description: data.description || null,
@@ -225,8 +227,9 @@ export default function Projects() {
         payment_request_date: data.payment_request_date || null,
         status: data.status,
         category: data.category || null,
+        file_url: null,
         storage_bucket: nextPath ? (currentProject.storage_bucket || 'project-files') : null,
-        storage_path: nextPath || null,
+        storage_path: nextPath,
         notes: data.notes || null,
         payment_notes: data.payment_notes || null,
       } as any).eq('id', id);
@@ -368,15 +371,16 @@ export default function Projects() {
     const bucket = project.storage_bucket || 'project-files';
     const candidates = getProjectPathCandidates(project);
     const directUrl = project.file_url?.trim();
+    const absoluteUrl = directUrl && /^https?:\/\//i.test(directUrl) ? directUrl : null;
 
-    if (candidates.length === 0 && !directUrl) {
+    if (candidates.length === 0 && !absoluteUrl) {
       toast.error('לא נמצא נתיב קובץ לפרויקט הזה');
       return;
     }
 
     try {
-      if (directUrl) {
-        await openExternalFile(directUrl, project.name);
+      if (absoluteUrl) {
+        await openExternalFile(absoluteUrl, project.name);
         return;
       }
 
@@ -504,7 +508,7 @@ export default function Projects() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: filePath } as Project)}
+                  onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: null } as Project)}
                   title="צפייה בקובץ"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -513,7 +517,7 @@ export default function Projects() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => setFilePath(null)}
+                  onClick={() => setFilePath('')}
                   title="הסרת קובץ"
                   className="text-destructive hover:text-destructive"
                 >
