@@ -19,6 +19,19 @@ const MIME_TYPES: Record<string, string> = {
 
 const PREVIEWABLE_TYPES = ["application/pdf"];
 
+const GOOGLE_DOCS_VIEWABLE_TYPES = [
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+];
+
+function isGoogleDocsViewable(mimeType: string) {
+  return GOOGLE_DOCS_VIEWABLE_TYPES.includes(mimeType);
+}
+
 function getExtension(url: string) {
   const cleanUrl = url.split("?")[0].split("#")[0];
   return cleanUrl.split(".").pop()?.toLowerCase() || "";
