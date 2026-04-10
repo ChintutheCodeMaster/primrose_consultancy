@@ -18,6 +18,7 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 const PREVIEWABLE_TYPES = ["application/pdf"];
+const PREVIEWABLE_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png", "webp", "gif", "svg"]);
 
 const GOOGLE_DOCS_VIEWABLE_EXTENSIONS = new Set(["doc", "docx", "xls", "xlsx", "ppt", "pptx"]);
 
@@ -66,6 +67,13 @@ export async function openExternalFile(url: string, fallbackName?: string) {
   if (GOOGLE_DOCS_VIEWABLE_EXTENSIONS.has(ext)) {
     const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=false`;
     clickLink(viewerUrl, { target: "_blank" });
+    return;
+  }
+
+  // PDF/images → open directly from the original URL while the click gesture is still active
+  // This avoids popup blockers that can happen after async fetch/blob creation.
+  if (PREVIEWABLE_EXTENSIONS.has(ext)) {
+    clickLink(url, { target: "_blank" });
     return;
   }
 
