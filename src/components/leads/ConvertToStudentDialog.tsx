@@ -39,6 +39,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       const { data, error } = await supabase
         .from('advisors')
         .select('id, name')
+        .eq('is_active', true)
         .order('name');
       if (error) throw error;
       return data as Advisor[];
