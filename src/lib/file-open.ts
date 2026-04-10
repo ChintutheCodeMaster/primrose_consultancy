@@ -19,18 +19,7 @@ const MIME_TYPES: Record<string, string> = {
 
 const PREVIEWABLE_TYPES = ["application/pdf"];
 
-const GOOGLE_DOCS_VIEWABLE_TYPES = [
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-];
-
-function isGoogleDocsViewable(mimeType: string) {
-  return GOOGLE_DOCS_VIEWABLE_TYPES.includes(mimeType);
-}
+const GOOGLE_DOCS_VIEWABLE_EXTENSIONS = new Set(["doc", "docx", "xls", "xlsx", "ppt", "pptx"]);
 
 function getExtension(url: string) {
   const cleanUrl = url.split("?")[0].split("#")[0];
@@ -71,20 +60,21 @@ export async function openExternalFile(url: string, fallbackName?: string) {
     return;
   }
 
+  const ext = getExtension(url);
+
+  // Word/Excel/PPT → open in Google Docs Viewer directly (no fetch needed)
+  if (GOOGLE_DOCS_VIEWABLE_EXTENSIONS.has(ext)) {
+    const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=false`;
+    clickLink(viewerUrl, { target: "_blank" });
+    return;
+  }
+
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch file: ${response.status}`);
 
     const mimeType = getMimeType(url, response.headers.get("content-type"));
     const fileName = getFileName(url, fallbackName);
-
-    // For Word/Excel/PPT — use Google Docs Viewer with the original public URL
-    if (isGoogleDocsViewable(mimeType)) {
-      const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=false`;
-      clickLink(viewerUrl, { target: "_blank" });
-      return;
-    }
-
     const arrayBuffer = await response.arrayBuffer();
     const blob = new Blob([arrayBuffer], { type: mimeType });
     const objectUrl = URL.createObjectURL(blob);
