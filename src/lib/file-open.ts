@@ -77,6 +77,14 @@ export async function openExternalFile(url: string, fallbackName?: string) {
 
     const mimeType = getMimeType(url, response.headers.get("content-type"));
     const fileName = getFileName(url, fallbackName);
+
+    // For Word/Excel/PPT — use Google Docs Viewer with the original public URL
+    if (isGoogleDocsViewable(mimeType)) {
+      const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=false`;
+      clickLink(viewerUrl, { target: "_blank" });
+      return;
+    }
+
     const arrayBuffer = await response.arrayBuffer();
     const blob = new Blob([arrayBuffer], { type: mimeType });
     const objectUrl = URL.createObjectURL(blob);
