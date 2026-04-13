@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Lead, Student } from '@/types/crm';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Lead, Student, PaymentType, paymentTypeLabels } from '@/types/crm';
 import { UserCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
@@ -26,6 +27,17 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
   const [packageCostText, setPackageCostText] = useState('');
   const [advisorName, setAdvisorName] = useState('');
   const [targetUniversity, setTargetUniversity] = useState('');
+  const [paymentType, setPaymentType] = useState<PaymentType>('package');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (lead && open) {
+      setPhone(lead.phone || '');
+      setEmail(lead.email || '');
+      setPaymentType('package');
+    }
+  }, [lead, open]);
 
   const parseNumber = (text: string): number => {
     const cleaned = text.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
@@ -51,8 +63,8 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
 
     const student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'> = {
       name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
+      email: email,
+      phone: phone,
       status: 'active',
       degreeType: lead.degreeType,
       interestedCountry: lead.interestedCountry,
@@ -61,6 +73,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       meetingSummary: lead.meetingSummary,
       packageNotes: lead.packageNotes,
       packageCost: parseNumber(packageCostText),
+      paymentType,
       paymentNotes: '',
       advisorName,
       isPaid: false,
@@ -98,6 +111,44 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
             <p className="text-sm"><strong>שם:</strong> {lead.name}</p>
             <p className="text-sm"><strong>מדינה:</strong> {lead.interestedCountry}</p>
             <p className="text-sm"><strong>תחום:</strong> {lead.interestedField}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="convertPhone">טלפון</Label>
+              <Input
+                id="convertPhone"
+                dir="ltr"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="convertEmail">אימייל</Label>
+              <Input
+                id="convertEmail"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>סוג תשלום</Label>
+            <RadioGroup
+              value={paymentType}
+              onValueChange={(v) => setPaymentType(v as PaymentType)}
+              className="flex gap-4"
+              dir="rtl"
+            >
+              {(Object.entries(paymentTypeLabels) as [PaymentType, string][]).map(([value, label]) => (
+                <div key={value} className="flex items-center gap-1.5">
+                  <RadioGroupItem value={value} id={`pt-${value}`} />
+                  <Label htmlFor={`pt-${value}`} className="cursor-pointer font-normal">{label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
           </div>
 
           <div className="space-y-2">
