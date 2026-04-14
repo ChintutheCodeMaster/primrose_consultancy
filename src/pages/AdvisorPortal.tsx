@@ -183,7 +183,23 @@ export default function AdvisorPortal() {
   const [uniDropdownOpen, setUniDropdownOpen] = useState(false);
   const uniDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Scholarship states
+  // New acceptance fields
+  const [newAcceptanceDegreeType, setNewAcceptanceDegreeType] = useState("");
+  const [newAcceptanceDegreeTypeOther, setNewAcceptanceDegreeTypeOther] = useState("");
+  const [newAcceptanceField, setNewAcceptanceField] = useState("");
+  const [fieldDropdownOpen, setFieldDropdownOpen] = useState(false);
+  const [fieldSearch, setFieldSearch] = useState('');
+  const [showAddCustomField, setShowAddCustomField] = useState(false);
+  const [customFieldValue, setCustomFieldValue] = useState('');
+  const fieldDropdownRef = useRef<HTMLDivElement>(null);
+  const [fieldOptions, setFieldOptions] = useState<string[]>([...FIELD_OPTIONS]);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [showAddCustomCountry, setShowAddCustomCountry] = useState(false);
+  const [customCountryValue, setCustomCountryValue] = useState('');
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [scholarshipOptions, setScholarshipOptions] = useState<string[]>([]);
   const [newScholarshipName, setNewScholarshipName] = useState("");
