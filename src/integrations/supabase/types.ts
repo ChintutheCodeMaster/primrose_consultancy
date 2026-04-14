@@ -25,6 +25,7 @@ export type Database = {
           id: string
           name: string
           student_id: string
+          study_year: string | null
         }
         Insert: {
           acceptance_letter_url?: string | null
@@ -36,6 +37,7 @@ export type Database = {
           id?: string
           name: string
           student_id: string
+          study_year?: string | null
         }
         Update: {
           acceptance_letter_url?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           id?: string
           name?: string
           student_id?: string
+          study_year?: string | null
         }
         Relationships: [
           {
