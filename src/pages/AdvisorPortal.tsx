@@ -255,6 +255,16 @@ export default function AdvisorPortal() {
         setScholarshipSearch('');
         setShowAddCustomScholarship(false);
       }
+      if (fieldDropdownRef.current && !fieldDropdownRef.current.contains(event.target as Node)) {
+        setFieldDropdownOpen(false);
+        setFieldSearch('');
+        setShowAddCustomField(false);
+      }
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setCountryDropdownOpen(false);
+        setCountrySearch('');
+        setShowAddCustomCountry(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
