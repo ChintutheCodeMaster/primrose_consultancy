@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
+import { FIELD_OPTIONS } from "@/data/fieldOptions";
 import { 
   GraduationCap, 
   User, 
