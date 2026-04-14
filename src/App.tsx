@@ -24,6 +24,7 @@ import TempExportEmails from "./pages/TempExportEmails";
 import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
+import AiChat from "./pages/AiChat";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/projects" element={<PasswordGate><Projects /></PasswordGate>} />
           <Route path="/signed-agreements" element={<PasswordGate><SignedAgreements /></PasswordGate>} />
           <Route path="/settings" element={<PasswordGate><Settings /></PasswordGate>} />
+          <Route path="/ai-chat" element={<PasswordGate><AiChat /></PasswordGate>} />
           <Route path="/temp-export" element={<TempExportEmails />} />
           <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
           <Route path="*" element={<NotFound />} />
