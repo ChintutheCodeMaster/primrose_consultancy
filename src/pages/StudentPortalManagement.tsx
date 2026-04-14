@@ -191,12 +191,23 @@ export default function StudentPortalManagement() {
     }
   };
 
-  const uploadDocument = async () => {
+  const uploadDocument = async (categoryOverride?: string) => {
     if (!selectedFile || !newDocName.trim()) return;
+    
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const fileExt = selectedFile.name.split(".").pop()?.toLowerCase();
+    if (!allowedTypes.includes(selectedFile.type) && !['pdf', 'doc', 'docx'].includes(fileExt || '')) {
+      toast({ title: "שגיאה", description: "ניתן להעלות קבצי PDF או Word בלבד", variant: "destructive" });
+      return;
+    }
     
     setUploading(true);
     
-    const fileExt = selectedFile.name.split(".").pop();
     const fileName = `${studentId}/${Date.now()}.${fileExt}`;
     
     const { error: uploadError } = await supabase.storage
@@ -218,7 +229,7 @@ export default function StudentPortalManagement() {
       name: newDocName,
       description: newDocDescription || null,
       file_url: urlData.publicUrl,
-      category: newDocCategory,
+      category: categoryOverride || newDocCategory,
     });
 
     if (insertError) {
