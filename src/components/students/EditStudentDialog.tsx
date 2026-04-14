@@ -226,11 +226,22 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
         ...formData,
         acceptedUniversities: [
           ...formData.acceptedUniversities,
-          { name: newUniversityName.trim(), country: newUniversityCountry.trim() }
+          { 
+            name: newUniversityName.trim(), 
+            country: newUniversityCountry.trim(),
+            degreeType: newUniversityDegreeType || undefined,
+            degreeTypeOther: newUniversityDegreeType === 'אחר' ? newUniversityDegreeTypeOther : undefined,
+            field: newUniversityField || undefined,
+            studyYear: newUniversityStudyYear || undefined,
+          }
         ]
       });
       setNewUniversityName('');
       setNewUniversityCountry('');
+      setNewUniversityDegreeType('');
+      setNewUniversityDegreeTypeOther('');
+      setNewUniversityField('');
+      setNewUniversityStudyYear('');
     }
   };
 
