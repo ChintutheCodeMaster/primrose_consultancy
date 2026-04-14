@@ -76,7 +76,11 @@ export default function PastClients() {
           id: uni.id,
           name: uni.name,
           country: uni.country || '',
-          acceptanceLetterUrl: uni.acceptance_letter_url
+          acceptanceLetterUrl: uni.acceptance_letter_url,
+          degreeType: uni.degree_type || '',
+          degreeTypeOther: uni.degree_type_other || '',
+          field: uni.field || '',
+          studyYear: uni.study_year || '',
         })),
         startDate: student.start_date ? new Date(student.start_date) : undefined
       }));

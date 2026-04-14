@@ -60,6 +60,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [amountPaidText, setAmountPaidText] = useState('');
   const [newUniversityName, setNewUniversityName] = useState('');
   const [newUniversityCountry, setNewUniversityCountry] = useState('');
+  const [newUniversityDegreeType, setNewUniversityDegreeType] = useState('');
+  const [newUniversityDegreeTypeOther, setNewUniversityDegreeTypeOther] = useState('');
+  const [newUniversityField, setNewUniversityField] = useState('');
+  const [newUniversityStudyYear, setNewUniversityStudyYear] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -197,7 +201,11 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 student_id: student.id,
                 name: uni.name,
                 country: uni.country || null,
-                acceptance_letter_url: uni.acceptanceLetterUrl || null
+                acceptance_letter_url: uni.acceptanceLetterUrl || null,
+                degree_type: uni.degreeType || null,
+                degree_type_other: uni.degreeTypeOther || null,
+                field: uni.field || null,
+                study_year: uni.studyYear || null,
               }))
             );
           
@@ -222,11 +230,22 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
         ...formData,
         acceptedUniversities: [
           ...formData.acceptedUniversities,
-          { name: newUniversityName.trim(), country: newUniversityCountry.trim() }
+          { 
+            name: newUniversityName.trim(), 
+            country: newUniversityCountry.trim(),
+            degreeType: newUniversityDegreeType || undefined,
+            degreeTypeOther: newUniversityDegreeType === 'אחר' ? newUniversityDegreeTypeOther : undefined,
+            field: newUniversityField || undefined,
+            studyYear: newUniversityStudyYear || undefined,
+          }
         ]
       });
       setNewUniversityName('');
       setNewUniversityCountry('');
+      setNewUniversityDegreeType('');
+      setNewUniversityDegreeTypeOther('');
+      setNewUniversityField('');
+      setNewUniversityStudyYear('');
     }
   };
 
@@ -536,6 +555,36 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   placeholder="שם האוניברסיטה *"
                 />
               </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={newUniversityDegreeType} onValueChange={setNewUniversityDegreeType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סוג תואר" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                    <SelectItem value="אחר">אחר</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldAutocomplete
+                  value={newUniversityField}
+                  onChange={setNewUniversityField}
+                  placeholder="תחום לימודים"
+                />
+                <Input
+                  value={newUniversityStudyYear}
+                  onChange={(e) => setNewUniversityStudyYear(e.target.value)}
+                  placeholder="שנת לימודים"
+                />
+              </div>
+              {newUniversityDegreeType === 'אחר' && (
+                <Input
+                  value={newUniversityDegreeTypeOther}
+                  onChange={(e) => setNewUniversityDegreeTypeOther(e.target.value)}
+                  placeholder="סוג תואר אחר..."
+                />
+              )}
               <Button 
                 type="button" 
                 variant="outline" 
@@ -569,6 +618,19 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                         <div key={uni.originalIndex} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border">
                           <div className="flex-1">
                             <span className="font-medium">{uni.name}</span>
+                            {[
+                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                              uni.field,
+                              uni.studyYear
+                            ].filter(Boolean).length > 0 && (
+                              <span className="text-xs text-muted-foreground mr-2">
+                                {[
+                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.field,
+                                  uni.studyYear
+                                ].filter(Boolean).join(' • ')}
+                              </span>
+                            )}
                           </div>
                           
                           {uni.acceptanceLetterUrl ? (

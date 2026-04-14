@@ -29,9 +29,14 @@ export const degreeTypeLabels: Record<DegreeType, string> = {
 };
 
 export interface AcceptedUniversity {
+  id?: string;
   name: string;
   country?: string;
   acceptanceLetterUrl?: string;
+  degreeType?: string;
+  degreeTypeOther?: string;
+  field?: string;
+  studyYear?: string;
 }
 
 export type PaymentType = 'hourly' | 'package' | 'other';
