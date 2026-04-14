@@ -1,14 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, Send, Loader2, User, Sparkles } from 'lucide-react';
+import { Bot, Send, Loader2, User, Sparkles, Plus, Trash2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 type Message = { role: 'user' | 'assistant'; content: string };
+
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
@@ -113,8 +124,39 @@ export default function AiChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // Fetch conversation list
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['ai-conversations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data as Conversation[];
+    },
+  });
+
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (!activeConversationId) {
+      setMessages([]);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from('ai_messages')
+        .select('role, content')
+        .eq('conversation_id', activeConversationId)
+        .order('created_at', { ascending: true });
+      if (data) setMessages(data as Message[]);
+    })();
+  }, [activeConversationId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -122,12 +164,36 @@ export default function AiChat() {
     }
   }, [messages]);
 
-  const send = async (text: string) => {
+  const saveMessage = useCallback(async (conversationId: string, role: string, content: string) => {
+    await supabase.from('ai_messages').insert({ conversation_id: conversationId, role, content });
+    // Touch updated_at
+    await supabase.from('ai_conversations').update({ title: role === 'user' && content.length < 60 ? content : undefined as any }).eq('id', conversationId);
+  }, []);
+
+  const send = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
-    const userMsg: Message = { role: 'user', content: text.trim() };
+    const trimmed = text.trim();
+    const userMsg: Message = { role: 'user', content: trimmed };
+    const prevMessages = [...messages];
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+
+    let convId = activeConversationId;
+
+    // Create new conversation if needed
+    if (!convId) {
+      const title = trimmed.length > 50 ? trimmed.slice(0, 50) + '...' : trimmed;
+      const { data } = await supabase.from('ai_conversations').insert({ title }).select('id').single();
+      if (data) {
+        convId = data.id;
+        setActiveConversationId(convId);
+        queryClient.invalidateQueries({ queryKey: ['ai-conversations'] });
+      }
+    }
+
+    // Save user message
+    if (convId) await saveMessage(convId, 'user', trimmed);
 
     let assistantSoFar = '';
     const upsertAssistant = (chunk: string) => {
@@ -143,16 +209,23 @@ export default function AiChat() {
 
     try {
       await streamChat({
-        messages: [...messages, userMsg],
+        messages: [...prevMessages, userMsg],
         onDelta: (chunk) => upsertAssistant(chunk),
-        onDone: () => setIsLoading(false),
+        onDone: async () => {
+          setIsLoading(false);
+          // Save assistant message
+          if (convId && assistantSoFar) {
+            await saveMessage(convId, 'assistant', assistantSoFar);
+            queryClient.invalidateQueries({ queryKey: ['ai-conversations'] });
+          }
+        },
       });
     } catch (e) {
       console.error(e);
       setIsLoading(false);
       toast.error('שגיאה בשליחת ההודעה');
     }
-  };
+  }, [isLoading, messages, activeConversationId, saveMessage, queryClient]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -161,9 +234,21 @@ export default function AiChat() {
     }
   };
 
+  const startNewChat = () => {
+    setActiveConversationId(null);
+    setMessages([]);
+    setInput('');
+  };
+
+  const deleteConversation = async (id: string) => {
+    await supabase.from('ai_conversations').delete().eq('id', id);
+    if (activeConversationId === id) startNewChat();
+    queryClient.invalidateQueries({ queryKey: ['ai-conversations'] });
+  };
+
   return (
     <MainLayout>
-      <div className="animate-fade-in flex flex-col h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]">
+      <div className="animate-fade-in flex flex-col h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" dir="rtl">
         <div className="mb-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
             <Sparkles className="h-7 w-7 text-primary" />
@@ -172,108 +257,150 @@ export default function AiChat() {
           <p className="text-muted-foreground text-sm mt-1">שאלי שאלות על הנתונים במערכת והAI ימצא את התשובות</p>
         </div>
 
-        <div className="flex-1 flex flex-col bg-card rounded-xl border border-border overflow-hidden min-h-0">
-          {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full text-center gap-6 py-12">
-                <div className="bg-primary/10 rounded-full p-4">
-                  <Bot className="h-10 w-10 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-foreground mb-1">שלום! איך אפשר לעזור?</h3>
-                  <p className="text-muted-foreground text-sm">אני יכול לחפש סטודנטים, לידים, סטטיסטיקות ועוד</p>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-center max-w-lg">
-                  {SUGGESTION_PROMPTS.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => send(prompt)}
-                      className="text-sm px-3 py-2 rounded-lg border border-border bg-muted/50 text-foreground hover:bg-muted transition-colors"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-              >
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                  msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                }`}>
-                  {msg.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                </div>
-                <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
-                  msg.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted/70 text-foreground'
-                }`}>
-                  {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="rtl">
-                      <ReactMarkdown
-                        components={{
-                          a: ({ href, children, ...props }) => {
-                            if (href && href.startsWith('/')) {
-                              return (
-                                <button
-                                  type="button"
-                                  className="text-primary underline hover:text-primary/80 font-medium cursor-pointer bg-transparent border-none p-0 inline"
-                                  onClick={() => navigate(href)}
-                                  {...(props as any)}
-                                >
-                                  {children}
-                                </button>
-                              );
-                            }
-                            return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
-                          }
-                        }}
-                      >{msg.content}</ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+        <div className="flex-1 flex gap-4 overflow-hidden min-h-0">
+          {/* Conversation sidebar */}
+          <div className="w-56 flex-shrink-0 flex flex-col bg-card rounded-xl border border-border overflow-hidden">
+            <div className="p-3 border-b border-border">
+              <Button onClick={startNewChat} variant="outline" size="sm" className="w-full gap-2">
+                <Plus className="h-4 w-4" />
+                שיחה חדשה
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={cn(
+                    'group flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors border-b border-border/50',
+                    activeConversationId === conv.id && 'bg-muted'
                   )}
+                  onClick={() => setActiveConversationId(conv.id)}
+                >
+                  <MessageSquare className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate text-foreground">{conv.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(conv.updated_at), 'd MMM', { locale: he })}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteConversation(conv.id); }}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              </div>
-            ))}
-
-            {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-muted">
-                  <Bot className="h-4 w-4" />
-                </div>
-                <div className="bg-muted/70 rounded-xl px-4 py-3">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              </div>
-            )}
+              ))}
+              {conversations.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-4">אין שיחות שמורות</p>
+              )}
+            </div>
           </div>
 
-          {/* Input */}
-          <div className="border-t border-border p-4">
-            <div className="flex gap-2 items-end">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="שאלי שאלה על הנתונים במערכת..."
-                className="resize-none min-h-[44px] max-h-[120px]"
-                rows={1}
-                dir="rtl"
-              />
-              <Button
-                onClick={() => send(input)}
-                disabled={!input.trim() || isLoading}
-                size="icon"
-                className="flex-shrink-0 h-[44px] w-[44px]"
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              </Button>
+          {/* Chat area */}
+          <div className="flex-1 flex flex-col bg-card rounded-xl border border-border overflow-hidden min-h-0">
+            {/* Messages */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center h-full text-center gap-6 py-12">
+                  <div className="bg-primary/10 rounded-full p-4">
+                    <Bot className="h-10 w-10 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg text-foreground mb-1">שלום! איך אפשר לעזור?</h3>
+                    <p className="text-muted-foreground text-sm">אני יכול לחפש סטודנטים, לידים, סטטיסטיקות ועוד</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+                    {SUGGESTION_PROMPTS.map((prompt) => (
+                      <button
+                        key={prompt}
+                        onClick={() => send(prompt)}
+                        className="text-sm px-3 py-2 rounded-lg border border-border bg-muted/50 text-foreground hover:bg-muted transition-colors"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                >
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                    msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                  }`}>
+                    {msg.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                  </div>
+                  <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
+                    msg.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted/70 text-foreground'
+                  }`}>
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="rtl">
+                        <ReactMarkdown
+                          components={{
+                            a: ({ href, children, ...props }) => {
+                              if (href && href.startsWith('/')) {
+                                return (
+                                  <button
+                                    type="button"
+                                    className="text-primary underline hover:text-primary/80 font-medium cursor-pointer bg-transparent border-none p-0 inline"
+                                    onClick={() => navigate(href)}
+                                    {...(props as any)}
+                                  >
+                                    {children}
+                                  </button>
+                                );
+                              }
+                              return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+                            }
+                          }}
+                        >{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-muted">
+                    <Bot className="h-4 w-4" />
+                  </div>
+                  <div className="bg-muted/70 rounded-xl px-4 py-3">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="border-t border-border p-4">
+              <div className="flex gap-2 items-end">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="שאלי שאלה על הנתונים במערכת..."
+                  className="resize-none min-h-[44px] max-h-[120px]"
+                  rows={1}
+                  dir="rtl"
+                />
+                <Button
+                  onClick={() => send(input)}
+                  disabled={!input.trim() || isLoading}
+                  size="icon"
+                  className="flex-shrink-0 h-[44px] w-[44px]"
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
