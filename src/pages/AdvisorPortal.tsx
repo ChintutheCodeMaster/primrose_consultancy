@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdvisorPortalPasswordGate } from "@/components/advisors/AdvisorPortalPasswordGate";
@@ -82,6 +82,9 @@ interface AcceptedUniversity {
   name: string;
   country: string | null;
   acceptance_letter_url: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
 }
 
 interface Scholarship {
