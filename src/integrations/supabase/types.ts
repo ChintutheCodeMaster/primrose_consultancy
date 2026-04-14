@@ -19,6 +19,9 @@ export type Database = {
           acceptance_letter_url: string | null
           country: string | null
           created_at: string
+          degree_type: string | null
+          degree_type_other: string | null
+          field: string | null
           id: string
           name: string
           student_id: string
@@ -27,6 +30,9 @@ export type Database = {
           acceptance_letter_url?: string | null
           country?: string | null
           created_at?: string
+          degree_type?: string | null
+          degree_type_other?: string | null
+          field?: string | null
           id?: string
           name: string
           student_id: string
@@ -35,6 +41,9 @@ export type Database = {
           acceptance_letter_url?: string | null
           country?: string | null
           created_at?: string
+          degree_type?: string | null
+          degree_type_other?: string | null
+          field?: string | null
           id?: string
           name?: string
           student_id?: string

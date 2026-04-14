@@ -59,6 +59,9 @@ interface AcceptedUniversity {
   name: string;
   country: string | null;
   acceptance_letter_url: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
 }
 
 export default function StudentPortal() {
@@ -289,7 +292,17 @@ export default function StudentPortal() {
                         <div key={uni.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-green-100">
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
-                            <span className="font-medium">{uni.name}</span>
+                            <div>
+                              <span className="font-medium">{uni.name}</span>
+                              {(uni.degree_type || uni.field) && (
+                                <p className="text-xs text-muted-foreground">
+                                  {[
+                                    uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                    uni.field
+                                  ].filter(Boolean).join(' • ')}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           {uni.acceptance_letter_url && (
                             <Button

@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
+import { FIELD_OPTIONS } from "@/data/fieldOptions";
 import { 
   GraduationCap, 
   User, 
@@ -82,6 +83,9 @@ interface AcceptedUniversity {
   name: string;
   country: string | null;
   acceptance_letter_url: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
 }
 
 interface Scholarship {
@@ -179,7 +183,23 @@ export default function AdvisorPortal() {
   const [uniDropdownOpen, setUniDropdownOpen] = useState(false);
   const uniDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Scholarship states
+  // New acceptance fields
+  const [newAcceptanceDegreeType, setNewAcceptanceDegreeType] = useState("");
+  const [newAcceptanceDegreeTypeOther, setNewAcceptanceDegreeTypeOther] = useState("");
+  const [newAcceptanceField, setNewAcceptanceField] = useState("");
+  const [fieldDropdownOpen, setFieldDropdownOpen] = useState(false);
+  const [fieldSearch, setFieldSearch] = useState('');
+  const [showAddCustomField, setShowAddCustomField] = useState(false);
+  const [customFieldValue, setCustomFieldValue] = useState('');
+  const fieldDropdownRef = useRef<HTMLDivElement>(null);
+  const [fieldOptions, setFieldOptions] = useState<string[]>([...FIELD_OPTIONS]);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [showAddCustomCountry, setShowAddCustomCountry] = useState(false);
+  const [customCountryValue, setCustomCountryValue] = useState('');
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [scholarshipOptions, setScholarshipOptions] = useState<string[]>([]);
   const [newScholarshipName, setNewScholarshipName] = useState("");
@@ -234,6 +254,16 @@ export default function AdvisorPortal() {
         setScholarshipDropdownOpen(false);
         setScholarshipSearch('');
         setShowAddCustomScholarship(false);
+      }
+      if (fieldDropdownRef.current && !fieldDropdownRef.current.contains(event.target as Node)) {
+        setFieldDropdownOpen(false);
+        setFieldSearch('');
+        setShowAddCustomField(false);
+      }
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setCountryDropdownOpen(false);
+        setCountrySearch('');
+        setShowAddCustomCountry(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -539,11 +569,22 @@ export default function AdvisorPortal() {
     if (!newUniversityName.trim() || !newUniversityCountry.trim() || !selectedStudent) return;
     
     setSavingAcceptance(true);
-    const { error } = await supabase.from("accepted_universities").insert({
+    const insertData: any = {
       student_id: selectedStudent.id,
       name: newUniversityName,
       country: newUniversityCountry,
-    });
+    };
+    if (newAcceptanceDegreeType) {
+      insertData.degree_type = newAcceptanceDegreeType;
+      if (newAcceptanceDegreeType === 'אחר' && newAcceptanceDegreeTypeOther.trim()) {
+        insertData.degree_type_other = newAcceptanceDegreeTypeOther;
+      }
+    }
+    if (newAcceptanceField) {
+      insertData.field = newAcceptanceField;
+    }
+    
+    const { error } = await supabase.from("accepted_universities").insert(insertData);
 
     if (error) {
       toast({ title: "שגיאה", description: "לא ניתן להוסיף קבלה", variant: "destructive" });
@@ -551,6 +592,9 @@ export default function AdvisorPortal() {
       toast({ title: "הקבלה נוספה בהצלחה" });
       setNewUniversityName("");
       setNewUniversityCountry("");
+      setNewAcceptanceDegreeType("");
+      setNewAcceptanceDegreeTypeOther("");
+      setNewAcceptanceField("");
       setIsAddAcceptanceOpen(false);
       selectStudent(selectedStudent);
     }
@@ -795,16 +839,96 @@ export default function AdvisorPortal() {
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
                                     <Label>מדינה *</Label>
-                                    <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="בחר מדינה" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {countryOptions.map((country) => (
-                                          <SelectItem key={country} value={country}>{country}</SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
+                                    <div ref={countryDropdownRef} className="relative">
+                                      <div
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                        onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
+                                      >
+                                        <span className={newUniversityCountry ? "" : "text-muted-foreground"}>
+                                          {newUniversityCountry || "בחר מדינה"}
+                                        </span>
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                      </div>
+                                      {countryDropdownOpen && (
+                                        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                          <div className="p-2">
+                                            <Input
+                                              value={countrySearch}
+                                              onChange={(e) => setCountrySearch(e.target.value)}
+                                              placeholder="חפש מדינה..."
+                                              className="h-8 text-sm"
+                                              autoFocus
+                                            />
+                                          </div>
+                                          <div className="max-h-48 overflow-y-auto">
+                                            {countryOptions
+                                              .filter(opt => opt.toLowerCase().includes(countrySearch.toLowerCase()))
+                                              .map(option => (
+                                                <button
+                                                  key={option}
+                                                  type="button"
+                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityCountry === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  onClick={() => {
+                                                    setNewUniversityCountry(option);
+                                                    setCountryDropdownOpen(false);
+                                                    setCountrySearch('');
+                                                  }}
+                                                >
+                                                  {option}
+                                                </button>
+                                              ))}
+                                            {countryOptions.filter(opt => opt.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                            )}
+                                          </div>
+                                          <div className="border-t p-2">
+                                            {!showAddCustomCountry ? (
+                                              <button
+                                                type="button"
+                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                onClick={() => setShowAddCustomCountry(true)}
+                                              >
+                                                <Plus className="h-4 w-4" />
+                                                הוסף מדינה חדשה
+                                              </button>
+                                            ) : (
+                                              <div className="flex gap-2">
+                                                <Input
+                                                  value={customCountryValue}
+                                                  onChange={(e) => setCustomCountryValue(e.target.value)}
+                                                  placeholder="שם המדינה..."
+                                                  className="h-8 text-sm flex-1"
+                                                  autoFocus
+                                                  onKeyDown={async (e) => {
+                                                    if (e.key === 'Enter') {
+                                                      e.preventDefault();
+                                                      if (customCountryValue.trim()) {
+                                                        await supabase.from('country_options').insert({ name: customCountryValue.trim(), sort_order: countryOptions.length });
+                                                        setNewUniversityCountry(customCountryValue.trim());
+                                                        setCustomCountryValue('');
+                                                        setShowAddCustomCountry(false);
+                                                        setCountryDropdownOpen(false);
+                                                      }
+                                                    }
+                                                  }}
+                                                />
+                                                <Button type="button" size="sm" className="h-8" onClick={async () => {
+                                                  if (customCountryValue.trim()) {
+                                                    await supabase.from('country_options').insert({ name: customCountryValue.trim(), sort_order: countryOptions.length });
+                                                    setNewUniversityCountry(customCountryValue.trim());
+                                                    setCustomCountryValue('');
+                                                    setShowAddCustomCountry(false);
+                                                    setCountryDropdownOpen(false);
+                                                  }
+                                                }}>
+                                                  הוסף
+                                                </Button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                   <div>
                                     <Label>אוניברסיטה *</Label>
@@ -882,6 +1006,125 @@ export default function AdvisorPortal() {
                                     </div>
                                   </div>
                                 </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label>סוג תואר</Label>
+                                    <Select value={newAcceptanceDegreeType} onValueChange={setNewAcceptanceDegreeType}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="בחר סוג תואר" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                                        <SelectItem value="תואר שני">תואר שני</SelectItem>
+                                        <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                                        <SelectItem value="אחר">אחר</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    {newAcceptanceDegreeType === 'אחר' && (
+                                      <Input
+                                        value={newAcceptanceDegreeTypeOther}
+                                        onChange={(e) => setNewAcceptanceDegreeTypeOther(e.target.value)}
+                                        placeholder="פרט..."
+                                        className="mt-2"
+                                      />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <Label>תחום</Label>
+                                    <div ref={fieldDropdownRef} className="relative">
+                                      <div
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
+                                        onClick={() => setFieldDropdownOpen(!fieldDropdownOpen)}
+                                      >
+                                        <span className={newAcceptanceField ? "" : "text-muted-foreground"}>
+                                          {newAcceptanceField || "בחר תחום"}
+                                        </span>
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                      </div>
+                                      {fieldDropdownOpen && (
+                                        <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                                          <div className="p-2">
+                                            <Input
+                                              value={fieldSearch}
+                                              onChange={(e) => setFieldSearch(e.target.value)}
+                                              placeholder="חפש תחום..."
+                                              className="h-8 text-sm"
+                                              autoFocus
+                                            />
+                                          </div>
+                                          <div className="max-h-48 overflow-y-auto">
+                                            {fieldOptions
+                                              .filter(opt => opt.toLowerCase().includes(fieldSearch.toLowerCase()))
+                                              .map(option => (
+                                                <button
+                                                  key={option}
+                                                  type="button"
+                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newAcceptanceField === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  onClick={() => {
+                                                    setNewAcceptanceField(option);
+                                                    setFieldDropdownOpen(false);
+                                                    setFieldSearch('');
+                                                  }}
+                                                >
+                                                  {option}
+                                                </button>
+                                              ))}
+                                            {fieldOptions.filter(opt => opt.toLowerCase().includes(fieldSearch.toLowerCase())).length === 0 && (
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                            )}
+                                          </div>
+                                          <div className="border-t p-2">
+                                            {!showAddCustomField ? (
+                                              <button
+                                                type="button"
+                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                onClick={() => setShowAddCustomField(true)}
+                                              >
+                                                <Plus className="h-4 w-4" />
+                                                הוסף תחום חדש
+                                              </button>
+                                            ) : (
+                                              <div className="flex gap-2">
+                                                <Input
+                                                  value={customFieldValue}
+                                                  onChange={(e) => setCustomFieldValue(e.target.value)}
+                                                  placeholder="שם התחום..."
+                                                  className="h-8 text-sm flex-1"
+                                                  autoFocus
+                                                  onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                      e.preventDefault();
+                                                      if (customFieldValue.trim()) {
+                                                        setFieldOptions(prev => [...prev, customFieldValue.trim()]);
+                                                        setNewAcceptanceField(customFieldValue.trim());
+                                                        setCustomFieldValue('');
+                                                        setShowAddCustomField(false);
+                                                        setFieldDropdownOpen(false);
+                                                      }
+                                                    }
+                                                  }}
+                                                />
+                                                <Button type="button" size="sm" className="h-8" onClick={() => {
+                                                  if (customFieldValue.trim()) {
+                                                    setFieldOptions(prev => [...prev, customFieldValue.trim()]);
+                                                    setNewAcceptanceField(customFieldValue.trim());
+                                                    setCustomFieldValue('');
+                                                    setShowAddCustomField(false);
+                                                    setFieldDropdownOpen(false);
+                                                  }
+                                                }}>
+                                                  הוסף
+                                                </Button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
                                 <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                                   {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
                                   הוסף
@@ -899,7 +1142,13 @@ export default function AdvisorPortal() {
                                 <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate">{uni.name}</p>
-                                  {uni.country && <p className="text-xs text-muted-foreground">{uni.country}</p>}
+                                  <p className="text-xs text-muted-foreground">
+                                    {[
+                                      uni.country,
+                                      uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                      uni.field
+                                    ].filter(Boolean).join(' • ')}
+                                  </p>
                                 </div>
                                 {uni.acceptance_letter_url ? (
                                   <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
