@@ -367,33 +367,36 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <p className="text-xs font-medium text-muted-foreground mb-2">אוניברסיטאות שהתקבל אליהן:</p>
           <div className="flex flex-wrap gap-2">
             {student.acceptedUniversities.map((uni, index) => (
-              <div key={index} className="flex items-center gap-1 bg-success/10 text-success px-3 py-1.5 rounded-full text-sm">
-                <CheckCircle className="h-3 w-3" />
-                <span>{uni.name}</span>
-                {uni.country && <span className="text-success/70">({uni.country})</span>}
-                {[
-                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
-                  uni.field,
-                  uni.studyYear
-                ].filter(Boolean).length > 0 && (
-                  <span className="text-success/60 text-xs">
-                    • {[
-                      uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
-                      uni.field,
-                      uni.studyYear
-                    ].filter(Boolean).join(' • ')}
-                  </span>
-                )}
+              <div key={index} className="flex flex-col gap-1">
+                <div className="flex items-center gap-1 bg-success/10 text-success px-3 py-1.5 rounded-full text-sm">
+                  <CheckCircle className="h-3 w-3" />
+                  <span>{uni.name}</span>
+                  {uni.country && <span className="text-success/70">({uni.country})</span>}
+                  {[
+                    uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                    uni.field,
+                    uni.studyYear
+                  ].filter(Boolean).length > 0 && (
+                    <span className="text-success/60 text-xs">
+                      • {[
+                        uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                        uni.field,
+                        uni.studyYear
+                      ].filter(Boolean).join(' • ')}
+                    </span>
+                  )}
+                </div>
                 {uni.acceptanceLetterUrl && (
                   <button 
                     type="button"
-                    className="mr-1 hover:text-success/80"
+                    className="flex items-center gap-1 text-xs text-primary hover:underline px-3"
                     onClick={(e) => {
                       e.stopPropagation();
                       openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`);
                     }}
                   >
                     <FileText className="h-3 w-3" />
+                    צפה במכתב קבלה
                   </button>
                 )}
               </div>
