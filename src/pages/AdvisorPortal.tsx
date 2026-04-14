@@ -1132,7 +1132,13 @@ export default function AdvisorPortal() {
                                 <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate">{uni.name}</p>
-                                  {uni.country && <p className="text-xs text-muted-foreground">{uni.country}</p>}
+                                  <p className="text-xs text-muted-foreground">
+                                    {[
+                                      uni.country,
+                                      uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                      uni.field
+                                    ].filter(Boolean).join(' • ')}
+                                  </p>
                                 </div>
                                 {uni.acceptance_letter_url ? (
                                   <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
