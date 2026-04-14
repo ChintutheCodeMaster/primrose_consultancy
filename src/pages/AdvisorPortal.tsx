@@ -1136,6 +1136,15 @@ export default function AdvisorPortal() {
                                   </div>
                                 </div>
 
+                                <div className="space-y-2">
+                                  <Label className="text-sm">שנת לימודים</Label>
+                                  <Input
+                                    value={newAcceptanceStudyYear}
+                                    onChange={(e) => setNewAcceptanceStudyYear(e.target.value)}
+                                    placeholder="לדוגמה: 2025-2026"
+                                  />
+                                </div>
+
                                 <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                                   {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
                                   הוסף
@@ -1157,7 +1166,8 @@ export default function AdvisorPortal() {
                                     {[
                                       uni.country,
                                       uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
-                                      uni.field
+                                      uni.field,
+                                      uni.study_year
                                     ].filter(Boolean).join(' • ')}
                                   </p>
                                 </div>
