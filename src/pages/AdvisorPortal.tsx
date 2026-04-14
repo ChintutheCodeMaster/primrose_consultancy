@@ -208,6 +208,9 @@ export default function AdvisorPortal() {
   const [customCountryValue, setCustomCountryValue] = useState('');
   const countryDropdownRef = useRef<HTMLDivElement>(null);
 
+  const [editingUniId, setEditingUniId] = useState<string | null>(null);
+  const [editUniData, setEditUniData] = useState<Partial<AcceptedUniversity>>({});
+
 
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [scholarshipOptions, setScholarshipOptions] = useState<string[]>([]);
