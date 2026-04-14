@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
 import { FIELD_OPTIONS } from '@/data/fieldOptions';
+import { FieldAutocomplete } from '@/components/ui/field-autocomplete';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
@@ -63,7 +64,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+    const finalField = fieldSelection;
     
     // Validate source is required
     if (!finalSource.trim()) {
@@ -221,24 +222,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">תחום לימודים</Label>
-              <Select value={fieldSelection} onValueChange={setFieldSelection}>
-                <SelectTrigger>
-                  <SelectValue placeholder="בחר תחום" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  {FIELD_OPTIONS.map((field) => (
-                    <SelectItem key={field} value={field}>{field}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {fieldSelection === 'אחר' && (
-                <Input
-                  placeholder="הזן תחום אחר..."
-                  value={customField}
-                  onChange={(e) => setCustomField(e.target.value)}
-                  className="mt-2"
-                />
-              )}
+              <FieldAutocomplete
+                value={fieldSelection}
+                onChange={setFieldSelection}
+                placeholder="בחר תחום"
+              />
             </div>
           </div>
 
