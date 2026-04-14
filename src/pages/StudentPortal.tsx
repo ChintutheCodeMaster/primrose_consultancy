@@ -378,7 +378,7 @@ export default function StudentPortal() {
           </CardContent>
         </Card>
 
-        {/* Documents */}
+        {/* Documents - Grouped by Category */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -392,36 +392,88 @@ export default function StudentPortal() {
                 אין מסמכים כרגע
               </p>
             ) : (
-              <div className="space-y-3">
-                {documents.map((doc) => (
-                  <div 
-                    key={doc.id}
-                    className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{doc.name}</p>
-                        {doc.description && (
-                          <p className="text-sm text-muted-foreground">{doc.description}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: he })}
-                        </p>
+              <div className="space-y-4">
+                {[
+                  { value: "strategy_questionnaire", label: "שאלון אסטרטגיה" },
+                  { value: "personal_essays", label: "חיבורים אישיים" },
+                  { value: "recommendations", label: "המלצות" },
+                  { value: "cv", label: "קורות חיים" },
+                  { value: "additional", label: "מסמכים נוספים" },
+                ].map((cat) => {
+                  const catDocs = documents.filter(d => d.category === cat.value);
+                  if (catDocs.length === 0) return null;
+                  return (
+                    <div key={cat.value}>
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2">{cat.label}</h4>
+                      <div className="space-y-2">
+                        {catDocs.map((doc) => (
+                          <div 
+                            key={doc.id}
+                            className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                                <FileText className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{doc.name}</p>
+                                {doc.description && (
+                                  <p className="text-sm text-muted-foreground">{doc.description}</p>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openExternalFile(doc.file_url, doc.name)}
+                            >
+                              <Download className="h-4 w-4 ml-1" />
+                              הורד
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openExternalFile(doc.file_url, doc.name)}
-                    >
-                      <Download className="h-4 w-4 ml-1" />
-                      הורד
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
+                {/* Other/legacy categories */}
+                {(() => {
+                  const otherDocs = documents.filter(d => !['strategy_questionnaire', 'personal_essays', 'recommendations', 'cv', 'additional'].includes(d.category));
+                  if (otherDocs.length === 0) return null;
+                  return (
+                    <div>
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2">מסמכים כלליים</h4>
+                      <div className="space-y-2">
+                        {otherDocs.map((doc) => (
+                          <div 
+                            key={doc.id}
+                            className="flex items-center justify-between p-3 rounded-lg border bg-white hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                                <FileText className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{doc.name}</p>
+                                {doc.description && (
+                                  <p className="text-sm text-muted-foreground">{doc.description}</p>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openExternalFile(doc.file_url, doc.name)}
+                            >
+                              <Download className="h-4 w-4 ml-1" />
+                              הורד
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </CardContent>
