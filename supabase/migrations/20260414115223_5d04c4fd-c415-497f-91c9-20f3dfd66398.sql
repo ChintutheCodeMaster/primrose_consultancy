@@ -1,0 +1,1 @@
+ALTER TABLE public.accepted_universities ADD COLUMN study_year text;

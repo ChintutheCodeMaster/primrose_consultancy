@@ -86,6 +86,7 @@ interface AcceptedUniversity {
   degree_type: string | null;
   degree_type_other: string | null;
   field: string | null;
+  study_year: string | null;
 }
 
 interface Scholarship {
@@ -192,6 +193,7 @@ export default function AdvisorPortal() {
   const [newAcceptanceDegreeType, setNewAcceptanceDegreeType] = useState("");
   const [newAcceptanceDegreeTypeOther, setNewAcceptanceDegreeTypeOther] = useState("");
   const [newAcceptanceField, setNewAcceptanceField] = useState("");
+  const [newAcceptanceStudyYear, setNewAcceptanceStudyYear] = useState("");
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState(false);
   const [fieldSearch, setFieldSearch] = useState('');
   const [showAddCustomField, setShowAddCustomField] = useState(false);
@@ -588,6 +590,9 @@ export default function AdvisorPortal() {
     if (newAcceptanceField) {
       insertData.field = newAcceptanceField;
     }
+    if (newAcceptanceStudyYear.trim()) {
+      insertData.study_year = newAcceptanceStudyYear.trim();
+    }
     
     const { error } = await supabase.from("accepted_universities").insert(insertData);
 
@@ -600,6 +605,7 @@ export default function AdvisorPortal() {
       setNewAcceptanceDegreeType("");
       setNewAcceptanceDegreeTypeOther("");
       setNewAcceptanceField("");
+      setNewAcceptanceStudyYear("");
       setIsAddAcceptanceOpen(false);
       selectStudent(selectedStudent);
     }
@@ -1130,6 +1136,15 @@ export default function AdvisorPortal() {
                                   </div>
                                 </div>
 
+                                <div className="space-y-2">
+                                  <Label className="text-sm">שנת לימודים</Label>
+                                  <Input
+                                    value={newAcceptanceStudyYear}
+                                    onChange={(e) => setNewAcceptanceStudyYear(e.target.value)}
+                                    placeholder="לדוגמה: 2025-2026"
+                                  />
+                                </div>
+
                                 <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
                                   {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
                                   הוסף
@@ -1151,7 +1166,8 @@ export default function AdvisorPortal() {
                                     {[
                                       uni.country,
                                       uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
-                                      uni.field
+                                      uni.field,
+                                      uni.study_year
                                     ].filter(Boolean).join(' • ')}
                                   </p>
                                 </div>
