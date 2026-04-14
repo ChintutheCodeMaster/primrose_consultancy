@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
-import { UniversityAutocomplete } from '@/components/ui/university-autocomplete';
+import { UniversityDropdown } from '@/components/ui/university-dropdown';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -543,15 +543,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                     <SelectItem value="אחר">אחר</SelectItem>
                   </SelectContent>
                 </Select>
-                <UniversityAutocomplete
+                <UniversityDropdown
                   value={newUniversityName}
                   onChange={setNewUniversityName}
-                  onSelectSuggestion={(suggestion) => {
-                    setNewUniversityName(suggestion.name);
-                    if (suggestion.country) {
-                      setNewUniversityCountry(suggestion.country);
-                    }
-                  }}
                   placeholder="שם האוניברסיטה *"
                 />
               </div>
