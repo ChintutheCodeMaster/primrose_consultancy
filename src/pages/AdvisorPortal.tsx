@@ -86,6 +86,7 @@ interface AcceptedUniversity {
   degree_type: string | null;
   degree_type_other: string | null;
   field: string | null;
+  study_year: string | null;
 }
 
 interface Scholarship {
