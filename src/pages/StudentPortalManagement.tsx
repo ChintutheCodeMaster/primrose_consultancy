@@ -457,7 +457,7 @@ export default function StudentPortalManagement() {
                         onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                       />
                     </div>
-                    <Button onClick={uploadDocument} disabled={uploading} className="w-full">
+                    <Button onClick={() => uploadDocument()} disabled={uploading} className="w-full">
                       {uploading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
                       העלה
                     </Button>
