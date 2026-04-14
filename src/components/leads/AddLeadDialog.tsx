@@ -103,11 +103,10 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             <Label htmlFor="email">אימייל</Label>
             <Input
               id="email"
-              type="email"
+              type="text"
               dir="ltr"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              
             />
           </div>
           <div className="grid grid-cols-2 gap-4">

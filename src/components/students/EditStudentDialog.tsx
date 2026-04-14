@@ -326,9 +326,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <Input
                 id="phone"
                 dir="ltr"
-                value={formData.phone}
+                value={formData.phone || ''}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
               />
             </div>
           </div>
@@ -337,9 +336,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <Label htmlFor="email">אימייל</Label>
             <Input
               id="email"
-              type="email"
+              type="text"
               dir="ltr"
-              value={formData.email}
+              value={formData.email || ''}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className={!formData.email ? 'border-orange-300' : ''}
             />

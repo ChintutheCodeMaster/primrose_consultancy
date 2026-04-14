@@ -127,6 +127,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
               <Label htmlFor="convertEmail">אימייל</Label>
               <Input
                 id="convertEmail"
+                type="text"
                 dir="ltr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
