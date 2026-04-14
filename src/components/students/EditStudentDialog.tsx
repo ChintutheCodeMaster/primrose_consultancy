@@ -618,6 +618,19 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                         <div key={uni.originalIndex} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border">
                           <div className="flex-1">
                             <span className="font-medium">{uni.name}</span>
+                            {[
+                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                              uni.field,
+                              uni.studyYear
+                            ].filter(Boolean).length > 0 && (
+                              <span className="text-xs text-muted-foreground mr-2">
+                                {[
+                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.field,
+                                  uni.studyYear
+                                ].filter(Boolean).join(' • ')}
+                              </span>
+                            )}
                           </div>
                           
                           {uni.acceptanceLetterUrl ? (
