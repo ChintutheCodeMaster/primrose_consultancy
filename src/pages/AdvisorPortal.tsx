@@ -30,7 +30,9 @@ import {
   MessageSquare,
   Award,
   Calendar,
-  History
+  History,
+  Pencil,
+  Save
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
@@ -205,6 +207,9 @@ export default function AdvisorPortal() {
   const [showAddCustomCountry, setShowAddCustomCountry] = useState(false);
   const [customCountryValue, setCustomCountryValue] = useState('');
   const countryDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [editingUniId, setEditingUniId] = useState<string | null>(null);
+  const [editUniData, setEditUniData] = useState<Partial<AcceptedUniversity>>({});
 
 
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
@@ -661,8 +666,38 @@ export default function AdvisorPortal() {
       toast({ title: "הקבלה נמחקה" });
     }
   };
+  const startEditUniversity = (uni: AcceptedUniversity) => {
+    setEditingUniId(uni.id);
+    setEditUniData({ ...uni });
+  };
 
-  // Scholarship functions
+  const saveEditUniversity = async () => {
+    if (!editingUniId || !editUniData.name?.trim()) return;
+    const { error } = await supabase
+      .from("accepted_universities")
+      .update({
+        name: editUniData.name,
+        country: editUniData.country || null,
+        degree_type: editUniData.degree_type || null,
+        degree_type_other: editUniData.degree_type === 'אחר' ? (editUniData.degree_type_other || null) : null,
+        field: editUniData.field || null,
+        study_year: editUniData.study_year || null,
+      })
+      .eq("id", editingUniId);
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+    } else {
+      setAcceptedUniversities(prev =>
+        prev.map(u => u.id === editingUniId ? { ...u, ...editUniData, degree_type_other: editUniData.degree_type === 'אחר' ? editUniData.degree_type_other || null : null } : u)
+      );
+      setEditingUniId(null);
+      setEditUniData({});
+      toast({ title: "הקבלה עודכנה" });
+    }
+  };
+
+
   const addScholarship = async () => {
     if (!newScholarshipName.trim() || !selectedStudent) return;
     
@@ -1158,38 +1193,99 @@ export default function AdvisorPortal() {
                         ) : (
                           <div className="space-y-2">
                             {acceptedUniversities.map((uni) => (
-                              <div key={uni.id} className="flex items-center gap-3 p-3 rounded-lg border bg-white">
-                                <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate">{uni.name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {[
-                                      uni.country,
-                                      uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
-                                      uni.field,
-                                      uni.study_year
-                                    ].filter(Boolean).join(' • ')}
-                                  </p>
-                                </div>
-                                {uni.acceptance_letter_url ? (
-                                  <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
-                                    <FileText className="h-3 w-3" />
-                                    מכתב קבלה
-                                  </Button>
-                                ) : (
+                              <div key={uni.id} className="p-3 rounded-lg border bg-white space-y-2">
+                                {editingUniId === uni.id ? (
                                   <>
-                                    <input type="file" className="hidden" id={`upload-${uni.id}`} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                      onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadAcceptanceLetter(uni.id, file); }} />
-                                    <Button variant="outline" size="sm" disabled={uploadingAcceptance === uni.id}
-                                      onClick={() => document.getElementById(`upload-${uni.id}`)?.click()} className="gap-1">
-                                      {uploadingAcceptance === uni.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                                      העלה מכתב
-                                    </Button>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <Input
+                                        value={editUniData.name || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, name: e.target.value }))}
+                                        placeholder="שם אוניברסיטה"
+                                      />
+                                      <Input
+                                        value={editUniData.country || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, country: e.target.value }))}
+                                        placeholder="מדינה"
+                                      />
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                      <select
+                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                                        value={editUniData.degree_type || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, degree_type: e.target.value }))}
+                                      >
+                                        <option value="">סוג תואר</option>
+                                        <option value="תואר ראשון">תואר ראשון</option>
+                                        <option value="תואר שני">תואר שני</option>
+                                        <option value="דוקטורט">דוקטורט</option>
+                                        <option value="אחר">אחר</option>
+                                      </select>
+                                      <Input
+                                        value={editUniData.field || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, field: e.target.value }))}
+                                        placeholder="תחום"
+                                      />
+                                      <Input
+                                        value={editUniData.study_year || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, study_year: e.target.value }))}
+                                        placeholder="שנת לימודים"
+                                      />
+                                    </div>
+                                    {editUniData.degree_type === 'אחר' && (
+                                      <Input
+                                        value={editUniData.degree_type_other || ''}
+                                        onChange={(e) => setEditUniData(prev => ({ ...prev, degree_type_other: e.target.value }))}
+                                        placeholder="פירוט סוג תואר"
+                                      />
+                                    )}
+                                    <div className="flex gap-2 justify-end">
+                                      <Button variant="ghost" size="sm" onClick={() => { setEditingUniId(null); setEditUniData({}); }}>
+                                        ביטול
+                                      </Button>
+                                      <Button size="sm" onClick={saveEditUniversity} className="gap-1">
+                                        <Save className="h-3 w-3" />
+                                        שמור
+                                      </Button>
+                                    </div>
                                   </>
+                                ) : (
+                                  <div className="flex items-center gap-3">
+                                    <Award className="h-5 w-5 text-green-600 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium truncate">{uni.name}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {[
+                                          uni.country,
+                                          uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                          uni.field,
+                                          uni.study_year
+                                        ].filter(Boolean).join(' • ')}
+                                      </p>
+                                    </div>
+                                    {uni.acceptance_letter_url ? (
+                                      <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
+                                        <FileText className="h-3 w-3" />
+                                        מכתב קבלה
+                                      </Button>
+                                    ) : (
+                                      <>
+                                        <input type="file" className="hidden" id={`upload-${uni.id}`} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                          onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadAcceptanceLetter(uni.id, file); }} />
+                                        <Button variant="outline" size="sm" disabled={uploadingAcceptance === uni.id}
+                                          onClick={() => document.getElementById(`upload-${uni.id}`)?.click()} className="gap-1">
+                                          {uploadingAcceptance === uni.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                                          העלה מכתב
+                                        </Button>
+                                      </>
+                                    )}
+                                    <Button variant="ghost" size="icon" onClick={() => startEditUniversity(uni)}>
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteAcceptedUniversity(uni.id)}>
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 )}
-                                <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteAcceptedUniversity(uni.id)}>
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
                               </div>
                             ))}
                           </div>
