@@ -59,6 +59,9 @@ interface AcceptedUniversity {
   name: string;
   country: string | null;
   acceptance_letter_url: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
 }
 
 export default function StudentPortal() {
