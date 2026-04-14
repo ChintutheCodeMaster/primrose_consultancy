@@ -62,44 +62,48 @@ export async function openExternalFile(url: string, fallbackName?: string) {
   }
 
   const ext = getExtension(url);
+  const fileName = getFileName(url, fallbackName);
 
-  // Word/Excel/PPT → open in Google Docs Viewer directly (no fetch needed)
+  // Word/Excel/PPT → download directly
   if (GOOGLE_DOCS_VIEWABLE_EXTENSIONS.has(ext)) {
-    const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=false`;
-    clickLink(viewerUrl, { target: "_blank" });
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch file: ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      clickLink(objectUrl, { download: fileName });
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    } catch {
+      // Fallback: try direct link download
+      clickLink(url, { download: fileName });
+    }
     return;
   }
 
-  // PDF/images → open directly from the original URL while the click gesture is still active
-  // This avoids popup blockers that can happen after async fetch/blob creation.
+  // PDF → open in new tab (user can download from browser)
+  if (ext === "pdf") {
+    clickLink(url, { target: "_blank" });
+    return;
+  }
+
+  // Images → open in new tab
   if (PREVIEWABLE_EXTENSIONS.has(ext)) {
     clickLink(url, { target: "_blank" });
     return;
   }
 
+  // Other files → download
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch file: ${response.status}`);
-
     const mimeType = getMimeType(url, response.headers.get("content-type"));
-    const fileName = getFileName(url, fallbackName);
     const arrayBuffer = await response.arrayBuffer();
     const blob = new Blob([arrayBuffer], { type: mimeType });
     const objectUrl = URL.createObjectURL(blob);
-
-    if (isPreviewable(mimeType)) {
-      clickLink(objectUrl, { target: "_blank" });
-    } else {
-      clickLink(objectUrl, { download: fileName });
-    }
-
+    clickLink(objectUrl, { download: fileName });
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
-  } catch (error) {
-    console.error("Failed to open file", error);
-    try {
-      clickLink(url, { target: "_blank" });
-    } catch {
-      toast.error("לא הצלחנו לפתוח את הקובץ");
-    }
+  } catch {
+    console.error("Failed to download file");
+    clickLink(url, { target: "_blank" });
   }
 }
