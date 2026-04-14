@@ -555,6 +555,36 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   placeholder="שם האוניברסיטה *"
                 />
               </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={newUniversityDegreeType} onValueChange={setNewUniversityDegreeType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סוג תואר" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                    <SelectItem value="אחר">אחר</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldAutocomplete
+                  value={newUniversityField}
+                  onChange={setNewUniversityField}
+                  placeholder="תחום לימודים"
+                />
+                <Input
+                  value={newUniversityStudyYear}
+                  onChange={(e) => setNewUniversityStudyYear(e.target.value)}
+                  placeholder="שנת לימודים"
+                />
+              </div>
+              {newUniversityDegreeType === 'אחר' && (
+                <Input
+                  value={newUniversityDegreeTypeOther}
+                  onChange={(e) => setNewUniversityDegreeTypeOther(e.target.value)}
+                  placeholder="סוג תואר אחר..."
+                />
+              )}
               <Button 
                 type="button" 
                 variant="outline" 
