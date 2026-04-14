@@ -63,6 +63,11 @@ interface Student {
 }
 
 const documentCategories = [
+  { value: "strategy_questionnaire", label: "שאלון אסטרטגיה" },
+  { value: "personal_essays", label: "חיבורים אישיים" },
+  { value: "recommendations", label: "המלצות" },
+  { value: "cv", label: "קורות חיים" },
+  { value: "additional", label: "מסמכים נוספים" },
   { value: "general", label: "כללי" },
   { value: "start", label: "תחילת תהליך" },
   { value: "application", label: "הגשות" },
