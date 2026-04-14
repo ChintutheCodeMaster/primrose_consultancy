@@ -400,8 +400,8 @@ export default function StudentPortalManagement() {
             </CardContent>
           </Card>
 
-          {/* Documents Management */}
-          <Card>
+          {/* Documents Management - Grouped by Category */}
+          <Card className="lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
@@ -451,9 +451,10 @@ export default function StudentPortalManagement() {
                       </Select>
                     </div>
                     <div>
-                      <Label>קובץ *</Label>
+                      <Label>קובץ * (PDF או Word בלבד)</Label>
                       <Input
                         type="file"
+                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                       />
                     </div>
@@ -466,45 +467,112 @@ export default function StudentPortalManagement() {
               </Dialog>
             </CardHeader>
             <CardContent>
-              {documents.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">אין מסמכים</p>
-              ) : (
-                <div className="space-y-2">
-                  {documents.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-center gap-3 p-3 rounded-lg border bg-white"
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
+              <div className="space-y-4">
+                {documentCategories.slice(0, 5).map((cat) => {
+                  const catDocs = documents.filter(d => d.category === cat.value);
+                  return (
+                    <div key={cat.value} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-sm">{cat.label} ({catDocs.length})</h4>
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setSelectedFile(file);
+                              setNewDocName(file.name.replace(/\.[^/.]+$/, ""));
+                              setNewDocCategory(cat.value);
+                              // Direct upload
+                              const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                              const ext = file.name.split(".").pop()?.toLowerCase();
+                              if (!allowedTypes.includes(file.type) && !['pdf', 'doc', 'docx'].includes(ext || '')) {
+                                toast({ title: "שגיאה", description: "ניתן להעלות קבצי PDF או Word בלבד", variant: "destructive" });
+                                e.target.value = '';
+                                return;
+                              }
+                              setUploading(true);
+                              const fileName = `${studentId}/${Date.now()}.${ext}`;
+                              const { error: uploadError } = await supabase.storage
+                                .from("student-documents")
+                                .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
+                              if (uploadError) {
+                                toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+                                setUploading(false);
+                                e.target.value = '';
+                                return;
+                              }
+                              const { data: urlData } = supabase.storage.from("student-documents").getPublicUrl(fileName);
+                              const { error: insertError } = await supabase.from("student_documents").insert({
+                                student_id: studentId,
+                                name: file.name.replace(/\.[^/.]+$/, ""),
+                                file_url: urlData.publicUrl,
+                                category: cat.value,
+                              });
+                              if (insertError) {
+                                toast({ title: "שגיאה", description: "לא ניתן לשמור מסמך", variant: "destructive" });
+                              } else {
+                                toast({ title: "המסמך הועלה בהצלחה" });
+                                fetchData();
+                              }
+                              setUploading(false);
+                              e.target.value = '';
+                            }}
+                          />
+                          <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer">
+                            <Plus className="h-3 w-3" />
+                            העלה
+                          </span>
+                        </label>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{doc.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {documentCategories.find(c => c.value === doc.category)?.label || doc.category}
-                          {" • "}
-                          {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: he })}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openExternalFile(doc.file_url, doc.name)}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => deleteDocument(doc.id, doc.file_url)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {catDocs.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">אין מסמכים</p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {catDocs.map((doc) => (
+                            <div key={doc.id} className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
+                              <FileText className="h-4 w-4 text-primary shrink-0" />
+                              <span className="flex-1 truncate">{doc.name}</span>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openExternalFile(doc.file_url, doc.name)}>
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => deleteDocument(doc.id, doc.file_url)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
+                  );
+                })}
+                {/* Show remaining categories if they have docs */}
+                {(() => {
+                  const otherDocs = documents.filter(d => !['strategy_questionnaire', 'personal_essays', 'recommendations', 'cv', 'additional'].includes(d.category));
+                  if (otherDocs.length === 0) return null;
+                  return (
+                    <div className="border rounded-lg p-3">
+                      <h4 className="font-medium text-sm mb-2">אחר ({otherDocs.length})</h4>
+                      <div className="space-y-1.5">
+                        {otherDocs.map((doc) => (
+                          <div key={doc.id} className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
+                            <FileText className="h-4 w-4 text-primary shrink-0" />
+                            <span className="flex-1 truncate">{doc.name}</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openExternalFile(doc.file_url, doc.name)}>
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => deleteDocument(doc.id, doc.file_url)}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </CardContent>
           </Card>
         </div>
