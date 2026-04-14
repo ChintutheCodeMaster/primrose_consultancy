@@ -70,6 +70,8 @@ ${JSON.stringify(advisors, null, 0)}
 - לסטודנט שלא המשיך (did_not_continue=true): [שם הסטודנט](/did-not-continue?highlight=ID)
 - למתעניין פעיל (did_not_continue=false): [שם המתעניין](/leads/LEADS_YEAR?highlight=ID)
 - למתעניין שלא המשיך (did_not_continue=true): [שם המתעניין](/did-not-continue/LEADS_YEAR?highlight=ID)
+- ליועץ פעיל: [שם היועץ](/advisors?highlight=ID)
+- ליועץ לא פעיל: [שם היועץ](/past-advisors?highlight=ID)
 
 השתמש ב-ID האמיתי (uuid) של כל רשומה. תמיד הפוך שמות לקישורים כשהם מופיעים בתשובה.`;
 
