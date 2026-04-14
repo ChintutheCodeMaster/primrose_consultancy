@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -113,6 +114,7 @@ export default function AiChat() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -213,7 +215,25 @@ export default function AiChat() {
                 }`}>
                   {msg.role === 'assistant' ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="rtl">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          a: ({ href, children, ...props }) => {
+                            if (href && href.startsWith('/')) {
+                              return (
+                                <button
+                                  type="button"
+                                  className="text-primary underline hover:text-primary/80 font-medium cursor-pointer bg-transparent border-none p-0 inline"
+                                  onClick={() => navigate(href)}
+                                  {...(props as any)}
+                                >
+                                  {children}
+                                </button>
+                              );
+                            }
+                            return <a href={href} target="_blank" rel="noopener noreferrer" {...props}>{children}</a>;
+                          }
+                        }}
+                      >{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>

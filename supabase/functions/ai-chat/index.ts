@@ -33,9 +33,9 @@ serve(async (req) => {
 
     // Fetch CRM data to provide as context
     const [studentsRes, leadsRes, advisorsRes] = await Promise.all([
-      supabase.from("students").select("name, email, phone, status, degree_type, interested_country, interested_field, source, advisor_name, target_university, target_country, program, graduation_year, package_cost, is_paid, payment_type, did_not_continue").limit(1000),
-      supabase.from("leads").select("name, email, phone, status, degree_type, interested_country, interested_field, source, advisor_name, did_not_continue, leads_year").limit(1000),
-      supabase.from("advisors").select("name, email, phone, is_active, residence").limit(200),
+      supabase.from("students").select("id, name, email, phone, status, degree_type, interested_country, interested_field, source, advisor_name, target_university, target_country, program, graduation_year, package_cost, is_paid, payment_type, did_not_continue").limit(1000),
+      supabase.from("leads").select("id, name, email, phone, status, degree_type, interested_country, interested_field, source, advisor_name, did_not_continue, leads_year").limit(1000),
+      supabase.from("advisors").select("id, name, email, phone, is_active, residence").limit(200),
     ]);
 
     const students = studentsRes.data || [];
@@ -55,13 +55,23 @@ ${JSON.stringify(leads, null, 0)}
 ## יועצים (${advisors.length} רשומות):
 ${JSON.stringify(advisors, null, 0)}
 
-הנחיות:
+הנחיות חשובות:
 - ענה תמיד בעברית
 - כשמבקשים ממך למצוא אנשים, הצג את הפרטים שלהם בצורה מסודרת (שם, טלפון, אימייל, מדינה, תחום, סטטוס וכו')
 - אתה יכול לענות על שאלות סטטיסטיות (כמה סטודנטים יש, כמה שילמו, כמה מכל מדינה וכו')
 - אם אין תוצאות, אמור זאת בבירור
 - היה תמציתי וברור
-- השתמש בטבלאות מרקדאון כשזה מתאים`;
+- השתמש בטבלאות מרקדאון כשזה מתאים
+
+## קישורים לרשומות - חשוב מאוד!
+כאשר אתה מזכיר סטודנט או מתעניין בתשובה, הפוך את השם שלו לקישור לחיץ בפורמט מרקדאון:
+- לסטודנט פעיל (did_not_continue=false, אין graduation_year): [שם הסטודנט](/students?highlight=ID)
+- לסטודנט שסיים (יש graduation_year): [שם הסטודנט](/past-clients/GRADUATION_YEAR?highlight=ID)
+- לסטודנט שלא המשיך (did_not_continue=true): [שם הסטודנט](/did-not-continue?highlight=ID)
+- למתעניין פעיל (did_not_continue=false): [שם המתעניין](/leads/LEADS_YEAR?highlight=ID)
+- למתעניין שלא המשיך (did_not_continue=true): [שם המתעניין](/did-not-continue/LEADS_YEAR?highlight=ID)
+
+השתמש ב-ID האמיתי (uuid) של כל רשומה. תמיד הפוך שמות לקישורים כשהם מופיעים בתשובה.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
