@@ -543,15 +543,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                     <SelectItem value="אחר">אחר</SelectItem>
                   </SelectContent>
                 </Select>
-                <UniversityAutocomplete
+                <UniversityDropdown
                   value={newUniversityName}
                   onChange={setNewUniversityName}
-                  onSelectSuggestion={(suggestion) => {
-                    setNewUniversityName(suggestion.name);
-                    if (suggestion.country) {
-                      setNewUniversityCountry(suggestion.country);
-                    }
-                  }}
                   placeholder="שם האוניברסיטה *"
                 />
               </div>
