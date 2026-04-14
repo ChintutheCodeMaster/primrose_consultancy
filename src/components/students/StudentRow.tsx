@@ -367,10 +367,23 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <p className="text-xs font-medium text-muted-foreground mb-2">אוניברסיטאות שהתקבל אליהן:</p>
           <div className="flex flex-wrap gap-2">
             {student.acceptedUniversities.map((uni, index) => (
-              <div key={index} className="flex items-center gap-1 bg-success/10 text-success px-3 py-1 rounded-full text-sm">
+              <div key={index} className="flex items-center gap-1 bg-success/10 text-success px-3 py-1.5 rounded-full text-sm">
                 <CheckCircle className="h-3 w-3" />
                 <span>{uni.name}</span>
                 {uni.country && <span className="text-success/70">({uni.country})</span>}
+                {[
+                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                  uni.field,
+                  uni.studyYear
+                ].filter(Boolean).length > 0 && (
+                  <span className="text-success/60 text-xs">
+                    • {[
+                      uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                      uni.field,
+                      uni.studyYear
+                    ].filter(Boolean).join(' • ')}
+                  </span>
+                )}
                 {uni.acceptanceLetterUrl && (
                   <button 
                     type="button"
