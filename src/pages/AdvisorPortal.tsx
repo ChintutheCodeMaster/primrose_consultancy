@@ -666,8 +666,38 @@ export default function AdvisorPortal() {
       toast({ title: "הקבלה נמחקה" });
     }
   };
+  const startEditUniversity = (uni: AcceptedUniversity) => {
+    setEditingUniId(uni.id);
+    setEditUniData({ ...uni });
+  };
 
-  // Scholarship functions
+  const saveEditUniversity = async () => {
+    if (!editingUniId || !editUniData.name?.trim()) return;
+    const { error } = await supabase
+      .from("accepted_universities")
+      .update({
+        name: editUniData.name,
+        country: editUniData.country || null,
+        degree_type: editUniData.degree_type || null,
+        degree_type_other: editUniData.degree_type === 'אחר' ? (editUniData.degree_type_other || null) : null,
+        field: editUniData.field || null,
+        study_year: editUniData.study_year || null,
+      })
+      .eq("id", editingUniId);
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+    } else {
+      setAcceptedUniversities(prev =>
+        prev.map(u => u.id === editingUniId ? { ...u, ...editUniData, degree_type_other: editUniData.degree_type === 'אחר' ? editUniData.degree_type_other || null : null } : u)
+      );
+      setEditingUniId(null);
+      setEditUniData({});
+      toast({ title: "הקבלה עודכנה" });
+    }
+  };
+
+
   const addScholarship = async () => {
     if (!newScholarshipName.trim() || !selectedStudent) return;
     
