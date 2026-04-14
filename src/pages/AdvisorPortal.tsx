@@ -30,7 +30,9 @@ import {
   MessageSquare,
   Award,
   Calendar,
-  History
+  History,
+  Pencil,
+  Save
 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
