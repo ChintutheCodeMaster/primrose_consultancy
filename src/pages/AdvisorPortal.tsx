@@ -193,6 +193,7 @@ export default function AdvisorPortal() {
   const [newAcceptanceDegreeType, setNewAcceptanceDegreeType] = useState("");
   const [newAcceptanceDegreeTypeOther, setNewAcceptanceDegreeTypeOther] = useState("");
   const [newAcceptanceField, setNewAcceptanceField] = useState("");
+  const [newAcceptanceStudyYear, setNewAcceptanceStudyYear] = useState("");
   const [fieldDropdownOpen, setFieldDropdownOpen] = useState(false);
   const [fieldSearch, setFieldSearch] = useState('');
   const [showAddCustomField, setShowAddCustomField] = useState(false);
@@ -589,6 +590,9 @@ export default function AdvisorPortal() {
     if (newAcceptanceField) {
       insertData.field = newAcceptanceField;
     }
+    if (newAcceptanceStudyYear.trim()) {
+      insertData.study_year = newAcceptanceStudyYear.trim();
+    }
     
     const { error } = await supabase.from("accepted_universities").insert(insertData);
 
@@ -601,6 +605,7 @@ export default function AdvisorPortal() {
       setNewAcceptanceDegreeType("");
       setNewAcceptanceDegreeTypeOther("");
       setNewAcceptanceField("");
+      setNewAcceptanceStudyYear("");
       setIsAddAcceptanceOpen(false);
       selectStudent(selectedStudent);
     }
