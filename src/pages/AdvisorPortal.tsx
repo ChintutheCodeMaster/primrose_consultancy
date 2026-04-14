@@ -559,11 +559,22 @@ export default function AdvisorPortal() {
     if (!newUniversityName.trim() || !newUniversityCountry.trim() || !selectedStudent) return;
     
     setSavingAcceptance(true);
-    const { error } = await supabase.from("accepted_universities").insert({
+    const insertData: any = {
       student_id: selectedStudent.id,
       name: newUniversityName,
       country: newUniversityCountry,
-    });
+    };
+    if (newAcceptanceDegreeType) {
+      insertData.degree_type = newAcceptanceDegreeType;
+      if (newAcceptanceDegreeType === 'אחר' && newAcceptanceDegreeTypeOther.trim()) {
+        insertData.degree_type_other = newAcceptanceDegreeTypeOther;
+      }
+    }
+    if (newAcceptanceField) {
+      insertData.field = newAcceptanceField;
+    }
+    
+    const { error } = await supabase.from("accepted_universities").insert(insertData);
 
     if (error) {
       toast({ title: "שגיאה", description: "לא ניתן להוסיף קבלה", variant: "destructive" });
@@ -571,6 +582,9 @@ export default function AdvisorPortal() {
       toast({ title: "הקבלה נוספה בהצלחה" });
       setNewUniversityName("");
       setNewUniversityCountry("");
+      setNewAcceptanceDegreeType("");
+      setNewAcceptanceDegreeTypeOther("");
+      setNewAcceptanceField("");
       setIsAddAcceptanceOpen(false);
       selectStudent(selectedStudent);
     }
