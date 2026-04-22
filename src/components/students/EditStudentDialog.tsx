@@ -269,6 +269,35 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             console.log('Universities saved successfully');
           }
         }
+
+        // Save applied universities (replace strategy)
+        const { error: deleteAppliedErr } = await (supabase as any)
+          .from('applied_universities')
+          .delete()
+          .eq('student_id', student.id);
+        if (deleteAppliedErr) console.error('Error deleting old applied universities:', deleteAppliedErr);
+
+        if (appliedUniversities.length > 0) {
+          const { error: insertAppliedErr } = await (supabase as any)
+            .from('applied_universities')
+            .insert(
+              appliedUniversities.map(uni => ({
+                student_id: student.id,
+                name: uni.name,
+                country: uni.country || null,
+                degree_type: uni.degreeType || null,
+                degree_type_other: uni.degreeTypeOther || null,
+                field: uni.field || null,
+                study_year: uni.studyYear || null,
+                application_status: uni.applicationStatus || 'submitted',
+                notes: uni.notes || null,
+              }))
+            );
+          if (insertAppliedErr) {
+            console.error('Error saving applied universities:', insertAppliedErr);
+            toast.error('שגיאה בשמירת האוניברסיטאות שהוגשו');
+          }
+        }
       }
 
       onSave(finalFormData);
