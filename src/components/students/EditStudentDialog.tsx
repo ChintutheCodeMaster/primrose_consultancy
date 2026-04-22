@@ -69,6 +69,35 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
 
+  // Applied universities (universities the student has applied to)
+  type AppliedUniversity = {
+    id?: string;
+    name: string;
+    country?: string;
+    degreeType?: string;
+    degreeTypeOther?: string;
+    field?: string;
+    studyYear?: string;
+    applicationStatus?: string;
+    notes?: string;
+  };
+  const [appliedUniversities, setAppliedUniversities] = useState<AppliedUniversity[]>([]);
+  const [newAppliedName, setNewAppliedName] = useState('');
+  const [newAppliedCountry, setNewAppliedCountry] = useState('');
+  const [newAppliedDegreeType, setNewAppliedDegreeType] = useState('');
+  const [newAppliedDegreeTypeOther, setNewAppliedDegreeTypeOther] = useState('');
+  const [newAppliedField, setNewAppliedField] = useState('');
+  const [newAppliedStudyYear, setNewAppliedStudyYear] = useState('');
+  const [newAppliedStatus, setNewAppliedStatus] = useState('submitted');
+  const [newAppliedNotes, setNewAppliedNotes] = useState('');
+
+  const applicationStatusLabels: Record<string, string> = {
+    submitted: 'הוגש',
+    waiting: 'ממתין לתשובה',
+    rejected: 'נדחה',
+    accepted: 'התקבל',
+  };
+
   const { data: advisors = [] } = useQuery({
     queryKey: ['advisors'],
     queryFn: async () => {
