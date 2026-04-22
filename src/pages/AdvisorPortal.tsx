@@ -78,6 +78,7 @@ interface Student {
   status: string;
   did_not_continue: boolean;
   graduation_year: string | null;
+  payment_type: string | null;
 }
 
 interface AcceptedUniversity {
@@ -357,7 +358,7 @@ export default function AdvisorPortal() {
     // Fetch all students and filter by advisor_name (supports multiple advisors)
     const { data: allStudents } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type")
       .order("name", { ascending: true });
 
     // Filter students where advisor_name contains this advisor's name
@@ -837,7 +838,12 @@ export default function AdvisorPortal() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedStudent.payment_type && (
+                      <span className="px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
+                        תעריף: {selectedStudent.payment_type === 'hourly' ? 'שעתי' : selectedStudent.payment_type === 'package' ? 'חבילה' : selectedStudent.payment_type === 'other' ? 'משולב' : selectedStudent.payment_type}
+                      </span>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-sm ${selectedStudent.signed_agreement ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                       {selectedStudent.signed_agreement ? 'חתם הסכם' : 'לא חתם'}
                     </span>
