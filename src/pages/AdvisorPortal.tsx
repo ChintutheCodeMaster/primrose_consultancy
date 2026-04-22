@@ -78,6 +78,7 @@ interface Student {
   status: string;
   did_not_continue: boolean;
   graduation_year: string | null;
+  payment_type: string | null;
 }
 
 interface AcceptedUniversity {
