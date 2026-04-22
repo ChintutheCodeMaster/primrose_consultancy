@@ -39,6 +39,18 @@ export interface AcceptedUniversity {
   studyYear?: string;
 }
 
+export interface AppliedUniversity {
+  id?: string;
+  name: string;
+  country?: string;
+  degreeType?: string;
+  degreeTypeOther?: string;
+  field?: string;
+  studyYear?: string;
+  applicationStatus?: string;
+  notes?: string;
+}
+
 export type PaymentType = 'hourly' | 'package' | 'other';
 
 export interface Student {
@@ -63,6 +75,7 @@ export interface Student {
   isPaid: boolean;
   signedAgreement: boolean;
   acceptedUniversities: AcceptedUniversity[];
+  appliedUniversities?: AppliedUniversity[];
   targetCountry: string;
   targetUniversity: string;
   program: string;
