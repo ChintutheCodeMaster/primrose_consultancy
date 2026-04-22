@@ -45,7 +45,8 @@ export default function Students() {
         .from('students')
         .select(`
           *,
-          accepted_universities (*)
+          accepted_universities (*),
+          applied_universities (*)
         `)
         .is('graduation_year', null)
         .eq('did_not_continue', false)
@@ -89,6 +90,17 @@ export default function Students() {
           degreeTypeOther: uni.degree_type_other || '',
           field: uni.field || '',
           studyYear: uni.study_year || '',
+        })),
+        appliedUniversities: ((student as any).applied_universities || []).map((uni: any) => ({
+          id: uni.id,
+          name: uni.name,
+          country: uni.country || '',
+          degreeType: uni.degree_type || '',
+          degreeTypeOther: uni.degree_type_other || '',
+          field: uni.field || '',
+          studyYear: uni.study_year || '',
+          applicationStatus: uni.application_status || 'submitted',
+          notes: uni.notes || '',
         })),
         startDate: student.start_date ? new Date(student.start_date) : undefined,
         paymentReminderDate: student.payment_reminder_date ? new Date(student.payment_reminder_date) : undefined

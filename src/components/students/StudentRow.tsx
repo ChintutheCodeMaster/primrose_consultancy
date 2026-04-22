@@ -361,6 +361,45 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         )}
       </div>
 
+      {/* Applied Universities */}
+      {student.appliedUniversities && student.appliedUniversities.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border/50">
+          <p className="text-xs font-medium text-muted-foreground mb-2">אוניברסיטאות שהוגש אליהן:</p>
+          <div className="flex flex-wrap gap-2">
+            {student.appliedUniversities.map((uni, index) => {
+              const statusLabels: Record<string, string> = {
+                submitted: 'הוגש',
+                waiting: 'ממתין לתשובה',
+                rejected: 'נדחה',
+                accepted: 'התקבל',
+              };
+              const statusLabel = statusLabels[uni.applicationStatus || 'submitted'] || 'הוגש';
+              return (
+                <div key={index} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm">
+                  <FileText className="h-3 w-3" />
+                  <span>{uni.name}</span>
+                  {uni.country && <span className="text-primary/70">({uni.country})</span>}
+                  {[
+                    uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                    uni.field,
+                    uni.studyYear,
+                  ].filter(Boolean).length > 0 && (
+                    <span className="text-primary/60 text-xs">
+                      • {[
+                        uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                        uni.field,
+                        uni.studyYear,
+                      ].filter(Boolean).join(' • ')}
+                    </span>
+                  )}
+                  <span className="text-primary/60 text-xs">• {statusLabel}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Accepted Universities */}
       {student.acceptedUniversities.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border/50">

@@ -41,7 +41,8 @@ export default function PastClients() {
         .from('students')
         .select(`
           *,
-          accepted_universities (*)
+          accepted_universities (*),
+          applied_universities (*)
         `)
         .eq('graduation_year', year);
       
@@ -82,6 +83,17 @@ export default function PastClients() {
           degreeTypeOther: uni.degree_type_other || '',
           field: uni.field || '',
           studyYear: uni.study_year || '',
+        })),
+        appliedUniversities: ((student as any).applied_universities || []).map((uni: any) => ({
+          id: uni.id,
+          name: uni.name,
+          country: uni.country || '',
+          degreeType: uni.degree_type || '',
+          degreeTypeOther: uni.degree_type_other || '',
+          field: uni.field || '',
+          studyYear: uni.study_year || '',
+          applicationStatus: uni.application_status || 'submitted',
+          notes: uni.notes || '',
         })),
         startDate: student.start_date ? new Date(student.start_date) : undefined
       }));
