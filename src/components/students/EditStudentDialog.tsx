@@ -69,6 +69,35 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
 
+  // Applied universities (universities the student has applied to)
+  type AppliedUniversity = {
+    id?: string;
+    name: string;
+    country?: string;
+    degreeType?: string;
+    degreeTypeOther?: string;
+    field?: string;
+    studyYear?: string;
+    applicationStatus?: string;
+    notes?: string;
+  };
+  const [appliedUniversities, setAppliedUniversities] = useState<AppliedUniversity[]>([]);
+  const [newAppliedName, setNewAppliedName] = useState('');
+  const [newAppliedCountry, setNewAppliedCountry] = useState('');
+  const [newAppliedDegreeType, setNewAppliedDegreeType] = useState('');
+  const [newAppliedDegreeTypeOther, setNewAppliedDegreeTypeOther] = useState('');
+  const [newAppliedField, setNewAppliedField] = useState('');
+  const [newAppliedStudyYear, setNewAppliedStudyYear] = useState('');
+  const [newAppliedStatus, setNewAppliedStatus] = useState('submitted');
+  const [newAppliedNotes, setNewAppliedNotes] = useState('');
+
+  const applicationStatusLabels: Record<string, string> = {
+    submitted: 'הוגש',
+    waiting: 'ממתין לתשובה',
+    rejected: 'נדחה',
+    accepted: 'התקבל',
+  };
+
   const { data: advisors = [] } = useQuery({
     queryKey: ['advisors'],
     queryFn: async () => {
@@ -85,6 +114,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   useEffect(() => {
     if (student && open) {
       fetchConversations(student.id);
+      fetchAppliedUniversities(student.id);
     }
   }, [student, open]);
 
@@ -120,6 +150,29 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       })));
     }
     setLoadingConversations(false);
+  };
+
+  const fetchAppliedUniversities = async (studentId: string) => {
+    const { data } = await (supabase as any)
+      .from('applied_universities')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+    if (data) {
+      setAppliedUniversities(data.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        country: u.country || '',
+        degreeType: u.degree_type || '',
+        degreeTypeOther: u.degree_type_other || '',
+        field: u.field || '',
+        studyYear: u.study_year || '',
+        applicationStatus: u.application_status || 'submitted',
+        notes: u.notes || '',
+      })));
+    } else {
+      setAppliedUniversities([]);
+    }
   };
 
   // Initialize form data ONLY when the student changes.
@@ -214,6 +267,35 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             toast.error('שגיאה בשמירת האוניברסיטאות');
           } else {
             console.log('Universities saved successfully');
+          }
+        }
+
+        // Save applied universities (replace strategy)
+        const { error: deleteAppliedErr } = await (supabase as any)
+          .from('applied_universities')
+          .delete()
+          .eq('student_id', student.id);
+        if (deleteAppliedErr) console.error('Error deleting old applied universities:', deleteAppliedErr);
+
+        if (appliedUniversities.length > 0) {
+          const { error: insertAppliedErr } = await (supabase as any)
+            .from('applied_universities')
+            .insert(
+              appliedUniversities.map(uni => ({
+                student_id: student.id,
+                name: uni.name,
+                country: uni.country || null,
+                degree_type: uni.degreeType || null,
+                degree_type_other: uni.degreeTypeOther || null,
+                field: uni.field || null,
+                study_year: uni.studyYear || null,
+                application_status: uni.applicationStatus || 'submitted',
+                notes: uni.notes || null,
+              }))
+            );
+          if (insertAppliedErr) {
+            console.error('Error saving applied universities:', insertAppliedErr);
+            toast.error('שגיאה בשמירת האוניברסיטאות שהוגשו');
           }
         }
       }
@@ -705,6 +787,169 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 }
               }}
             />
+          </div>
+
+          {/* Applied Universities Section */}
+          <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <Label className="text-base font-semibold">אוניברסיטאות שהוגש אליהן</Label>
+
+            {/* Add new applied university */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={newAppliedCountry} onValueChange={setNewAppliedCountry}>
+                  <SelectTrigger className={!newAppliedCountry && newAppliedName.trim() ? 'border-orange-300 bg-orange-50' : ''}>
+                    <SelectValue placeholder="בחר מדינה *" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryOptions.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <UniversityDropdown
+                  value={newAppliedName}
+                  onChange={setNewAppliedName}
+                  placeholder="שם האוניברסיטה *"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={newAppliedDegreeType} onValueChange={setNewAppliedDegreeType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סוג תואר" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                    <SelectItem value="אחר">אחר</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldAutocomplete
+                  value={newAppliedField}
+                  onChange={setNewAppliedField}
+                  placeholder="תחום לימודים"
+                />
+                <Input
+                  value={newAppliedStudyYear}
+                  onChange={(e) => setNewAppliedStudyYear(e.target.value)}
+                  placeholder="שנת לימודים"
+                />
+              </div>
+              {newAppliedDegreeType === 'אחר' && (
+                <Input
+                  value={newAppliedDegreeTypeOther}
+                  onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)}
+                  placeholder="סוג תואר אחר..."
+                />
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={newAppliedStatus} onValueChange={setNewAppliedStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סטטוס בקשה" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(applicationStatusLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  value={newAppliedNotes}
+                  onChange={(e) => setNewAppliedNotes(e.target.value)}
+                  placeholder="הערות (אופציונלי)"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (!newAppliedName.trim() || !newAppliedCountry.trim()) return;
+                  setAppliedUniversities(prev => [
+                    ...prev,
+                    {
+                      name: newAppliedName.trim(),
+                      country: newAppliedCountry.trim(),
+                      degreeType: newAppliedDegreeType || undefined,
+                      degreeTypeOther: newAppliedDegreeType === 'אחר' ? newAppliedDegreeTypeOther : undefined,
+                      field: newAppliedField || undefined,
+                      studyYear: newAppliedStudyYear || undefined,
+                      applicationStatus: newAppliedStatus || 'submitted',
+                      notes: newAppliedNotes || undefined,
+                    }
+                  ]);
+                  setNewAppliedName('');
+                  setNewAppliedCountry('');
+                  setNewAppliedDegreeType('');
+                  setNewAppliedDegreeTypeOther('');
+                  setNewAppliedField('');
+                  setNewAppliedStudyYear('');
+                  setNewAppliedStatus('submitted');
+                  setNewAppliedNotes('');
+                }}
+                disabled={!newAppliedCountry || !newAppliedName.trim()}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 ml-2" />
+                הוסף הגשה
+              </Button>
+            </div>
+
+            {/* List of applied universities - grouped by country */}
+            {appliedUniversities.length > 0 && (
+              <div className="space-y-3">
+                {Object.entries(
+                  appliedUniversities.reduce((acc, uni, index) => {
+                    const country = uni.country || 'ללא מדינה';
+                    if (!acc[country]) acc[country] = [];
+                    acc[country].push({ ...uni, originalIndex: index });
+                    return acc;
+                  }, {} as Record<string, ((typeof appliedUniversities)[number] & { originalIndex: number })[]>)
+                ).map(([country, universities]) => (
+                  <div key={country} className="space-y-1">
+                    <div className="text-sm font-medium text-muted-foreground px-1">{country}</div>
+                    <div className="space-y-1">
+                      {universities.map((uni) => (
+                        <div key={uni.originalIndex} className="flex items-start gap-2 p-2.5 bg-background rounded-lg border">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium">{uni.name}</span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                {applicationStatusLabels[uni.applicationStatus || 'submitted'] || uni.applicationStatus}
+                              </span>
+                            </div>
+                            {[
+                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                              uni.field,
+                              uni.studyYear
+                            ].filter(Boolean).length > 0 && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {[
+                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.field,
+                                  uni.studyYear
+                                ].filter(Boolean).join(' • ')}
+                              </div>
+                            )}
+                            {uni.notes && (
+                              <div className="text-xs text-muted-foreground mt-1 italic">{uni.notes}</div>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => setAppliedUniversities(prev => prev.filter((_, i) => i !== uni.originalIndex))}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

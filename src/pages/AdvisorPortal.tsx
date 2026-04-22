@@ -93,6 +93,25 @@ interface AcceptedUniversity {
   study_year: string | null;
 }
 
+interface AppliedUniversity {
+  id: string;
+  name: string;
+  country: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
+  study_year: string | null;
+  application_status: string | null;
+  notes: string | null;
+}
+
+const applicationStatusLabels: Record<string, string> = {
+  submitted: 'הוגש',
+  waiting: 'ממתין לתשובה',
+  rejected: 'נדחה',
+  accepted: 'התקבל',
+};
+
 interface Scholarship {
   id: string;
   name: string;
@@ -156,7 +175,22 @@ export default function AdvisorPortal() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [acceptedUniversities, setAcceptedUniversities] = useState<AcceptedUniversity[]>([]);
+  const [appliedUniversities, setAppliedUniversities] = useState<AppliedUniversity[]>([]);
   const [loadingStudent, setLoadingStudent] = useState(false);
+
+  // Applied universities: add/edit form state
+  const [isAddAppliedOpen, setIsAddAppliedOpen] = useState(false);
+  const [savingApplied, setSavingApplied] = useState(false);
+  const [newAppliedName, setNewAppliedName] = useState('');
+  const [newAppliedCountry, setNewAppliedCountry] = useState('');
+  const [newAppliedDegreeType, setNewAppliedDegreeType] = useState('');
+  const [newAppliedDegreeTypeOther, setNewAppliedDegreeTypeOther] = useState('');
+  const [newAppliedField, setNewAppliedField] = useState('');
+  const [newAppliedStudyYear, setNewAppliedStudyYear] = useState('');
+  const [newAppliedStatus, setNewAppliedStatus] = useState('submitted');
+  const [newAppliedNotes, setNewAppliedNotes] = useState('');
+  const [editingAppliedId, setEditingAppliedId] = useState<string | null>(null);
+  const [editAppliedData, setEditAppliedData] = useState<Partial<AppliedUniversity>>({});
   
   // New item states
   const [newItemTitle, setNewItemTitle] = useState("");
@@ -394,7 +428,7 @@ export default function AdvisorPortal() {
     setLoadingStudent(true);
 
     // Fetch all data in parallel
-    const [checklistResult, documentsResult, conversationsResult, universitiesResult, scholarshipsResult] = await Promise.all([
+    const [checklistResult, documentsResult, conversationsResult, universitiesResult, scholarshipsResult, appliedResult] = await Promise.all([
       supabase
         .from("student_checklist_items")
         .select("*")
@@ -419,6 +453,11 @@ export default function AdvisorPortal() {
         .from("student_scholarships")
         .select("*")
         .eq("student_id", student.id)
+        .order("created_at", { ascending: false }),
+      (supabase as any)
+        .from("applied_universities")
+        .select("*")
+        .eq("student_id", student.id)
         .order("created_at", { ascending: false })
     ]);
 
@@ -427,8 +466,93 @@ export default function AdvisorPortal() {
     setConversations(conversationsResult.data || []);
     setAcceptedUniversities(universitiesResult.data || []);
     setScholarships(scholarshipsResult.data || []);
+    setAppliedUniversities(appliedResult.data || []);
     setLoadingStudent(false);
   };
+
+  // Applied universities helpers
+  const addAppliedUniversity = async () => {
+    if (!newAppliedName.trim() || !newAppliedCountry.trim() || !selectedStudent) return;
+    setSavingApplied(true);
+    const insertData: any = {
+      student_id: selectedStudent.id,
+      name: newAppliedName,
+      country: newAppliedCountry,
+      application_status: newAppliedStatus || 'submitted',
+    };
+    if (newAppliedDegreeType) {
+      insertData.degree_type = newAppliedDegreeType;
+      if (newAppliedDegreeType === 'אחר' && newAppliedDegreeTypeOther.trim()) {
+        insertData.degree_type_other = newAppliedDegreeTypeOther;
+      }
+    }
+    if (newAppliedField) insertData.field = newAppliedField;
+    if (newAppliedStudyYear.trim()) insertData.study_year = newAppliedStudyYear.trim();
+    if (newAppliedNotes.trim()) insertData.notes = newAppliedNotes.trim();
+
+    const { error } = await (supabase as any).from("applied_universities").insert(insertData);
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף הגשה", variant: "destructive" });
+    } else {
+      toast({ title: "ההגשה נוספה בהצלחה" });
+      setNewAppliedName('');
+      setNewAppliedCountry('');
+      setNewAppliedDegreeType('');
+      setNewAppliedDegreeTypeOther('');
+      setNewAppliedField('');
+      setNewAppliedStudyYear('');
+      setNewAppliedStatus('submitted');
+      setNewAppliedNotes('');
+      setIsAddAppliedOpen(false);
+      selectStudent(selectedStudent);
+    }
+    setSavingApplied(false);
+  };
+
+  const deleteAppliedUniversity = async (id: string) => {
+    const { error } = await (supabase as any)
+      .from("applied_universities")
+      .delete()
+      .eq("id", id);
+    if (!error) {
+      setAppliedUniversities(prev => prev.filter(u => u.id !== id));
+      toast({ title: "ההגשה נמחקה" });
+    }
+  };
+
+  const startEditApplied = (uni: AppliedUniversity) => {
+    setEditingAppliedId(uni.id);
+    setEditAppliedData({ ...uni });
+  };
+
+  const saveEditApplied = async () => {
+    if (!editingAppliedId || !editAppliedData.name?.trim()) return;
+    const { error } = await (supabase as any)
+      .from("applied_universities")
+      .update({
+        name: editAppliedData.name,
+        country: editAppliedData.country || null,
+        degree_type: editAppliedData.degree_type || null,
+        degree_type_other: editAppliedData.degree_type === 'אחר' ? (editAppliedData.degree_type_other || null) : null,
+        field: editAppliedData.field || null,
+        study_year: editAppliedData.study_year || null,
+        application_status: editAppliedData.application_status || 'submitted',
+        notes: editAppliedData.notes || null,
+      })
+      .eq("id", editingAppliedId);
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+    } else {
+      setAppliedUniversities(prev =>
+        prev.map(u => u.id === editingAppliedId ? { ...u, ...editAppliedData, degree_type_other: editAppliedData.degree_type === 'אחר' ? editAppliedData.degree_type_other || null : null } as AppliedUniversity : u)
+      );
+      setEditingAppliedId(null);
+      setEditAppliedData({});
+      toast({ title: "ההגשה עודכנה" });
+    }
+  };
+
 
   const addChecklistItem = async () => {
     if (!newItemTitle.trim() || !selectedStudent) return;
@@ -1449,6 +1573,148 @@ export default function AdvisorPortal() {
                           </div>
                         )}
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Applied Universities */}
+                  <Card className="border-primary/30 bg-primary/5 lg:col-span-2">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        לאן הגיש/ה ({appliedUniversities.length})
+                      </CardTitle>
+                      <Dialog open={isAddAppliedOpen} onOpenChange={setIsAddAppliedOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline">
+                            <Plus className="h-4 w-4 ml-1" />
+                            הוסף הגשה
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>הוספת הגשת בקשה</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label>מדינה *</Label>
+                                <Select value={newAppliedCountry} onValueChange={setNewAppliedCountry}>
+                                  <SelectTrigger><SelectValue placeholder="בחר מדינה" /></SelectTrigger>
+                                  <SelectContent>
+                                    {countryOptions.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>שם האוניברסיטה *</Label>
+                                <Input value={newAppliedName} onChange={(e) => setNewAppliedName(e.target.value)} placeholder="שם האוניברסיטה" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <Label>סוג תואר</Label>
+                                <Select value={newAppliedDegreeType} onValueChange={setNewAppliedDegreeType}>
+                                  <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                                    <SelectItem value="אחר">אחר</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label>תחום</Label>
+                                <Input value={newAppliedField} onChange={(e) => setNewAppliedField(e.target.value)} placeholder="תחום" />
+                              </div>
+                              <div>
+                                <Label>שנה</Label>
+                                <Input value={newAppliedStudyYear} onChange={(e) => setNewAppliedStudyYear(e.target.value)} placeholder="שנת לימודים" />
+                              </div>
+                            </div>
+                            {newAppliedDegreeType === 'אחר' && (
+                              <Input value={newAppliedDegreeTypeOther} onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)} placeholder="פירוט סוג תואר" />
+                            )}
+                            <div>
+                              <Label>סטטוס בקשה</Label>
+                              <Select value={newAppliedStatus} onValueChange={setNewAppliedStatus}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  {Object.entries(applicationStatusLabels).map(([v, l]) => (<SelectItem key={v} value={v}>{l}</SelectItem>))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label>הערות</Label>
+                              <Textarea value={newAppliedNotes} onChange={(e) => setNewAppliedNotes(e.target.value)} rows={2} placeholder="הערות (אופציונלי)" />
+                            </div>
+                            <Button onClick={addAppliedUniversity} disabled={savingApplied || !newAppliedCountry || !newAppliedName.trim()} className="w-full">
+                              {savingApplied ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
+                              הוסף
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {appliedUniversities.length === 0 ? (
+                        <p className="text-center text-muted-foreground py-4 text-sm">אין הגשות עדיין</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {appliedUniversities.map((uni) => (
+                            <div key={uni.id} className="p-3 rounded-lg border bg-background space-y-2">
+                              {editingAppliedId === uni.id ? (
+                                <>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Input value={editAppliedData.name || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, name: e.target.value }))} placeholder="שם אוניברסיטה" />
+                                    <Input value={editAppliedData.country || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, country: e.target.value }))} placeholder="מדינה" />
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={editAppliedData.degree_type || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, degree_type: e.target.value }))}>
+                                      <option value="">סוג תואר</option>
+                                      <option value="תואר ראשון">תואר ראשון</option>
+                                      <option value="תואר שני">תואר שני</option>
+                                      <option value="דוקטורט">דוקטורט</option>
+                                      <option value="אחר">אחר</option>
+                                    </select>
+                                    <Input value={editAppliedData.field || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, field: e.target.value }))} placeholder="תחום" />
+                                    <Input value={editAppliedData.study_year || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, study_year: e.target.value }))} placeholder="שנה" />
+                                  </div>
+                                  {editAppliedData.degree_type === 'אחר' && (
+                                    <Input value={editAppliedData.degree_type_other || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, degree_type_other: e.target.value }))} placeholder="פירוט סוג תואר" />
+                                  )}
+                                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={editAppliedData.application_status || 'submitted'} onChange={(e) => setEditAppliedData(prev => ({ ...prev, application_status: e.target.value }))}>
+                                    {Object.entries(applicationStatusLabels).map(([v, l]) => (<option key={v} value={v}>{l}</option>))}
+                                  </select>
+                                  <Textarea value={editAppliedData.notes || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, notes: e.target.value }))} rows={2} placeholder="הערות" />
+                                  <div className="flex gap-2 justify-end">
+                                    <Button variant="ghost" size="sm" onClick={() => { setEditingAppliedId(null); setEditAppliedData({}); }}>ביטול</Button>
+                                    <Button size="sm" onClick={saveEditApplied} className="gap-1"><Save className="h-3 w-3" />שמור</Button>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex items-start gap-3">
+                                  <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <p className="font-medium truncate">{uni.name}</p>
+                                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                        {applicationStatusLabels[uni.application_status || 'submitted'] || uni.application_status}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                      {[uni.country, uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type, uni.field, uni.study_year].filter(Boolean).join(' • ')}
+                                    </p>
+                                    {uni.notes && (<p className="text-xs text-muted-foreground italic mt-1">{uni.notes}</p>)}
+                                  </div>
+                                  <Button variant="ghost" size="icon" onClick={() => startEditApplied(uni)}><Pencil className="h-4 w-4" /></Button>
+                                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteAppliedUniversity(uni.id)}><Trash2 className="h-4 w-4" /></Button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
