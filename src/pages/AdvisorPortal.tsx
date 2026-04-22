@@ -175,7 +175,22 @@ export default function AdvisorPortal() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [acceptedUniversities, setAcceptedUniversities] = useState<AcceptedUniversity[]>([]);
+  const [appliedUniversities, setAppliedUniversities] = useState<AppliedUniversity[]>([]);
   const [loadingStudent, setLoadingStudent] = useState(false);
+
+  // Applied universities: add/edit form state
+  const [isAddAppliedOpen, setIsAddAppliedOpen] = useState(false);
+  const [savingApplied, setSavingApplied] = useState(false);
+  const [newAppliedName, setNewAppliedName] = useState('');
+  const [newAppliedCountry, setNewAppliedCountry] = useState('');
+  const [newAppliedDegreeType, setNewAppliedDegreeType] = useState('');
+  const [newAppliedDegreeTypeOther, setNewAppliedDegreeTypeOther] = useState('');
+  const [newAppliedField, setNewAppliedField] = useState('');
+  const [newAppliedStudyYear, setNewAppliedStudyYear] = useState('');
+  const [newAppliedStatus, setNewAppliedStatus] = useState('submitted');
+  const [newAppliedNotes, setNewAppliedNotes] = useState('');
+  const [editingAppliedId, setEditingAppliedId] = useState<string | null>(null);
+  const [editAppliedData, setEditAppliedData] = useState<Partial<AppliedUniversity>>({});
   
   // New item states
   const [newItemTitle, setNewItemTitle] = useState("");
