@@ -740,6 +740,7 @@ export type Database = {
         Row: {
           advisor_id: string | null
           advisor_name: string | null
+          advisor_payment_notes: string | null
           agreement_reminder_date: string | null
           amount_paid: number | null
           created_at: string
@@ -773,6 +774,7 @@ export type Database = {
         Insert: {
           advisor_id?: string | null
           advisor_name?: string | null
+          advisor_payment_notes?: string | null
           agreement_reminder_date?: string | null
           amount_paid?: number | null
           created_at?: string
@@ -806,6 +808,7 @@ export type Database = {
         Update: {
           advisor_id?: string | null
           advisor_name?: string | null
+          advisor_payment_notes?: string | null
           agreement_reminder_date?: string | null
           amount_paid?: number | null
           created_at?: string
