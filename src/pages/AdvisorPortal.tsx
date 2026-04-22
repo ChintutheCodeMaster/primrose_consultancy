@@ -358,7 +358,7 @@ export default function AdvisorPortal() {
     // Fetch all students and filter by advisor_name (supports multiple advisors)
     const { data: allStudents } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type")
       .order("name", { ascending: true });
 
     // Filter students where advisor_name contains this advisor's name
