@@ -192,6 +192,56 @@ export type Database = {
           },
         ]
       }
+      applied_universities: {
+        Row: {
+          application_status: string | null
+          country: string | null
+          created_at: string
+          degree_type: string | null
+          degree_type_other: string | null
+          field: string | null
+          id: string
+          name: string
+          notes: string | null
+          student_id: string
+          study_year: string | null
+        }
+        Insert: {
+          application_status?: string | null
+          country?: string | null
+          created_at?: string
+          degree_type?: string | null
+          degree_type_other?: string | null
+          field?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          student_id: string
+          study_year?: string | null
+        }
+        Update: {
+          application_status?: string | null
+          country?: string | null
+          created_at?: string
+          degree_type?: string | null
+          degree_type_other?: string | null
+          field?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          student_id?: string
+          study_year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applied_universities_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaborations: {
         Row: {
           category: string | null
