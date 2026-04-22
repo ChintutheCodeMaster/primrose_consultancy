@@ -838,7 +838,12 @@ export default function AdvisorPortal() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedStudent.payment_type && (
+                      <span className="px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
+                        תעריף: {selectedStudent.payment_type === 'hourly' ? 'שעתי' : selectedStudent.payment_type === 'package' ? 'חבילה' : selectedStudent.payment_type === 'other' ? 'משולב' : selectedStudent.payment_type}
+                      </span>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-sm ${selectedStudent.signed_agreement ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                       {selectedStudent.signed_agreement ? 'חתם הסכם' : 'לא חתם'}
                     </span>
