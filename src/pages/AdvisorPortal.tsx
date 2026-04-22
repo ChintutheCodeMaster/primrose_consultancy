@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { FIELD_OPTIONS } from "@/data/fieldOptions";
+import { UniversityDropdown } from "@/components/ui/university-dropdown";
 import { 
   GraduationCap, 
   User, 
@@ -1607,7 +1608,7 @@ export default function AdvisorPortal() {
                               </div>
                               <div>
                                 <Label>שם האוניברסיטה *</Label>
-                                <Input value={newAppliedName} onChange={(e) => setNewAppliedName(e.target.value)} placeholder="שם האוניברסיטה" />
+                                <UniversityDropdown value={newAppliedName} onChange={setNewAppliedName} placeholder="בחר אוניברסיטה" />
                               </div>
                             </div>
                             <div className="grid grid-cols-3 gap-3">
@@ -1666,7 +1667,7 @@ export default function AdvisorPortal() {
                               {editingAppliedId === uni.id ? (
                                 <>
                                   <div className="grid grid-cols-2 gap-2">
-                                    <Input value={editAppliedData.name || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, name: e.target.value }))} placeholder="שם אוניברסיטה" />
+                                    <UniversityDropdown value={editAppliedData.name || ''} onChange={(v) => setEditAppliedData(prev => ({ ...prev, name: v }))} placeholder="שם אוניברסיטה" />
                                     <Input value={editAppliedData.country || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, country: e.target.value }))} placeholder="מדינה" />
                                   </div>
                                   <div className="grid grid-cols-3 gap-2">
