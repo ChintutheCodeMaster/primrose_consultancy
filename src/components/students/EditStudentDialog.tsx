@@ -789,6 +789,169 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             />
           </div>
 
+          {/* Applied Universities Section */}
+          <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <Label className="text-base font-semibold">אוניברסיטאות שהוגש אליהן</Label>
+
+            {/* Add new applied university */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={newAppliedCountry} onValueChange={setNewAppliedCountry}>
+                  <SelectTrigger className={!newAppliedCountry && newAppliedName.trim() ? 'border-orange-300 bg-orange-50' : ''}>
+                    <SelectValue placeholder="בחר מדינה *" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryOptions.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <UniversityDropdown
+                  value={newAppliedName}
+                  onChange={setNewAppliedName}
+                  placeholder="שם האוניברסיטה *"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Select value={newAppliedDegreeType} onValueChange={setNewAppliedDegreeType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סוג תואר" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                    <SelectItem value="אחר">אחר</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldAutocomplete
+                  value={newAppliedField}
+                  onChange={setNewAppliedField}
+                  placeholder="תחום לימודים"
+                />
+                <Input
+                  value={newAppliedStudyYear}
+                  onChange={(e) => setNewAppliedStudyYear(e.target.value)}
+                  placeholder="שנת לימודים"
+                />
+              </div>
+              {newAppliedDegreeType === 'אחר' && (
+                <Input
+                  value={newAppliedDegreeTypeOther}
+                  onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)}
+                  placeholder="סוג תואר אחר..."
+                />
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={newAppliedStatus} onValueChange={setNewAppliedStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="סטטוס בקשה" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(applicationStatusLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  value={newAppliedNotes}
+                  onChange={(e) => setNewAppliedNotes(e.target.value)}
+                  placeholder="הערות (אופציונלי)"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (!newAppliedName.trim() || !newAppliedCountry.trim()) return;
+                  setAppliedUniversities(prev => [
+                    ...prev,
+                    {
+                      name: newAppliedName.trim(),
+                      country: newAppliedCountry.trim(),
+                      degreeType: newAppliedDegreeType || undefined,
+                      degreeTypeOther: newAppliedDegreeType === 'אחר' ? newAppliedDegreeTypeOther : undefined,
+                      field: newAppliedField || undefined,
+                      studyYear: newAppliedStudyYear || undefined,
+                      applicationStatus: newAppliedStatus || 'submitted',
+                      notes: newAppliedNotes || undefined,
+                    }
+                  ]);
+                  setNewAppliedName('');
+                  setNewAppliedCountry('');
+                  setNewAppliedDegreeType('');
+                  setNewAppliedDegreeTypeOther('');
+                  setNewAppliedField('');
+                  setNewAppliedStudyYear('');
+                  setNewAppliedStatus('submitted');
+                  setNewAppliedNotes('');
+                }}
+                disabled={!newAppliedCountry || !newAppliedName.trim()}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 ml-2" />
+                הוסף הגשה
+              </Button>
+            </div>
+
+            {/* List of applied universities - grouped by country */}
+            {appliedUniversities.length > 0 && (
+              <div className="space-y-3">
+                {Object.entries(
+                  appliedUniversities.reduce((acc, uni, index) => {
+                    const country = uni.country || 'ללא מדינה';
+                    if (!acc[country]) acc[country] = [];
+                    acc[country].push({ ...uni, originalIndex: index });
+                    return acc;
+                  }, {} as Record<string, ((typeof appliedUniversities)[number] & { originalIndex: number })[]>)
+                ).map(([country, universities]) => (
+                  <div key={country} className="space-y-1">
+                    <div className="text-sm font-medium text-muted-foreground px-1">{country}</div>
+                    <div className="space-y-1">
+                      {universities.map((uni) => (
+                        <div key={uni.originalIndex} className="flex items-start gap-2 p-2.5 bg-background rounded-lg border">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium">{uni.name}</span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                {applicationStatusLabels[uni.applicationStatus || 'submitted'] || uni.applicationStatus}
+                              </span>
+                            </div>
+                            {[
+                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                              uni.field,
+                              uni.studyYear
+                            ].filter(Boolean).length > 0 && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {[
+                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.field,
+                                  uni.studyYear
+                                ].filter(Boolean).join(' • ')}
+                              </div>
+                            )}
+                            {uni.notes && (
+                              <div className="text-xs text-muted-foreground mt-1 italic">{uni.notes}</div>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => setAppliedUniversities(prev => prev.filter((_, i) => i !== uni.originalIndex))}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="source">מקור הגעה</Label>
             <Select 
