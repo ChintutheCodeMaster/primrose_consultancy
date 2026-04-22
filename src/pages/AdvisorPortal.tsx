@@ -1667,7 +1667,7 @@ export default function AdvisorPortal() {
                               {editingAppliedId === uni.id ? (
                                 <>
                                   <div className="grid grid-cols-2 gap-2">
-                                    <Input value={editAppliedData.name || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, name: e.target.value }))} placeholder="שם אוניברסיטה" />
+                                    <UniversityDropdown value={editAppliedData.name || ''} onChange={(v) => setEditAppliedData(prev => ({ ...prev, name: v }))} placeholder="שם אוניברסיטה" />
                                     <Input value={editAppliedData.country || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, country: e.target.value }))} placeholder="מדינה" />
                                   </div>
                                   <div className="grid grid-cols-3 gap-2">
