@@ -93,6 +93,25 @@ interface AcceptedUniversity {
   study_year: string | null;
 }
 
+interface AppliedUniversity {
+  id: string;
+  name: string;
+  country: string | null;
+  degree_type: string | null;
+  degree_type_other: string | null;
+  field: string | null;
+  study_year: string | null;
+  application_status: string | null;
+  notes: string | null;
+}
+
+const applicationStatusLabels: Record<string, string> = {
+  submitted: 'הוגש',
+  waiting: 'ממתין לתשובה',
+  rejected: 'נדחה',
+  accepted: 'התקבל',
+};
+
 interface Scholarship {
   id: string;
   name: string;
