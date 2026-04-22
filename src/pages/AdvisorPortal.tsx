@@ -79,6 +79,7 @@ interface Student {
   did_not_continue: boolean;
   graduation_year: string | null;
   payment_type: string | null;
+  advisor_payment_notes: string | null;
 }
 
 interface AcceptedUniversity {
@@ -358,7 +359,7 @@ export default function AdvisorPortal() {
     // Fetch all students and filter by advisor_name (supports multiple advisors)
     const { data: allStudents } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type, advisor_payment_notes")
       .order("name", { ascending: true });
 
     // Filter students where advisor_name contains this advisor's name

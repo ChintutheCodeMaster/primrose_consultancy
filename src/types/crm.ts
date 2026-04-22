@@ -56,6 +56,7 @@ export interface Student {
   packageCost: number;
   amountPaid?: number;
   paymentNotes: string;
+  advisorPaymentNotes?: string;
   packageNotes?: string;
   advisorId?: string;
   advisorName: string;
