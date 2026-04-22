@@ -428,7 +428,7 @@ export default function AdvisorPortal() {
     setLoadingStudent(true);
 
     // Fetch all data in parallel
-    const [checklistResult, documentsResult, conversationsResult, universitiesResult, scholarshipsResult] = await Promise.all([
+    const [checklistResult, documentsResult, conversationsResult, universitiesResult, scholarshipsResult, appliedResult] = await Promise.all([
       supabase
         .from("student_checklist_items")
         .select("*")
@@ -453,6 +453,11 @@ export default function AdvisorPortal() {
         .from("student_scholarships")
         .select("*")
         .eq("student_id", student.id)
+        .order("created_at", { ascending: false }),
+      (supabase as any)
+        .from("applied_universities")
+        .select("*")
+        .eq("student_id", student.id)
         .order("created_at", { ascending: false })
     ]);
 
@@ -461,8 +466,93 @@ export default function AdvisorPortal() {
     setConversations(conversationsResult.data || []);
     setAcceptedUniversities(universitiesResult.data || []);
     setScholarships(scholarshipsResult.data || []);
+    setAppliedUniversities(appliedResult.data || []);
     setLoadingStudent(false);
   };
+
+  // Applied universities helpers
+  const addAppliedUniversity = async () => {
+    if (!newAppliedName.trim() || !newAppliedCountry.trim() || !selectedStudent) return;
+    setSavingApplied(true);
+    const insertData: any = {
+      student_id: selectedStudent.id,
+      name: newAppliedName,
+      country: newAppliedCountry,
+      application_status: newAppliedStatus || 'submitted',
+    };
+    if (newAppliedDegreeType) {
+      insertData.degree_type = newAppliedDegreeType;
+      if (newAppliedDegreeType === 'אחר' && newAppliedDegreeTypeOther.trim()) {
+        insertData.degree_type_other = newAppliedDegreeTypeOther;
+      }
+    }
+    if (newAppliedField) insertData.field = newAppliedField;
+    if (newAppliedStudyYear.trim()) insertData.study_year = newAppliedStudyYear.trim();
+    if (newAppliedNotes.trim()) insertData.notes = newAppliedNotes.trim();
+
+    const { error } = await (supabase as any).from("applied_universities").insert(insertData);
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן להוסיף הגשה", variant: "destructive" });
+    } else {
+      toast({ title: "ההגשה נוספה בהצלחה" });
+      setNewAppliedName('');
+      setNewAppliedCountry('');
+      setNewAppliedDegreeType('');
+      setNewAppliedDegreeTypeOther('');
+      setNewAppliedField('');
+      setNewAppliedStudyYear('');
+      setNewAppliedStatus('submitted');
+      setNewAppliedNotes('');
+      setIsAddAppliedOpen(false);
+      selectStudent(selectedStudent);
+    }
+    setSavingApplied(false);
+  };
+
+  const deleteAppliedUniversity = async (id: string) => {
+    const { error } = await (supabase as any)
+      .from("applied_universities")
+      .delete()
+      .eq("id", id);
+    if (!error) {
+      setAppliedUniversities(prev => prev.filter(u => u.id !== id));
+      toast({ title: "ההגשה נמחקה" });
+    }
+  };
+
+  const startEditApplied = (uni: AppliedUniversity) => {
+    setEditingAppliedId(uni.id);
+    setEditAppliedData({ ...uni });
+  };
+
+  const saveEditApplied = async () => {
+    if (!editingAppliedId || !editAppliedData.name?.trim()) return;
+    const { error } = await (supabase as any)
+      .from("applied_universities")
+      .update({
+        name: editAppliedData.name,
+        country: editAppliedData.country || null,
+        degree_type: editAppliedData.degree_type || null,
+        degree_type_other: editAppliedData.degree_type === 'אחר' ? (editAppliedData.degree_type_other || null) : null,
+        field: editAppliedData.field || null,
+        study_year: editAppliedData.study_year || null,
+        application_status: editAppliedData.application_status || 'submitted',
+        notes: editAppliedData.notes || null,
+      })
+      .eq("id", editingAppliedId);
+
+    if (error) {
+      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+    } else {
+      setAppliedUniversities(prev =>
+        prev.map(u => u.id === editingAppliedId ? { ...u, ...editAppliedData, degree_type_other: editAppliedData.degree_type === 'אחר' ? editAppliedData.degree_type_other || null : null } as AppliedUniversity : u)
+      );
+      setEditingAppliedId(null);
+      setEditAppliedData({});
+      toast({ title: "ההגשה עודכנה" });
+    }
+  };
+
 
   const addChecklistItem = async () => {
     if (!newItemTitle.trim() || !selectedStudent) return;
