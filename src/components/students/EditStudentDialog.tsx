@@ -114,6 +114,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   useEffect(() => {
     if (student && open) {
       fetchConversations(student.id);
+      fetchAppliedUniversities(student.id);
     }
   }, [student, open]);
 
@@ -149,6 +150,29 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       })));
     }
     setLoadingConversations(false);
+  };
+
+  const fetchAppliedUniversities = async (studentId: string) => {
+    const { data } = await (supabase as any)
+      .from('applied_universities')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false });
+    if (data) {
+      setAppliedUniversities(data.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        country: u.country || '',
+        degreeType: u.degree_type || '',
+        degreeTypeOther: u.degree_type_other || '',
+        field: u.field || '',
+        studyYear: u.study_year || '',
+        applicationStatus: u.application_status || 'submitted',
+        notes: u.notes || '',
+      })));
+    } else {
+      setAppliedUniversities([]);
+    }
   };
 
   // Initialize form data ONLY when the student changes.
