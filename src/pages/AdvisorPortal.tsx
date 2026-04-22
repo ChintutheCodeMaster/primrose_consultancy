@@ -856,6 +856,17 @@ export default function AdvisorPortal() {
               </CardContent>
             </Card>
 
+            {selectedStudent.advisor_payment_notes && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">תשלום סטודנט</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm whitespace-pre-wrap">{selectedStudent.advisor_payment_notes}</p>
+                </CardContent>
+              </Card>
+            )}
+
             {loadingStudent ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
