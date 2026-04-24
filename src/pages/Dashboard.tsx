@@ -411,6 +411,7 @@ export default function Dashboard() {
         meetingSummary: s.meeting_summary || '',
         packageCost: s.package_cost || 0,
         amountPaid: Number(s.amount_paid) || 0,
+        paymentType: (s.payment_type || 'package') as 'hourly' | 'package' | 'other',
         paymentNotes: s.payment_notes || '',
         advisorName: s.advisor_name || '',
         isPaid: s.is_paid || false,
