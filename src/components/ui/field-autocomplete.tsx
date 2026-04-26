@@ -3,6 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { FIELD_OPTIONS } from '@/data/fieldOptions';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface FieldAutocompleteProps {
   value: string;
@@ -16,7 +18,28 @@ export function FieldAutocomplete({ value, onChange, placeholder = "חפש או 
   const [search, setSearch] = useState('');
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [customValue, setCustomValue] = useState('');
+  const [saving, setSaving] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load options from DB
+  useEffect(() => {
+    loadOptions();
+  }, []);
+
+  const loadOptions = async () => {
+    const { data, error } = await supabase
+      .from('field_options')
+      .select('name')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      const dbNames = data.map((d) => d.name);
+      // Merge with defaults so nothing disappears if DB is empty for some reason
+      const merged = Array.from(new Set([...dbNames, ...FIELD_OPTIONS]));
+      setOptions(merged);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,15 +57,30 @@ export function FieldAutocomplete({ value, onChange, placeholder = "חפש או 
     opt.toLowerCase().includes(search.toLowerCase())
   );
 
-  const addCustomOption = () => {
-    if (customValue.trim()) {
-      setOptions(prev => [...prev, customValue.trim()]);
-      onChange(customValue.trim());
-      setCustomValue('');
-      setShowAddCustom(false);
-      setDropdownOpen(false);
-      setSearch('');
+  const addCustomOption = async () => {
+    const trimmed = customValue.trim();
+    if (!trimmed) return;
+
+    setSaving(true);
+    // Persist to DB (ignore duplicate-key errors)
+    const { error } = await supabase
+      .from('field_options')
+      .insert({ name: trimmed, sort_order: options.length + 1 });
+
+    if (error && !error.message?.toLowerCase().includes('duplicate')) {
+      toast.error('שגיאה בשמירת התחום: ' + error.message);
+      setSaving(false);
+      return;
     }
+
+    setOptions(prev => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
+    onChange(trimmed);
+    setCustomValue('');
+    setShowAddCustom(false);
+    setDropdownOpen(false);
+    setSearch('');
+    setSaving(false);
+    toast.success('תחום נוסף בהצלחה');
   };
 
   return (
@@ -112,8 +150,8 @@ export function FieldAutocomplete({ value, onChange, placeholder = "חפש או 
                     }
                   }}
                 />
-                <Button type="button" size="sm" className="h-8" onClick={addCustomOption}>
-                  הוסף
+                <Button type="button" size="sm" className="h-8" onClick={addCustomOption} disabled={saving}>
+                  {saving ? 'שומר...' : 'הוסף'}
                 </Button>
               </div>
             )}
