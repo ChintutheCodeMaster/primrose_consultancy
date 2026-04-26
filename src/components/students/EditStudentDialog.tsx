@@ -694,8 +694,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                     <div className="text-sm font-medium text-muted-foreground px-1">{country}</div>
                     <div className="space-y-1">
                       {universities.map((uni) => (
-                        <div key={uni.originalIndex} className="flex items-center gap-2 p-2.5 bg-background rounded-lg border">
-                          <div className="flex-1">
+                        <div key={uni.originalIndex} className="flex flex-wrap items-center gap-2 p-2.5 bg-background rounded-lg border">
+                          <div className="flex-1 min-w-0">
                             <span className="font-medium">{uni.name}</span>
                             {[
                               uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
@@ -728,8 +728,24 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                 size="icon"
                                 className="h-6 w-6"
                                 onClick={() => handleRemoveFile(uni.originalIndex)}
+                                title="הסר מכתב קבלה"
                               >
                                 <X className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={uploadingFor === uni.originalIndex}
+                                onClick={() => {
+                                  setUploadingFor(uni.originalIndex);
+                                  fileInputRef.current?.click();
+                                }}
+                                className="gap-1 h-7 text-xs text-muted-foreground"
+                                title="החלף מכתב קבלה"
+                              >
+                                <Upload className="h-3 w-3" />
+                                {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
                               </Button>
                             </div>
                           ) : (
@@ -745,7 +761,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                               className="gap-1"
                             >
                               <Upload className="h-3 w-3" />
-                              {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב'}
+                              {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
                             </Button>
                           )}
                           
