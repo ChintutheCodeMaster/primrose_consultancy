@@ -727,9 +727,9 @@ export default function Projects() {
                                     </TableCell>
                                     <TableCell>
                                       <div>
-                                        {project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}
+                                        {project.amount != null ? `${getCurrencySymbol(project.currency)}${project.amount.toLocaleString()}` : '-'}
                                         {(project as any).net_amount != null && (
-                                          <p className="text-xs text-muted-foreground">נטו: ₪{(project as any).net_amount.toLocaleString()}</p>
+                                          <p className="text-xs text-muted-foreground">נטו: {getCurrencySymbol(project.currency)}{(project as any).net_amount.toLocaleString()}</p>
                                         )}
                                       </div>
                                     </TableCell>
