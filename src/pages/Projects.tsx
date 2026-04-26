@@ -39,6 +39,7 @@ interface Project {
   payment_direction: string;
   amount: number | null;
   net_amount: number | null;
+  currency: string;
   payment_date: string | null;
   invoice_date: string | null;
   payment_request_date: string | null;
@@ -70,6 +71,7 @@ interface ProjectFormData {
   payment_direction: string;
   amount: string;
   net_amount: string;
+  currency: string;
   payment_date: string;
   invoice_date: string;
   payment_request_date: string;
@@ -80,11 +82,20 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', currency: 'ILS', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
 const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
 const directionLabels: Record<string, string> = { income: 'הכנסה', expense: 'הוצאה' };
+
+const currencyOptions: { value: string; label: string; symbol: string }[] = [
+  { value: 'ILS', label: 'שקל (₪)', symbol: '₪' },
+  { value: 'USD', label: 'דולר ($)', symbol: '$' },
+  { value: 'EUR', label: 'יורו (€)', symbol: '€' },
+  { value: 'GBP', label: 'פאונד (£)', symbol: '£' },
+];
+
+const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '₪';
 
 // ── Main Component ──
 
@@ -191,6 +202,7 @@ export default function Projects() {
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
         net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
+        currency: data.currency || 'ILS',
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -222,6 +234,7 @@ export default function Projects() {
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
         net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
+        currency: data.currency || 'ILS',
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -334,7 +347,7 @@ export default function Projects() {
 
   const openEditProject = (p: Project) => {
     setEditingProject(p);
-    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', net_amount: (p as any).net_amount?.toString() || '', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
+    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', net_amount: (p as any).net_amount?.toString() || '', currency: p.currency || 'ILS', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
     setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
@@ -463,7 +476,17 @@ export default function Projects() {
         </div>
         <div>
           <Label>סכום</Label>
-          <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
+          <div className="flex gap-1">
+            <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="flex-1" />
+            <Select value={projectForm.currency} onValueChange={v => setProjectForm(p => ({ ...p, currency: v }))}>
+              <SelectTrigger className="w-[110px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {currencyOptions.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Input type="text" inputMode="decimal" placeholder="סכום לאחר ניכוי מס (אופציונלי)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
         </div>
         <div>
@@ -602,10 +625,23 @@ export default function Projects() {
             }).map(collab => {
               const collabProjects = projectsByCollab(collab.id);
               const isOpen = openCollabs.has(collab.id);
-              const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
-              const totalExpense = collabProjects.filter(p => p.payment_direction === 'expense').reduce((sum, p) => sum + (p.amount || 0), 0);
-              const net = totalIncome - totalExpense;
-              const totalNetAmount = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.net_amount || 0), 0);
+              // Group totals by currency to support multi-currency projects
+              const totalsByCurrency: Record<string, { income: number; expense: number; net: number }> = {};
+              const netAmountByCurrency: Record<string, number> = {};
+              collabProjects.forEach(p => {
+                const curr = p.currency || 'ILS';
+                if (!totalsByCurrency[curr]) totalsByCurrency[curr] = { income: 0, expense: 0, net: 0 };
+                if (p.payment_direction === 'income') {
+                  totalsByCurrency[curr].income += p.amount || 0;
+                  netAmountByCurrency[curr] = (netAmountByCurrency[curr] || 0) + (p.net_amount || 0);
+                } else if (p.payment_direction === 'expense') {
+                  totalsByCurrency[curr].expense += p.amount || 0;
+                }
+              });
+              Object.keys(totalsByCurrency).forEach(c => {
+                totalsByCurrency[c].net = totalsByCurrency[c].income - totalsByCurrency[c].expense;
+              });
+              const currencyKeys = Object.keys(totalsByCurrency);
               const pendingPaymentCount = collabProjects.filter(p => p.status === 'pending_payment').length;
               return (
                 <Card key={collab.id}>
@@ -625,22 +661,29 @@ export default function Projects() {
                                   <span className="inline-flex h-2 w-2 rounded-full bg-warning" title={`${pendingPaymentCount} ממתינים לתשלום`} />
                                 )}
                               </CardTitle>
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5">
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-0.5">
                                 {collab.category && <span>{collab.category}</span>}
                                 <span>{collabProjects.length} פרויקטים</span>
-                                {collabProjects.length > 0 && (
-                                  <>
-                                    {totalExpense > 0 && totalIncome > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
-                                    <span className={cn('font-medium', net >= 0 ? 'text-green-700' : 'text-red-700')}>
-                                      {totalIncome > 0 && totalExpense === 0 ? 'הכנסות כולל' : totalExpense > 0 && totalIncome === 0 ? 'הוצאות כולל' : 'הכנסות כולל'}: ₪{Math.abs(net).toLocaleString()}
-                                    </span>
-                                    {totalNetAmount > 0 && (
-                                      <span className="text-muted-foreground">
-                                        הכנסות לאחר ניכוי: ₪{totalNetAmount.toLocaleString()}
+                                {currencyKeys.map(curr => {
+                                  const t = totalsByCurrency[curr];
+                                  if (t.income === 0 && t.expense === 0) return null;
+                                  const sym = getCurrencySymbol(curr);
+                                  const label = t.income > 0 && t.expense === 0 ? 'הכנסות' : t.expense > 0 && t.income === 0 ? 'הוצאות' : 'נטו';
+                                  const netVal = netAmountByCurrency[curr] || 0;
+                                  return (
+                                    <span key={curr} className="flex items-center gap-2">
+                                      {t.expense > 0 && t.income > 0 && <span className="text-red-600">-{sym}{t.expense.toLocaleString()}</span>}
+                                      <span className={cn('font-medium', t.net >= 0 ? 'text-green-700' : 'text-red-700')}>
+                                        {label}: {sym}{Math.abs(t.net).toLocaleString()}
                                       </span>
-                                    )}
-                                  </>
-                                )}
+                                      {netVal > 0 && (
+                                        <span className="text-muted-foreground text-xs">
+                                          (לאחר ניכוי: {sym}{netVal.toLocaleString()})
+                                        </span>
+                                      )}
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
@@ -704,9 +747,9 @@ export default function Projects() {
                                     </TableCell>
                                     <TableCell>
                                       <div>
-                                        {project.amount != null ? `₪${project.amount.toLocaleString()}` : '-'}
+                                        {project.amount != null ? `${getCurrencySymbol(project.currency)}${project.amount.toLocaleString()}` : '-'}
                                         {(project as any).net_amount != null && (
-                                          <p className="text-xs text-muted-foreground">נטו: ₪{(project as any).net_amount.toLocaleString()}</p>
+                                          <p className="text-xs text-muted-foreground">נטו: {getCurrencySymbol(project.currency)}{(project as any).net_amount.toLocaleString()}</p>
                                         )}
                                       </div>
                                     </TableCell>
