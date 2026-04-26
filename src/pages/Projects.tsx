@@ -625,10 +625,23 @@ export default function Projects() {
             }).map(collab => {
               const collabProjects = projectsByCollab(collab.id);
               const isOpen = openCollabs.has(collab.id);
-              const totalIncome = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.amount || 0), 0);
-              const totalExpense = collabProjects.filter(p => p.payment_direction === 'expense').reduce((sum, p) => sum + (p.amount || 0), 0);
-              const net = totalIncome - totalExpense;
-              const totalNetAmount = collabProjects.filter(p => p.payment_direction === 'income').reduce((sum, p) => sum + (p.net_amount || 0), 0);
+              // Group totals by currency to support multi-currency projects
+              const totalsByCurrency: Record<string, { income: number; expense: number; net: number }> = {};
+              const netAmountByCurrency: Record<string, number> = {};
+              collabProjects.forEach(p => {
+                const curr = p.currency || 'ILS';
+                if (!totalsByCurrency[curr]) totalsByCurrency[curr] = { income: 0, expense: 0, net: 0 };
+                if (p.payment_direction === 'income') {
+                  totalsByCurrency[curr].income += p.amount || 0;
+                  netAmountByCurrency[curr] = (netAmountByCurrency[curr] || 0) + (p.net_amount || 0);
+                } else if (p.payment_direction === 'expense') {
+                  totalsByCurrency[curr].expense += p.amount || 0;
+                }
+              });
+              Object.keys(totalsByCurrency).forEach(c => {
+                totalsByCurrency[c].net = totalsByCurrency[c].income - totalsByCurrency[c].expense;
+              });
+              const currencyKeys = Object.keys(totalsByCurrency);
               const pendingPaymentCount = collabProjects.filter(p => p.status === 'pending_payment').length;
               return (
                 <Card key={collab.id}>
@@ -648,22 +661,29 @@ export default function Projects() {
                                   <span className="inline-flex h-2 w-2 rounded-full bg-warning" title={`${pendingPaymentCount} ממתינים לתשלום`} />
                                 )}
                               </CardTitle>
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5">
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-0.5">
                                 {collab.category && <span>{collab.category}</span>}
                                 <span>{collabProjects.length} פרויקטים</span>
-                                {collabProjects.length > 0 && (
-                                  <>
-                                    {totalExpense > 0 && totalIncome > 0 && <span className="text-red-600">-₪{totalExpense.toLocaleString()}</span>}
-                                    <span className={cn('font-medium', net >= 0 ? 'text-green-700' : 'text-red-700')}>
-                                      {totalIncome > 0 && totalExpense === 0 ? 'הכנסות כולל' : totalExpense > 0 && totalIncome === 0 ? 'הוצאות כולל' : 'הכנסות כולל'}: ₪{Math.abs(net).toLocaleString()}
-                                    </span>
-                                    {totalNetAmount > 0 && (
-                                      <span className="text-muted-foreground">
-                                        הכנסות לאחר ניכוי: ₪{totalNetAmount.toLocaleString()}
+                                {currencyKeys.map(curr => {
+                                  const t = totalsByCurrency[curr];
+                                  if (t.income === 0 && t.expense === 0) return null;
+                                  const sym = getCurrencySymbol(curr);
+                                  const label = t.income > 0 && t.expense === 0 ? 'הכנסות' : t.expense > 0 && t.income === 0 ? 'הוצאות' : 'נטו';
+                                  const netVal = netAmountByCurrency[curr] || 0;
+                                  return (
+                                    <span key={curr} className="flex items-center gap-2">
+                                      {t.expense > 0 && t.income > 0 && <span className="text-red-600">-{sym}{t.expense.toLocaleString()}</span>}
+                                      <span className={cn('font-medium', t.net >= 0 ? 'text-green-700' : 'text-red-700')}>
+                                        {label}: {sym}{Math.abs(t.net).toLocaleString()}
                                       </span>
-                                    )}
-                                  </>
-                                )}
+                                      {netVal > 0 && (
+                                        <span className="text-muted-foreground text-xs">
+                                          (לאחר ניכוי: {sym}{netVal.toLocaleString()})
+                                        </span>
+                                      )}
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
