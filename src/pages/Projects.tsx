@@ -476,7 +476,17 @@ export default function Projects() {
         </div>
         <div>
           <Label>סכום</Label>
-          <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} />
+          <div className="flex gap-1">
+            <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="flex-1" />
+            <Select value={projectForm.currency} onValueChange={v => setProjectForm(p => ({ ...p, currency: v }))}>
+              <SelectTrigger className="w-[110px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {currencyOptions.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Input type="text" inputMode="decimal" placeholder="סכום לאחר ניכוי מס (אופציונלי)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
         </div>
         <div>
