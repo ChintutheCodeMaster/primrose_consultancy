@@ -71,6 +71,7 @@ interface ProjectFormData {
   payment_direction: string;
   amount: string;
   net_amount: string;
+  currency: string;
   payment_date: string;
   invoice_date: string;
   payment_request_date: string;
@@ -81,11 +82,20 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', currency: 'ILS', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
 const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
 const directionLabels: Record<string, string> = { income: 'הכנסה', expense: 'הוצאה' };
+
+const currencyOptions: { value: string; label: string; symbol: string }[] = [
+  { value: 'ILS', label: 'שקל (₪)', symbol: '₪' },
+  { value: 'USD', label: 'דולר ($)', symbol: '$' },
+  { value: 'EUR', label: 'יורו (€)', symbol: '€' },
+  { value: 'GBP', label: 'פאונד (£)', symbol: '£' },
+];
+
+const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '₪';
 
 // ── Main Component ──
 
