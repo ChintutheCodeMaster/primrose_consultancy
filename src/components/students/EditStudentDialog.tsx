@@ -66,7 +66,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newUniversityField, setNewUniversityField] = useState('');
   const [newUniversityStudyYear, setNewUniversityStudyYear] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
 
