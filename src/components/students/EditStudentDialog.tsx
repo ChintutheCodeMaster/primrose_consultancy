@@ -66,7 +66,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newUniversityField, setNewUniversityField] = useState('');
   const [newUniversityStudyYear, setNewUniversityStudyYear] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
 
@@ -732,37 +732,40 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                               >
                                 <X className="h-3 w-3" />
                               </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                disabled={uploadingFor === uni.originalIndex}
-                                onClick={() => {
-                                  setUploadingFor(uni.originalIndex);
-                                  fileInputRef.current?.click();
-                                }}
-                                className="gap-1 h-7 text-xs text-muted-foreground"
-                                title="החלף מכתב קבלה"
-                              >
-                                <Upload className="h-3 w-3" />
-                                {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
-                              </Button>
+                              <label className="cursor-pointer">
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                  disabled={uploadingFor === uni.originalIndex}
+                                  onChange={(e) => {
+                                    handleFileUpload(e, uni.originalIndex);
+                                    e.target.value = '';
+                                  }}
+                                />
+                                <span className="inline-flex items-center gap-1 h-7 px-2 text-xs text-muted-foreground hover:bg-accent rounded-md">
+                                  <Upload className="h-3 w-3" />
+                                  {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
+                                </span>
+                              </label>
                             </div>
                           ) : (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              disabled={uploadingFor === uni.originalIndex}
-                              onClick={() => {
-                                setUploadingFor(uni.originalIndex);
-                                fileInputRef.current?.click();
-                              }}
-                              className="gap-1"
-                            >
-                              <Upload className="h-3 w-3" />
-                              {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
-                            </Button>
+                            <label className="cursor-pointer">
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                disabled={uploadingFor === uni.originalIndex}
+                                onChange={(e) => {
+                                  handleFileUpload(e, uni.originalIndex);
+                                  e.target.value = '';
+                                }}
+                              />
+                              <span className="inline-flex items-center gap-1 h-9 px-3 border rounded-md text-sm hover:bg-accent">
+                                <Upload className="h-3 w-3" />
+                                {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
+                              </span>
+                            </label>
                           )}
                           
                           <Button
@@ -781,18 +784,6 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 ))}
               </div>
             )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              onChange={(e) => {
-                if (uploadingFor !== null) {
-                  handleFileUpload(e, uploadingFor);
-                }
-              }}
-            />
           </div>
 
           {/* Applied Universities Section */}
