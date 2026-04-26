@@ -202,6 +202,7 @@ export default function Projects() {
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
         net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
+        currency: data.currency || 'ILS',
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
