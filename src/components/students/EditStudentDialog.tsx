@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
 import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
 import { UniversityDropdown } from '@/components/ui/university-dropdown';
+import { CountryDropdown } from '@/components/ui/country-dropdown';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -621,23 +622,12 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             {/* Add new university */}
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                <Select value={newUniversityCountry} onValueChange={setNewUniversityCountry}>
-                  <SelectTrigger className={!newUniversityCountry && newUniversityName.trim() ? 'border-orange-300 bg-orange-50' : ''}>
-                    <SelectValue placeholder="בחר מדינה *" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="אנגליה">אנגליה</SelectItem>
-                    <SelectItem value="ארה״ב">ארה״ב</SelectItem>
-                    <SelectItem value="קנדה">קנדה</SelectItem>
-                    <SelectItem value="הולנד">הולנד</SelectItem>
-                    <SelectItem value="גרמניה">גרמניה</SelectItem>
-                    <SelectItem value="אוסטרליה">אוסטרליה</SelectItem>
-                    <SelectItem value="אירלנד">אירלנד</SelectItem>
-                    <SelectItem value="צרפת">צרפת</SelectItem>
-                    <SelectItem value="ספרד">ספרד</SelectItem>
-                    <SelectItem value="אחר">אחר</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CountryDropdown
+                  value={newUniversityCountry}
+                  onChange={setNewUniversityCountry}
+                  placeholder="בחר מדינה *"
+                  className={!newUniversityCountry && newUniversityName.trim() ? '[&>button]:border-orange-300 [&>button]:bg-orange-50' : ''}
+                />
                 <UniversityDropdown
                   value={newUniversityName}
                   onChange={setNewUniversityName}
