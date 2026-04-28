@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Plus, Pencil, Trash2, FolderKanban, ExternalLink, FileText, ChevronDown, Phone, Mail, Building2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -96,6 +96,74 @@ const currencyOptions: { value: string; label: string; symbol: string }[] = [
 ];
 
 const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '₪';
+
+function FrozenProjectsTable({ children }: { children: React.ReactNode }) {
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+  const bottomScrollRef = useRef<HTMLDivElement>(null);
+  const syncLockRef = useRef(false);
+  const [scrollWidth, setScrollWidth] = useState(0);
+  const [hasHorizontalOverflow, setHasHorizontalOverflow] = useState(false);
+
+  useEffect(() => {
+    const updateMetrics = () => {
+      const contentEl = contentScrollRef.current;
+      if (!contentEl) return;
+
+      const nextScrollWidth = contentEl.scrollWidth;
+      setScrollWidth(nextScrollWidth);
+      setHasHorizontalOverflow(nextScrollWidth > contentEl.clientWidth + 1);
+    };
+
+    updateMetrics();
+
+    const contentEl = contentScrollRef.current;
+    if (!contentEl) return;
+
+    const observedTable = contentEl.querySelector('table');
+    const resizeObserver = new ResizeObserver(updateMetrics);
+    resizeObserver.observe(contentEl);
+    if (observedTable) resizeObserver.observe(observedTable);
+    window.addEventListener('resize', updateMetrics);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateMetrics);
+    };
+  }, [children]);
+
+  const syncScroll = (source: HTMLDivElement | null, target: HTMLDivElement | null) => {
+    if (!source || !target || syncLockRef.current) return;
+    syncLockRef.current = true;
+    target.scrollLeft = source.scrollLeft;
+    requestAnimationFrame(() => {
+      syncLockRef.current = false;
+    });
+  };
+
+  return (
+    <div className="border rounded-lg bg-card">
+      <div className="projects-table-scroll-y max-h-[500px] overflow-y-scroll">
+        <div
+          ref={contentScrollRef}
+          className="projects-table-content-scroll overflow-x-scroll"
+          onScroll={() => syncScroll(contentScrollRef.current, bottomScrollRef.current)}
+        >
+          {children}
+        </div>
+      </div>
+
+      {hasHorizontalOverflow && (
+        <div
+          ref={bottomScrollRef}
+          className="projects-table-scroll-x overflow-x-scroll border-t"
+          onScroll={() => syncScroll(bottomScrollRef.current, contentScrollRef.current)}
+        >
+          <div style={{ width: scrollWidth, height: 1 }} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Main Component ──
 
