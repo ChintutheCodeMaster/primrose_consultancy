@@ -714,7 +714,8 @@ export default function Projects() {
                         {collabProjects.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">אין פרויקטים עדיין</p>
                         ) : (
-                          <div className="projects-table-scroll overflow-auto border rounded-lg max-h-[500px]">
+                          <div className="projects-table-scroll-y border rounded-lg max-h-[500px] overflow-y-scroll">
+                            <div className="projects-table-scroll-x overflow-x-scroll">
                             <Table>
                               <TableHeader>
                                 <TableRow>
@@ -782,6 +783,7 @@ export default function Projects() {
                                 ))}
                               </TableBody>
                             </Table>
+                            </div>
                           </div>
                         )}
                       </CardContent>
