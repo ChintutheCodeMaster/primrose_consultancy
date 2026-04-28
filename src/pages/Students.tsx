@@ -320,12 +320,21 @@ export default function Students() {
         : null
     };
 
-    // If amount_paid > 0, set payment_date to today (tracks when payment was entered)
-    if (updatedStudent.amountPaid && updatedStudent.amountPaid > 0) {
+    // Fetch current amount_paid + payment_date to detect actual payment changes
+    const { data: existingStudent } = await supabase
+      .from('students')
+      .select('amount_paid, payment_date')
+      .eq('id', updatedStudent.id)
+      .maybeSingle();
+    const previousAmount = Number(existingStudent?.amount_paid) || 0;
+    const newAmount = Number(updatedStudent.amountPaid) || 0;
+
+    // Only set payment_date to today if amount_paid increased (new payment entered)
+    if (newAmount > previousAmount && newAmount > 0) {
       updateData.payment_date = new Date().toISOString().split('T')[0];
     }
-    // If isPaid is being set to false or amount is 0, clear the payment_date
-    if (!updatedStudent.isPaid || !updatedStudent.amountPaid || updatedStudent.amountPaid <= 0) {
+    // Clear payment_date if no payment exists
+    if (!updatedStudent.isPaid || newAmount <= 0) {
       updateData.payment_date = null;
     }
 
