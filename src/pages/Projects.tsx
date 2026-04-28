@@ -783,6 +783,7 @@ export default function Projects() {
                                 ))}
                               </TableBody>
                             </Table>
+                            </div>
                           </div>
                         )}
                       </CardContent>
