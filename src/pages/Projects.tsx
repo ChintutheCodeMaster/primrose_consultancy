@@ -714,7 +714,7 @@ export default function Projects() {
                         {collabProjects.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">אין פרויקטים עדיין</p>
                         ) : (
-                          <div className="overflow-x-auto border rounded-lg">
+                          <div className="projects-table-scroll overflow-auto border rounded-lg max-h-[500px]">
                             <Table>
                               <TableHeader>
                                 <TableRow>
