@@ -140,14 +140,26 @@
 
 /* Always-visible scrollbars for scrollable tables (e.g. Projects) */
 .projects-table-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--muted-foreground) / 0.5) hsl(var(--muted));
+  scrollbar-width: auto;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.6) hsl(var(--muted));
+  /* Force scrollbars to always be present, even when not needed */
+  overflow: scroll !important;
+  scrollbar-gutter: stable both-edges;
 }
 
 .projects-table-scroll::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   -webkit-appearance: none;
+  display: block;
+}
+
+.projects-table-scroll::-webkit-scrollbar:vertical {
+  width: 14px;
+}
+
+.projects-table-scroll::-webkit-scrollbar:horizontal {
+  height: 14px;
 }
 
 .projects-table-scroll::-webkit-scrollbar-track {
