@@ -139,46 +139,50 @@
 }
 
 /* Always-visible scrollbars for scrollable tables (e.g. Projects) */
-.projects-table-scroll {
+.projects-table-scroll-y,
+.projects-table-scroll-x {
   scrollbar-width: auto;
   scrollbar-color: hsl(var(--muted-foreground) / 0.6) hsl(var(--muted));
-  /* Force scrollbars to always be present, even when not needed */
-  overflow: scroll !important;
-  scrollbar-gutter: stable both-edges;
 }
 
-.projects-table-scroll::-webkit-scrollbar {
+.projects-table-scroll-y::-webkit-scrollbar,
+.projects-table-scroll-x::-webkit-scrollbar {
   width: 14px;
   height: 14px;
   -webkit-appearance: none;
   display: block;
+  background: hsl(var(--muted));
 }
 
-.projects-table-scroll::-webkit-scrollbar:vertical {
-  width: 14px;
-}
-
-.projects-table-scroll::-webkit-scrollbar:horizontal {
-  height: 14px;
-}
-
-.projects-table-scroll::-webkit-scrollbar-track {
+.projects-table-scroll-y::-webkit-scrollbar-track,
+.projects-table-scroll-x::-webkit-scrollbar-track {
   background: hsl(var(--muted));
   border-radius: 6px;
 }
 
-.projects-table-scroll::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.5);
+.projects-table-scroll-y::-webkit-scrollbar-thumb,
+.projects-table-scroll-x::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.6);
   border-radius: 6px;
   border: 2px solid hsl(var(--muted));
+  min-width: 40px;
+  min-height: 40px;
 }
 
-.projects-table-scroll::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.8);
+.projects-table-scroll-y::-webkit-scrollbar-thumb:hover,
+.projects-table-scroll-x::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.9);
 }
 
-.projects-table-scroll::-webkit-scrollbar-corner {
+.projects-table-scroll-y::-webkit-scrollbar-corner,
+.projects-table-scroll-x::-webkit-scrollbar-corner {
   background: hsl(var(--muted));
+}
+
+/* Make horizontal scrollbar sticky at bottom of vertical scroll container */
+.projects-table-scroll-x {
+  position: sticky;
+  bottom: 0;
 }
 
 /* Agreement content styling - preserve spacing from editor */
