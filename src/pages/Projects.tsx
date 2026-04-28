@@ -782,9 +782,8 @@ export default function Projects() {
                         {collabProjects.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">אין פרויקטים עדיין</p>
                         ) : (
-                          <div className="projects-table-scroll-y border rounded-lg max-h-[500px] overflow-y-scroll">
-                            <div className="projects-table-scroll-x overflow-x-scroll">
-                            <Table>
+                          <FrozenProjectsTable>
+                            <table className="w-max min-w-full caption-bottom text-sm">
                               <TableHeader>
                                 <TableRow>
                                   <TableHead className="text-right">פרויקט</TableHead>
@@ -850,9 +849,8 @@ export default function Projects() {
                                   </TableRow>
                                 ))}
                               </TableBody>
-                            </Table>
-                            </div>
-                          </div>
+                            </table>
+                          </FrozenProjectsTable>
                         )}
                       </CardContent>
                     </CollapsibleContent>
