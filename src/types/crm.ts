@@ -1,6 +1,6 @@
 export type LeadStatus = 'new' | 'contacted' | 'meeting_scheduled' | 'proposal_sent' | 'converted' | 'lost';
 export type StudentStatus = 'active' | 'accepted' | 'enrolled' | 'graduated' | 'paused';
-export type DegreeType = 'bachelor' | 'master' | 'phd';
+export type DegreeType = 'bachelor' | 'master' | 'phd' | 'scholarship';
 
 export interface Lead {
   id: string;
@@ -26,6 +26,7 @@ export const degreeTypeLabels: Record<DegreeType, string> = {
   bachelor: 'תואר ראשון',
   master: 'תואר שני',
   phd: 'דוקטורט',
+  scholarship: 'מלגה',
 };
 
 export interface AcceptedUniversity {
