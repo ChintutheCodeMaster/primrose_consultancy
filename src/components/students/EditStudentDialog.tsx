@@ -570,18 +570,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             />
           </div>
 
-          {(formData.paymentType === 'package' || formData.paymentType === 'other') && (
-            <div className="space-y-2">
-              <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
-              <Textarea
-                id="advisorPaymentNotes"
-                value={formData.advisorPaymentNotes || ''}
-                onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
-                rows={2}
-                placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
+            <Textarea
+              id="advisorPaymentNotes"
+              value={formData.advisorPaymentNotes || ''}
+              onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
+              rows={2}
+              placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
