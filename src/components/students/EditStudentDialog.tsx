@@ -396,6 +396,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     }
   };
 
+  const updateAcceptedUniversity = (index: number, patch: Partial<AcceptedUniversity>) => {
+    if (!formData) return;
+    const updated = [...formData.acceptedUniversities];
+    updated[index] = { ...updated[index], ...patch };
+    setFormData({ ...formData, acceptedUniversities: updated });
+  };
+
   if (!formData) return null;
 
   return (
