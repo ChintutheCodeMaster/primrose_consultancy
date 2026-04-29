@@ -96,6 +96,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       packageCost: 0,
       amountPaid: 0,
       paymentNotes: '',
+      advisorPaymentNotes: '',
       advisorName: '',
       isPaid: false,
       signedAgreement: false,
