@@ -15,7 +15,7 @@ import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
-import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIcon } from 'lucide-react';
+import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIcon, Pencil, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -66,6 +66,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newUniversityField, setNewUniversityField] = useState('');
   const [newUniversityStudyYear, setNewUniversityStudyYear] = useState('');
   const [uploadingFor, setUploadingFor] = useState<number | null>(null);
+  const [editingUniversityIndex, setEditingUniversityIndex] = useState<number | null>(null);
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
@@ -395,6 +396,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     }
   };
 
+  const updateAcceptedUniversity = (index: number, patch: Partial<AcceptedUniversity>) => {
+    if (!formData) return;
+    const updated = [...formData.acceptedUniversities];
+    updated[index] = { ...updated[index], ...patch };
+    setFormData({ ...formData, acceptedUniversities: updated });
+  };
+
   if (!formData) return null;
 
   return (
@@ -693,88 +701,161 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                     <div className="space-y-1">
                       {universities.map((uni) => (
                         <div key={uni.originalIndex} className="flex flex-wrap items-center gap-2 p-2.5 bg-background rounded-lg border">
-                          <div className="flex-1 min-w-0">
-                            <span className="font-medium">{uni.name}</span>
-                            {[
-                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
-                              uni.field,
-                              uni.studyYear
-                            ].filter(Boolean).length > 0 && (
-                              <span className="text-xs text-muted-foreground mr-2">
+                          {editingUniversityIndex === uni.originalIndex ? (
+                            <div className="w-full space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                <CountryDropdown
+                                  value={uni.country || ''}
+                                  onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { country: v })}
+                                  placeholder="מדינה"
+                                />
+                                <UniversityDropdown
+                                  value={uni.name}
+                                  onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { name: v })}
+                                  placeholder="שם האוניברסיטה"
+                                />
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <Select
+                                  value={uni.degreeType || ''}
+                                  onValueChange={(v) => updateAcceptedUniversity(uni.originalIndex, { degreeType: v })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="סוג תואר" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
+                                    <SelectItem value="תואר שני">תואר שני</SelectItem>
+                                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
+                                    <SelectItem value="אחר">אחר</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FieldAutocomplete
+                                  value={uni.field || ''}
+                                  onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { field: v })}
+                                  placeholder="תחום לימודים"
+                                />
+                                <Input
+                                  value={uni.studyYear || ''}
+                                  onChange={(e) => updateAcceptedUniversity(uni.originalIndex, { studyYear: e.target.value })}
+                                  placeholder="שנת לימודים"
+                                />
+                              </div>
+                              {uni.degreeType === 'אחר' && (
+                                <Input
+                                  value={uni.degreeTypeOther || ''}
+                                  onChange={(e) => updateAcceptedUniversity(uni.originalIndex, { degreeTypeOther: e.target.value })}
+                                  placeholder="סוג תואר אחר..."
+                                />
+                              )}
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setEditingUniversityIndex(null)}
+                                >
+                                  <Check className="h-4 w-4 ml-1" />
+                                  סיום עריכה
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium">{uni.name}</span>
                                 {[
                                   uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
                                   uni.field,
                                   uni.studyYear
-                                ].filter(Boolean).join(' • ')}
-                              </span>
-                            )}
-                          </div>
-                          
-                          {uni.acceptanceLetterUrl ? (
-                            <div className="flex items-center gap-1">
-                              <button
-                                type="button"
-                                className="flex items-center gap-1 text-sm text-primary hover:underline"
-                                onClick={() => openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`)}
-                              >
-                                <FileText className="h-4 w-4" />
-                                מכתב קבלה
-                              </button>
+                                ].filter(Boolean).length > 0 && (
+                                  <span className="text-xs text-muted-foreground mr-2">
+                                    {[
+                                      uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                      uni.field,
+                                      uni.studyYear
+                                    ].filter(Boolean).join(' • ')}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {uni.acceptanceLetterUrl ? (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    className="flex items-center gap-1 text-sm text-primary hover:underline"
+                                    onClick={() => openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`)}
+                                  >
+                                    <FileText className="h-4 w-4" />
+                                    מכתב קבלה
+                                  </button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6"
+                                    onClick={() => handleRemoveFile(uni.originalIndex)}
+                                    title="הסר מכתב קבלה"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                  <label className="cursor-pointer">
+                                    <input
+                                      type="file"
+                                      className="hidden"
+                                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                      disabled={uploadingFor === uni.originalIndex}
+                                      onChange={(e) => {
+                                        handleFileUpload(e, uni.originalIndex);
+                                        e.target.value = '';
+                                      }}
+                                    />
+                                    <span className="inline-flex items-center gap-1 h-7 px-2 text-xs text-muted-foreground hover:bg-accent rounded-md">
+                                      <Upload className="h-3 w-3" />
+                                      {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
+                                    </span>
+                                  </label>
+                                </div>
+                              ) : (
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                    disabled={uploadingFor === uni.originalIndex}
+                                    onChange={(e) => {
+                                      handleFileUpload(e, uni.originalIndex);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                  <span className="inline-flex items-center gap-1 h-9 px-3 border rounded-md text-sm hover:bg-accent">
+                                    <Upload className="h-3 w-3" />
+                                    {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
+                                  </span>
+                                </label>
+                              )}
+                              
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="h-6 w-6"
-                                onClick={() => handleRemoveFile(uni.originalIndex)}
-                                title="הסר מכתב קבלה"
+                                className="h-8 w-8"
+                                onClick={() => setEditingUniversityIndex(uni.originalIndex)}
+                                title="ערוך"
                               >
-                                <X className="h-3 w-3" />
+                                <Pencil className="h-4 w-4" />
                               </Button>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                  disabled={uploadingFor === uni.originalIndex}
-                                  onChange={(e) => {
-                                    handleFileUpload(e, uni.originalIndex);
-                                    e.target.value = '';
-                                  }}
-                                />
-                                <span className="inline-flex items-center gap-1 h-7 px-2 text-xs text-muted-foreground hover:bg-accent rounded-md">
-                                  <Upload className="h-3 w-3" />
-                                  {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
-                                </span>
-                              </label>
-                            </div>
-                          ) : (
-                            <label className="cursor-pointer">
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                disabled={uploadingFor === uni.originalIndex}
-                                onChange={(e) => {
-                                  handleFileUpload(e, uni.originalIndex);
-                                  e.target.value = '';
-                                }}
-                              />
-                              <span className="inline-flex items-center gap-1 h-9 px-3 border rounded-md text-sm hover:bg-accent">
-                                <Upload className="h-3 w-3" />
-                                {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
-                              </span>
-                            </label>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={() => handleRemoveUniversity(uni.originalIndex)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
                           )}
-                          
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                            onClick={() => handleRemoveUniversity(uni.originalIndex)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       ))}
                     </div>
