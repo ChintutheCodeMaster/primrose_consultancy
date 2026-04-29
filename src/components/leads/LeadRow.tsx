@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
+import { CopyableContact } from '@/components/ui/copyable-contact';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -112,13 +113,13 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
           <GraduationCap className="h-4 w-4 shrink-0" />
           <span>{degreeTypeLabels[lead.degreeType]}</span>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Mail className="h-4 w-4 shrink-0" />
-          <span className="truncate">{lead.email}</span>
+          <CopyableContact value={lead.email} dir="ltr" label="אימייל" />
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Phone className="h-4 w-4 shrink-0" />
-          <span dir="ltr">{lead.phone}</span>
+          <CopyableContact value={lead.phone} dir="ltr" label="טלפון" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4 shrink-0" />
