@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { openExternalFile } from '@/lib/file-open';
+import { CopyableContact } from '@/components/ui/copyable-contact';
 import { useNavigate } from 'react-router-dom';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
 import {
@@ -287,13 +288,13 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <GraduationCap className="h-4 w-4 shrink-0" />
           <span>{degreeTypeLabels[student.degreeType]}</span>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Mail className="h-4 w-4 shrink-0" />
-          <span className="truncate">{student.email}</span>
+          <CopyableContact value={student.email} dir="ltr" label="אימייל" />
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Phone className="h-4 w-4 shrink-0" />
-          <span dir="ltr">{student.phone}</span>
+          <CopyableContact value={student.phone} dir="ltr" label="טלפון" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4 shrink-0" />
