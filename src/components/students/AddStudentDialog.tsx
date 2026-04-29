@@ -317,6 +317,17 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
+            <Textarea
+              id="advisorPaymentNotes"
+              value={formData.advisorPaymentNotes}
+              onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
+              rows={2}
+              placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
+            />
+          </div>
+
           <div className="flex items-center gap-2">
             <Checkbox
               id="signedAgreement"
