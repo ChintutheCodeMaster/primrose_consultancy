@@ -15,7 +15,7 @@ import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels, studentStatusLabels, AcceptedUniversity } from '@/types/crm';
-import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIcon } from 'lucide-react';
+import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIcon, Pencil, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
