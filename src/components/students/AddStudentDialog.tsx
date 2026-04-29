@@ -44,6 +44,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     packageCost: 0,
     amountPaid: 0,
     paymentNotes: '',
+    advisorPaymentNotes: '',
     advisorName: '',
     isPaid: false,
     signedAgreement: false,
@@ -95,6 +96,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       packageCost: 0,
       amountPaid: 0,
       paymentNotes: '',
+      advisorPaymentNotes: '',
       advisorName: '',
       isPaid: false,
       signedAgreement: false,
@@ -312,6 +314,17 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               value={formData.paymentNotes}
               onChange={(e) => setFormData({ ...formData, paymentNotes: e.target.value })}
               placeholder="לדוגמה: תשלום 1 מתוך 4, ישלם חצי שני בסוף"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
+            <Textarea
+              id="advisorPaymentNotes"
+              value={formData.advisorPaymentNotes}
+              onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
+              rows={2}
+              placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
             />
           </div>
 
