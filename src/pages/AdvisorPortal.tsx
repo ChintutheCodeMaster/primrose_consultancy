@@ -81,6 +81,9 @@ interface Student {
   graduation_year: string | null;
   payment_type: string | null;
   advisor_payment_notes: string | null;
+  degree_type: string | null;
+  interested_country: string | null;
+  interested_field: string | null;
 }
 
 interface AcceptedUniversity {
@@ -394,7 +397,7 @@ export default function AdvisorPortal() {
     // Fetch all students and filter by advisor_name (supports multiple advisors)
     const { data: allStudents } = await supabase
       .from("students")
-      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type, advisor_payment_notes")
+      .select("id, name, email, phone, signed_agreement, is_paid, target_country, target_university, status, did_not_continue, graduation_year, advisor_name, payment_type, advisor_payment_notes, degree_type, interested_country, interested_field")
       .order("name", { ascending: true });
 
     // Filter students where advisor_name contains this advisor's name
@@ -953,7 +956,7 @@ export default function AdvisorPortal() {
                   </div>
                   <div className="flex-1">
                     <h2 className="text-xl font-bold">{selectedStudent.name}</h2>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                    <div className="flex items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1 flex-wrap">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
                         {selectedStudent.email}
@@ -962,6 +965,20 @@ export default function AdvisorPortal() {
                         <Phone className="h-3 w-3" />
                         {selectedStudent.phone}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2 flex-wrap">
+                      {selectedStudent.degree_type && (
+                        <span className="flex items-center gap-1">
+                          <GraduationCap className="h-3 w-3" />
+                          סוג תואר: {selectedStudent.degree_type === 'bachelor' ? 'תואר ראשון' : selectedStudent.degree_type === 'master' ? 'תואר שני' : selectedStudent.degree_type === 'phd' ? 'דוקטורט' : selectedStudent.degree_type === 'scholarship' ? 'מלגה' : selectedStudent.degree_type}
+                        </span>
+                      )}
+                      {selectedStudent.interested_country && (
+                        <span>מדינה מבוקשת: {selectedStudent.interested_country}</span>
+                      )}
+                      {selectedStudent.interested_field && (
+                        <span>תחום לימודים: {selectedStudent.interested_field}</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
