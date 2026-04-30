@@ -425,6 +425,19 @@ export default function AdvisorPortal() {
 
     setActiveStudents(active);
     setPastStudents(past);
+
+    // Fetch which of these students have accepted universities
+    const studentIds = advisorStudents.map(s => s.id);
+    if (studentIds.length > 0) {
+      const { data: acceptedData } = await supabase
+        .from("accepted_universities")
+        .select("student_id")
+        .in("student_id", studentIds);
+      setAcceptedStudentIds(new Set((acceptedData || []).map((r: any) => r.student_id)));
+    } else {
+      setAcceptedStudentIds(new Set());
+    }
+
     setLoading(false);
   };
 
