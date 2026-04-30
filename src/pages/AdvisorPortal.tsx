@@ -169,6 +169,7 @@ export default function AdvisorPortal() {
   const [otherAdvisors, setOtherAdvisors] = useState<OtherAdvisor[]>([]);
   const [activeStudents, setActiveStudents] = useState<Student[]>([]);
   const [pastStudents, setPastStudents] = useState<Student[]>([]);
+  const [acceptedStudentIds, setAcceptedStudentIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
