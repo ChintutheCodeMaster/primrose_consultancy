@@ -169,6 +169,7 @@ export default function AdvisorPortal() {
   const [otherAdvisors, setOtherAdvisors] = useState<OtherAdvisor[]>([]);
   const [activeStudents, setActiveStudents] = useState<Student[]>([]);
   const [pastStudents, setPastStudents] = useState<Student[]>([]);
+  const [acceptedStudentIds, setAcceptedStudentIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -424,6 +425,19 @@ export default function AdvisorPortal() {
 
     setActiveStudents(active);
     setPastStudents(past);
+
+    // Fetch which of these students have accepted universities
+    const studentIds = advisorStudents.map(s => s.id);
+    if (studentIds.length > 0) {
+      const { data: acceptedData } = await supabase
+        .from("accepted_universities")
+        .select("student_id")
+        .in("student_id", studentIds);
+      setAcceptedStudentIds(new Set((acceptedData || []).map((r: any) => r.student_id)));
+    } else {
+      setAcceptedStudentIds(new Set());
+    }
+
     setLoading(false);
   };
 
@@ -2171,6 +2185,11 @@ export default function AdvisorPortal() {
                       {student.status === "accepted" && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
                           התקבל
+                        </span>
+                      )}
+                      {student.status !== "accepted" && acceptedStudentIds.has(student.id) && (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
+                          התקבל/ה
                         </span>
                       )}
                     </div>
