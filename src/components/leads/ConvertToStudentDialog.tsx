@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Lead, Student, PaymentType, paymentTypeLabels } from '@/types/crm';
+import { Lead, Student, PaymentType, paymentTypeLabels, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { UserCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
@@ -30,12 +30,14 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
   const [paymentType, setPaymentType] = useState<PaymentType>('package');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [degreeType, setDegreeType] = useState<DegreeType>('bachelor');
 
   useEffect(() => {
     if (lead && open) {
       setPhone(lead.phone || '');
       setEmail(lead.email || '');
       setPaymentType('package');
+      setDegreeType(lead.degreeType || 'bachelor');
     }
   }, [lead, open]);
 
@@ -66,7 +68,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       email: email,
       phone: phone,
       status: 'active',
-      degreeType: lead.degreeType,
+      degreeType,
       interestedCountry: lead.interestedCountry,
       interestedField: lead.interestedField,
       source: lead.source,
@@ -81,7 +83,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       acceptedUniversities: [],
       targetCountry: lead.interestedCountry,
       targetUniversity,
-      program: `${lead.interestedField} - ${lead.degreeType}`,
+      program: `${lead.interestedField} - ${degreeType}`,
       startDate: new Date(),
     };
 
@@ -133,6 +135,20 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="degreeType">סוג תואר</Label>
+            <Select value={degreeType} onValueChange={(v) => setDegreeType(v as DegreeType)}>
+              <SelectTrigger id="degreeType">
+                <SelectValue placeholder="בחר סוג תואר" />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.entries(degreeTypeLabels) as [DegreeType, string][]).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
