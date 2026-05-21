@@ -2,13 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, FileText, ExternalLink } from 'lucide-react';
+import { Loader2, FileText, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { toast } from 'sonner';
 
 const typeLabels: Record<string, string> = {
   package: 'חבילה',
@@ -39,6 +41,7 @@ export default function SignedAgreements() {
   const [selectedAgreement, setSelectedAgreement] = useState<SignedAgreement | null>(null);
   const [templateContent, setTemplateContent] = useState<string | null>(null);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
+  const agreementContentRef = useRef<HTMLDivElement | null>(null);
 
   const { data: agreements = [], isLoading } = useQuery({
     queryKey: ['signed-agreements'],
@@ -64,8 +67,6 @@ export default function SignedAgreements() {
   });
 
   const studentPaymentTypeMap = new Map(students.map(s => [s.id, s.payment_type || 'package']));
-  const studentNameMap = new Map(students.map(s => [s.id, s.name]));
-
   // Group agreements by payment type
   const grouped = agreements.reduce<Record<string, SignedAgreement[]>>((acc, agreement) => {
     const type = studentPaymentTypeMap.get(agreement.student_id) || 'package';
@@ -102,67 +103,73 @@ export default function SignedAgreements() {
 
   const typeOrder = ['package', 'hourly', 'edit', 'mba'];
 
-  const handleDownloadPDF = () => {
-    if (!selectedAgreement) return;
-    const contentHTML = renderAgreementContent() || '';
-    const mbaSection = selectedAgreement.mba_package_selections && selectedAgreement.mba_package_selections.length > 0
-      ? `<div style="border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;background:#f9f9f9;">
-          <p><strong>חבילת הגשה:</strong></p>
-          <ul>${selectedAgreement.mba_package_selections.map(s => `<li>${s}</li>`).join('')}</ul>
-          ${selectedAgreement.mba_package_other ? `<p>אחר: ${selectedAgreement.mba_package_other}</p>` : ''}
-          ${selectedAgreement.mba_payment_option ? `<p><strong>אופן תשלום:</strong> ${selectedAgreement.mba_payment_option}</p>` : ''}
-          ${selectedAgreement.mba_payment_other ? `<p>אחר: ${selectedAgreement.mba_payment_other}</p>` : ''}
-        </div>` : '';
+  const handleDownloadPDF = async () => {
+    if (!selectedAgreement || !agreementContentRef.current) return;
 
-    const html = `<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<title>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</title>
-<style>
-  body { font-family: Arial, 'Segoe UI', sans-serif; padding: 30px; color: #111; line-height: 1.7; direction: rtl; }
-  h1 { font-size: 22px; margin-bottom: 16px; }
-  .details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; border: 1px solid #ddd; padding: 16px; border-radius: 8px; background: #fafafa; margin-bottom: 20px; font-size: 13px; }
-  .details span { color: #666; }
-  .content { border: 1px solid #ddd; padding: 24px; border-radius: 8px; font-size: 14px; }
-  .content * { max-width: 100%; }
-  .print-bar { position: fixed; top: 12px; left: 12px; z-index: 9999; }
-  .print-bar button { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  @media print { body { padding: 0; } .no-print { display: none !important; } }
-</style>
-</head>
-<body>
-  <div class="print-bar no-print">
-    <button onclick="window.print()">🖨️ הדפס / שמור כ-PDF</button>
-  </div>
-  <h1>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</h1>
-  <div class="details">
-    <div><span>שם:</span> ${selectedAgreement.first_name} ${selectedAgreement.last_name}</div>
-    <div><span>אימייל:</span> ${selectedAgreement.email || ''}</div>
-    <div><span>טלפון:</span> ${selectedAgreement.phone || ''}</div>
-    <div><span>ת.ז.:</span> ${selectedAgreement.id_number || ''}</div>
-    <div><span>כתובת:</span> ${selectedAgreement.address || ''}</div>
-    <div><span>תאריך לידה:</span> ${selectedAgreement.birth_date || ''}</div>
-    <div><span>תאריך חתימה:</span> ${selectedAgreement.signed_at ? format(new Date(selectedAgreement.signed_at), 'dd/MM/yyyy HH:mm') : ''}</div>
-    ${selectedAgreement.linkedin_profile ? `<div><span>לינקדאין:</span> ${selectedAgreement.linkedin_profile}</div>` : ''}
-  </div>
-  ${mbaSection}
-  <div class="content">${contentHTML}</div>
-</body>
-</html>`;
+    try {
+      const sourceNode = agreementContentRef.current;
+      const renderNode = sourceNode.cloneNode(true) as HTMLDivElement;
 
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank');
-    if (!win) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      renderNode.style.width = '794px';
+      renderNode.style.maxWidth = '794px';
+      renderNode.style.background = 'white';
+      renderNode.style.color = '#111827';
+      renderNode.style.padding = '32px';
+      renderNode.style.position = 'absolute';
+      renderNode.style.left = '-10000px';
+      renderNode.style.top = '0';
+      renderNode.style.zIndex = '-1';
+      renderNode.style.overflow = 'visible';
+      renderNode.style.height = 'auto';
+      renderNode.querySelectorAll('*').forEach((element) => {
+        const htmlElement = element as HTMLElement;
+        htmlElement.style.maxWidth = '100%';
+      });
+
+      document.body.appendChild(renderNode);
+
+      const canvas = await html2canvas(renderNode, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: renderNode.scrollWidth,
+        windowHeight: renderNode.scrollHeight,
+      });
+
+      document.body.removeChild(renderNode);
+
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const contentWidth = pageWidth - margin * 2;
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+      const imageData = canvas.toDataURL('image/png');
+
+      let remainingHeight = contentHeight;
+      let yPosition = margin;
+
+      pdf.addImage(imageData, 'PNG', margin, yPosition, contentWidth, contentHeight, undefined, 'FAST');
+      remainingHeight -= pageHeight - margin * 2;
+
+      while (remainingHeight > 0) {
+        pdf.addPage();
+        yPosition = margin - (contentHeight - remainingHeight);
+        pdf.addImage(imageData, 'PNG', margin, yPosition, contentWidth, contentHeight, undefined, 'FAST');
+        remainingHeight -= pageHeight - margin * 2;
+      }
+
+      pdf.save(`הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}.pdf`);
+    } catch (error) {
+      console.error('Failed to generate PDF', error);
+      toast.error('לא הצלחנו להוריד את ההסכם כ-PDF');
     }
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
 
@@ -253,7 +260,7 @@ export default function SignedAgreements() {
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="space-y-4">
+              <div ref={agreementContentRef} className="space-y-4 bg-background">
                 <div className="grid grid-cols-2 gap-4 text-sm border rounded-lg p-4 bg-muted/30">
                   <div><span className="text-muted-foreground">שם:</span> {selectedAgreement?.first_name} {selectedAgreement?.last_name}</div>
                   <div><span className="text-muted-foreground">אימייל:</span> {selectedAgreement?.email}</div>
