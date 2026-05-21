@@ -7,6 +7,8 @@ import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 const typeLabels: Record<string, string> = {
   package: 'חבילה',
@@ -100,6 +102,58 @@ export default function SignedAgreements() {
 
   const typeOrder = ['package', 'hourly', 'edit', 'mba'];
 
+  const handleDownloadPDF = () => {
+    if (!selectedAgreement) return;
+    const contentHTML = renderAgreementContent() || '';
+    const mbaSection = selectedAgreement.mba_package_selections && selectedAgreement.mba_package_selections.length > 0
+      ? `<div style="border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;background:#f9f9f9;">
+          <p><strong>חבילת הגשה:</strong></p>
+          <ul>${selectedAgreement.mba_package_selections.map(s => `<li>${s}</li>`).join('')}</ul>
+          ${selectedAgreement.mba_package_other ? `<p>אחר: ${selectedAgreement.mba_package_other}</p>` : ''}
+          ${selectedAgreement.mba_payment_option ? `<p><strong>אופן תשלום:</strong> ${selectedAgreement.mba_payment_option}</p>` : ''}
+          ${selectedAgreement.mba_payment_other ? `<p>אחר: ${selectedAgreement.mba_payment_other}</p>` : ''}
+        </div>` : '';
+
+    const html = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</title>
+<style>
+  body { font-family: Arial, 'Segoe UI', sans-serif; padding: 30px; color: #111; line-height: 1.6; direction: rtl; }
+  h1 { font-size: 20px; margin-bottom: 16px; }
+  .details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; border: 1px solid #ddd; padding: 16px; border-radius: 8px; background: #fafafa; margin-bottom: 20px; font-size: 13px; }
+  .details span { color: #666; }
+  .content { border: 1px solid #ddd; padding: 24px; border-radius: 8px; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+  <h1>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</h1>
+  <div class="details">
+    <div><span>שם:</span> ${selectedAgreement.first_name} ${selectedAgreement.last_name}</div>
+    <div><span>אימייל:</span> ${selectedAgreement.email || ''}</div>
+    <div><span>טלפון:</span> ${selectedAgreement.phone || ''}</div>
+    <div><span>ת.ז.:</span> ${selectedAgreement.id_number || ''}</div>
+    <div><span>כתובת:</span> ${selectedAgreement.address || ''}</div>
+    <div><span>תאריך לידה:</span> ${selectedAgreement.birth_date || ''}</div>
+    <div><span>תאריך חתימה:</span> ${selectedAgreement.signed_at ? format(new Date(selectedAgreement.signed_at), 'dd/MM/yyyy HH:mm') : ''}</div>
+    ${selectedAgreement.linkedin_profile ? `<div><span>לינקדאין:</span> ${selectedAgreement.linkedin_profile}</div>` : ''}
+  </div>
+  ${mbaSection}
+  <div class="content">${contentHTML}</div>
+  <script>window.onload = () => { setTimeout(() => window.print(), 300); };</script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  };
+
+
   return (
     <MainLayout>
       <div className="space-y-6 p-6" dir="rtl">
@@ -165,10 +219,22 @@ export default function SignedAgreements() {
         <Dialog open={!!selectedAgreement} onOpenChange={(open) => { if (!open) setSelectedAgreement(null); }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                הסכם - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
-              </DialogTitle>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  הסכם - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
+                </DialogTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDownloadPDF}
+                  disabled={loadingTemplate || !templateContent}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  הורד / שלח כ-PDF
+                </Button>
+              </div>
             </DialogHeader>
             {loadingTemplate ? (
               <div className="flex justify-center py-8">
