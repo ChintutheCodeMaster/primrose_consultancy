@@ -120,15 +120,21 @@ export default function SignedAgreements() {
 <meta charset="UTF-8" />
 <title>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</title>
 <style>
-  body { font-family: Arial, 'Segoe UI', sans-serif; padding: 30px; color: #111; line-height: 1.6; direction: rtl; }
-  h1 { font-size: 20px; margin-bottom: 16px; }
+  body { font-family: Arial, 'Segoe UI', sans-serif; padding: 30px; color: #111; line-height: 1.7; direction: rtl; }
+  h1 { font-size: 22px; margin-bottom: 16px; }
   .details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; border: 1px solid #ddd; padding: 16px; border-radius: 8px; background: #fafafa; margin-bottom: 20px; font-size: 13px; }
   .details span { color: #666; }
-  .content { border: 1px solid #ddd; padding: 24px; border-radius: 8px; }
-  @media print { body { padding: 0; } }
+  .content { border: 1px solid #ddd; padding: 24px; border-radius: 8px; font-size: 14px; }
+  .content * { max-width: 100%; }
+  .print-bar { position: fixed; top: 12px; left: 12px; z-index: 9999; }
+  .print-bar button { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-size: 14px; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  @media print { body { padding: 0; } .no-print { display: none !important; } }
 </style>
 </head>
 <body>
+  <div class="print-bar no-print">
+    <button onclick="window.print()">🖨️ הדפס / שמור כ-PDF</button>
+  </div>
   <h1>הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}</h1>
   <div class="details">
     <div><span>שם:</span> ${selectedAgreement.first_name} ${selectedAgreement.last_name}</div>
@@ -142,15 +148,21 @@ export default function SignedAgreements() {
   </div>
   ${mbaSection}
   <div class="content">${contentHTML}</div>
-  <script>window.onload = () => { setTimeout(() => window.print(), 300); };</script>
 </body>
 </html>`;
 
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(html);
-      win.document.close();
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (!win) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
 
