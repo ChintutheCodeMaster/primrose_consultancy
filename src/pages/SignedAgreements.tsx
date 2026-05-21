@@ -219,10 +219,22 @@ export default function SignedAgreements() {
         <Dialog open={!!selectedAgreement} onOpenChange={(open) => { if (!open) setSelectedAgreement(null); }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                הסכם - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
-              </DialogTitle>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <DialogTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  הסכם - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
+                </DialogTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDownloadPDF}
+                  disabled={loadingTemplate || !templateContent}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  הורד / שלח כ-PDF
+                </Button>
+              </div>
             </DialogHeader>
             {loadingTemplate ? (
               <div className="flex justify-center py-8">
