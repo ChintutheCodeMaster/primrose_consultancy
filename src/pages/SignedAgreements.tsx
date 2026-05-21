@@ -260,7 +260,7 @@ export default function SignedAgreements() {
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : (
-              <div className="space-y-4">
+              <div ref={agreementContentRef} className="space-y-4 bg-background">
                 <div className="grid grid-cols-2 gap-4 text-sm border rounded-lg p-4 bg-muted/30">
                   <div><span className="text-muted-foreground">שם:</span> {selectedAgreement?.first_name} {selectedAgreement?.last_name}</div>
                   <div><span className="text-muted-foreground">אימייל:</span> {selectedAgreement?.email}</div>
