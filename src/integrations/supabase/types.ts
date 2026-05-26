@@ -826,6 +826,9 @@ export type Database = {
           discontinue_reason: string | null
           dismissed_from_attention: boolean | null
           email: string | null
+          follow_up_reminder_date: string | null
+          follow_up_reminder_dismissed: boolean | null
+          follow_up_reminder_note: string | null
           graduation_year: string | null
           id: string
           interested_country: string | null
@@ -860,6 +863,9 @@ export type Database = {
           discontinue_reason?: string | null
           dismissed_from_attention?: boolean | null
           email?: string | null
+          follow_up_reminder_date?: string | null
+          follow_up_reminder_dismissed?: boolean | null
+          follow_up_reminder_note?: string | null
           graduation_year?: string | null
           id?: string
           interested_country?: string | null
@@ -894,6 +900,9 @@ export type Database = {
           discontinue_reason?: string | null
           dismissed_from_attention?: boolean | null
           email?: string | null
+          follow_up_reminder_date?: string | null
+          follow_up_reminder_dismissed?: boolean | null
+          follow_up_reminder_note?: string | null
           graduation_year?: string | null
           id?: string
           interested_country?: string | null

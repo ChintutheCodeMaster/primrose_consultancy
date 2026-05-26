@@ -25,6 +25,7 @@ import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
+import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
       <Toaster />
       <Sonner position="top-center" />
       <BrowserRouter>
+        <FollowUpReminderPopup />
         <Routes>
           {/* Public pages - outside PasswordGate */}
           <Route path="/agreement/:studentId" element={<Agreement />} />

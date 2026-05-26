@@ -14,6 +14,7 @@ import { differenceInDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { DiscontinueReasonDialog, DiscontinueDestination } from '@/components/DiscontinueReasonDialog';
+import { SetFollowUpReminderDialog } from '@/components/students/SetFollowUpReminderDialog';
 
 export default function Students() {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export default function Students() {
   const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
   const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [discontinuingStudent, setDiscontinuingStudent] = useState<Student | null>(null);
+  const [reminderTarget, setReminderTarget] = useState<{ studentId: string; year: string; name: string } | null>(null);
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
@@ -284,7 +286,35 @@ export default function Students() {
   };
 
   const handleMoveToPastClient = (studentId: string, year: string) => {
+    const student = students.find(s => s.id === studentId);
+    const hasAccepted = student && student.acceptedUniversities && student.acceptedUniversities.length > 0;
+    if (!hasAccepted) {
+      setReminderTarget({ studentId, year, name: student?.name || '' });
+      return;
+    }
     moveToPastClientMutation.mutate({ studentId, year });
+  };
+
+  const handleReminderConfirm = async (date: string | null, note: string) => {
+    if (!reminderTarget) return;
+    const { studentId, year } = reminderTarget;
+    const updateData: any = { graduation_year: year };
+    if (date) {
+      updateData.follow_up_reminder_date = date;
+      updateData.follow_up_reminder_note = note || null;
+      updateData.follow_up_reminder_dismissed = false;
+    }
+    const { error } = await supabase.from('students').update(updateData).eq('id', studentId);
+    if (error) {
+      toast.error('שגיאה בהעברת הסטודנט');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    queryClient.invalidateQueries({ queryKey: ['past-clients'] });
+    queryClient.invalidateQueries({ queryKey: ['follow-up-reminders-due'] });
+    toast.success(date ? `הסטודנט הועבר ללקוחות עבר ${year} ותזכורת נקבעה` : `הסטודנט הועבר ללקוחות עבר ${year}`);
+    setReminderTarget(null);
+    navigate(`/past-clients/${year}`);
   };
 
   const handleEditStudent = async (updatedStudent: Student) => {
@@ -639,6 +669,13 @@ export default function Students() {
           }}
           entityName={discontinuingStudent?.name || ''}
           entityType="student"
+        />
+
+        <SetFollowUpReminderDialog
+          open={!!reminderTarget}
+          onOpenChange={(o) => { if (!o) setReminderTarget(null); }}
+          studentName={reminderTarget?.name || ''}
+          onConfirm={handleReminderConfirm}
         />
 
         {!isLoading && filteredStudents.length === 0 && (
