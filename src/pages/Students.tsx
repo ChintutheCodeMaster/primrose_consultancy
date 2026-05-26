@@ -14,6 +14,7 @@ import { differenceInDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { DiscontinueReasonDialog, DiscontinueDestination } from '@/components/DiscontinueReasonDialog';
+import { SetFollowUpReminderDialog } from '@/components/students/SetFollowUpReminderDialog';
 
 export default function Students() {
   const navigate = useNavigate();
