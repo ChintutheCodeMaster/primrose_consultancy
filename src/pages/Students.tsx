@@ -671,6 +671,13 @@ export default function Students() {
           entityType="student"
         />
 
+        <SetFollowUpReminderDialog
+          open={!!reminderTarget}
+          onOpenChange={(o) => { if (!o) setReminderTarget(null); }}
+          studentName={reminderTarget?.name || ''}
+          onConfirm={handleReminderConfirm}
+        />
+
         {!isLoading && filteredStudents.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">לא נמצאו סטודנטים</p>
