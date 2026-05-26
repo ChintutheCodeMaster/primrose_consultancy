@@ -284,7 +284,35 @@ export default function Students() {
   };
 
   const handleMoveToPastClient = (studentId: string, year: string) => {
+    const student = students.find(s => s.id === studentId);
+    const hasAccepted = student && student.acceptedUniversities && student.acceptedUniversities.length > 0;
+    if (!hasAccepted) {
+      setReminderTarget({ studentId, year, name: student?.name || '' });
+      return;
+    }
     moveToPastClientMutation.mutate({ studentId, year });
+  };
+
+  const handleReminderConfirm = async (date: string | null, note: string) => {
+    if (!reminderTarget) return;
+    const { studentId, year } = reminderTarget;
+    const updateData: any = { graduation_year: year };
+    if (date) {
+      updateData.follow_up_reminder_date = date;
+      updateData.follow_up_reminder_note = note || null;
+      updateData.follow_up_reminder_dismissed = false;
+    }
+    const { error } = await supabase.from('students').update(updateData).eq('id', studentId);
+    if (error) {
+      toast.error('שגיאה בהעברת הסטודנט');
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ['students'] });
+    queryClient.invalidateQueries({ queryKey: ['past-clients'] });
+    queryClient.invalidateQueries({ queryKey: ['follow-up-reminders-due'] });
+    toast.success(date ? `הסטודנט הועבר ללקוחות עבר ${year} ותזכורת נקבעה` : `הסטודנט הועבר ללקוחות עבר ${year}`);
+    setReminderTarget(null);
+    navigate(`/past-clients/${year}`);
   };
 
   const handleEditStudent = async (updatedStudent: Student) => {
