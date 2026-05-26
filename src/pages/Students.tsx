@@ -36,6 +36,7 @@ export default function Students() {
   const [highlightedStudentId, setHighlightedStudentId] = useState<string | null>(null);
   const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [discontinuingStudent, setDiscontinuingStudent] = useState<Student | null>(null);
+  const [reminderTarget, setReminderTarget] = useState<{ studentId: string; year: string; name: string } | null>(null);
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
