@@ -73,6 +73,8 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
       interestedField: lead.interestedField,
       source: lead.source,
       meetingSummary: lead.meetingSummary,
+      websiteInquiry: lead.websiteInquiry,
+      isFromWebsite: lead.isFromWebsite,
       packageNotes: lead.packageNotes,
       packageCost: parseNumber(packageCostText),
       paymentType,
