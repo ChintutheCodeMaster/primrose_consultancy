@@ -833,6 +833,7 @@ export type Database = {
           id: string
           interested_country: string | null
           interested_field: string | null
+          is_from_website: boolean | null
           is_paid: boolean | null
           meeting_summary: string | null
           name: string
@@ -850,6 +851,7 @@ export type Database = {
           status: string
           target_country: string | null
           target_university: string | null
+          website_inquiry: string | null
         }
         Insert: {
           advisor_id?: string | null
@@ -870,6 +872,7 @@ export type Database = {
           id?: string
           interested_country?: string | null
           interested_field?: string | null
+          is_from_website?: boolean | null
           is_paid?: boolean | null
           meeting_summary?: string | null
           name: string
@@ -887,6 +890,7 @@ export type Database = {
           status?: string
           target_country?: string | null
           target_university?: string | null
+          website_inquiry?: string | null
         }
         Update: {
           advisor_id?: string | null
@@ -907,6 +911,7 @@ export type Database = {
           id?: string
           interested_country?: string | null
           interested_field?: string | null
+          is_from_website?: boolean | null
           is_paid?: boolean | null
           meeting_summary?: string | null
           name?: string
@@ -924,6 +929,7 @@ export type Database = {
           status?: string
           target_country?: string | null
           target_university?: string | null
+          website_inquiry?: string | null
         }
         Relationships: [
           {
