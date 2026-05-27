@@ -65,6 +65,8 @@ export interface Student {
   interestedField: string;
   source: string;
   meetingSummary: string;
+  websiteInquiry?: string;
+  isFromWebsite?: boolean;
   paymentType?: PaymentType;
   packageCost: number;
   amountPaid?: number;
