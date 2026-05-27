@@ -266,6 +266,8 @@ export default function Leads() {
       interested_field: newStudent.interestedField,
       source: newStudent.source,
       meeting_summary: newStudent.meetingSummary,
+      website_inquiry: newStudent.websiteInquiry || null,
+      is_from_website: newStudent.isFromWebsite || false,
       package_notes: newStudent.packageNotes,
       package_cost: newStudent.packageCost,
       payment_notes: newStudent.paymentNotes,

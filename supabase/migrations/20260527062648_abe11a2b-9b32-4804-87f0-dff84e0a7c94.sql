@@ -1,0 +1,1 @@
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS website_inquiry text, ADD COLUMN IF NOT EXISTS is_from_website boolean DEFAULT false;

@@ -445,6 +445,16 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         </div>
       )}
 
+      {/* Website Inquiry */}
+      {student.websiteInquiry && (
+        <div className="mt-4 border-t border-border/50 pt-4">
+          <p className="text-xs font-medium text-muted-foreground mb-1">פנייה מהאתר:</p>
+          <p className="text-sm text-card-foreground bg-muted/50 rounded-lg p-3 whitespace-pre-wrap">
+            {student.websiteInquiry}
+          </p>
+        </div>
+      )}
+
       {/* Meeting Summary */}
       {student.meetingSummary && (
         <div className="mt-4 border-t border-border/50 pt-4">
