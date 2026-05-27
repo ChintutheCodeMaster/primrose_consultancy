@@ -66,6 +66,8 @@ export default function Students() {
         interestedField: student.interested_field || '',
         source: student.source || '',
         meetingSummary: student.meeting_summary || '',
+        websiteInquiry: (student as any).website_inquiry || '',
+        isFromWebsite: (student as any).is_from_website || false,
         packageNotes: student.package_notes || '',
         createdAt: new Date(student.created_at),
         status: student.status as StudentStatus,
