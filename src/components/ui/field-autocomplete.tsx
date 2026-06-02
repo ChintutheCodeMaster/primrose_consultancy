@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { FIELD_OPTIONS } from '@/data/fieldOptions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
