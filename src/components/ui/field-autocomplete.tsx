@@ -93,6 +93,20 @@ export function FieldAutocomplete({ value, onChange, placeholder = "חפש או 
         <span className={value ? '' : 'text-muted-foreground'}>
           {value || placeholder}
         </span>
+        {value && (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange('');
+            }}
+            className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded hover:bg-accent"
+            aria-label="נקה"
+          >
+            <X className="h-3.5 w-3.5" />
+          </span>
+        )}
       </button>
 
       {dropdownOpen && (
