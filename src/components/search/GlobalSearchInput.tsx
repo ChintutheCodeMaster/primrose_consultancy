@@ -106,7 +106,7 @@ export function GlobalSearchInput({
               email: lead.email,
               phone: lead.phone,
               location: 'leads',
-              locationLabel: `Inquiries '${yearPath`,
+              locationLabel: `Inquiries '${yearPath}`,
               navigateTo: `/leads/${yearPath}?highlight=${lead.id}`
             });
           }

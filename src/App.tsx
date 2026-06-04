@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PasswordGate } from "@/components/auth/PasswordGate";
+
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Leads from "./pages/Leads";
@@ -47,21 +47,21 @@ const App = () => (
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
 
-          {/* Protected app */}
-          <Route path="/app" element={<PasswordGate><Index /></PasswordGate>} />
-          <Route path="/analytics" element={<PasswordGate><Analytics /></PasswordGate>} />
-          <Route path="/leads/:year" element={<PasswordGate><Leads /></PasswordGate>} />
-          <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
-          <Route path="/advisors" element={<PasswordGate><Advisors /></PasswordGate>} />
-          <Route path="/past-advisors" element={<PasswordGate><PastAdvisors /></PasswordGate>} />
-          <Route path="/did-not-continue/:year" element={<PasswordGate><DidNotContinue /></PasswordGate>} />
-          <Route path="/agreement-template" element={<PasswordGate><AgreementTemplate /></PasswordGate>} />
-          <Route path="/student-portal/:studentId" element={<PasswordGate><StudentPortalManagement /></PasswordGate>} />
-          <Route path="/past-clients/:year" element={<PasswordGate><PastClients /></PasswordGate>} />
-          <Route path="/projects" element={<PasswordGate><Projects /></PasswordGate>} />
-          <Route path="/signed-agreements" element={<PasswordGate><SignedAgreements /></PasswordGate>} />
-          <Route path="/settings" element={<PasswordGate><Settings /></PasswordGate>} />
-          <Route path="/ai-chat" element={<PasswordGate><AiChat /></PasswordGate>} />
+          {/* App routes (authentication temporarily disabled) */}
+          <Route path="/app" element={<Index />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/leads/:year" element={<Leads />} />
+          <Route path="/students" element={<Students />} />
+          <Route path="/advisors" element={<Advisors />} />
+          <Route path="/past-advisors" element={<PastAdvisors />} />
+          <Route path="/did-not-continue/:year" element={<DidNotContinue />} />
+          <Route path="/agreement-template" element={<AgreementTemplate />} />
+          <Route path="/student-portal/:studentId" element={<StudentPortalManagement />} />
+          <Route path="/past-clients/:year" element={<PastClients />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/signed-agreements" element={<SignedAgreements />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/ai-chat" element={<AiChat />} />
           <Route path="/temp-export" element={<TempExportEmails />} />
           <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
           <Route path="*" element={<NotFound />} />

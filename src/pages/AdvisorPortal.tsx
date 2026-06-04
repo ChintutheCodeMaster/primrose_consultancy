@@ -1502,7 +1502,7 @@ export default function AdvisorPortal() {
                                         <div className="p-2">
                                           <Input
                                             value={scholarshipSearch}
-                                            onChange={(e) => setSearchScholarshipSearch(e.target.value)}
+                                            onChange={(e) => setScholarshipSearch(e.target.value)}
                                             placeholder="Search scholarship..."
                                             className="h-8 text-sm"
                                             autoFocus
