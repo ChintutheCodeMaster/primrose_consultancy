@@ -6,7 +6,7 @@ import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, ArrowUpDown } from 'lucide-react';
+import { X, ArrowUpDown, Sparkles } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -462,7 +462,12 @@ export default function Students() {
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Students</h1>
               <p className="text-muted-foreground mt-1">Manage engaged students ({filteredStudents.length})</p>
             </div>
-            <AddStudentDialog onAdd={handleAddStudent} />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2">
+                <Sparkles className="h-4 w-4" /> Onboarding Wizard
+              </Button>
+              <AddStudentDialog onAdd={handleAddStudent} />
+            </div>
           </div>
 
           {/* Search - Only this stays sticky */}
