@@ -179,7 +179,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+            <Label htmlFor="packageCost">עלות חבילה ($)</Label>
             <Input
               id="packageCost"
               type="text"

@@ -581,10 +581,10 @@ export default function Students() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">כל העלויות</SelectItem>
-                <SelectItem value="under5k">עד ₪5,000</SelectItem>
-                <SelectItem value="5k-10k">₪5,000 - ₪10,000</SelectItem>
-                <SelectItem value="10k-20k">₪10,000 - ₪20,000</SelectItem>
-                <SelectItem value="over20k">מעל ₪20,000</SelectItem>
+                <SelectItem value="under5k">עד $5,000</SelectItem>
+                <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
+                <SelectItem value="10k-20k">$10,000 - $20,000</SelectItem>
+                <SelectItem value="over20k">מעל $20,000</SelectItem>
               </SelectContent>
             </Select>
 

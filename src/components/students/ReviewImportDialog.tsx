@@ -193,7 +193,7 @@ export function ReviewImportDialog({
                       {client.email && <span>{client.email}</span>}
                       {client.phone && <span>{client.phone}</span>}
                       {client.advisorName && <span>יועץ: {client.advisorName}</span>}
-                      {client.amountPaid > 0 && <span>שולם: ₪{client.amountPaid.toLocaleString()}</span>}
+                      {client.amountPaid > 0 && <span>שולם: ${client.amountPaid.toLocaleString()}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">

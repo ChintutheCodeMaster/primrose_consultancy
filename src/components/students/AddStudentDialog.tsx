@@ -274,7 +274,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+              <Label htmlFor="packageCost">עלות חבילה ($)</Label>
               <Input
                 id="packageCost"
                 type="text"
@@ -287,7 +287,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
+            <Label htmlFor="amountPaid">שולם בפועל ($)</Label>
             <Input
               id="amountPaid"
               type="text"

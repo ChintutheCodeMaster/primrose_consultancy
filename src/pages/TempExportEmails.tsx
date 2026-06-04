@@ -50,7 +50,7 @@ export default function TempExportEmails() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4" dir="rtl">
       <h1 className="text-2xl font-bold">ייצוא מיילים - לקוחות עבר 2025</h1>
-      <p className="text-muted-foreground">שולם 500₪ ומעלה, ללא כפילויות מייל</p>
+      <p className="text-muted-foreground">שולם 500$ ומעלה, ללא כפילויות מייל</p>
       <Button onClick={exportToExcel} size="lg">הורד אקסל</Button>
       <p>{status}</p>
     </div>

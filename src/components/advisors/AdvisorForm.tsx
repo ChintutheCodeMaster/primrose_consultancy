@@ -129,7 +129,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
             id="payment_notes"
             value={formData.payment_notes}
             onChange={(e) => onFormDataChange({ ...formData, payment_notes: e.target.value })}
-            placeholder="לדוגמה: 500₪ לחבילה + בונוס על קבלות"
+            placeholder="לדוגמה: 500$ לחבילה + בונוס על קבלות"
             rows={3}
           />
         </div>

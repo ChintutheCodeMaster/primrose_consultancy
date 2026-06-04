@@ -121,7 +121,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   }, [student, open]);
 
   const parseCurrencyInput = (raw: string) => {
-    // Allow pasting values like "1,180", "₪1180", "1180.50"
+    // Allow pasting values like "1,180", "$1180", "1180.50"
     const cleaned = raw
       .replace(/[^0-9.,-]/g, '')
       .replace(/,/g, '');
@@ -526,7 +526,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+            <Label htmlFor="packageCost">עלות חבילה ($)</Label>
             <Input
               id="packageCost"
               type="text"
@@ -539,7 +539,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
+              <Label htmlFor="amountPaid">שולם בפועל ($)</Label>
               <Input
                 id="amountPaid"
                 type="text"
@@ -552,7 +552,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <div className="space-y-2">
               <Label className="text-muted-foreground">יתרה לתשלום</Label>
               <div className="h-10 px-3 flex items-center rounded-md border bg-muted/50 text-muted-foreground">
-                ₪{(parseCurrencyInput(packageCostText) - parseCurrencyInput(amountPaidText)).toLocaleString()}
+                ${(parseCurrencyInput(packageCostText) - parseCurrencyInput(amountPaidText)).toLocaleString()}
               </div>
             </div>
           </div>

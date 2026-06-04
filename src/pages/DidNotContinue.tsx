@@ -849,7 +849,7 @@ export default function DidNotContinue() {
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>עלות חבילה:</strong> ₪{(selectedStudent.package_cost || 0).toLocaleString()}
+                    <strong>עלות חבילה:</strong> ${(selectedStudent.package_cost || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">

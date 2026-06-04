@@ -1010,7 +1010,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       {project.amount != null && (
-                        <span className="text-sm font-medium text-foreground">₪{project.amount.toLocaleString()}</span>
+                        <span className="text-sm font-medium text-foreground">${project.amount.toLocaleString()}</span>
                       )}
                     </div>
                   ))}

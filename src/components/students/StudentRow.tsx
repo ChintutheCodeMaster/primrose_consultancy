@@ -323,14 +323,14 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
             {student.paymentType === 'hourly' 
               ? 'תשלום שעתי' 
               : student.paymentType === 'package' 
-                ? `עלות חבילה: ₪${student.packageCost.toLocaleString()}`
-                : `משולב - עלות חבילה: ₪${student.packageCost.toLocaleString()}`
+                ? `עלות חבילה: $${student.packageCost.toLocaleString()}`
+                : `משולב - עלות חבילה: $${student.packageCost.toLocaleString()}`
             }
           </span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground font-medium">
           <DollarSign className="h-4 w-4 shrink-0 text-success" />
-          <span className="text-success">שולם בפועל: ₪{amountPaid.toLocaleString()}</span>
+          <span className="text-success">שולם בפועל: ${amountPaid.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <User className="h-4 w-4 shrink-0" />

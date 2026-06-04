@@ -592,13 +592,13 @@ export default function Analytics() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">מחיר ממוצע לחבילה</CardTitle>
-              <span className="text-muted-foreground">₪</span>
+              <span className="text-muted-foreground">$</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {avgPackageCostData.length > 0
-                  ? `₪${avgPackageCostData[avgPackageCostData.length - 1]?.average?.toLocaleString() || 0}`
-                  : '₪0'}
+                  ? `$${avgPackageCostData[avgPackageCostData.length - 1]?.average?.toLocaleString() || 0}`
+                  : '$0'}
               </div>
             </CardContent>
           </Card>
@@ -608,7 +608,7 @@ export default function Analytics() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₪{totalIncomeBySeason.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${totalIncomeBySeason.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
@@ -618,7 +618,7 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              הכנסות החודש - ₪{totalIncomeThisMonth.toLocaleString()} ({incomeThisMonth.length} סטודנטים)
+              הכנסות החודש - ${totalIncomeThisMonth.toLocaleString()} ({incomeThisMonth.length} סטודנטים)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -638,7 +638,7 @@ export default function Analytics() {
                     {incomeThisMonth.map((student) => (
                       <TableRow key={student.id}>
                         <TableCell className="font-medium text-right">{student.name}</TableCell>
-                        <TableCell className="text-right" dir="ltr">₪{Number(student.amount_paid).toLocaleString()}</TableCell>
+                        <TableCell className="text-right" dir="ltr">${Number(student.amount_paid).toLocaleString()}</TableCell>
                         <TableCell className="text-right">{new Date(student.payment_date).toLocaleDateString('he-IL')}</TableCell>
                         <TableCell className="text-right">{student.advisor_name || '-'}</TableCell>
                         <TableCell className="text-right">{student.graduation_year ? `לקוח עבר ${student.graduation_year}` : 'סטודנט פעיל'}</TableCell>
@@ -722,8 +722,8 @@ export default function Analytics() {
                 <LineChart data={avgPackageCostData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
-                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, 'ממוצע']} />
+                  <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'ממוצע']} />
                   <Line
                     type="monotone"
                     dataKey="average"
@@ -738,7 +738,7 @@ export default function Analytics() {
                       fill="hsl(var(--foreground))" 
                       fontSize={11} 
                       fontWeight={600}
-                      formatter={(value: number) => `₪${(value/1000).toFixed(1)}k`}
+                      formatter={(value: number) => `$${(value/1000).toFixed(1)}k`}
                     />
                   </Line>
                 </LineChart>
@@ -1104,7 +1104,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium text-sm">
                               {row.count}
@@ -1136,7 +1136,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium text-sm">
                               {row.count}
@@ -1168,7 +1168,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium text-sm">
                               {row.count}
@@ -1196,9 +1196,9 @@ export default function Analytics() {
               הכנסות פרויקטים ושת״פ
             </CardTitle>
             <div className="flex gap-4 text-sm mt-2">
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">הכנסות: ₪{totalProjectIncome.toLocaleString()}</span>
-              <span className="text-destructive font-semibold">הוצאות: ₪{totalProjectExpense.toLocaleString()}</span>
-              <span className="font-semibold">יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">הכנסות: ${totalProjectIncome.toLocaleString()}</span>
+              <span className="text-destructive font-semibold">הוצאות: ${totalProjectExpense.toLocaleString()}</span>
+              <span className="font-semibold">יתרה: ${(totalProjectIncome - totalProjectExpense).toLocaleString()}</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -1223,9 +1223,9 @@ export default function Analytics() {
                               <TableCell rowSpan={data.projects.length} className="font-bold align-top border-l">
                                 <div>{collabName}</div>
                                 <div className="text-xs text-muted-foreground mt-1">
-                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">₪{data.income.toLocaleString()}</span>}
+                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">${data.income.toLocaleString()}</span>}
                                   {data.income > 0 && data.expense > 0 && ' | '}
-                                  {data.expense > 0 && <span className="text-destructive">-₪{data.expense.toLocaleString()}</span>}
+                                  {data.expense > 0 && <span className="text-destructive">-${data.expense.toLocaleString()}</span>}
                                 </div>
                               </TableCell>
                             )}
@@ -1240,7 +1240,7 @@ export default function Analytics() {
                               </span>
                             </TableCell>
                             <TableCell className={`font-semibold ${project.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
-                              ₪{project.amount.toLocaleString()}
+                              ${project.amount.toLocaleString()}
                             </TableCell>
                             <TableCell>{project.date ? new Date(project.date).toLocaleDateString('he-IL') : '-'}</TableCell>
                           </TableRow>
@@ -1270,8 +1270,8 @@ export default function Analytics() {
                 <BarChart data={projectsByYearCollabData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
-                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                  <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, '']} />
                   <Legend />
                   {allCollabNames.map((name, index) => (
                     <Bar 

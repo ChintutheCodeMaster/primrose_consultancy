@@ -89,13 +89,13 @@ const statusColors: Record<string, string> = { active: 'bg-primary/20 text-prima
 const directionLabels: Record<string, string> = { income: 'הכנסה', expense: 'הוצאה' };
 
 const currencyOptions: { value: string; label: string; symbol: string }[] = [
-  { value: 'ILS', label: 'שקל (₪)', symbol: '₪' },
+  { value: 'ILS', label: 'שקל ($)', symbol: '$' },
   { value: 'USD', label: 'דולר ($)', symbol: '$' },
   { value: 'EUR', label: 'יורו (€)', symbol: '€' },
   { value: 'GBP', label: 'פאונד (£)', symbol: '£' },
 ];
 
-const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '₪';
+const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '$';
 
 function FrozenProjectsTable({ children }: { children: React.ReactNode }) {
   const contentScrollRef = useRef<HTMLDivElement>(null);
