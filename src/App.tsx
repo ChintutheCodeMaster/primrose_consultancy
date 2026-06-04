@@ -26,6 +26,7 @@ import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
 import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
+import OnboardingWizard from "./pages/OnboardingWizard";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 
 const queryClient = new QueryClient();
