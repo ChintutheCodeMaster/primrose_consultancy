@@ -243,12 +243,12 @@ export default function PastClients() {
     
     if (error) {
       console.error('Error updating student:', error);
-      toast.error('שגיאה בעדכון הסטודנט');
+      toast.error('Error updating student.');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
-    toast.success('הסטודנט עודכן בהצלחה!');
+    toast.success('Student updated successfully!');
   };
 
   const handleDeleteStudent = async (studentId: string) => {
@@ -258,12 +258,12 @@ export default function PastClients() {
       .eq('id', studentId);
     
     if (error) {
-      toast.error('שגיאה במחיקת הסטודנט');
+      toast.error('Error deleting student.');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
-    toast.success('הסטודנט נמחק בהצלחה');
+    toast.success('Student deleted successfully.');
   };
 
   const handleRestoreToStudent = async (studentId: string) => {
@@ -273,13 +273,13 @@ export default function PastClients() {
       .eq('id', studentId);
     
     if (error) {
-      toast.error('שגיאה בהחזרת הסטודנט');
+      toast.error('Error restoring student.');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
     queryClient.invalidateQueries({ queryKey: ['students'] });
-    toast.success('הסטודנט הוחזר לרשימת הסטודנטים הפעילים');
+    toast.success('Student restored to active students list.');
   };
 
   const handleImportStudents = async (students: ImportedStudent[]) => {
@@ -311,14 +311,14 @@ export default function PastClients() {
     }
 
     queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
-    toast.success(`${students.length} לקוחות יובאו בהצלחה!`);
+    toast.success(`${students.length} clients imported successfully!`);
   };
 
   const handleReviewImport = async (clients: ParsedClient[]) => {
     const studentsToInsert = clients.map(client => ({
       name: client.name,
-      email: client.email || 'לא צוין',
-      phone: client.phone || 'לא צוין',
+      email: client.email || 'Not specified',
+      phone: client.phone || 'Not specified',
       graduation_year: year || '2026',
       degree_type: client.degreeType || 'bachelor',
       target_university: client.acceptedTo || null,
@@ -339,12 +339,12 @@ export default function PastClients() {
 
     if (error) {
       console.error('Error importing students:', error);
-      toast.error('שגיאה בייבוא הלקוחות');
+      toast.error('Error importing clients.');
       throw error;
     }
 
     queryClient.invalidateQueries({ queryKey: ['past-clients', year] });
-    toast.success(`${clients.length} לקוחות יובאו בהצלחה!`);
+    toast.success(`${clients.length} clients imported successfully!`);
     setShowReviewDialog(false);
   };
 
@@ -356,18 +356,18 @@ export default function PastClients() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">לקוחות עבר {year}</h1>
-              <p className="text-muted-foreground mt-1">סטודנטים שסיימו תהליך בשנת {year} ({filteredClients.length})</p>
+              <h1 className="text-3xl font-bold text-foreground">Alumni {year}</h1>
+              <p className="text-muted-foreground mt-1">Students who completed their process in {year} ({filteredClients.length})</p>
             </div>
             <Button onClick={() => setShowImportDialog(true)}>
-              <Upload className="h-4 w-4 ml-2" />
-              ייבוא מאקסל
+              <Upload className="h-4 w-4 mr-2" />
+              Import from Excel
             </Button>
           </div>
 
           {/* Search - Only this stays sticky */}
           <GlobalSearchInput
-            placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או מדינה..."
+            placeholder="Search by name, email, phone, university or country..."
             localSearchTerm={searchTerm}
             onLocalSearchChange={setSearchTerm}
             currentPage="past-clients"
@@ -379,21 +379,21 @@ export default function PastClients() {
         <div className="flex flex-wrap gap-3 mb-4">
           <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
             <SelectTrigger className="w-full sm:w-40">
-              <ArrowUpDown className="h-4 w-4 ml-2" />
-              <SelectValue placeholder="מיון" />
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">מהחדש לישן</SelectItem>
-              <SelectItem value="oldest">מהישן לחדש</SelectItem>
+              <SelectItem value="newest">Newest to Oldest</SelectItem>
+              <SelectItem value="oldest">Oldest to Newest</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={advisorFilter} onValueChange={setAdvisorFilter}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="כל היועצים" />
+              <SelectValue placeholder="All Consultants" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל היועצים</SelectItem>
+              <SelectItem value="all">All Consultants</SelectItem>
               {filterOptions.advisors.map(advisor => (
                 <SelectItem key={advisor} value={advisor}>{advisor}</SelectItem>
               ))}
@@ -402,21 +402,21 @@ export default function PastClients() {
 
           <Select value={paymentFilter} onValueChange={setPaymentFilter}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="סטטוס תשלום" />
+              <SelectValue placeholder="Payment Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל סטטוסי התשלום</SelectItem>
-              <SelectItem value="paid">שולם</SelectItem>
-              <SelectItem value="unpaid">לא שולם</SelectItem>
+              <SelectItem value="all">All Payment Statuses</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="unpaid">Unpaid</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={degreeFilter} onValueChange={(v) => setDegreeFilter(v as DegreeType | 'all')}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="סוג תואר" />
+              <SelectValue placeholder="Degree Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל סוגי התואר</SelectItem>
+              <SelectItem value="all">All Degree Types</SelectItem>
               {Object.entries(degreeTypeLabels).map(([value, label]) => (
                 <SelectItem key={value} value={value}>{label}</SelectItem>
               ))}
@@ -425,10 +425,10 @@ export default function PastClients() {
 
           <Select value={sourceFilter} onValueChange={setSourceFilter}>
             <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="מקור" />
+              <SelectValue placeholder="Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל המקורות</SelectItem>
+              <SelectItem value="all">All Sources</SelectItem>
               {filterOptions.sources.map(source => (
                 <SelectItem key={source} value={source}>{source}</SelectItem>
               ))}
@@ -437,34 +437,34 @@ export default function PastClients() {
 
           <Select value={costFilter} onValueChange={setCostFilter}>
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="עלות" />
+              <SelectValue placeholder="Cost" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל העלויות</SelectItem>
-              <SelectItem value="under5k">עד $5,000</SelectItem>
+              <SelectItem value="all">All Costs</SelectItem>
+              <SelectItem value="under5k">Under $5,000</SelectItem>
               <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
               <SelectItem value="10k-20k">$10,000 - $20,000</SelectItem>
-              <SelectItem value="over20k">מעל $20,000</SelectItem>
+              <SelectItem value="over20k">Over $20,000</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={acceptedFilter} onValueChange={setAcceptedFilter}>
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="קבלה" />
+              <SelectValue placeholder="Accepted" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">הכל</SelectItem>
-              <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
-              <SelectItem value="no">טרם התקבל</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="yes">Accepted to University</SelectItem>
+              <SelectItem value="no">Not yet accepted</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={universityFilter} onValueChange={setUniversityFilter}>
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="אוניברסיטה" />
+              <SelectValue placeholder="University" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+              <SelectItem value="all">All Universities</SelectItem>
               {filterOptions.universities.map((uni) => (
                 <SelectItem key={uni} value={uni}>{uni}</SelectItem>
               ))}
@@ -473,8 +473,8 @@ export default function PastClients() {
 
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-muted-foreground">
-              <X className="h-4 w-4 ml-1" />
-              נקה סינון
+              <X className="h-4 w-4 mr-1" />
+              Clear Filter
             </Button>
           )}
         </div>
@@ -482,7 +482,7 @@ export default function PastClients() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">טוען...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         )}
 
@@ -532,9 +532,9 @@ export default function PastClients() {
 
         {!isLoading && filteredClients.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">אין לקוחות עבר לשנת {year}</p>
+            <p className="text-muted-foreground">No alumni found for {year}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              כדי להעביר סטודנט לכאן, לחץ על "העבר ללקוח עבר" בעמוד הסטודנטים
+              To move a student here, click "Move to Alumni" on the Students page.
             </p>
           </div>
         )}

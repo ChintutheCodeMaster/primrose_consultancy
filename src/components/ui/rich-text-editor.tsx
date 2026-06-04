@@ -43,7 +43,7 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none min-h-[300px] p-4 focus:outline-none',
-        dir: 'rtl',
+        dir: 'ltr',
       },
     },
   });
@@ -93,21 +93,21 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBold().run()}
             isActive={editor.isActive('bold')}
-            title="מודגש"
+            title="Bold"
           >
             <Bold className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleItalic().run()}
             isActive={editor.isActive('italic')}
-            title="נטוי"
+            title="Italic"
           >
             <Italic className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             isActive={editor.isActive('underline')}
-            title="קו תחתון"
+            title="Underline"
           >
             <UnderlineIcon className="h-4 w-4" />
           </ToolbarButton>
@@ -118,21 +118,21 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             isActive={editor.isActive('heading', { level: 1 })}
-            title="כותרת 1"
+            title="Heading 1"
           >
             <Heading1 className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             isActive={editor.isActive('heading', { level: 2 })}
-            title="כותרת 2"
+            title="Heading 2"
           >
             <Heading2 className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             isActive={editor.isActive('heading', { level: 3 })}
-            title="כותרת 3"
+            title="Heading 3"
           >
             <Heading3 className="h-4 w-4" />
           </ToolbarButton>
@@ -143,14 +143,14 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             isActive={editor.isActive('bulletList')}
-            title="רשימה"
+            title="Bullet List"
           >
             <List className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             isActive={editor.isActive('orderedList')}
-            title="רשימה ממוספרת"
+            title="Numbered List"
           >
             <ListOrdered className="h-4 w-4" />
           </ToolbarButton>
@@ -161,21 +161,21 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('right').run()}
             isActive={editor.isActive({ textAlign: 'right' })}
-            title="יישור לימין"
+            title="Align Right"
           >
             <AlignRight className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
             isActive={editor.isActive({ textAlign: 'center' })}
-            title="יישור למרכז"
+            title="Align Center"
           >
             <AlignCenter className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
             isActive={editor.isActive({ textAlign: 'left' })}
-            title="יישור לשמאל"
+            title="Align Left"
           >
             <AlignLeft className="h-4 w-4" />
           </ToolbarButton>
@@ -185,13 +185,13 @@ export function RichTextEditor({ content, onChange, className }: RichTextEditorP
         <div className="flex items-center gap-0.5 mr-auto">
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}
-            title="בטל"
+            title="Undo"
           >
             <Undo className="h-4 w-4" />
           </ToolbarButton>
           <ToolbarButton
             onClick={() => editor.chain().focus().redo().run()}
-            title="בצע שוב"
+            title="Redo"
           >
             <Redo className="h-4 w-4" />
           </ToolbarButton>

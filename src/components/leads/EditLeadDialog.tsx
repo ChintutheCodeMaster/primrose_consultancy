@@ -47,7 +47,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
         setSourceSelection(formData.source);
         setCustomSource('');
       } else if (formData.source) {
-        setSourceSelection('אחר');
+        setSourceSelection('Other');
         setCustomSource(formData.source);
       } else {
         setSourceSelection('');
@@ -59,7 +59,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
         setFieldSelection(formData.interestedField);
         setCustomField('');
       } else if (formData.interestedField) {
-        setFieldSelection('אחר');
+        setFieldSelection('Other');
         setCustomField(formData.interestedField);
       } else {
         setFieldSelection('');
@@ -72,8 +72,8 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData) {
-      const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-      const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+      const finalSource = sourceSelection === 'Other' ? customSource : sourceSelection;
+      const finalField = fieldSelection === 'Other' ? customField : fieldSelection;
       onSave({ ...formData, source: finalSource, interestedField: finalField, lastContactAt: new Date() });
       onOpenChange(false);
     }
@@ -85,12 +85,12 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>עריכת ליד - {formData.name}</DialogTitle>
+          <DialogTitle>Edit Lead - {formData.name}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">שם מלא</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -99,7 +99,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 dir="ltr"
@@ -110,7 +110,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
                 type="text"
@@ -122,10 +122,10 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Label htmlFor="leadsYear">Inquiry Year</Label>
               <Select value={formData.leadsYear || ''} onValueChange={(v) => setFormData({ ...formData, leadsYear: v })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר שנה" />
+                  <SelectValue placeholder="Select year" />
                 </SelectTrigger>
                 <SelectContent>
                   {leadsCategories.map((cat) => (
@@ -135,7 +135,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Label htmlFor="degreeType">Degree Type</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -148,7 +148,7 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v: LeadStatus) => setFormData({ ...formData, status: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -164,18 +164,18 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interestedCountry">מדינות מבוקשות</Label>
+              <Label htmlFor="interestedCountry">Desired Countries</Label>
               <MultiCountrySelect
                 value={formData.interestedCountry}
                 onChange={(v) => setFormData({ ...formData, interestedCountry: v })}
-                placeholder="בחר מדינות"
+                placeholder="Select countries"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="interestedField">תחום לימודים</Label>
+              <Label htmlFor="interestedField">Field of Study</Label>
               <Select value={fieldSelection} onValueChange={setFieldSelection}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר תחום" />
+                  <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {FIELD_OPTIONS.map((field) => (
@@ -183,9 +183,9 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
                   ))}
                 </SelectContent>
               </Select>
-              {fieldSelection === 'אחר' && (
+              {fieldSelection === 'Other' && (
                 <Input
-                  placeholder="הזן תחום אחר..."
+                  placeholder="Enter other field..."
                   value={customField}
                   onChange={(e) => setCustomField(e.target.value)}
                   className="mt-2"
@@ -195,10 +195,10 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="source">מקור הגעה</Label>
+            <Label htmlFor="source">Lead Source</Label>
             <Select value={sourceSelection} onValueChange={setSourceSelection}>
               <SelectTrigger>
-                <SelectValue placeholder="בחר מקור" />
+                <SelectValue placeholder="Select source" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-50">
                 {sourceOptions.map((src) => (
@@ -206,9 +206,9 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
                 ))}
               </SelectContent>
             </Select>
-            {sourceSelection === 'אחר' && (
+            {sourceSelection === 'Other' && (
               <Input
-                placeholder="הזן מקור אחר..."
+                placeholder="Enter other source..."
                 value={customSource}
                 onChange={(e) => setCustomSource(e.target.value)}
                 className="mt-2"
@@ -217,17 +217,17 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
           </div>
 
           <div className="space-y-2">
-            <Label>יועץ/ת</Label>
+            <Label>Consultant</Label>
             <MultiAdvisorSelect
               value={formData.advisorName || ''}
               onChange={(v) => setFormData({ ...formData, advisorName: v })}
-              placeholder="בחר יועץ/ת"
+              placeholder="Select consultant"
               includeInactive={includeInactiveAdvisors}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
+            <Label htmlFor="meetingSummary">Meeting Summary</Label>
             <Textarea
               id="meetingSummary"
               value={formData.meetingSummary}
@@ -237,22 +237,22 @@ export function EditLeadDialog({ lead, open, onOpenChange, onSave, includeInacti
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Label htmlFor="packageNotes">Package Notes</Label>
             <Textarea
               id="packageNotes"
               value={formData.packageNotes || ''}
               onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
               rows={2}
-              placeholder="הערות לגבי החבילה..."
+              placeholder="Notes about the package..."
             />
           </div>
 
           <div className="flex gap-2 pt-4">
             <Button type="submit" className="flex-1">
-              שמור שינויים
+              Save Changes
             </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              ביטול
+              Cancel
             </Button>
           </div>
         </form>

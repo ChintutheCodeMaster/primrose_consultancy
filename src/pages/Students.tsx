@@ -126,12 +126,12 @@ export default function Students() {
     onSuccess: ({ year }) => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['past-clients'] });
-      toast.success(`הסטודנט הועבר ללקוחות עבר ${year}`);
+      toast.success(`Student moved to alumni for ${year}`);
       navigate(`/past-clients/${year}`);
     },
     onError: (error) => {
       console.error('Error moving student:', error);
-      toast.error('שגיאה בהעברת הסטודנט');
+      toast.error('Error moving student');
     }
   });
 
@@ -212,8 +212,8 @@ export default function Students() {
 
   const filteredStudents = useMemo(() => {
     const filtered = students.filter(student => {
-      const matchesSearch = student.name.includes(searchTerm) || 
-                           student.email.includes(searchTerm) || 
+      const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           student.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            student.phone.includes(searchTerm) ||
                            student.targetUniversity.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            student.interestedField.toLowerCase().includes(searchTerm.toLowerCase());
@@ -279,12 +279,12 @@ export default function Students() {
     
     if (error) {
       console.error('Error adding student:', error);
-      toast.error('שגיאה בהוספת הסטודנט');
+      toast.error('Error adding student');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['students'] });
-    toast.success('הסטודנט נוסף בהצלחה!');
+    toast.success('Student added successfully!');
   };
 
   const handleMoveToPastClient = (studentId: string, year: string) => {
@@ -308,13 +308,13 @@ export default function Students() {
     }
     const { error } = await supabase.from('students').update(updateData).eq('id', studentId);
     if (error) {
-      toast.error('שגיאה בהעברת הסטודנט');
+      toast.error('Error moving student');
       return;
     }
     queryClient.invalidateQueries({ queryKey: ['students'] });
     queryClient.invalidateQueries({ queryKey: ['past-clients'] });
     queryClient.invalidateQueries({ queryKey: ['follow-up-reminders-due'] });
-    toast.success(date ? `הסטודנט הועבר ללקוחות עבר ${year} ותזכורת נקבעה` : `הסטודנט הועבר ללקוחות עבר ${year}`);
+    toast.success(date ? `Student moved to alumni for ${year} and reminder set` : `Student moved to alumni for ${year}`);
     setReminderTarget(null);
     navigate(`/past-clients/${year}`);
   };
@@ -377,12 +377,12 @@ export default function Students() {
     
     if (error) {
       console.error('Error updating student:', error);
-      toast.error('שגיאה בעדכון הסטודנט');
+      toast.error('Error updating student');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['students'] });
-    toast.success('הסטודנט עודכן בהצלחה!');
+    toast.success('Student updated successfully!');
   };
 
   const handleDidNotContinue = async (studentId: string, reason: string, destination: DiscontinueDestination) => {
@@ -409,7 +409,7 @@ export default function Students() {
         });
       
       if (insertError) {
-        toast.error('שגיאה בהעברה למתעניינים');
+        toast.error('Error moving to Inquiries');
         return;
       }
       
@@ -418,7 +418,7 @@ export default function Students() {
       
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
-      toast.success('הסטודנט הועבר לרשימת "לא המשיכו" במתעניינים');
+      toast.success('Student moved to "Closed/Lost" in Inquiries');
     } else {
       const { error } = await supabase
         .from('students')
@@ -426,13 +426,13 @@ export default function Students() {
         .eq('id', studentId);
       
       if (error) {
-        toast.error('שגיאה בעדכון');
+        toast.error('Error updating');
         return;
       }
       
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-      toast.success('הסטודנט הועבר לרשימת "לא המשיכו"');
+      toast.success('Student moved to "Closed/Lost"');
     }
   };
 
@@ -443,12 +443,12 @@ export default function Students() {
       .eq('id', studentId);
     
     if (error) {
-      toast.error('שגיאה במחיקת הסטודנט');
+      toast.error('Error deleting student');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['students'] });
-    toast.success('הסטודנט נמחק בהצלחה');
+    toast.success('Student deleted successfully');
   };
 
   return (
@@ -459,8 +459,8 @@ export default function Students() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">סטודנטים</h1>
-              <p className="text-muted-foreground mt-1">ניהול סטודנטים בליווי ({filteredStudents.length})</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Students</h1>
+              <p className="text-muted-foreground mt-1">Manage engaged students ({filteredStudents.length})</p>
             </div>
             <AddStudentDialog onAdd={handleAddStudent} />
           </div>
@@ -468,7 +468,7 @@ export default function Students() {
           {/* Search - Only this stays sticky */}
           <div className="flex gap-4">
             <GlobalSearchInput
-              placeholder="חיפוש לפי שם, אימייל, טלפון, אוניברסיטה או תחום..."
+              placeholder="Search by name, email, phone, university, or field..."
               localSearchTerm={searchTerm}
               onLocalSearchChange={setSearchTerm}
               currentPage="students"
@@ -477,7 +477,7 @@ export default function Students() {
             {hasActiveFilters && (
               <Button variant="outline" onClick={clearAllFilters} className="gap-2">
                 <X className="h-4 w-4" />
-                נקה סינונים
+                Clear Filters
               </Button>
             )}
           </div>
@@ -489,10 +489,10 @@ export default function Students() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StudentStatus | 'all')}>
               <SelectTrigger>
-                <SelectValue placeholder="סטטוס" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 {Object.entries(studentStatusLabels)
                   .filter(([value]) => value !== 'graduated')
                   .map(([value, label]) => (
@@ -503,10 +503,10 @@ export default function Students() {
 
             <Select value={advisorFilter} onValueChange={setAdvisorFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="יועץ" />
+                <SelectValue placeholder="Consultant" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל היועצים</SelectItem>
+                <SelectItem value="all">All Consultants</SelectItem>
                 {filterOptions.advisors.map((advisor) => (
                   <SelectItem key={advisor} value={advisor}>{advisor}</SelectItem>
                 ))}
@@ -515,21 +515,21 @@ export default function Students() {
 
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="תשלום" />
+                <SelectValue placeholder="Payment" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל סטטוסי תשלום</SelectItem>
-                <SelectItem value="paid">שולם</SelectItem>
-                <SelectItem value="unpaid">לא שולם</SelectItem>
+                <SelectItem value="all">All Payment Statuses</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={countryFilter} onValueChange={setCountryFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="מדינה" />
+                <SelectValue placeholder="Country" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל המדינות</SelectItem>
+                <SelectItem value="all">All Countries</SelectItem>
                 {filterOptions.countries.map((country) => (
                   <SelectItem key={country} value={country}>{country}</SelectItem>
                 ))}
@@ -538,10 +538,10 @@ export default function Students() {
 
             <Select value={degreeFilter} onValueChange={(v) => setDegreeFilter(v as DegreeType | 'all')}>
               <SelectTrigger>
-                <SelectValue placeholder="סוג תואר" />
+                <SelectValue placeholder="Degree Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל סוגי התואר</SelectItem>
+                <SelectItem value="all">All Degree Types</SelectItem>
                 {Object.entries(degreeTypeLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>{label}</SelectItem>
                 ))}
@@ -553,10 +553,10 @@ export default function Students() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             <Select value={fieldFilter} onValueChange={setFieldFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="תחום לימודים" />
+                <SelectValue placeholder="Field of Interest" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל התחומים</SelectItem>
+                <SelectItem value="all">All Fields</SelectItem>
                 {filterOptions.fields.map((field) => (
                   <SelectItem key={field} value={field}>{field}</SelectItem>
                 ))}
@@ -565,10 +565,10 @@ export default function Students() {
 
             <Select value={sourceFilter} onValueChange={setSourceFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="מקור הגעה" />
+                <SelectValue placeholder="Lead Source" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל המקורות</SelectItem>
+                <SelectItem value="all">All Sources</SelectItem>
                 {filterOptions.sources.map((source) => (
                   <SelectItem key={source} value={source}>{source}</SelectItem>
                 ))}
@@ -577,34 +577,34 @@ export default function Students() {
 
             <Select value={costFilter} onValueChange={setCostFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="טווח עלות" />
+                <SelectValue placeholder="Cost Range" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל העלויות</SelectItem>
-                <SelectItem value="under5k">עד $5,000</SelectItem>
+                <SelectItem value="all">All Costs</SelectItem>
+                <SelectItem value="under5k">Under $5,000</SelectItem>
                 <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
                 <SelectItem value="10k-20k">$10,000 - $20,000</SelectItem>
-                <SelectItem value="over20k">מעל $20,000</SelectItem>
+                <SelectItem value="over20k">Over $20,000</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={acceptedFilter} onValueChange={setAcceptedFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="האם התקבל" />
+                <SelectValue placeholder="Accepted" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">הכל</SelectItem>
-                <SelectItem value="yes">התקבל לאוניברסיטה</SelectItem>
-                <SelectItem value="no">טרם התקבל</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="yes">Accepted to University</SelectItem>
+                <SelectItem value="no">Not yet Accepted</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={universityFilter} onValueChange={setUniversityFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="אוניברסיטה" />
+                <SelectValue placeholder="University" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל האוניברסיטאות</SelectItem>
+                <SelectItem value="all">All Universities</SelectItem>
                 {filterOptions.universities.map((uni) => (
                   <SelectItem key={uni} value={uni}>{uni}</SelectItem>
                 ))}
@@ -614,11 +614,11 @@ export default function Students() {
             <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
               <SelectTrigger>
                 <ArrowUpDown className="h-4 w-4 ml-2" />
-                <SelectValue placeholder="מיון" />
+                <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">מהחדש לישן</SelectItem>
-                <SelectItem value="oldest">מהישן לחדש</SelectItem>
+                <SelectItem value="newest">Newest to Oldest</SelectItem>
+                <SelectItem value="oldest">Oldest to Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -627,7 +627,7 @@ export default function Students() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">טוען...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         )}
 
@@ -682,7 +682,7 @@ export default function Students() {
 
         {!isLoading && filteredStudents.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">לא נמצאו סטודנטים</p>
+            <p className="text-muted-foreground">No students found</p>
           </div>
         )}
       </div>

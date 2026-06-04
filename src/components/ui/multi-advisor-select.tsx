@@ -14,7 +14,7 @@ interface MultiAdvisorSelectProps {
   includeInactive?: boolean;
 }
 
-export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יועצים', includeInactive = false }: MultiAdvisorSelectProps) {
+export function MultiAdvisorSelect({ value, onChange, placeholder = 'Select Consultants', includeInactive = false }: MultiAdvisorSelectProps) {
   const [open, setOpen] = useState(false);
   
   const { data: advisors = [] } = useQuery({
@@ -78,7 +78,7 @@ export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יו
               <span className="text-muted-foreground">{placeholder}</span>
             )}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 mr-2" />
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-2 bg-popover z-50" align="start">
@@ -97,7 +97,7 @@ export function MultiAdvisorSelect({ value, onChange, placeholder = 'בחר יו
             </div>
           ))}
           {advisors.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-2">אין יועצים פעילים</p>
+            <p className="text-sm text-muted-foreground text-center py-2">No active consultants</p>
           )}
         </div>
       </PopoverContent>

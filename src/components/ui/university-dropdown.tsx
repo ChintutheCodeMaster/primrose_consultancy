@@ -11,7 +11,7 @@ interface UniversityDropdownProps {
   placeholder?: string;
 }
 
-export function UniversityDropdown({ value, onChange, placeholder = "בחר אוניברסיטה" }: UniversityDropdownProps) {
+export function UniversityDropdown({ value, onChange, placeholder = "Select University" }: UniversityDropdownProps) {
   const [options, setOptions] = useState<string[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -55,7 +55,7 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
       .insert({ name: trimmed, sort_order: options.length + 1 });
 
     if (error && error.code !== '23505') {
-      toast.error('שגיאה בהוספת אוניברסיטה');
+      toast.error('Error adding university');
       return;
     }
 
@@ -68,7 +68,7 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
     setShowAddCustom(false);
     setDropdownOpen(false);
     setSearch('');
-    toast.success(`${trimmed} נוספה לרשימה`);
+    toast.success(`${trimmed} added to list`);
   };
 
   return (
@@ -89,7 +89,7 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="חפש אוניברסיטה..."
+              placeholder="Search university..."
               className="h-8 text-sm"
               autoFocus
               onClick={(e) => e.stopPropagation()}
@@ -100,7 +100,7 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
               <button
                 key={option}
                 type="button"
-                className={`w-full text-right px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors ${value === option ? 'bg-accent/50' : ''}`}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors ${value === option ? 'bg-accent/50' : ''}`}
                 onClick={() => {
                   onChange(option);
                   setDropdownOpen(false);
@@ -111,24 +111,24 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
               </button>
             ))}
             {filteredOptions.length === 0 && (
-              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
             )}
           </div>
           <div className="border-t p-2">
             {!showAddCustom ? (
               <button
                 type="button"
-                className="w-full text-right px-3 py-1.5 text-sm text-primary hover:bg-accent rounded flex items-center gap-1"
+                className="w-full text-left px-3 py-1.5 text-sm text-primary hover:bg-accent rounded flex items-center gap-1"
                 onClick={() => setShowAddCustom(true)}
               >
-                <Plus className="h-3 w-3" /> הוסף אוניברסיטה חדשה
+                <Plus className="h-3 w-3" /> Add New University
               </button>
             ) : (
               <div className="flex gap-2">
                 <Input
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
-                  placeholder="שם האוניברסיטה..."
+                  placeholder="University name..."
                   className="h-8 text-sm flex-1"
                   dir="ltr"
                   autoFocus
@@ -140,7 +140,7 @@ export function UniversityDropdown({ value, onChange, placeholder = "בחר או
                   }}
                 />
                 <Button type="button" size="sm" className="h-8" onClick={addCustomOption}>
-                  הוסף
+                  Add
                 </Button>
               </div>
             )}

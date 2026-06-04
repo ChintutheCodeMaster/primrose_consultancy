@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, User, Calendar, Mail, Phone, CreditCard, MapPin, Clock, Monitor, Package, Banknote, Linkedin } from "lucide-react";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface AgreementDetails {
   id: string;
@@ -63,7 +63,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            פרטי הסכם - {studentName}
+            Agreement Details - {studentName}
           </DialogTitle>
         </DialogHeader>
 
@@ -76,11 +76,11 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
             {/* Personal Info */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">שם פרטי</label>
+                <label className="text-xs text-muted-foreground">First Name</label>
                 <p className="font-medium">{details.first_name}</p>
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">שם משפחה</label>
+                <label className="text-xs text-muted-foreground">Last Name</label>
                 <p className="font-medium">{details.last_name}</p>
               </div>
             </div>
@@ -89,16 +89,16 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  תאריך לידה
+                  Date of Birth
                 </label>
                 <p className="font-medium">
-                  {format(new Date(details.birth_date), "dd/MM/yyyy", { locale: he })}
+                  {format(new Date(details.birth_date), "dd/MM/yyyy", { locale: enUS })}
                 </p>
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
-                  תעודת זהות
+                  ID Number
                 </label>
                 <p className="font-medium" dir="ltr">{details.id_number}</p>
               </div>
@@ -108,14 +108,14 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Mail className="h-3 w-3" />
-                  אימייל
+                  Email
                 </label>
                 <p className="font-medium text-sm" dir="ltr">{details.email}</p>
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Phone className="h-3 w-3" />
-                  טלפון
+                  Phone
                 </label>
                 <p className="font-medium" dir="ltr">{details.phone}</p>
               </div>
@@ -124,7 +124,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
-                כתובת
+                Address
               </label>
               <p className="font-medium">{details.address}</p>
             </div>
@@ -132,14 +132,14 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
             {/* MBA-specific fields */}
             {(details.mba_package_selections || details.mba_package_other || details.mba_payment_option || details.linkedin_profile) && (
               <div className="border-t pt-4 mt-4">
-                <h4 className="text-sm font-semibold mb-3 text-primary">פרטי MBA</h4>
+                <h4 className="text-sm font-semibold mb-3 text-primary">MBA Details</h4>
                 <div className="space-y-3">
                   {/* Package selections */}
                   {(details.mba_package_selections || details.mba_package_other) && (
                     <div className="space-y-1">
                       <label className="text-xs text-muted-foreground flex items-center gap-1">
                         <Package className="h-3 w-3" />
-                        שירותים שהוזמנו
+                        Services Ordered
                       </label>
                       <div className="font-medium">
                         {details.mba_package_selections && details.mba_package_selections.length > 0 && (
@@ -150,7 +150,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
                           </ul>
                         )}
                         {details.mba_package_other && (
-                          <p className="text-sm">אחר: {details.mba_package_other}</p>
+                          <p className="text-sm">Other: {details.mba_package_other}</p>
                         )}
                       </div>
                     </div>
@@ -161,7 +161,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
                     <div className="space-y-1">
                       <label className="text-xs text-muted-foreground flex items-center gap-1">
                         <Banknote className="h-3 w-3" />
-                        אופן תשלום
+                        Payment Method
                       </label>
                       <p className="font-medium text-sm">
                         {details.mba_payment_option}
@@ -175,7 +175,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
                     <div className="space-y-1">
                       <label className="text-xs text-muted-foreground flex items-center gap-1">
                         <Linkedin className="h-3 w-3" />
-                        פרופיל לינקדאין
+                        LinkedIn Profile
                       </label>
                       <a 
                         href={details.linkedin_profile} 
@@ -194,25 +194,25 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
 
             {/* Signature Info */}
             <div className="border-t pt-4 mt-4">
-              <h4 className="text-sm font-semibold mb-3 text-primary">פרטי חתימה</h4>
+              <h4 className="text-sm font-semibold mb-3 text-primary">Signature Details</h4>
               <div className="grid grid-cols-1 gap-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">נחתם בתאריך:</span>
+                  <span className="text-muted-foreground">Signed On:</span>
                   <span className="font-medium">
-                    {format(new Date(details.signed_at), "dd/MM/yyyy בשעה HH:mm", { locale: he })}
+                    {format(new Date(details.signed_at), "dd/MM/yyyy 'at' HH:mm", { locale: enUS })}
                   </span>
                 </div>
                 {details.ip_address && (
                   <div className="flex items-center gap-2 text-sm">
                     <Monitor className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">כתובת IP:</span>
+                    <span className="text-muted-foreground">IP Address:</span>
                     <span className="font-medium" dir="ltr">{details.ip_address}</span>
                   </div>
                 )}
                 {details.user_agent && (
                   <div className="text-sm">
-                    <span className="text-muted-foreground">דפדפן:</span>
+                    <span className="text-muted-foreground">Browser:</span>
                     <p className="font-medium text-xs mt-1 bg-muted/50 p-2 rounded" dir="ltr">
                       {details.user_agent}
                     </p>
@@ -222,7 +222,7 @@ export function AgreementDetailsDialog({ studentId, studentName, open, onOpenCha
             </div>
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8">לא נמצאו פרטי הסכם</p>
+          <p className="text-center text-muted-foreground py-8">No agreement details found</p>
         )}
       </DialogContent>
     </Dialog>

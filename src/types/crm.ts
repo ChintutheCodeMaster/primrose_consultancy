@@ -23,10 +23,10 @@ export interface Lead {
 }
 
 export const degreeTypeLabels: Record<DegreeType, string> = {
-  bachelor: 'תואר ראשון',
-  master: 'תואר שני',
-  phd: 'דוקטורט',
-  scholarship: 'מלגה',
+  bachelor: 'Bachelor',
+  master: 'Master',
+  phd: 'PhD',
+  scholarship: 'Scholarship',
 };
 
 export interface AcceptedUniversity {
@@ -91,9 +91,9 @@ export interface Student {
 }
 
 export const paymentTypeLabels: Record<PaymentType, string> = {
-  hourly: 'שעתי',
-  package: 'חבילה',
-  other: 'משולב',
+  hourly: 'Hourly',
+  package: 'Package',
+  other: 'Other',
 };
 
 export interface Note {
@@ -125,20 +125,20 @@ export interface Document {
 }
 
 export const leadStatusLabels: Record<LeadStatus, string> = {
-  new: 'חדש',
-  contacted: 'נוצר קשר',
-  meeting_scheduled: 'פגישה נקבעה',
-  proposal_sent: 'הצעה נשלחה',
-  converted: 'הפך ללקוח',
-  lost: 'אבד',
+  new: 'New',
+  contacted: 'Contacted',
+  meeting_scheduled: 'Meeting Scheduled',
+  proposal_sent: 'Proposal Sent',
+  converted: 'Converted',
+  lost: 'Lost',
 };
 
 export const studentStatusLabels: Record<StudentStatus, string> = {
-  active: 'פעיל',
-  accepted: 'התקבל',
-  enrolled: 'נרשם',
-  graduated: 'סיים',
-  paused: 'מושהה',
+  active: 'Active',
+  accepted: 'Accepted',
+  enrolled: 'Enrolled',
+  graduated: 'Graduated',
+  paused: 'Paused',
 };
 
 export const leadStatusColors: Record<LeadStatus, string> = {

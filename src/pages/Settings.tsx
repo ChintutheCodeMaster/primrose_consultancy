@@ -21,9 +21,9 @@ import { SourceOptionsManager } from '@/components/settings/SourceOptionsManager
 import { CountryOptionsManager } from '@/components/settings/CountryOptionsManager';
 
 const categoryTypeLabels = {
-  leads: 'מתעניינים',
-  past_clients: 'לקוחות עבר',
-  did_not_continue: 'לא המשיכו',
+  leads: 'Inquiries',
+  past_clients: 'Alumni',
+  did_not_continue: 'Closed/Lost',
 };
 
 export default function Settings() {
@@ -66,12 +66,12 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories-all'] });
-      toast.success('הקטגוריה נוספה בהצלחה');
+      toast.success('Category added successfully');
       setIsAddOpen(false);
       setNewCategory({ category_type: 'leads', year_value: '', display_label: '' });
     },
     onError: () => {
-      toast.error('שגיאה בהוספת הקטגוריה');
+      toast.error('Error adding category');
     },
   });
 
@@ -83,10 +83,10 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories-all'] });
-      toast.success('הקטגוריה נמחקה');
+      toast.success('Category deleted');
     },
     onError: () => {
-      toast.error('שגיאה במחיקת הקטגוריה');
+      toast.error('Error deleting category');
     },
   });
 
@@ -110,13 +110,13 @@ export default function Settings() {
       queryClient.invalidateQueries({ queryKey: ['sidebar-categories-all'] });
     },
     onError: () => {
-      toast.error('שגיאה בשינוי הסדר');
+      toast.error('Error reordering category');
     },
   });
 
   const handleAdd = () => {
     if (!newCategory.year_value || !newCategory.display_label) {
-      toast.error('יש למלא את כל השדות');
+      toast.error('Please fill in all fields');
       return;
     }
     addMutation.mutate(newCategory);
@@ -151,24 +151,24 @@ export default function Settings() {
       <div className="animate-fade-in space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">הגדרות</h1>
-            <p className="text-muted-foreground mt-1">ניהול קטגוריות סרגל הצד</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground mt-1">Manage sidebar categories</p>
           </div>
           
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 ml-2" />
-                הוסף קטגוריה
+                <Plus className="h-4 w-4 mr-2" />
+                Add Category
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>הוספת קטגוריה חדשה</DialogTitle>
+                <DialogTitle>Add New Category</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label>סוג קטגוריה</Label>
+                  <Label>Category Type</Label>
                   <Select 
                     value={newCategory.category_type} 
                     onValueChange={(v) => setNewCategory(prev => ({ ...prev, category_type: v as typeof prev.category_type }))}
@@ -177,31 +177,31 @@ export default function Settings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="leads">מתעניינים</SelectItem>
-                      <SelectItem value="past_clients">לקוחות עבר</SelectItem>
-                      <SelectItem value="did_not_continue">לא המשיכו</SelectItem>
+                      <SelectItem value="leads">Inquiries</SelectItem>
+                      <SelectItem value="past_clients">Alumni</SelectItem>
+                      <SelectItem value="did_not_continue">Closed/Lost</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>ערך שנה (לניתוב)</Label>
+                  <Label>Year Value (for routing)</Label>
                   <Input 
-                    placeholder="לדוגמה: 28 או 2027"
+                    placeholder="e.g., 28 or 2027"
                     value={newCategory.year_value}
                     onChange={(e) => setNewCategory(prev => ({ ...prev, year_value: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>תווית תצוגה</Label>
+                  <Label>Display Label</Label>
                   <Input 
-                    placeholder="לדוגמה: מתעניינים 28"
+                    placeholder="e.g., Inquiries 28"
                     value={newCategory.display_label}
                     onChange={(e) => setNewCategory(prev => ({ ...prev, display_label: e.target.value }))}
                   />
                 </div>
                 <Button onClick={handleAdd} disabled={addMutation.isPending} className="w-full">
-                  {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
-                  הוסף
+                  {addMutation.isPending ? <Loader2 className="h-4 w-4 mr-2" /> : null}
+                  Add
                 </Button>
               </div>
             </DialogContent>
@@ -212,16 +212,16 @@ export default function Settings() {
           <Card key={type}>
             <CardHeader>
               <CardTitle>{categoryTypeLabels[type]}</CardTitle>
-              <CardDescription>ניהול שנים עבור {categoryTypeLabels[type]}</CardDescription>
+              <CardDescription>Manage years for {categoryTypeLabels[type]}</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>תווית</TableHead>
-                    <TableHead>ערך שנה</TableHead>
-                    <TableHead>סדר</TableHead>
-                    <TableHead className="w-24">הזז</TableHead>
+                    <TableHead>Label</TableHead>
+                    <TableHead>Year Value</TableHead>
+                    <TableHead>Order</TableHead>
+                    <TableHead className="w-24">Move</TableHead>
                     <TableHead className="w-16"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -266,7 +266,7 @@ export default function Settings() {
                   {groupedCategories[type].length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        אין קטגוריות
+                        No categories
                       </TableCell>
                     </TableRow>
                   )}
@@ -313,10 +313,10 @@ function LeadsYearSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads-year-settings'] });
-      toast.success('ההגדרות עודכנו בהצלחה');
+      toast.success('Settings updated successfully');
     },
     onError: () => {
-      toast.error('שגיאה בעדכון ההגדרות');
+      toast.error('Error updating settings');
     },
   });
 
@@ -339,39 +339,39 @@ function LeadsYearSettings() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-primary" />
-          <CardTitle>מתעניינים מהאתר — הגדרת שנה</CardTitle>
+          <CardTitle>Website Inquiries — Year Setting</CardTitle>
         </div>
         <CardDescription>
-          הגדרי לאיזו שנה ייכנסו מתעניינים חדשים מהאתר, ומתי לעבור לשנה הבאה
+          Set which year new inquiries from the website will be assigned to, and when to transition to the next year.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Current Year */}
           <div className="space-y-2">
-            <Label>שנה נוכחית (פניות נכנסות לכאן)</Label>
+            <Label>Current Year (Incoming inquiries go here)</Label>
             <Input
               value={settings.current_year}
               onChange={(e) => updateMutation.mutate({ current_year: e.target.value })}
               placeholder="27"
               className="text-center text-lg font-semibold"
             />
-            <p className="text-xs text-muted-foreground">למשל: 27 = מתעניינים 27</p>
+            <p className="text-xs text-muted-foreground">e.g., 27 = Inquiries 27</p>
           </div>
 
           {/* Transition Date */}
           <div className="space-y-2">
-            <Label>תאריך מעבר</Label>
+            <Label>Transition Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-right font-normal",
+                    "w-full justify-start text-left font-normal",
                     !settings.transition_date && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(transitionDate, 'dd/MM/yyyy', { locale: he })}
                 </Button>
               </PopoverTrigger>
@@ -389,26 +389,26 @@ function LeadsYearSettings() {
                 />
               </PopoverContent>
             </Popover>
-            <p className="text-xs text-muted-foreground">אחרי תאריך זה, פניות ייכנסו לשנה הבאה</p>
+            <p className="text-xs text-muted-foreground">After this date, inquiries will transition to the next year</p>
           </div>
 
           {/* Next Year */}
           <div className="space-y-2">
-            <Label>שנה הבאה (אחרי תאריך המעבר)</Label>
+            <Label>Next Year (After transition date)</Label>
             <Input
               value={settings.next_year}
               onChange={(e) => updateMutation.mutate({ next_year: e.target.value })}
               placeholder="28"
               className="text-center text-lg font-semibold"
             />
-            <p className="text-xs text-muted-foreground">למשל: 28 = מתעניינים 28</p>
+            <p className="text-xs text-muted-foreground">e.g., 28 = Inquiries 28</p>
           </div>
         </div>
 
         {/* Status indicator */}
         <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-          📌 כרגע פניות חדשות מהאתר נכנסות ל<strong className="text-foreground">מתעניינים {settings.current_year}</strong>.
-          {' '}החל מ-{format(transitionDate, 'dd/MM/yyyy', { locale: he })} הן ייכנסו ל<strong className="text-foreground">מתעניינים {settings.next_year}</strong>.
+          📌 Currently, new website inquiries are assigned to <strong className="text-foreground">Inquiries {settings.current_year}</strong>.
+          {' '}Starting from {format(transitionDate, 'dd/MM/yyyy', { locale: he })}, they will be assigned to <strong className="text-foreground">Inquiries {settings.next_year}</strong>.
         </div>
       </CardContent>
     </Card>

@@ -64,7 +64,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
+    const finalSource = sourceSelection === 'Other' ? customSource : sourceSelection;
     const finalField = fieldSelection;
     
     // Validate source is required
@@ -120,18 +120,18 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          סטודנט חדש
+          New Student
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>הוספת סטודנט חדש</DialogTitle>
+          <DialogTitle>Add New Student</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Personal Details */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">שם מלא</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -140,7 +140,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 dir="ltr"
@@ -152,7 +152,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <Label htmlFor="email">Email</Label>
              <Input
               id="email"
               type="text"
@@ -162,14 +162,14 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               className={!formData.email ? 'border-orange-300' : ''}
             />
             {!formData.email && (
-              <p className="text-xs text-orange-600">⚠️ לא הוזנה כתובת אימייל</p>
+              <p className="text-xs text-orange-600">⚠️ No email address entered</p>
             )}
           </div>
 
           {/* Lead-like Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Label htmlFor="degreeType">Degree Type</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -182,10 +182,10 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="source">מקור הגעה <span className="text-destructive">*</span></Label>
+              <Label htmlFor="source">Lead Source <span className="text-destructive">*</span></Label>
               <Select value={sourceSelection} onValueChange={setSourceSelection} required>
                 <SelectTrigger className={!sourceSelection ? 'border-destructive/50' : ''}>
-                  <SelectValue placeholder="בחר מקור (חובה)" />
+                  <SelectValue placeholder="Select source (required)" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {sourceOptions.map((src) => (
@@ -193,9 +193,9 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
-              {sourceSelection === 'אחר' && (
+              {sourceSelection === 'Other' && (
                 <Input
-                  placeholder="הזן מקור אחר..."
+                  placeholder="Enter other source..."
                   value={customSource}
                   onChange={(e) => setCustomSource(e.target.value)}
                   className="mt-2"
@@ -203,17 +203,17 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
                 />
               )}
               {!sourceSelection && (
-                <p className="text-xs text-muted-foreground">יש לבחור מקור הגעה</p>
+                <p className="text-xs text-muted-foreground">Please select a lead source</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interestedCountry">מדינה מבוקשת</Label>
+              <Label htmlFor="interestedCountry">Desired Country</Label>
               <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v, targetCountry: v })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר מדינה" />
+                  <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
                   {countryOptions.map((country) => (
@@ -223,11 +223,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="interestedField">תחום לימודים</Label>
+              <Label htmlFor="interestedField">Field of Interest</Label>
               <FieldAutocomplete
                 value={fieldSelection}
                 onChange={setFieldSelection}
-                placeholder="בחר תחום"
+                placeholder="Select field"
               />
             </div>
           </div>
@@ -235,46 +235,46 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           {/* Student-specific Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v: StudentStatus) => setFormData({ ...formData, status: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">פעיל</SelectItem>
-                  <SelectItem value="accepted">התקבל</SelectItem>
-                  <SelectItem value="enrolled">נרשם</SelectItem>
-                  <SelectItem value="graduated">סיים</SelectItem>
-                  <SelectItem value="paused">מושהה</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="enrolled">Enrolled</SelectItem>
+                  <SelectItem value="graduated">Graduated</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="advisorName">יועצים מלווים</Label>
+              <Label htmlFor="advisorName">Consultants</Label>
               <MultiAdvisorSelect
                 value={formData.advisorName}
                 onChange={(v) => setFormData({ ...formData, advisorName: v })}
-                placeholder="בחר יועצים"
+                placeholder="Select consultants"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="paymentType">סוג תשלום</Label>
+              <Label htmlFor="paymentType">Payment Type</Label>
               <Select value={formData.paymentType} onValueChange={(v: 'hourly' | 'package' | 'other') => setFormData({ ...formData, paymentType: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="hourly">שעתי</SelectItem>
-                  <SelectItem value="package">חבילה</SelectItem>
-                  <SelectItem value="other">משולב</SelectItem>
+                  <SelectItem value="hourly">Hourly</SelectItem>
+                  <SelectItem value="package">Package</SelectItem>
+                  <SelectItem value="other">Combined</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="packageCost">עלות חבילה ($)</Label>
+              <Label htmlFor="packageCost">Package Cost ($)</Label>
               <Input
                 id="packageCost"
                 type="text"
@@ -287,7 +287,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amountPaid">שולם בפועל ($)</Label>
+            <Label htmlFor="amountPaid">Amount Paid ($)</Label>
             <Input
               id="amountPaid"
               type="text"
@@ -304,27 +304,27 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               checked={formData.isPaid}
               onCheckedChange={(checked) => setFormData({ ...formData, isPaid: checked as boolean })}
             />
-            <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
+            <Label htmlFor="isPaid" className="cursor-pointer">Paid</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentNotes">הערות תשלום</Label>
+            <Label htmlFor="paymentNotes">Payment Notes</Label>
             <Input
               id="paymentNotes"
               value={formData.paymentNotes}
               onChange={(e) => setFormData({ ...formData, paymentNotes: e.target.value })}
-              placeholder="לדוגמה: תשלום 1 מתוך 4, ישלם חצי שני בסוף"
+              placeholder="e.g., Payment 1 of 4, will pay second half at end"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
+            <Label htmlFor="advisorPaymentNotes">Payment to Consultant</Label>
             <Textarea
               id="advisorPaymentNotes"
               value={formData.advisorPaymentNotes}
               onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
               rows={2}
-              placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
+              placeholder="Details about payment to consultant (will be displayed in the consultant portal as 'Student Payment')..."
             />
           </div>
 
@@ -334,11 +334,11 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               checked={formData.signedAgreement}
               onCheckedChange={(checked) => setFormData({ ...formData, signedAgreement: checked as boolean })}
             />
-            <Label htmlFor="signedAgreement" className="cursor-pointer">חתם על הסכם עבודה</Label>
+            <Label htmlFor="signedAgreement" className="cursor-pointer">Signed Engagement Agreement</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="university">אוניברסיטאות יעד</Label>
+            <Label htmlFor="university">Target Universities</Label>
             <MultiUniversitySelect
               value={formData.targetUniversity}
               onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
@@ -346,22 +346,22 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="program">תוכנית לימודים</Label>
+            <Label htmlFor="program">Study Program</Label>
             <Input
               id="program"
               value={formData.program}
               onChange={(e) => setFormData({ ...formData, program: e.target.value })}
-              placeholder="לדוגמה: תואר ראשון בפסיכולוגיה"
+              placeholder="e.g., Bachelor's in Psychology"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
+            <Label htmlFor="meetingSummary">Meeting Summary</Label>
             <Textarea
               id="meetingSummary"
               value={formData.meetingSummary}
               onChange={(e) => setFormData({ ...formData, meetingSummary: e.target.value })}
-              placeholder="סיכום שיחה או פגישה..."
+              placeholder="Summary of call or meeting..."
               rows={3}
             />
           </div>
@@ -369,9 +369,9 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           <Button 
             type="submit" 
             className="w-full"
-            disabled={!sourceSelection || (sourceSelection === 'אחר' && !customSource.trim())}
+            disabled={!sourceSelection || (sourceSelection === 'Other' && !customSource.trim())}
           >
-            הוסף סטודנט
+            Add Student
           </Button>
         </form>
       </DialogContent>

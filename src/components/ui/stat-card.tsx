@@ -35,7 +35,7 @@ export function StatCard({ title, value, icon: Icon, trend, description, classNa
                 trend.isPositive ? 'text-success' : 'text-destructive'
               )}
             >
-              {trend.isPositive ? '+' : ''}{trend.value}% מהחודש שעבר
+              {trend.isPositive ? '+' : ''}{trend.value}% from last month
             </p>
           )}
         </div>

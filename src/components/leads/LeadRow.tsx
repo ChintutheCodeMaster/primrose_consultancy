@@ -2,7 +2,7 @@ import { Lead, leadStatusLabels, leadStatusColors, degreeTypeLabels } from '@/ty
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, Pencil, UserCheck, UserX, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { CopyableContact } from '@/components/ui/copyable-contact';
 import {
@@ -41,7 +41,7 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
               </h3>
               {lead.isFromWebsite && (
                 <span className="inline-flex items-center rounded-full bg-accent text-accent-foreground px-2 py-0.5 text-[10px] font-medium">
-                  נכנס אוטומטית
+                  Auto-generated
                 </span>
               )}
             </div>
@@ -50,7 +50,7 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
                 {leadStatusLabels[lead.status]}
               </StatusBadge>
               <span className="text-xs text-muted-foreground">
-                {format(lead.createdAt, 'dd/MM/yyyy', { locale: he })}
+                {format(lead.createdAt, 'dd/MM/yyyy', { locale: enUS })}
               </span>
             </div>
           </div>
@@ -61,19 +61,19 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
           {onEdit && (
             <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
               <Pencil className="h-3 w-3" />
-              עריכה
+              Edit
             </Button>
           )}
           {onDidNotContinue && (
             <Button variant="outline" size="sm" onClick={onDidNotContinue} className="gap-1 text-muted-foreground hover:text-destructive hover:border-destructive">
               <UserX className="h-3 w-3" />
-              לא המשיך
+              Closed/Lost
             </Button>
           )}
           {onConvert && (
             <Button variant="default" size="sm" onClick={onConvert} className="gap-1">
               <UserCheck className="h-3 w-3" />
-              המר לסטודנט
+              Convert to Student
             </Button>
           )}
           {onDelete && (
@@ -85,20 +85,20 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
                   className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 >
                   <Trash2 className="h-3 w-3" />
-                  מחיקה
+                  Delete
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    פעולה זו תמחק לצמיתות את המתעניין "{lead.name}" ואת כל המידע הקשור אליו. לא ניתן לבטל פעולה זו.
+                    This action will permanently delete the inquiry "{lead.name}" and all related information. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    מחק
+                    Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -115,15 +115,15 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
         </div>
         <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Mail className="h-4 w-4 shrink-0" />
-          <CopyableContact value={lead.email} dir="ltr" label="אימייל" />
+          <CopyableContact value={lead.email} dir="ltr" label="Email" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Phone className="h-4 w-4 shrink-0" />
-          <CopyableContact value={lead.phone} dir="ltr" label="טלפון" />
+          <CopyableContact value={lead.phone} dir="ltr" label="Phone" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4 shrink-0" />
-          <span>נוצר {format(lead.createdAt, 'dd/MM/yyyy', { locale: he })}</span>
+          <span>Created {format(lead.createdAt, 'dd/MM/yyyy', { locale: enUS })}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="h-4 w-4 shrink-0" />
@@ -135,14 +135,14 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
         </div>
         <div className="flex items-center gap-2 text-muted-foreground col-span-2">
           <Share2 className="h-4 w-4 shrink-0" />
-          <span>מקור: {lead.source}</span>
+          <span>Source: {lead.source}</span>
         </div>
       </div>
 
       {/* Website Inquiry */}
       {lead.websiteInquiry && (
         <div className="mt-4 border-t border-border/50 pt-4">
-          <p className="text-xs font-medium text-muted-foreground mb-2">פנייה מהאתר:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Website Inquiry:</p>
           <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800 space-y-2">
             {lead.websiteInquiry.split('\n').map((line, i) => (
               <p key={i} className="text-sm text-card-foreground">{line}</p>
@@ -154,7 +154,7 @@ export function LeadRow({ lead, onEdit, onConvert, onDidNotContinue, onDelete }:
       {/* Meeting Summary */}
       {lead.meetingSummary && (
         <div className="mt-4 border-t border-border/50 pt-4">
-          <p className="text-xs font-medium text-muted-foreground mb-1">סיכום פגישה:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Meeting Summary:</p>
           <p className="text-sm text-card-foreground bg-muted/50 rounded-lg p-3">
             {lead.meetingSummary}
           </p>

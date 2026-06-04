@@ -24,30 +24,30 @@ export const AdvisorPortalPasswordGate = ({
       onSuccess();
       setError("");
     } else {
-      setError("סיסמא שגויה");
+      setError("Incorrect password");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4" dir="ltr">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <User className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">שלום, {advisorName}!</CardTitle>
-          <p className="text-muted-foreground mt-2">הזן סיסמא כדי לגשת לפורטל שלך</p>
+          <CardTitle className="text-2xl">Hello, {advisorName}!</CardTitle>
+          <p className="text-muted-foreground mt-2">Enter your password to access your portal</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="סיסמא"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="text-center pr-10"
+                className="text-center pl-10"
                 autoFocus
                 dir="ltr"
               />
@@ -56,7 +56,7 @@ export const AdvisorPortalPasswordGate = ({
               )}
             </div>
             <Button type="submit" className="w-full">
-              כניסה
+              Login
             </Button>
           </form>
         </CardContent>

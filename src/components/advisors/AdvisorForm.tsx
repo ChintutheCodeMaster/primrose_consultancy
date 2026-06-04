@@ -53,10 +53,10 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
         .getPublicUrl(fileName);
 
       onFormDataChange({ ...formData, contract_url: publicUrl });
-      toast.success('החוזה הועלה בהצלחה');
+      toast.success('Contract uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('שגיאה בהעלאת הקובץ');
+      toast.error('Error uploading file');
     } finally {
       setUploading(false);
     }
@@ -66,7 +66,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">שם היועץ *</Label>
+          <Label htmlFor="name">Consultant Name *</Label>
           <Input
             id="name"
             value={formData.name}
@@ -75,7 +75,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
           />
         </div>
         <div className="flex items-center justify-between pt-6">
-          <Label htmlFor="is_active" className="cursor-pointer">יועץ פעיל</Label>
+          <Label htmlFor="is_active" className="cursor-pointer">Active Consultant</Label>
           <Switch
             id="is_active"
             checked={formData.is_active}
@@ -85,10 +85,10 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
       </div>
 
       <div className="p-4 bg-muted/50 rounded-lg space-y-4">
-        <h4 className="font-medium text-sm text-muted-foreground">פרטי התקשרות</h4>
+        <h4 className="font-medium text-sm text-muted-foreground">Contact Details</h4>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
@@ -98,7 +98,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">טלפון</Label>
+            <Label htmlFor="phone">Phone</Label>
             <Input
               id="phone"
               dir="ltr"
@@ -110,33 +110,33 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
         <div className="space-y-2">
           <Label htmlFor="residence" className="flex items-center gap-1">
             <Home className="h-3.5 w-3.5" />
-            מקום מגורים
+            Residence
           </Label>
           <Input
             id="residence"
             value={formData.residence}
             onChange={(e) => onFormDataChange({ ...formData, residence: e.target.value })}
-            placeholder="לדוגמה: תל אביב"
+            placeholder="e.g., Tel Aviv"
           />
         </div>
       </div>
 
       <div className="p-4 bg-primary/5 rounded-lg space-y-3">
-        <h4 className="font-medium text-sm text-muted-foreground">הסכם תשלום</h4>
+        <h4 className="font-medium text-sm text-muted-foreground">Payment Agreement</h4>
         <div className="space-y-2">
-          <Label htmlFor="payment_notes">פרטי הסכם / הערות תשלום</Label>
+          <Label htmlFor="payment_notes">Agreement Details / Payment Notes</Label>
           <Textarea
             id="payment_notes"
             value={formData.payment_notes}
             onChange={(e) => onFormDataChange({ ...formData, payment_notes: e.target.value })}
-            placeholder="לדוגמה: 500$ לחבילה + בונוס על קבלות"
+            placeholder="e.g., $500 per package + bonus for acceptance"
             rows={3}
           />
         </div>
       </div>
 
       <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg space-y-3">
-        <h4 className="font-medium text-sm text-muted-foreground">חוזה חתום</h4>
+        <h4 className="font-medium text-sm text-muted-foreground">Signed Contract</h4>
         {formData.contract_url ? (
           <div className="flex items-center gap-2">
             <a
@@ -146,7 +146,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
               className="flex items-center gap-2 text-primary hover:underline"
             >
               <FileText className="h-4 w-4" />
-              צפה בחוזה
+              View Contract
             </a>
             <Button
               type="button"
@@ -168,7 +168,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
               className="gap-2"
             >
               <Upload className="h-4 w-4" />
-              {uploading ? 'מעלה...' : 'העלה חוזה'}
+              {uploading ? 'Uploading...' : 'Upload Contract'}
             </Button>
             <input
               ref={fileInputRef}
@@ -184,10 +184,10 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
       <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg space-y-3">
         <h4 className="font-medium text-sm text-muted-foreground flex items-center gap-2">
           <Key className="h-4 w-4" />
-          סיסמה לפורטל היועץ
+          Consultant Portal Password
         </h4>
         <div className="space-y-2">
-          <Label htmlFor="portal_password">סיסמה (אופציונלי)</Label>
+          <Label htmlFor="portal_password">Password (optional)</Label>
           <div className="relative">
             <Input
               id="portal_password"
@@ -195,7 +195,7 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
               dir="ltr"
               value={formData.portal_password}
               onChange={(e) => onFormDataChange({ ...formData, portal_password: e.target.value })}
-              placeholder="השאר ריק לפורטל פתוח"
+              placeholder="Leave blank for open portal"
               className="pl-10"
             />
             <Button
@@ -209,28 +209,28 @@ export function AdvisorForm({ formData, onFormDataChange, onSubmit, onCancel, is
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            אם תגדיר סיסמה, היועץ יצטרך להזין אותה כדי לגשת לפורטל שלו
+            If you set a password, the consultant will need to enter it to access their portal
           </p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">הערות כלליות</Label>
+        <Label htmlFor="notes">General Notes</Label>
         <Textarea
           id="notes"
           value={formData.notes}
           onChange={(e) => onFormDataChange({ ...formData, notes: e.target.value })}
-          placeholder="הערות נוספות על היועץ..."
+          placeholder="Additional notes about the consultant..."
           rows={3}
         />
       </div>
 
       <div className="flex gap-2 pt-4">
         <Button type="submit" className="flex-1">
-          {isEditing ? 'שמור' : 'הוסף'}
+          {isEditing ? 'Save' : 'Add'}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
-          ביטול
+          Cancel
         </Button>
       </div>
     </form>

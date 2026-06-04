@@ -103,23 +103,23 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserCheck className="h-5 w-5 text-success" />
-            המרה לסטודנט
+            Convert to Student
           </DialogTitle>
           <DialogDescription>
-            להמיר את {lead.name} לסטודנט ולהתחיל תהליך ליווי?
+            Convert {lead.name} to a student and start the counseling process?
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <p className="text-sm"><strong>שם:</strong> {lead.name}</p>
-            <p className="text-sm"><strong>מדינה:</strong> {lead.interestedCountry}</p>
-            <p className="text-sm"><strong>תחום:</strong> {lead.interestedField}</p>
+            <p className="text-sm"><strong>Name:</strong> {lead.name}</p>
+            <p className="text-sm"><strong>Country:</strong> {lead.interestedCountry}</p>
+            <p className="text-sm"><strong>Field:</strong> {lead.interestedField}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="convertPhone">טלפון</Label>
+              <Label htmlFor="convertPhone">Phone</Label>
               <Input
                 id="convertPhone"
                 dir="ltr"
@@ -128,7 +128,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="convertEmail">אימייל</Label>
+              <Label htmlFor="convertEmail">Email</Label>
               <Input
                 id="convertEmail"
                 type="text"
@@ -140,10 +140,10 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="degreeType">סוג תואר</Label>
+            <Label htmlFor="degreeType">Degree Type</Label>
             <Select value={degreeType} onValueChange={(v) => setDegreeType(v as DegreeType)}>
               <SelectTrigger id="degreeType">
-                <SelectValue placeholder="בחר סוג תואר" />
+                <SelectValue placeholder="Select degree type" />
               </SelectTrigger>
               <SelectContent>
                 {(Object.entries(degreeTypeLabels) as [DegreeType, string][]).map(([value, label]) => (
@@ -154,12 +154,12 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label>סוג תשלום</Label>
+            <Label>Payment Type</Label>
             <RadioGroup
               value={paymentType}
               onValueChange={(v) => setPaymentType(v as PaymentType)}
               className="flex gap-4"
-              dir="rtl"
+              dir="ltr"
             >
               {(Object.entries(paymentTypeLabels) as [PaymentType, string][]).map(([value, label]) => (
                 <div key={value} className="flex items-center gap-1.5">
@@ -171,7 +171,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="targetUniversity">אוניברסיטאות יעד (אופציונלי)</Label>
+            <Label htmlFor="targetUniversity">Target Universities (Optional)</Label>
             <MultiUniversitySelect
               value={targetUniversity}
               onChange={setTargetUniversity}
@@ -179,7 +179,7 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageCost">עלות חבילה ($)</Label>
+            <Label htmlFor="packageCost">Package Cost ($)</Label>
             <Input
               id="packageCost"
               type="text"
@@ -191,10 +191,10 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="advisorName">יועץ מלווה</Label>
+            <Label htmlFor="advisorName">Consultant</Label>
             <Select value={advisorName} onValueChange={setAdvisorName}>
               <SelectTrigger>
-                <SelectValue placeholder="בחר יועץ" />
+                <SelectValue placeholder="Select consultant" />
               </SelectTrigger>
               <SelectContent>
                 {advisors.map((advisor) => (
@@ -210,10 +210,10 @@ export function ConvertToStudentDialog({ lead, open, onOpenChange, onConvert }: 
         <div className="flex gap-2">
           <Button onClick={handleConvert} className="flex-1 gap-2">
             <UserCheck className="h-4 w-4" />
-            המר לסטודנט
+            Convert to Student
           </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            ביטול
+            Cancel
           </Button>
         </div>
       </DialogContent>

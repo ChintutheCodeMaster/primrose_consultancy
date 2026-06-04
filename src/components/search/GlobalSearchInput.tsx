@@ -25,7 +25,7 @@ interface GlobalSearchInputProps {
 }
 
 export function GlobalSearchInput({ 
-  placeholder = "חיפוש גלובלי...",
+  placeholder = "Global Search...",
   className,
   localSearchTerm = '',
   onLocalSearchChange,
@@ -44,7 +44,7 @@ export function GlobalSearchInput({
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
-      }
+      };
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -84,18 +84,18 @@ export function GlobalSearchInput({
       if (leads) {
         leads.forEach(lead => {
           const leadYear = new Date(lead.created_at).getFullYear();
-          const yearPath = leadYear <= 2025 ? '2025-ומטה' : leadYear.toString();
+          const yearPath = leadYear <= 2025 ? '2025-and-below' : leadYear.toString();
           
           if (lead.did_not_continue) {
             const leadYear = new Date(lead.created_at).getFullYear();
-            const yearPath = leadYear <= 2025 ? '2025-ומטה' : leadYear.toString();
+            const yearPath = leadYear <= 2025 ? '2025-and-below' : leadYear.toString();
             results.push({
               id: lead.id,
               name: lead.name,
               email: lead.email,
               phone: lead.phone,
               location: 'did-not-continue-lead',
-              locationLabel: 'לא המשיכו (מתעניין)',
+              locationLabel: 'Closed/Lost (Inquiry)',
               navigateTo: `/did-not-continue/${yearPath}?highlight=${lead.id}`
             });
           } else {
@@ -106,7 +106,7 @@ export function GlobalSearchInput({
               email: lead.email,
               phone: lead.phone,
               location: 'leads',
-              locationLabel: `מתעניינים '${yearPath}`,
+              locationLabel: `Inquiries '${yearPath`,
               navigateTo: `/leads/${yearPath}?highlight=${lead.id}`
             });
           }
@@ -122,7 +122,7 @@ export function GlobalSearchInput({
       if (students) {
         students.forEach(student => {
           const studentYear = new Date(student.created_at).getFullYear();
-          const yearPath = studentYear <= 2025 ? '2025-ומטה' : studentYear.toString();
+          const yearPath = studentYear <= 2025 ? '2025-and-below' : studentYear.toString();
           
           if (student.did_not_continue) {
             results.push({
@@ -131,7 +131,7 @@ export function GlobalSearchInput({
               email: student.email,
               phone: student.phone,
               location: 'did-not-continue-student',
-              locationLabel: 'לא המשיכו (סטודנט)',
+              locationLabel: 'Closed/Lost (Student)',
               navigateTo: `/did-not-continue/${yearPath}?highlight=${student.id}`
             });
           } else if (student.graduation_year) {
@@ -141,7 +141,7 @@ export function GlobalSearchInput({
               email: student.email,
               phone: student.phone,
               location: 'past-clients',
-              locationLabel: `לקוחות עבר ${student.graduation_year}`,
+              locationLabel: `Alumni ${student.graduation_year}`,
               navigateTo: `/past-clients/${student.graduation_year}?highlight=${student.id}`,
               year: student.graduation_year
             });
@@ -152,7 +152,7 @@ export function GlobalSearchInput({
               email: student.email,
               phone: student.phone,
               location: 'students',
-              locationLabel: 'סטודנטים',
+              locationLabel: 'Students',
               navigateTo: `/students?highlight=${student.id}`
             });
           }
@@ -215,7 +215,7 @@ export function GlobalSearchInput({
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         ref={inputRef}
         placeholder={placeholder}
@@ -226,17 +226,17 @@ export function GlobalSearchInput({
             setShowDropdown(true);
           }
         }}
-        className="pr-10 pl-10"
+        className="pl-10 pr-10"
       />
       
       {isSearching && (
-        <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
       )}
 
       {!isSearching && searchTerm && (
         <button
           onClick={() => handleSearch('')}
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
@@ -247,7 +247,7 @@ export function GlobalSearchInput({
         <div className="absolute top-full mt-2 w-full bg-popover border border-border rounded-lg shadow-lg z-50 max-h-[400px] overflow-y-auto">
           <div className="p-2 border-b border-border bg-muted/50">
             <span className="text-xs text-muted-foreground font-medium">
-              נמצא גם במקומות אחרים:
+              Also found in other locations:
             </span>
           </div>
           <div className="p-2 space-y-1">
@@ -255,7 +255,7 @@ export function GlobalSearchInput({
               <button
                 key={`${result.location}-${result.id}`}
                 onClick={() => handleResultClick(result)}
-                className="w-full p-3 rounded-lg hover:bg-accent/50 transition-colors text-right flex items-center justify-between gap-3"
+                className="w-full p-3 rounded-lg hover:bg-accent/50 transition-colors text-left flex items-center justify-between gap-3"
               >
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{result.name}</p>

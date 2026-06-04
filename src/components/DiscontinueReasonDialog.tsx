@@ -36,41 +36,41 @@ export function DiscontinueReasonDialog({ open, onOpenChange, onConfirm, entityN
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>העברה ל&quot;לא המשיכו&quot;</DialogTitle>
+          <DialogTitle>Move to &quot;Closed/Lost&quot;</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <p className="text-sm text-muted-foreground">
-            {entityType === 'lead' ? 'המתעניין' : 'הסטודנט'} <strong>{entityName}</strong> יועבר לרשימת "לא המשיכו".
+            {entityType === 'lead' ? 'The inquiry' : 'The student'} <strong>{entityName}</strong> will be moved to the "Closed/Lost" list.
           </p>
           
           <div className="space-y-2">
-            <Label>לאן לשייך ברשימת "לא המשיכו"?</Label>
+            <Label>Where should it be categorized in "Closed/Lost"?</Label>
             <RadioGroup value={destination} onValueChange={(v) => setDestination(v as DiscontinueDestination)}>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="leads" id="dest-leads" />
-                <Label htmlFor="dest-leads" className="cursor-pointer font-normal">מתעניינים</Label>
+                <Label htmlFor="dest-leads" className="cursor-pointer font-normal">Inquiries</Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="students" id="dest-students" />
-                <Label htmlFor="dest-students" className="cursor-pointer font-normal">סטודנטים</Label>
+                <Label htmlFor="dest-students" className="cursor-pointer font-normal">Students</Label>
               </div>
             </RadioGroup>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reason">למה לא המשיך/ה? (אופציונלי)</Label>
+            <Label htmlFor="reason">Why did they not continue? (Optional)</Label>
             <Textarea
               id="reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="פרט/י את הסיבה..."
+              placeholder="Elaborate on the reason..."
               rows={3}
             />
           </div>
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={handleCancel}>ביטול</Button>
-          <Button onClick={handleConfirm}>העבר ל&quot;לא המשיכו&quot;</Button>
+          <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleConfirm}>Move to &quot;Closed/Lost&quot;</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -14,7 +14,7 @@ interface CountryDropdownProps {
   className?: string;
 }
 
-export function CountryDropdown({ value, onChange, placeholder = "בחר מדינה", className }: CountryDropdownProps) {
+export function CountryDropdown({ value, onChange, placeholder = "Select a country", className }: CountryDropdownProps) {
   const options = useCountryOptions();
   const queryClient = useQueryClient();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -48,7 +48,7 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
       .insert({ name: trimmed, sort_order: options.length });
 
     if (error && error.code !== '23505') {
-      toast.error('שגיאה בהוספת מדינה');
+      toast.error('Error adding country');
       return;
     }
 
@@ -58,7 +58,7 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
     setShowAddCustom(false);
     setDropdownOpen(false);
     setSearch('');
-    toast.success(`${trimmed} נוספה לרשימה`);
+    toast.success(`${trimmed} added to list`);
   };
 
   return (
@@ -79,7 +79,7 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="חפש מדינה..."
+              placeholder="Search country..."
               className="h-8 text-sm"
               autoFocus
               onClick={(e) => e.stopPropagation()}
@@ -90,7 +90,7 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
               <button
                 key={option}
                 type="button"
-                className={`w-full text-right px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors ${value === option ? 'bg-accent/50' : ''}`}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors ${value === option ? 'bg-accent/50' : ''}`}
                 onClick={() => {
                   onChange(option);
                   setDropdownOpen(false);
@@ -101,24 +101,24 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
               </button>
             ))}
             {filteredOptions.length === 0 && (
-              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
             )}
           </div>
           <div className="border-t p-2">
             {!showAddCustom ? (
               <button
                 type="button"
-                className="w-full text-right px-3 py-1.5 text-sm text-primary hover:bg-accent rounded flex items-center gap-1"
+                className="w-full text-left px-3 py-1.5 text-sm text-primary hover:bg-accent rounded flex items-center gap-1"
                 onClick={() => setShowAddCustom(true)}
               >
-                <Plus className="h-3 w-3" /> הוסף מדינה חדשה
+                <Plus className="h-3 w-3" /> Add new country
               </button>
             ) : (
               <div className="flex gap-2">
                 <Input
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
-                  placeholder="שם המדינה..."
+                  placeholder="Country name..."
                   className="h-8 text-sm flex-1"
                   autoFocus
                   onKeyDown={(e) => {
@@ -129,7 +129,7 @@ export function CountryDropdown({ value, onChange, placeholder = "בחר מדי�
                   }}
                 />
                 <Button type="button" size="sm" className="h-8" onClick={addCustomOption}>
-                  הוסף
+                  Add
                 </Button>
               </div>
             )}

@@ -17,7 +17,7 @@ interface MultiUniversitySelectProps {
 export function MultiUniversitySelect({
   value,
   onChange,
-  placeholder = "בחר אוניברסיטאות יעד",
+  placeholder = "Select target universities",
   className
 }: MultiUniversitySelectProps) {
   const [options, setOptions] = useState<string[]>([]);
@@ -78,7 +78,7 @@ export function MultiUniversitySelect({
       if (error.code === '23505') {
         // Already exists, just select it
       } else {
-        toast.error('שגיאה בהוספת אוניברסיטה');
+        toast.error('Error adding university');
         return;
       }
     }
@@ -95,7 +95,7 @@ export function MultiUniversitySelect({
 
     setCustomValue('');
     setShowAddCustom(false);
-    toast.success(`${trimmed} נוספה לרשימה`);
+    toast.success(`${trimmed} added to the list`);
   };
 
   const filteredOptions = options.filter(opt =>
@@ -123,7 +123,7 @@ export function MultiUniversitySelect({
             />
           </Badge>
         ))}
-        <ChevronDown className="h-4 w-4 text-muted-foreground mr-auto flex-shrink-0" />
+        <ChevronDown className="h-4 w-4 text-muted-foreground ml-auto flex-shrink-0" />
       </div>
 
       {isOpen && (
@@ -132,7 +132,7 @@ export function MultiUniversitySelect({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="חפש אוניברסיטה..."
+              placeholder="Search university..."
               className="h-8 text-sm"
               autoFocus
             />
@@ -143,7 +143,7 @@ export function MultiUniversitySelect({
                 key={option}
                 type="button"
                 className={cn(
-                  "w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2",
+                  "w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2",
                   selectedValues.includes(option) && "bg-primary/10 font-medium"
                 )}
                 onClick={() => toggleOption(option)}
@@ -158,32 +158,32 @@ export function MultiUniversitySelect({
               </button>
             ))}
             {filteredOptions.length === 0 && (
-              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
             )}
           </div>
           <div className="border-t p-2">
             {!showAddCustom ? (
               <button
                 type="button"
-                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                className="w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2 text-primary"
                 onClick={() => setShowAddCustom(true)}
               >
                 <Plus className="h-4 w-4" />
-                הוסף אוניברסיטה חדשה
+                Add new university
               </button>
             ) : (
               <div className="flex gap-2">
                 <Input
                   value={customValue}
                   onChange={(e) => setCustomValue(e.target.value)}
-                  placeholder="שם האוניברסיטה..."
+                  placeholder="University name..."
                   className="h-8 text-sm flex-1"
                   dir="ltr"
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustom())}
                 />
                 <Button type="button" size="sm" className="h-8" onClick={handleAddCustom}>
-                  הוסף
+                  Add
                 </Button>
               </div>
             )}

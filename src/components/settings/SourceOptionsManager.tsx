@@ -31,12 +31,12 @@ export function SourceOptionsManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['source-options'] });
       queryClient.invalidateQueries({ queryKey: ['source-options-all'] });
-      toast.success('המקור נוסף בהצלחה');
+      toast.success('Source added successfully');
       setIsAddOpen(false);
       setNewSourceName('');
     },
     onError: () => {
-      toast.error('שגיאה בהוספת המקור');
+      toast.error('Error adding source');
     },
   });
 
@@ -53,7 +53,7 @@ export function SourceOptionsManager() {
       queryClient.invalidateQueries({ queryKey: ['source-options-all'] });
     },
     onError: () => {
-      toast.error('שגיאה בעדכון המקור');
+      toast.error('Error updating source');
     },
   });
 
@@ -65,10 +65,10 @@ export function SourceOptionsManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['source-options'] });
       queryClient.invalidateQueries({ queryKey: ['source-options-all'] });
-      toast.success('המקור נמחק');
+      toast.success('Source deleted');
     },
     onError: () => {
-      toast.error('שגיאה במחיקת המקור');
+      toast.error('Error deleting source');
     },
   });
 
@@ -90,13 +90,13 @@ export function SourceOptionsManager() {
       queryClient.invalidateQueries({ queryKey: ['source-options-all'] });
     },
     onError: () => {
-      toast.error('שגיאה בשינוי הסדר');
+      toast.error('Error reordering');
     },
   });
 
   const handleAdd = () => {
     if (!newSourceName.trim()) {
-      toast.error('יש להזין שם מקור');
+      toast.error('Please enter a source name');
       return;
     }
     addMutation.mutate(newSourceName.trim());
@@ -116,29 +116,29 @@ export function SourceOptionsManager() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle>מקורות הגעה</CardTitle>
-          <CardDescription>ניהול רשימת מקורות הגעה עבור לידים וסטודנטים</CardDescription>
+          <CardTitle>Lead Sources</CardTitle>
+          <CardDescription>Manage the list of lead sources for Inquiries and Students</CardDescription>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
-              <Plus className="h-4 w-4 ml-2" />
-              הוסף מקור
+              <Plus className="h-4 w-4 mr-2" />
+              Add Source
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>הוספת מקור חדש</DialogTitle>
+              <DialogTitle>Add New Source</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <Input 
-                placeholder="שם המקור"
+                placeholder="Source Name"
                 value={newSourceName}
                 onChange={(e) => setNewSourceName(e.target.value)}
               />
               <Button onClick={handleAdd} disabled={addMutation.isPending} className="w-full">
-                {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
-                הוסף
+                {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Add
               </Button>
             </div>
           </DialogContent>
@@ -148,9 +148,9 @@ export function SourceOptionsManager() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>מקור</TableHead>
-              <TableHead className="w-24">פעיל</TableHead>
-              <TableHead className="w-24">הזז</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead className="w-24">Active</TableHead>
+              <TableHead className="w-24">Move</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
@@ -202,14 +202,14 @@ export function SourceOptionsManager() {
             {sources.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  אין מקורות
+                  No sources available
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
         <p className="text-sm text-muted-foreground mt-4">
-          💡 מקורות לא פעילים לא יופיעו ברשימת הבחירה, אבל יישארו מוצגים על רשומות קיימות
+          💡 Inactive sources will not appear in the selection list, but will remain displayed on existing records
         </p>
       </CardContent>
     </Card>
