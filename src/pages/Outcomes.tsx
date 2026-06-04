@@ -31,7 +31,7 @@ export default function Outcomes() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("students").select("graduation_year").not("graduation_year", "is", null);
-      const ys = Array.from(new Set((data || []).map((r: any) => r.graduation_year))).filter(Boolean).sort((a, b) => b - a);
+      const ys = Array.from(new Set((data || []).map((r: any) => Number(r.graduation_year)))).filter((y): y is number => Number.isFinite(y)).sort((a, b) => b - a);
       if (ys.length) {
         setYears(ys);
         setYear(ys[0]);
