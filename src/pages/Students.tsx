@@ -462,7 +462,12 @@ export default function Students() {
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Students</h1>
               <p className="text-muted-foreground mt-1">Manage engaged students ({filteredStudents.length})</p>
             </div>
-            <AddStudentDialog onAdd={handleAddStudent} />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2">
+                <Sparkles className="h-4 w-4" /> Onboarding Wizard
+              </Button>
+              <AddStudentDialog onAdd={handleAddStudent} />
+            </div>
           </div>
 
           {/* Search - Only this stays sticky */}
