@@ -214,7 +214,7 @@ export default function SignedAgreements() {
                         <button
                           key={agreement.id}
                           onClick={() => openAgreement(agreement)}
-                          className="flex items-center justify-between w-full py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors text-right"
+                          className="flex items-center justify-between w-full py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors text-left"
                         >
                           <div className="flex items-center gap-3">
                             <FileText className="h-4 w-4 text-muted-foreground" />

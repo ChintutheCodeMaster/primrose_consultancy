@@ -445,10 +445,10 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-right py-1">Name</th>
-                      <th className="text-right py-1">Email</th>
-                      <th className="text-right py-1">Phone</th>
-                      <th className="text-right py-1">Source</th>
+                      <th className="text-left py-1">Name</th>
+                      <th className="text-left py-1">Email</th>
+                      <th className="text-left py-1">Phone</th>
+                      <th className="text-left py-1">Source</th>
                     </tr>
                   </thead>
                   <tbody>

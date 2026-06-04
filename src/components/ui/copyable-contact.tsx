@@ -42,7 +42,7 @@ export function CopyableContact({ value, dir, label, className }: CopyableContac
         onClick={handleCopy}
         dir={dir}
         title="Click to copy"
-        className="truncate text-right hover:text-primary hover:underline cursor-pointer transition-colors"
+        className="truncate text-left hover:text-primary hover:underline cursor-pointer transition-colors"
       >
         {value}
       </button>

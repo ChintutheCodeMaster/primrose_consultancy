@@ -717,7 +717,7 @@ export default function Projects() {
                   <Collapsible open={isOpen} onOpenChange={() => toggleCollab(collab.id)}>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-right">
+                        <CollapsibleTrigger className="flex items-center gap-3 flex-1 text-left">
                           <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
                           <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
