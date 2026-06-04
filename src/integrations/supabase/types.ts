@@ -692,6 +692,74 @@ export type Database = {
           },
         ]
       }
+      student_colleges: {
+        Row: {
+          application_id: string | null
+          application_plan: string | null
+          college_name: string
+          country: string | null
+          created_at: string
+          deadline: string | null
+          decision_at: string | null
+          id: string
+          list_bucket: string
+          notes: string | null
+          portal_url: string | null
+          scholarship_amount: number | null
+          sort_order: number
+          status: string
+          student_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          application_plan?: string | null
+          college_name: string
+          country?: string | null
+          created_at?: string
+          deadline?: string | null
+          decision_at?: string | null
+          id?: string
+          list_bucket?: string
+          notes?: string | null
+          portal_url?: string | null
+          scholarship_amount?: number | null
+          sort_order?: number
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          application_plan?: string | null
+          college_name?: string
+          country?: string | null
+          created_at?: string
+          deadline?: string | null
+          decision_at?: string | null
+          id?: string
+          list_bucket?: string
+          notes?: string | null
+          portal_url?: string | null
+          scholarship_amount?: number | null
+          sort_order?: number
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_colleges_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_conversations: {
         Row: {
           advisor_id: string | null
@@ -773,6 +841,71 @@ export type Database = {
             foreignKeyName: "student_documents_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_profile_extras: {
+        Row: {
+          act_score: number | null
+          created_at: string
+          duolingo_score: number | null
+          extracurriculars: string | null
+          gpa: number | null
+          gpa_scale: number | null
+          graduation_year: string | null
+          hooks: string | null
+          id: string
+          ielts_score: number | null
+          intended_majors: string[]
+          notes: string | null
+          sat_score: number | null
+          student_id: string
+          toefl_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          act_score?: number | null
+          created_at?: string
+          duolingo_score?: number | null
+          extracurriculars?: string | null
+          gpa?: number | null
+          gpa_scale?: number | null
+          graduation_year?: string | null
+          hooks?: string | null
+          id?: string
+          ielts_score?: number | null
+          intended_majors?: string[]
+          notes?: string | null
+          sat_score?: number | null
+          student_id: string
+          toefl_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          act_score?: number | null
+          created_at?: string
+          duolingo_score?: number | null
+          extracurriculars?: string | null
+          gpa?: number | null
+          gpa_scale?: number | null
+          graduation_year?: string | null
+          hooks?: string | null
+          id?: string
+          ielts_score?: number | null
+          intended_majors?: string[]
+          notes?: string | null
+          sat_score?: number | null
+          student_id?: string
+          toefl_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_profile_extras_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
