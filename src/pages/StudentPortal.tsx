@@ -261,8 +261,8 @@ export default function StudentPortal() {
                     {student.target_university || student.target_country || "Not yet determined"}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
