@@ -583,6 +583,7 @@ export default function StudentPortalManagement() {
         {/* IECA workflow: applicant profile + college list */}
         {studentId && (
           <>
+            <StudentJourneyTokenPanel studentId={studentId} />
             <StudentApplicantProfile studentId={studentId} />
             <StudentCollegeList studentId={studentId} />
           </>
