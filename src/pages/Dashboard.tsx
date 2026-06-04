@@ -723,6 +723,9 @@ export default function Dashboard() {
           </Button>
         </div>
 
+        {/* Deadline Radar */}
+        <DeadlineRadar />
+
         {/* Export Reminder */}
         {showExportReminder && (
           <div className="mb-6 bg-primary/5 border border-primary/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
