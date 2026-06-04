@@ -11,7 +11,6 @@ import { InlineReasonEditor } from '@/components/InlineReasonEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EditLeadDialog } from '@/components/leads/EditLeadDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
@@ -65,10 +64,10 @@ interface FullStudent {
 }
 
 const degreeTypeLabels: Record<string, string> = {
-  bachelor: 'תואר ראשון',
-  master: 'תואר שני',
-  phd: 'דוקטורט',
-  doctorate: 'דוקטורט',
+  bachelor: 'Bachelor',
+  master: 'Master',
+  phd: 'PhD',
+  doctorate: 'PhD',
 };
 
 export default function DidNotContinue() {
@@ -89,14 +88,14 @@ export default function DidNotContinue() {
     const date = new Date(dateString);
     const itemYear = date.getFullYear();
     
-    if (year === '2025-ומטה') {
+    if (year === '2025-and below') {
       return itemYear <= 2025;
     }
     return itemYear === parseInt(year || '2026');
   };
 
   // Get display label for the year
-  const yearDisplayLabel = year === '2025-ומטה' ? '2025 ומטה' : year;
+  const yearDisplayLabel = year === '2025-and below' ? '2025 and below' : year;
 
   // Fetch leads that did not continue (full data)
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -143,7 +142,7 @@ export default function DidNotContinue() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
-      toast.success('המתעניין הוחזר לרשימה');
+      toast.success('Inquiry restored to the list');
       setSelectedLead(null);
     }
   });
@@ -160,7 +159,7 @@ export default function DidNotContinue() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
       queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast.success('הסטודנט הוחזר לרשימה');
+      toast.success('Student restored to the list');
       setSelectedStudent(null);
     }
   });
@@ -176,7 +175,7 @@ export default function DidNotContinue() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
-      toast.success('הסיבה עודכנה');
+      toast.success('Reason updated');
     }
   });
 
@@ -191,7 +190,7 @@ export default function DidNotContinue() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-      toast.success('הסיבה עודכנה');
+      toast.success('Reason updated');
     }
   });
 
@@ -222,10 +221,10 @@ export default function DidNotContinue() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-      toast.success('הועבר לסטודנטים בהצלחה');
+      toast.success('Moved to students successfully');
       setSelectedLead(null);
     },
-    onError: () => toast.error('שגיאה בהעברה'),
+    onError: () => toast.error('Error moving'),
   });
 
   // Move student to leads did-not-continue
@@ -255,10 +254,10 @@ export default function DidNotContinue() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-      toast.success('הועבר למתעניינים בהצלחה');
+      toast.success('Moved to inquiries successfully');
       setSelectedStudent(null);
     },
-    onError: () => toast.error('שגיאה בהעברה'),
+    onError: () => toast.error('Error moving'),
   });
 
 
@@ -334,11 +333,11 @@ export default function DidNotContinue() {
       .eq('id', updatedLead.id);
 
     if (error) {
-      toast.error('שגיאה בעדכון המתעניין');
+      toast.error('Error updating the inquiry');
       return;
     }
     queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
-    toast.success('המתעניין עודכן בהצלחה');
+    toast.success('Inquiry updated successfully');
   };
 
   const handleEditStudent = async (updatedStudent: Student) => {
@@ -368,11 +367,11 @@ export default function DidNotContinue() {
       .eq('id', updatedStudent.id);
 
     if (error) {
-      toast.error('שגיאה בעדכון הסטודנט');
+      toast.error('Error updating the student');
       return;
     }
     queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-    toast.success('הסטודנט עודכן בהצלחה');
+    toast.success('Student updated successfully');
   };
 
   useEffect(() => {
@@ -450,17 +449,17 @@ export default function DidNotContinue() {
             <div>
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <UserX className="h-8 w-8 text-muted-foreground" />
-                לא המשיכו - {yearDisplayLabel}
+                Closed / Lost - {yearDisplayLabel}
               </h1>
               <p className="text-muted-foreground mt-1">
-                מתעניינים וסטודנטים שלא המשיכו בתהליך ({filteredLeads.length + filteredStudents.length} סה״כ)
+                Inquiries and students who did not continue ({filteredLeads.length + filteredStudents.length} total)
               </p>
             </div>
           </div>
 
           {/* Search - Only this stays sticky */}
           <GlobalSearchInput
-            placeholder="חיפוש לפי שם, אימייל או טלפון..."
+            placeholder="Search by name, email, or phone..."
             localSearchTerm={searchTerm}
             onLocalSearchChange={setSearchTerm}
             currentPage="did-not-continue"
@@ -473,11 +472,11 @@ export default function DidNotContinue() {
           <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
             <SelectTrigger className="w-full sm:w-48">
               <ArrowUpDown className="h-4 w-4 ml-2" />
-              <SelectValue placeholder="מיון" />
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">מהחדש לישן</SelectItem>
-              <SelectItem value="oldest">מהישן לחדש</SelectItem>
+              <SelectItem value="newest">Newest first</SelectItem>
+              <SelectItem value="oldest">Oldest first</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -485,8 +484,8 @@ export default function DidNotContinue() {
         {/* Tabs */}
         <Tabs defaultValue="leads" className="w-full">
           <TabsList className="mb-4">
-            <TabsTrigger value="leads">מתעניינים ({filteredLeads.length})</TabsTrigger>
-            <TabsTrigger value="students">סטודנטים ({filteredStudents.length})</TabsTrigger>
+            <TabsTrigger value="leads">Inquiries ({filteredLeads.length})</TabsTrigger>
+            <TabsTrigger value="students">Students ({filteredStudents.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads">
@@ -521,7 +520,7 @@ export default function DidNotContinue() {
                           )}
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            <span>{format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: he })}</span>
+                            <span>{format(new Date(lead.created_at), 'dd/MM/yyyy')}</span>
                           </div>
                         </div>
                         <InlineReasonEditor
@@ -540,7 +539,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <Pencil className="h-4 w-4" />
-                          עריכה
+                          Edit
                         </Button>
                         <Button
                           variant="outline"
@@ -552,7 +551,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <ArrowRightLeft className="h-4 w-4" />
-                          העבר לסטודנטים
+                          Move to Students
                         </Button>
                         <Button
                           variant="outline"
@@ -564,7 +563,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <Undo2 className="h-4 w-4" />
-                          החזר לרשימה
+                          Restore
                         </Button>
                       </div>
                     </div>
@@ -573,7 +572,7 @@ export default function DidNotContinue() {
               ) : (
                 <div className="text-center py-12 bg-card rounded-xl border border-border/50">
                   <UserX className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">אין מתעניינים שלא המשיכו</p>
+                  <p className="text-muted-foreground">No inquiries that did not continue</p>
                 </div>
               )}
             </div>
@@ -611,7 +610,7 @@ export default function DidNotContinue() {
                           )}
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            <span>{format(new Date(student.created_at), 'dd/MM/yyyy', { locale: he })}</span>
+                            <span>{format(new Date(student.created_at), 'dd/MM/yyyy')}</span>
                           </div>
                         </div>
                         <InlineReasonEditor
@@ -630,7 +629,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <Pencil className="h-4 w-4" />
-                          עריכה
+                          Edit
                         </Button>
                         <Button
                           variant="outline"
@@ -642,7 +641,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <ArrowRightLeft className="h-4 w-4" />
-                          העבר למתעניינים
+                          Move to Inquiries
                         </Button>
                         <Button
                           variant="outline"
@@ -654,7 +653,7 @@ export default function DidNotContinue() {
                           className="gap-1"
                         >
                           <Undo2 className="h-4 w-4" />
-                          החזר לרשימה
+                          Restore
                         </Button>
                       </div>
                     </div>
@@ -663,7 +662,7 @@ export default function DidNotContinue() {
               ) : (
                 <div className="text-center py-12 bg-card rounded-xl border border-border/50">
                   <UserX className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">אין סטודנטים שלא המשיכו</p>
+                  <p className="text-muted-foreground">No students that did not continue</p>
                 </div>
               )}
             </div>
@@ -702,37 +701,37 @@ export default function DidNotContinue() {
                 <div className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>סוג תואר:</strong> {degreeTypeLabels[selectedLead.degree_type] || selectedLead.degree_type}
+                    <strong>Degree Type:</strong> {degreeTypeLabels[selectedLead.degree_type] || selectedLead.degree_type}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>מדינה:</strong> {selectedLead.interested_country || 'לא צוין'}
+                    <strong>Country:</strong> {selectedLead.interested_country || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>תחום:</strong> {selectedLead.interested_field || 'לא צוין'}
+                    <strong>Field:</strong> {selectedLead.interested_field || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Share2 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>מקור:</strong> {selectedLead.source || 'לא צוין'}
+                    <strong>Source:</strong> {selectedLead.source || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>נוצר:</strong> {format(new Date(selectedLead.created_at), 'dd/MM/yyyy', { locale: he })}
+                    <strong>Created:</strong> {format(new Date(selectedLead.created_at), 'dd/MM/yyyy')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>קשר אחרון:</strong> {format(new Date(selectedLead.last_contact_at), 'dd/MM/yyyy', { locale: he })}
+                    <strong>Last Contact:</strong> {format(new Date(selectedLead.last_contact_at), 'dd/MM/yyyy')}
                   </span>
                 </div>
               </div>
@@ -740,7 +739,7 @@ export default function DidNotContinue() {
               {/* Discontinue Reason */}
               {selectedLead.discontinue_reason && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-destructive">למה לא המשיך/ה:</h4>
+                  <h4 className="font-medium text-sm text-destructive">Reason for not continuing:</h4>
                   <div className="bg-destructive/10 rounded-lg p-4 text-sm">
                     {selectedLead.discontinue_reason}
                   </div>
@@ -750,7 +749,7 @@ export default function DidNotContinue() {
               {/* Package Notes */}
               {selectedLead.package_notes && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Package Notes:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
                     {selectedLead.package_notes}
                   </div>
@@ -760,7 +759,7 @@ export default function DidNotContinue() {
               {/* Meeting Summary */}
               {selectedLead.meeting_summary && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">סיכום פגישה:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Meeting Summary:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm">
                     {selectedLead.meeting_summary}
                   </div>
@@ -774,7 +773,7 @@ export default function DidNotContinue() {
                   className="gap-2"
                 >
                   <Undo2 className="h-4 w-4" />
-                  החזר לרשימת מתעניינים
+                  Restore to inquiries list
                 </Button>
               </div>
             </div>
@@ -812,11 +811,11 @@ export default function DidNotContinue() {
               <div className="flex flex-wrap gap-2">
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${selectedStudent.signed_agreement ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning-foreground'}`}>
                   {selectedStudent.signed_agreement ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                  <span>{selectedStudent.signed_agreement ? 'חתם הסכם' : 'לא חתם הסכם'}</span>
+                  <span>{selectedStudent.signed_agreement ? 'Agreement signed' : 'לא Agreement signed'}</span>
                 </div>
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${selectedStudent.is_paid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
                   {selectedStudent.is_paid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                  <span>{selectedStudent.is_paid ? 'שולם' : 'לא שולם'}</span>
+                  <span>{selectedStudent.is_paid ? 'Paid' : 'Not paid'}</span>
                 </div>
               </div>
 
@@ -825,50 +824,50 @@ export default function DidNotContinue() {
                 <div className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>סוג תואר:</strong> {degreeTypeLabels[selectedStudent.degree_type] || selectedStudent.degree_type}
+                    <strong>Degree Type:</strong> {degreeTypeLabels[selectedStudent.degree_type] || selectedStudent.degree_type}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>מדינה מבוקשת:</strong> {selectedStudent.interested_country || 'לא צוין'}
+                    <strong>Requested Country:</strong> {selectedStudent.interested_country || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>תחום:</strong> {selectedStudent.interested_field || 'לא צוין'}
+                    <strong>Field:</strong> {selectedStudent.interested_field || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Share2 className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>מקור:</strong> {selectedStudent.source || 'לא צוין'}
+                    <strong>Source:</strong> {selectedStudent.source || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>עלות חבילה:</strong> ${(selectedStudent.package_cost || 0).toLocaleString()}
+                    <strong>Package Cost:</strong> ${(selectedStudent.package_cost || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>יועץ:</strong> {selectedStudent.advisor_name || 'לא צוין'}
+                    <strong>Consultant:</strong> {selectedStudent.advisor_name || 'Not specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    <strong>נוצר:</strong> {format(new Date(selectedStudent.created_at), 'dd/MM/yyyy', { locale: he })}
+                    <strong>Created:</strong> {format(new Date(selectedStudent.created_at), 'dd/MM/yyyy')}
                   </span>
                 </div>
                 {selectedStudent.target_country && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      <strong>מדינה נבחרת:</strong> {selectedStudent.target_country}
+                      <strong>Selected Country:</strong> {selectedStudent.target_country}
                     </span>
                   </div>
                 )}
@@ -876,7 +875,7 @@ export default function DidNotContinue() {
                   <div className="flex items-center gap-2 col-span-2">
                     <Building className="h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      <strong>אוניברסיטה נבחרת:</strong> {selectedStudent.target_university}
+                      <strong>Selected University:</strong> {selectedStudent.target_university}
                     </span>
                   </div>
                 )}
@@ -884,7 +883,7 @@ export default function DidNotContinue() {
                   <div className="flex items-center gap-2 col-span-2">
                     <GraduationCap className="h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      <strong>תוכנית:</strong> {selectedStudent.program}
+                      <strong>Program:</strong> {selectedStudent.program}
                     </span>
                   </div>
                 )}
@@ -893,7 +892,7 @@ export default function DidNotContinue() {
               {/* Payment Notes */}
               {selectedStudent.payment_notes && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">הערות תשלום:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Payment Notes:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm">
                     {selectedStudent.payment_notes}
                   </div>
@@ -903,7 +902,7 @@ export default function DidNotContinue() {
               {/* Accepted Universities */}
               {selectedStudent.accepted_universities && selectedStudent.accepted_universities.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">אוניברסיטאות שהתקבל אליהן:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Universities accepted to:</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedStudent.accepted_universities.map((uni, index) => (
                       <div key={index} className="flex items-center gap-1 bg-success/10 text-success px-3 py-1 rounded-full text-sm">
@@ -929,7 +928,7 @@ export default function DidNotContinue() {
               {/* Discontinue Reason */}
               {selectedStudent.discontinue_reason && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-destructive">למה לא המשיך/ה:</h4>
+                  <h4 className="font-medium text-sm text-destructive">Reason for not continuing:</h4>
                   <div className="bg-destructive/10 rounded-lg p-4 text-sm">
                     {selectedStudent.discontinue_reason}
                   </div>
@@ -939,7 +938,7 @@ export default function DidNotContinue() {
               {/* Package Notes */}
               {selectedStudent.package_notes && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">הערות חבילה:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Package Notes:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
                     {selectedStudent.package_notes}
                   </div>
@@ -948,7 +947,7 @@ export default function DidNotContinue() {
 
               {selectedStudent.meeting_summary && (
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-muted-foreground">סיכום פגישה:</h4>
+                  <h4 className="font-medium text-sm text-muted-foreground">Meeting Summary:</h4>
                   <div className="bg-muted/50 rounded-lg p-4 text-sm">
                     {selectedStudent.meeting_summary}
                   </div>
@@ -962,7 +961,7 @@ export default function DidNotContinue() {
                   className="gap-2"
                 >
                   <Undo2 className="h-4 w-4" />
-                  החזר לרשימת סטודנטים
+                  Restore to students list
                 </Button>
               </div>
             </div>

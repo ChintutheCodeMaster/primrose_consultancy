@@ -38,9 +38,9 @@ function parseDateStr(dateStr: string): string | null {
 
 function mapDegreeType(raw: string): string {
   const lower = (raw || '').trim().toLowerCase();
-  if (lower.includes('ראשון') || lower === 'ראשון') return 'bachelor';
-  if (lower.includes('שני') || lower === 'שני') return 'master';
-  if (lower.includes('דוקטורט') || lower.includes('phd')) return 'phd';
+  if (lower.includes('Bachelor') || lower === 'Bachelor') return 'bachelor';
+  if (lower.includes('Master') || lower === 'Master') return 'master';
+  if (lower.includes('PhD') || lower.includes('phd')) return 'phd';
   return 'bachelor';
 }
 
@@ -54,7 +54,7 @@ function cleanHtml(text: string): string {
 }
 
 function getLeadsYear(dateStr: string | null): string {
-  // All go to "2025 ומטה" category, so leads_year should reflect actual year
+  // All go to "2025 and below" category, so leads_year should reflect actual year
   if (!dateStr) return '22'; // default
   const date = new Date(dateStr);
   const year = date.getFullYear();
@@ -62,7 +62,7 @@ function getLeadsYear(dateStr: string | null): string {
 }
 
 export default function TempImportDidNotContinue() {
-  const [status, setStatus] = useState('העלי את הקובץ להתחלה');
+  const [status, setStatus] = useState('Upload a file to start');
   const [records, setRecords] = useState<ParsedRecord[]>([]);
   const [importing, setImporting] = useState(false);
   const [duplicatesInFile, setDuplicatesInFile] = useState<string[]>([]);
@@ -81,7 +81,7 @@ export default function TempImportDidNotContinue() {
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
 
         if (rows.length < 2) {
-          setStatus('קובץ ריק');
+          setStatus('Empty file');
           return;
         }
 
@@ -94,17 +94,17 @@ export default function TempImportDidNotContinue() {
           return idx;
         };
 
-        const nameIdx = findCol('שם');
-        const summaryIdx = findCol('סיכום פגישה');
-        const degreeIdx = findCol('סוג תואר');
-        const dateIdx = findCol('תאריך התחלה');
-        const advisorIdx = findCol('יועץ מלווה');
-        const sourceIdx = findCol('מקור הפנייה');
-        const costIdx = findCol('עלות שירות');
-        const packageIdx = findCol('הערות חבילה');
-        const reasonIdx = findCol('למה לא המשיכו');
-        const phoneIdx = findCol('טלפון');
-        const emailIdx = findCol('אימייל');
+        const nameIdx = findCol('Name');
+        const summaryIdx = findCol('Meeting Summary');
+        const degreeIdx = findCol('Degree Type');
+        const dateIdx = findCol('Start Date');
+        const advisorIdx = findCol('Assigned Consultant');
+        const sourceIdx = findCol('Lead Source');
+        const costIdx = findCol('Service Cost');
+        const packageIdx = findCol('Package Notes');
+        const reasonIdx = findCol('Reason for not continuing');
+        const phoneIdx = findCol('Phone');
+        const emailIdx = findCol('Email');
 
         console.log('Column indices:', { nameIdx, summaryIdx, degreeIdx, dateIdx, advisorIdx, sourceIdx, costIdx, packageIdx, reasonIdx, phoneIdx, emailIdx });
 
@@ -169,10 +169,10 @@ export default function TempImportDidNotContinue() {
 
         setRecords(parsed);
         setDuplicatesInFile(dupes);
-        setStatus(`נמצאו ${parsed.length} רשומות ייחודיות (${dupes.length} כפילויות מוזגו)`);
+        setStatus(`Found ${parsed.length} unique records (${dupes.length} duplicates merged)`);
       } catch (err) {
         console.error(err);
-        setStatus('שגיאה בקריאת הקובץ');
+        setStatus('Error reading the file');
       }
     };
     reader.readAsArrayBuffer(file);
@@ -181,7 +181,7 @@ export default function TempImportDidNotContinue() {
   const doImport = async () => {
     if (records.length === 0) return;
     setImporting(true);
-    setStatus('בודק כפילויות מול בסיס הנתונים...');
+    setStatus('Checking duplicates against the database...');
 
     try {
       // Check duplicates against existing leads AND students
@@ -205,9 +205,9 @@ export default function TempImportDidNotContinue() {
 
       const skipped = records.length - toInsert.length;
       if (skipped > 0) {
-        setStatus(`${skipped} רשומות כבר קיימות, מייבא ${toInsert.length} חדשות...`);
+        setStatus(`${skipped} records already exist, importing ${toInsert.length} new...`);
       } else {
-        setStatus(`מייבא ${toInsert.length} רשומות...`);
+        setStatus(`מImport ${toInsert.length} records...`);
       }
 
       // Insert into LEADS table in batches
@@ -234,27 +234,27 @@ export default function TempImportDidNotContinue() {
         const { error } = await supabase.from('leads').insert(batch);
         if (error) {
           console.error('Batch error:', error);
-          toast.error(`שגיאה בבאצ' ${i / batchSize + 1}: ${error.message}`);
+          toast.error(`Error in batch' ${i / batchSize + 1}: ${error.message}`);
         } else {
           inserted += batch.length;
         }
       }
 
-      setStatus(`הושלם! ${inserted} רשומות חדשות הוכנסו למתעניינים, ${skipped} כפילויות דולגו`);
-      toast.success(`יובאו ${inserted} רשומות בהצלחה!`);
+      setStatus(`Completed! ${inserted} new records added to inquiries, ${skipped} duplicates skipped`);
+      toast.success(`Imported ${inserted} records successfully!`);
     } catch (err: any) {
       console.error(err);
-      setStatus('שגיאה: ' + err.message);
-      toast.error('שגיאה בייבוא');
+      setStatus('Error: ' + err.message);
+      toast.error('Import error');
     } finally {
       setImporting(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8" dir="rtl">
-      <h1 className="text-2xl font-bold">ייבוא לקוחות שלא המשיכו</h1>
-      <p className="text-muted-foreground">כל הרשומות ייווצרו כמתעניינים (leads) עם did_not_continue=true</p>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8">
+      <h1 className="text-2xl font-bold">Import clients who did not continue</h1>
+      <p className="text-muted-foreground">All records will be created as inquiries (leads) with did_not_continue=true</p>
       
       <input
         ref={fileInputRef}
@@ -265,14 +265,14 @@ export default function TempImportDidNotContinue() {
       />
       
       <Button onClick={() => fileInputRef.current?.click()} variant="outline">
-        בחרי קובץ Excel
+        Choose file Excel
       </Button>
 
       <p className="text-lg">{status}</p>
 
       {duplicatesInFile.length > 0 && (
         <div className="bg-warning/10 border border-warning/30 rounded p-3 max-w-md">
-          <p className="font-medium">כפילויות שמוזגו בקובץ:</p>
+          <p className="font-medium">Duplicates merged in the file:</p>
           <ul className="text-sm">
             {duplicatesInFile.map((name, i) => (
               <li key={i}>{name}</li>
@@ -288,14 +288,14 @@ export default function TempImportDidNotContinue() {
               <thead>
                 <tr className="border-b">
                   <th className="text-right p-1">#</th>
-                  <th className="text-right p-1">שם</th>
-                  <th className="text-right p-1">סוג תואר</th>
-                  <th className="text-right p-1">תאריך</th>
-                  <th className="text-right p-1">יועץ</th>
-                  <th className="text-right p-1">טלפון</th>
-                  <th className="text-right p-1">אימייל</th>
-                  <th className="text-right p-1">הערות חבילה</th>
-                  <th className="text-right p-1">סיבה</th>
+                  <th className="text-right p-1">Name</th>
+                  <th className="text-right p-1">Degree Type</th>
+                  <th className="text-right p-1">Date</th>
+                  <th className="text-right p-1">Consultant</th>
+                  <th className="text-right p-1">Phone</th>
+                  <th className="text-right p-1">Email</th>
+                  <th className="text-right p-1">Package Notes</th>
+                  <th className="text-right p-1">Reason</th>
                 </tr>
               </thead>
               <tbody>
@@ -304,7 +304,7 @@ export default function TempImportDidNotContinue() {
                     <td className="p-1">{i + 1}</td>
                     <td className="p-1">{r.name}</td>
                     <td className="p-1">{r.degree_type}</td>
-                    <td className="p-1">{r.created_at ? new Date(r.created_at).toLocaleDateString('he-IL') : '-'}</td>
+                    <td className="p-1">{r.created_at ? new Date(r.created_at).toLocaleDateString('en-US') : '-'}</td>
                     <td className="p-1">{r.advisor_name || '-'}</td>
                     <td className="p-1">{r.phone || '-'}</td>
                     <td className="p-1 text-xs">{r.email || '-'}</td>
@@ -317,7 +317,7 @@ export default function TempImportDidNotContinue() {
           </div>
 
           <Button onClick={doImport} disabled={importing} size="lg">
-            {importing ? 'מייבא...' : `ייבא ${records.length} רשומות למתעניינים`}
+            {importing ? 'מImport...' : `Import ${records.length} records to inquiries`}
           </Button>
         </>
       )}
