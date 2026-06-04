@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { StudentApplicantProfile } from "@/components/students/StudentApplicantProfile";
 import { StudentCollegeList } from "@/components/students/StudentCollegeList";
+import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
 import { 
   ArrowRight, 
   Plus, 
