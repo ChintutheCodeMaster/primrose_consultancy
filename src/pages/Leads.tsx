@@ -141,12 +141,12 @@ export default function Leads() {
     });
     
     if (error) {
-      toast.error('שגיאה בהוספת הליד');
+      toast.error('Error adding lead');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['leads'] });
-    toast.success('הליד נוסף בהצלחה!');
+    toast.success('Lead added successfully!');
   };
 
   const handleEditLead = (lead: Lead) => {
@@ -174,12 +174,12 @@ export default function Leads() {
       .eq('id', updatedLead.id);
     
     if (error) {
-      toast.error('שגיאה בעדכון הליד');
+      toast.error('Error updating lead');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['leads'] });
-    toast.success('הליד עודכן בהצלחה!');
+    toast.success('Lead updated successfully!');
   };
 
   const handleConvertClick = (lead: Lead) => {
@@ -212,7 +212,7 @@ export default function Leads() {
         });
       
       if (insertError) {
-        toast.error('שגיאה בהעברה לסטודנטים');
+        toast.error('Error moving to students');
         return;
       }
       
@@ -221,7 +221,7 @@ export default function Leads() {
       
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-students'] });
-      toast.success('המתעניין הועבר לרשימת "לא המשיכו" בסטודנטים');
+      toast.success('Inquiry moved to "Closed/Lost" in Students');
     } else {
       const { error } = await supabase
         .from('leads')
@@ -229,13 +229,13 @@ export default function Leads() {
         .eq('id', leadId);
       
       if (error) {
-        toast.error('שגיאה בעדכון');
+        toast.error('Error updating');
         return;
       }
       
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['did-not-continue-leads'] });
-      toast.success('המתעניין הועבר לרשימת "לא המשיכו"');
+      toast.success('Inquiry moved to "Closed/Lost"');
     }
   };
 
@@ -246,12 +246,12 @@ export default function Leads() {
       .eq('id', leadId);
     
     if (error) {
-      toast.error('שגיאה במחיקת המתעניין');
+      toast.error('Error deleting inquiry');
       return;
     }
     
     queryClient.invalidateQueries({ queryKey: ['leads'] });
-    toast.success('המתעניין נמחק בהצלחה');
+    toast.success('Inquiry deleted successfully');
   };
 
   const handleConvertToStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
@@ -280,7 +280,7 @@ export default function Leads() {
     });
     
     if (studentError) {
-      toast.error('שגיאה בהמרה לסטודנט');
+      toast.error('Error converting to student');
       return;
     }
     
@@ -294,7 +294,7 @@ export default function Leads() {
     
     queryClient.invalidateQueries({ queryKey: ['leads'] });
     queryClient.invalidateQueries({ queryKey: ['students'] });
-    toast.success('הליד הומר לסטודנט בהצלחה!');
+    toast.success('Lead converted to student successfully!');
     
     // Navigate to students page
     navigate('/students');
@@ -319,14 +319,14 @@ export default function Leads() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                מתעניינים {year ? `'${year}` : ''}
+                Inquiries {year ? `'${year}` : ''}
               </h1>
-              <p className="text-muted-foreground mt-1">ניהול פניות התעניינות ({filteredLeads.length} מתעניינים)</p>
+              <p className="text-muted-foreground mt-1">Manage inquiries ({filteredLeads.length} Inquiries)</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-                <Upload className="h-4 w-4 ml-2" />
-                ייבוא מאקסל
+                <Upload className="h-4 w-4 mr-2" />
+                Import from Excel
               </Button>
               <AddLeadDialog onAdd={handleAddLead} defaultYear={year} />
             </div>
@@ -334,7 +334,7 @@ export default function Leads() {
 
           {/* Search - Only this stays sticky */}
           <GlobalSearchInput
-            placeholder="חיפוש לפי שם, אימייל, טלפון או תחום..."
+            placeholder="Search by name, email, phone, or field..."
             localSearchTerm={searchTerm}
             onLocalSearchChange={setSearchTerm}
             currentPage="leads"
@@ -346,10 +346,10 @@ export default function Leads() {
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LeadStatus | 'all')}>
             <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="סטטוס" />
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">כל הסטטוסים</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               {Object.entries(leadStatusLabels).map(([value, label]) => (
                 <SelectItem key={value} value={value}>{label}</SelectItem>
               ))}
@@ -357,12 +357,12 @@ export default function Leads() {
           </Select>
           <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'newest' | 'oldest')}>
             <SelectTrigger className="w-full sm:w-48">
-              <ArrowUpDown className="h-4 w-4 ml-2" />
-              <SelectValue placeholder="מיון" />
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">מהחדש לישן</SelectItem>
-              <SelectItem value="oldest">מהישן לחדש</SelectItem>
+              <SelectItem value="newest">Newest to Oldest</SelectItem>
+              <SelectItem value="oldest">Oldest to Newest</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -389,7 +389,7 @@ export default function Leads() {
 
         {filteredLeads.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">לא נמצאו מתעניינים</p>
+            <p className="text-muted-foreground">No inquiries found</p>
           </div>
         )}
       </div>

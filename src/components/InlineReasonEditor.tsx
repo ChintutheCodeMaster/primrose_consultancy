@@ -30,7 +30,7 @@ export function InlineReasonEditor({ reason, onSave }: InlineReasonEditorProps) 
         <Textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="למה לא המשיך/ה?"
+          placeholder="Why did they closed/lost?"
           rows={2}
           className="text-sm mb-2"
           autoFocus
@@ -38,11 +38,11 @@ export function InlineReasonEditor({ reason, onSave }: InlineReasonEditorProps) 
         <div className="flex gap-2">
           <Button size="sm" variant="default" onClick={handleSave} className="gap-1 h-7 text-xs">
             <Check className="h-3 w-3" />
-            שמור
+            Save
           </Button>
           <Button size="sm" variant="outline" onClick={handleCancel} className="gap-1 h-7 text-xs">
             <X className="h-3 w-3" />
-            ביטול
+            Cancel
           </Button>
         </div>
       </div>
@@ -57,9 +57,9 @@ export function InlineReasonEditor({ reason, onSave }: InlineReasonEditorProps) 
           e.stopPropagation();
           setIsEditing(true);
         }}
-        title="לחצ/י לעריכה"
+        title="Click to edit"
       >
-        <strong>למה לא המשיכו:</strong> {reason}
+        <strong>Why they closed/lost:</strong> {reason}
       </div>
     );
   }
@@ -73,7 +73,7 @@ export function InlineReasonEditor({ reason, onSave }: InlineReasonEditorProps) 
       }}
     >
       <MessageSquarePlus className="h-3 w-3" />
-      הוסף סיבה
+      Add reason
     </button>
   );
 }

@@ -106,11 +106,11 @@ export default function Advisors() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['advisors'] });
-      toast.success('יועץ נוסף בהצלחה');
+      toast.success('Consultant added successfully');
       setIsAddOpen(false);
       setFormData(initialFormData);
     },
-    onError: () => toast.error('שגיאה בהוספת יועץ'),
+    onError: () => toast.error('Error adding consultant'),
   });
 
   const updateMutation = useMutation({
@@ -133,11 +133,11 @@ export default function Advisors() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['advisors'] });
-      toast.success('יועץ עודכן בהצלחה');
+      toast.success('Consultant updated successfully');
       setEditingAdvisor(null);
       setFormData(initialFormData);
     },
-    onError: () => toast.error('שגיאה בעדכון יועץ'),
+    onError: () => toast.error('Error updating consultant'),
   });
 
   const deleteMutation = useMutation({
@@ -147,9 +147,9 @@ export default function Advisors() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['advisors'] });
-      toast.success('יועץ נמחק בהצלחה');
+      toast.success('Consultant deleted successfully');
     },
-    onError: () => toast.error('שגיאה במחיקת יועץ'),
+    onError: () => toast.error('Error deleting consultant'),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -191,9 +191,9 @@ export default function Advisors() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              יועצים ({advisors.filter(a => a.is_active).length})
+              Consultants ({advisors.filter(a => a.is_active).length})
             </h1>
-            <p className="text-muted-foreground mt-1">ניהול רשימת היועצים והסכמי תשלום</p>
+            <p className="text-muted-foreground mt-1">Manage consultants and payment agreements</p>
           </div>
           <div className="flex gap-2">
             <Button 
@@ -202,7 +202,7 @@ export default function Advisors() {
               onClick={() => navigate('/past-advisors')}
             >
               <History className="h-4 w-4" />
-              יועצי עבר
+              Past Consultants
             </Button>
             <Dialog open={isAddOpen} onOpenChange={(open) => {
               setIsAddOpen(open);
@@ -211,12 +211,12 @@ export default function Advisors() {
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="h-4 w-4" />
-                  הוסף יועץ
+                  Add Consultant
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>הוסף יועץ חדש</DialogTitle>
+                  <DialogTitle>Add New Consultant</DialogTitle>
                 </DialogHeader>
                 <AdvisorForm
                   formData={formData}
@@ -231,13 +231,13 @@ export default function Advisors() {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">טוען...</div>
+          <div className="text-center py-12 text-muted-foreground">Loading...</div>
         ) : advisors.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <UserCircle className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">אין יועצים במערכת</p>
-              <p className="text-sm text-muted-foreground/70">הוסף יועץ ראשון כדי להתחיל</p>
+              <p className="text-muted-foreground">No consultants in the system</p>
+              <p className="text-sm text-muted-foreground/70">Add your first consultant to get started</p>
             </CardContent>
           </Card>
         ) : (
@@ -258,12 +258,12 @@ export default function Advisors() {
                         <CardTitle className="text-lg flex items-center gap-2">
                           {advisor.name}
                           {!advisor.is_active && (
-                            <Badge variant="secondary" className="text-xs">לא פעיל</Badge>
+                            <Badge variant="secondary" className="text-xs">Inactive</Badge>
                           )}
                         </CardTitle>
                         {studentCounts[advisor.name] !== undefined && studentCounts[advisor.name] > 0 && (
                           <p className="text-sm text-muted-foreground">
-                            {studentCounts[advisor.name]} לקוחות פעילים
+                            {studentCounts[advisor.name]} Active Students
                           </p>
                         )}
                       </div>
@@ -327,7 +327,7 @@ export default function Advisors() {
         <Dialog open={!!editingAdvisor} onOpenChange={(open) => !open && closeDialog()}>
           <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>עריכת יועץ</DialogTitle>
+              <DialogTitle>Edit Consultant</DialogTitle>
             </DialogHeader>
             {editingAdvisor && (
               <div className="flex gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
@@ -338,11 +338,11 @@ export default function Advisors() {
                   onClick={() => {
                     const link = `https://nooga-study-buddy.lovable.app/advisor/${editingAdvisor.id}`;
                     navigator.clipboard.writeText(link);
-                    toast.success('קישור לפורטל היועץ הועתק!');
+                    toast.success('Consultant portal link copied!');
                   }}
                 >
                   <Link2 className="h-4 w-4" />
-                  העתק קישור לפורטל
+                  Copy Portal Link
                 </Button>
                 <Button
                   type="button"
@@ -351,7 +351,7 @@ export default function Advisors() {
                   onClick={() => window.open(`/advisor/${editingAdvisor.id}`, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4" />
-                  פתח פורטל
+                  Open Portal
                 </Button>
               </div>
             )}
@@ -376,7 +376,7 @@ export default function Advisors() {
                 <div>
                   {viewingAdvisor?.name}
                   {!viewingAdvisor?.is_active && (
-                    <Badge variant="secondary" className="text-xs mr-2">לא פעיל</Badge>
+                    <Badge variant="secondary" className="text-xs mr-2">Inactive</Badge>
                   )}
                 </div>
               </DialogTitle>
@@ -386,7 +386,7 @@ export default function Advisors() {
               <div className="space-y-4 mt-4">
                 {(viewingAdvisor.email || viewingAdvisor.phone || viewingAdvisor.residence) && (
                   <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                    <h4 className="font-medium text-sm text-muted-foreground mb-2">פרטי התקשרות</h4>
+                    <h4 className="font-medium text-sm text-muted-foreground mb-2">Contact Details</h4>
                     {viewingAdvisor.phone && (
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="h-4 w-4 text-muted-foreground" />
@@ -412,7 +412,7 @@ export default function Advisors() {
                   <div className="p-4 bg-primary/5 rounded-lg">
                     <h4 className="font-medium text-sm text-muted-foreground mb-2 flex items-center gap-2">
                       <Banknote className="h-4 w-4" />
-                      הסכם תשלום
+                      Payment Agreement
                     </h4>
                     <p className="text-sm">{viewingAdvisor.payment_notes}</p>
                   </div>
@@ -428,13 +428,13 @@ export default function Advisors() {
                     }}
                   >
                     <FileText className="h-4 w-4" />
-                    צפה בחוזה החתום
+                    View Signed Contract
                   </button>
                 )}
 
                 {viewingAdvisor.notes && (
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium text-sm text-muted-foreground mb-2">הערות</h4>
+                    <h4 className="font-medium text-sm text-muted-foreground mb-2">Notes</h4>
                     <p className="text-sm">{viewingAdvisor.notes}</p>
                   </div>
                 )}
@@ -446,11 +446,11 @@ export default function Advisors() {
                     onClick={() => {
                       const link = `https://nooga-study-buddy.lovable.app/advisor/${viewingAdvisor.id}`;
                       navigator.clipboard.writeText(link);
-                      toast.success('קישור לפורטל היועץ הועתק!');
+                      toast.success('Consultant portal link copied!');
                     }}
                   >
                     <Link2 className="h-4 w-4" />
-                    קישור לפורטל
+                    Portal Link
                   </Button>
                   <Button 
                     className="flex-1 gap-2" 
@@ -460,7 +460,7 @@ export default function Advisors() {
                     }}
                   >
                     <Pencil className="h-4 w-4" />
-                    ערוך
+                    Edit
                   </Button>
                   <Button 
                     variant="destructive" 
@@ -471,7 +471,7 @@ export default function Advisors() {
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
-                    מחק
+                    Delete
                   </Button>
                 </div>
               </div>

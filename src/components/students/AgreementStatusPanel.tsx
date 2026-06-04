@@ -19,9 +19,9 @@ interface StudentAgreementStatus {
 type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 const agreementTypes: Record<AgreementType, string> = {
-  package: 'חבילה',
-  hourly: 'שעתי',
-  edit: 'לערוך',
+  package: 'Package',
+  hourly: 'Hourly',
+  edit: 'Edit',
   mba: 'MBA',
 };
 
@@ -88,8 +88,8 @@ export const AgreementStatusPanel = () => {
     const link = getAgreementLink(studentId, type);
     navigator.clipboard.writeText(link);
     toast({
-      title: "הקישור הועתק!",
-      description: `הקישור להסכם ${agreementTypes[type]} הועתק ללוח`,
+      title: "Link copied!",
+      description: `The ${agreementTypes[type]} agreement link has been copied to the clipboard.`,
     });
   };
 
@@ -119,7 +119,7 @@ export const AgreementStatusPanel = () => {
           className="rounded-r-lg rounded-l-none h-24 px-2"
         >
           <ChevronRight className="h-4 w-4" />
-          <span className="writing-mode-vertical text-xs mr-1">הסכמים</span>
+          <span className="writing-mode-vertical text-xs mr-1">Agreements</span>
         </Button>
       </div>
     );
@@ -130,7 +130,7 @@ export const AgreementStatusPanel = () => {
       <CardHeader className="pb-3 flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
           <FileCheck className="h-5 w-5 text-primary" />
-          מעקב הסכמים
+          Agreement Tracking
         </CardTitle>
         <Button
           variant="ghost"
@@ -143,16 +143,16 @@ export const AgreementStatusPanel = () => {
       </CardHeader>
       <CardContent className="pt-0">
         {loading ? (
-          <p className="text-sm text-muted-foreground text-center py-4">טוען...</p>
+          <p className="text-sm text-muted-foreground text-center py-4">Loading...</p>
         ) : (
           <div className="space-y-4">
             {/* Summary */}
             <div className="flex gap-2 text-sm">
               <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
-                חתמו: {signedStudents.length}
+                Signed: {signedStudents.length}
               </Badge>
               <Badge variant="secondary" className="bg-orange-100 text-orange-800 hover:bg-orange-100">
-                טרם חתמו: {unsignedStudents.length}
+                Unsigned: {unsignedStudents.length}
               </Badge>
             </div>
 
@@ -161,7 +161,7 @@ export const AgreementStatusPanel = () => {
               <div>
                 <h4 className="text-sm font-semibold text-orange-600 mb-2 flex items-center gap-1">
                   <FileX className="h-4 w-4" />
-                  ממתינים לחתימה
+                  Awaiting Signature
                 </h4>
                 <ScrollArea className="h-40">
                   <div className="space-y-2 pl-2">
@@ -178,7 +178,7 @@ export const AgreementStatusPanel = () => {
                               size="icon"
                               className="h-7 w-7"
                               onClick={() => copyLink(student.id)}
-                              title="העתק קישור"
+                              title="Copy Link"
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
@@ -187,7 +187,7 @@ export const AgreementStatusPanel = () => {
                               size="icon"
                               className="h-7 w-7"
                               onClick={() => openLink(student.id)}
-                              title="פתח טופס"
+                              title="Open Form"
                             >
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>
@@ -198,12 +198,12 @@ export const AgreementStatusPanel = () => {
                           onValueChange={(v) => handleAgreementTypeChange(student.id, v as AgreementType)}
                         >
                           <SelectTrigger className="h-7 text-xs bg-white">
-                            <SelectValue placeholder="בחר הסכם" />
+                            <SelectValue placeholder="Select Agreement" />
                           </SelectTrigger>
                           <SelectContent className="bg-popover z-[100]">
-                            <SelectItem value="package">חבילה</SelectItem>
-                            <SelectItem value="hourly">שעתי</SelectItem>
-                            <SelectItem value="edit">לערוך</SelectItem>
+                            <SelectItem value="package">Package</SelectItem>
+                            <SelectItem value="hourly">Hourly</SelectItem>
+                            <SelectItem value="edit">Edit</SelectItem>
                             <SelectItem value="mba">MBA</SelectItem>
                           </SelectContent>
                         </Select>
@@ -219,7 +219,7 @@ export const AgreementStatusPanel = () => {
               <div>
                 <h4 className="text-sm font-semibold text-green-600 mb-2 flex items-center gap-1">
                   <FileCheck className="h-4 w-4" />
-                  חתמו על ההסכם
+                  Agreement Signed
                 </h4>
                 <ScrollArea className="h-32">
                   <div className="space-y-2 pl-2">
@@ -231,7 +231,7 @@ export const AgreementStatusPanel = () => {
                         <span className="font-medium truncate">{student.name}</span>
                         {student.signedAt && (
                           <span className="text-xs text-muted-foreground">
-                            {new Date(student.signedAt).toLocaleDateString("he-IL")}
+                            {new Date(student.signedAt).toLocaleDateString("en-US")}
                           </span>
                         )}
                       </div>

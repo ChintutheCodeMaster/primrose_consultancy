@@ -24,9 +24,9 @@ interface AgreementTemplate {
 }
 
 const agreementTypeConfig: Record<AgreementType, { label: string; icon: typeof Package }> = {
-  package: { label: 'חבילה', icon: Package },
-  hourly: { label: 'שעתי', icon: Clock },
-  edit: { label: 'לערוך', icon: Edit3 },
+  package: { label: 'Package', icon: Package },
+  hourly: { label: 'Hourly', icon: Clock },
+  edit: { label: 'Edit', icon: Edit3 },
   mba: { label: 'MBA', icon: Package },
 };
 
@@ -56,7 +56,7 @@ export default function AgreementTemplate() {
   const [activeTab, setActiveTab] = useState<AgreementType>('package');
 
   useEffect(() => {
-    document.title = 'תבניות הסכם | נוגה';
+    document.title = 'Agreement Templates | Primrose IEC';
   }, []);
 
   useEffect(() => {
@@ -78,8 +78,8 @@ export default function AgreementTemplate() {
 
     if (error) {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון את תבניות ההסכם",
+        title: "Error",
+        description: "Failed to load agreement templates",
         variant: "destructive",
       });
     } else if (data) {
@@ -124,14 +124,14 @@ export default function AgreementTemplate() {
 
     if (error) {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לשמור את השינויים",
+        title: "Error",
+        description: "Failed to save changes",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "נשמר בהצלחה",
-        description: `תבנית הסכם ${agreementTypeConfig[type].label} עודכנה`,
+        title: "Saved Successfully",
+        description: `${agreementTypeConfig[type].label} agreement template updated`,
       });
       fetchTemplates();
     }
@@ -160,9 +160,9 @@ export default function AgreementTemplate() {
             <FileText className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">תבניות הסכם</h1>
+            <h1 className="text-2xl font-bold text-foreground">Agreement Templates</h1>
             <p className="text-sm text-muted-foreground">
-              ערוך את תבניות ההסכם השונות - חבילה, שעתי, ולערוך
+              Edit the various agreement templates - Package, Hourly, and Edit
             </p>
           </div>
         </div>
@@ -197,24 +197,24 @@ export default function AgreementTemplate() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
                     <div className="flex items-center gap-4">
-                      <img src={nogaLogo} alt="נוגה" className="h-12 w-12 object-contain" />
+                      <img src={nogaLogo} alt="Primrose IEC" className="h-12 w-12 object-contain" />
                       <CardTitle className="flex items-center gap-2">
                         <config.icon className="h-5 w-5 text-primary" />
-                        הסכם {config.label}
+                        {config.label} Agreement
                       </CardTitle>
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
-                        <Eye className="h-4 w-4 ml-2" />
-                        תצוגה מקדימה
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview
                       </Button>
                       <Button size="sm" onClick={() => handleSave(type)} disabled={saving === type}>
                         {saving === type ? (
-                          <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
-                          <Save className="h-4 w-4 ml-2" />
+                          <Save className="h-4 w-4 mr-2" />
                         )}
-                        שמור
+                        Save
                       </Button>
                     </div>
                   </CardHeader>
@@ -222,7 +222,7 @@ export default function AgreementTemplate() {
                     {template ? (
                       <>
                         <div>
-                          <Label htmlFor={`name-${type}`}>שם התבנית</Label>
+                          <Label htmlFor={`name-${type}`}>Template Name</Label>
                           <Input
                             id={`name-${type}`}
                             value={editedName[type]}
@@ -232,9 +232,9 @@ export default function AgreementTemplate() {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label>תוכן ההסכם</Label>
+                          <Label>Agreement Content</Label>
                           <p className="text-xs text-muted-foreground mb-2">
-                            השתמש בכפתורי העיצוב בסרגל הכלים כדי להוסיף כותרות, הדגשות ועיצובים נוספים
+                            Use the formatting buttons in the toolbar to add headings, emphasis, and other styles
                           </p>
                           <RichTextEditor
                             content={editedContent[type]}
@@ -243,13 +243,13 @@ export default function AgreementTemplate() {
                         </div>
 
                         <p className="text-sm text-muted-foreground pt-4 border-t">
-                          עודכן לאחרונה: {new Date(template.updated_at).toLocaleDateString("he-IL")}
+                          Last updated: {new Date(template.updated_at).toLocaleDateString("en-US")}
                         </p>
                       </>
                     ) : (
                       <div className="py-8 text-center">
                         <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">לא נמצאה תבנית להסכם {config.label}</p>
+                        <p className="text-muted-foreground">No template found for {config.label} agreement</p>
                       </div>
                     )}
                   </CardContent>

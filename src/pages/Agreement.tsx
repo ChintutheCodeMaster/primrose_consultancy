@@ -27,16 +27,16 @@ interface FormData {
 }
 
 const MBA_PACKAGE_OPTIONS = [
-  "הגשה לתכנית אחת - 12,000 ש״ח + מע״מ",
-  "כל הגשה נוספת - 5,000 ש״ח + מע״מ",
-  "הגשה לשלוש תכניות (מותנה בבחירת החבילה מראש) - 21,000 ש״ח + מע״מ",
-  "הגשה לחמש תכניות (מותנה בבחירת החבילה מראש) - 30,000 ש״ח + מע״מ",
+  "Application to one program - $12,000 + VAT",
+  "Each additional application - $5,000 + VAT",
+  "Application to three programs (subject to advance package selection) - $21,000 + VAT",
+  "Application to five programs (subject to advance package selection) - $30,000 + VAT",
 ];
 
 const MBA_PAYMENT_OPTIONS = [
-  "תשלום ראשון עבור החבילה (1-4 תשלומים)",
-  "מקדמה ע״ס 10% מעלות החבילה הכוללת",
-  "אחר",
+  "First payment for the package (1-4 installments)",
+  "Advance payment of 10% of the total package cost",
+  "Other",
 ];
 
 const Agreement = () => {
@@ -66,7 +66,7 @@ const Agreement = () => {
     mbaPaymentOther: "",
     linkedinProfile: "",
   });
-  
+
   const isMba = agreementType === "mba";
 
   useEffect(() => {
@@ -136,8 +136,8 @@ const Agreement = () => {
 
     if (!formData.agreed) {
       toast({
-        title: "שגיאה",
-        description: "יש לאשר את תנאי ההסכם",
+        title: "Error",
+        description: "You must agree to the terms of the agreement",
         variant: "destructive",
       });
       return;
@@ -147,24 +147,24 @@ const Agreement = () => {
     if (isMba) {
       if (formData.mbaPackageSelections.length === 0 && !formData.mbaPackageOther) {
         toast({
-          title: "שגיאה",
-          description: "יש לבחור לפחות אפשרות אחת בשאלת החבילה",
+          title: "Error",
+          description: "You must select at least one option for the package question",
           variant: "destructive",
         });
         return;
       }
       if (!formData.mbaPaymentOption) {
         toast({
-          title: "שגיאה",
-          description: "יש לבחור אופן תשלום",
+          title: "Error",
+          description: "You must select a payment method",
           variant: "destructive",
         });
         return;
       }
-      if (formData.mbaPaymentOption === "אחר" && !formData.mbaPaymentOther) {
+      if (formData.mbaPaymentOption === "Other" && !formData.mbaPaymentOther) {
         toast({
-          title: "שגיאה",
-          description: "יש לפרט את אופן התשלום",
+          title: "Error",
+          description: "Please specify the payment method",
           variant: "destructive",
         });
         return;
@@ -192,7 +192,7 @@ const Agreement = () => {
             mba_package_selections: formData.mbaPackageSelections.length > 0 ? formData.mbaPackageSelections : null,
             mba_package_other: formData.mbaPackageOther || null,
             mba_payment_option: formData.mbaPaymentOption || null,
-            mba_payment_other: formData.mbaPaymentOption === "אחר" ? formData.mbaPaymentOther : null,
+            mba_payment_other: formData.mbaPaymentOption === "Other" ? formData.mbaPaymentOther : null,
             linkedin_profile: formData.linkedinProfile || null,
           }),
         });
@@ -211,13 +211,13 @@ const Agreement = () => {
       setSignedAt(new Date().toISOString());
 
       toast({
-        title: "נחתם בהצלחה!",
-        description: "ההסכם נחתם ונשמר במערכת",
+        title: "Signed successfully!",
+        description: "The agreement has been signed and saved in the system.",
       });
     } catch (error: any) {
       toast({
-        title: "שגיאה",
-        description: error.message || "אירעה שגיאה בשמירת ההסכם",
+        title: "Error",
+        description: error.message || "An error occurred while saving the agreement",
         variant: "destructive",
       });
     } finally {
@@ -235,15 +235,15 @@ const Agreement = () => {
 
   if (notFound) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-100 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-100 p-4" >
         <Card className="w-full max-w-lg text-center">
           <CardContent className="pt-10 pb-10">
             <FileText className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              הקישור אינו תקין
+              Invalid Link
             </h1>
             <p className="text-gray-600">
-              לא נמצא סטודנט עם הקישור הזה. אנא וודא שקיבלת את הקישור הנכון.
+              No student found with this link. Please ensure you have the correct link.
             </p>
           </CardContent>
         </Card>
@@ -253,20 +253,20 @@ const Agreement = () => {
 
   if (alreadySigned) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4" >
         <Card className="w-full max-w-lg text-center">
           <CardContent className="pt-10 pb-10">
             <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              ההסכם נחתם בהצלחה!
+              Agreement Signed Successfully!
             </h1>
             <p className="text-gray-600 mb-4">
-              {studentName}, תודה שחתמת על ההסכם
+              {studentName}, thank you for signing the agreement.
             </p>
             {signedAt && (
               <p className="text-sm text-gray-500">
-                נחתם בתאריך: {new Date(signedAt).toLocaleDateString("he-IL")} בשעה{" "}
-                {new Date(signedAt).toLocaleTimeString("he-IL", {
+                Signed on: {new Date(signedAt).toLocaleDateString("en-US")} at{" "}
+                {new Date(signedAt).toLocaleTimeString("en-US", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -279,16 +279,16 @@ const Agreement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" >
       <div className="max-w-3xl mx-auto">
         {/* Header with Logo */}
         <div className="text-center mb-8">
-          <img src={nogaLogo} alt="נוגה" className="h-20 w-20 mx-auto mb-4 object-contain" />
+          <img src={nogaLogo} alt="Primrose IEC" className="h-20 w-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            טופס הזמנת עבודה
+            Engagement Agreement Form
           </h1>
           <p className="text-lg text-primary font-medium">
-            נוגה ייעוץ ללימודים בחו"ל
+            Primrose IEC - Overseas Studies Consulting
           </p>
         </div>
 
@@ -296,12 +296,12 @@ const Agreement = () => {
         <Card className="mb-8 shadow-lg">
           <CardContent className="pt-6">
             {templateContent ? (
-              <div 
-                className="agreement-content prose prose-sm max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:text-gray-900 prose-ul:pr-5 prose-ol:pr-5"
-                dangerouslySetInnerHTML={{ __html: templateContent }} 
+              <div
+                className="agreement-content prose prose-sm max-w-none text-gray-700 leading-relaxed prose-headings:text-gray-900 prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-strong:text-gray-900 prose-ul:pl-5 prose-ol:pl-5"
+                dangerouslySetInnerHTML={{ __html: templateContent }}
               />
             ) : (
-              <p className="text-center text-muted-foreground">טוען תוכן הסכם...</p>
+              <p className="text-center text-muted-foreground">Loading agreement content...</p>
             )}
           </CardContent>
         </Card>
@@ -310,12 +310,12 @@ const Agreement = () => {
         <Card>
           <CardContent className="pt-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
-              פרטי החותם
+              Signer's Details
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="firstName">שם פרטי *</Label>
+                  <Label htmlFor="firstName">First Name *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
@@ -326,7 +326,7 @@ const Agreement = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">שם משפחה *</Label>
+                  <Label htmlFor="lastName">Last Name *</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
@@ -340,7 +340,7 @@ const Agreement = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="birthDate">תאריך לידה *</Label>
+                  <Label htmlFor="birthDate">Date of Birth *</Label>
                   <Input
                     id="birthDate"
                     type="date"
@@ -352,7 +352,7 @@ const Agreement = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="idNumber">מספר תעודת זהות *</Label>
+                  <Label htmlFor="idNumber">ID Number *</Label>
                   <Input
                     id="idNumber"
                     value={formData.idNumber}
@@ -366,7 +366,7 @@ const Agreement = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email">כתובת דואר אלקטרוני *</Label>
+                  <Label htmlFor="email">Email Address *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -378,7 +378,7 @@ const Agreement = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">מספר טלפון נייד *</Label>
+                  <Label htmlFor="phone">Mobile Phone Number *</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -397,14 +397,14 @@ const Agreement = () => {
                   {/* Package Selection - Multiple Choice */}
                   <div className="space-y-3 pt-4 border-t">
                     <Label className="text-base font-semibold">
-                      נא בחר בחבילה ההגשה המתאימה *
+                      Please select the appropriate application package *
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      במידה וסיכמת על חבילה אחרת עם נציג נוגה אנא סמן ״אחר״
+                      If you agreed on a different package with a Primrose representative, please select "Other"
                     </p>
                     <div className="space-y-2">
                       {MBA_PACKAGE_OPTIONS.map((option) => (
-                        <div key={option} className="flex items-center space-x-2 space-x-reverse">
+                        <div key={option} className="flex items-center space-x-2">
                           <Checkbox
                             id={`package-${option}`}
                             checked={formData.mbaPackageSelections.includes(option)}
@@ -430,8 +430,8 @@ const Agreement = () => {
                         </div>
                       ))}
                       {/* Other option with text input */}
-                      <div className="flex items-start space-x-2 space-x-reverse gap-2">
-                        <div className="flex items-center space-x-2 space-x-reverse mt-2">
+                      <div className="flex items-start space-x-2 gap-2">
+                        <div className="flex items-center space-x-2 mt-2">
                           <Checkbox
                             id="package-other"
                             checked={formData.mbaPackageOther.length > 0}
@@ -442,11 +442,11 @@ const Agreement = () => {
                             }}
                           />
                           <Label htmlFor="package-other" className="font-normal cursor-pointer">
-                            אחר:
+                            Other:
                           </Label>
                         </div>
                         <Input
-                          placeholder="נא לפרט"
+                          placeholder="Please specify"
                           value={formData.mbaPackageOther}
                           onChange={(e) =>
                             setFormData({ ...formData, mbaPackageOther: e.target.value })
@@ -460,14 +460,14 @@ const Agreement = () => {
                   {/* Payment Option - Single Choice */}
                   <div className="space-y-3 pt-4 border-t">
                     <Label className="text-base font-semibold">
-                      אנא בחר באופן התשלום *
+                      Please select your payment method *
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      במידה וסיכמת על אופן תשלום אחר עם נציג נוגה אנא סמן ״אחר״
+                      If you agreed on a different payment method with a Primrose representative, please select "Other"
                     </p>
                     <div className="space-y-2">
                       {MBA_PAYMENT_OPTIONS.map((option) => (
-                        <div key={option} className="flex items-center space-x-2 space-x-reverse">
+                        <div key={option} className="flex items-center space-x-2">
                           <input
                             type="radio"
                             id={`payment-${option}`}
@@ -480,18 +480,18 @@ const Agreement = () => {
                             className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
                           />
                           <Label htmlFor={`payment-${option}`} className="font-normal cursor-pointer">
-                            {option === "אחר" ? "אחר, נא לפרט כאן:" : option}
+                            {option === "Other" ? "Other, please specify here:" : option}
                           </Label>
                         </div>
                       ))}
-                      {formData.mbaPaymentOption === "אחר" && (
+                      {formData.mbaPaymentOption === "Other" && (
                         <Input
-                          placeholder="נא לפרט את אופן התשלום"
+                          placeholder="Please specify the payment method"
                           value={formData.mbaPaymentOther}
                           onChange={(e) =>
                             setFormData({ ...formData, mbaPaymentOther: e.target.value })
                           }
-                          className="mr-6"
+                          className="ml-6"
                           required
                         />
                       )}
@@ -500,7 +500,7 @@ const Agreement = () => {
 
                   {/* LinkedIn Profile - Optional */}
                   <div className="pt-4 border-t">
-                    <Label htmlFor="linkedinProfile">פרופיל לינקדאין</Label>
+                    <Label htmlFor="linkedinProfile">LinkedIn Profile</Label>
                     <Input
                       id="linkedinProfile"
                       value={formData.linkedinProfile}
@@ -514,7 +514,7 @@ const Agreement = () => {
               )}
 
               <div>
-                <Label htmlFor="address">כתובת מגורים *</Label>
+                <Label htmlFor="address">Residential Address *</Label>
                 <Input
                   id="address"
                   value={formData.address}
@@ -525,7 +525,7 @@ const Agreement = () => {
                 />
               </div>
 
-              <div className="flex items-center space-x-2 space-x-reverse pt-4 border-t">
+              <div className="flex items-center space-x-2 pt-4 border-t">
                 <Checkbox
                   id="agreed"
                   checked={formData.agreed}
@@ -537,7 +537,7 @@ const Agreement = () => {
                   htmlFor="agreed"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  אני רואה במילוי טופס זה הסכמה עם הכתוב למעלה *
+                  I acknowledge that filling out this form constitutes agreement with the above. *
                 </Label>
               </div>
 
@@ -549,11 +549,11 @@ const Agreement = () => {
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    שולח...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
                   </>
                 ) : (
-                  "חתום והגש"
+                  "Sign and Submit"
                 )}
               </Button>
             </form>
@@ -561,7 +561,7 @@ const Agreement = () => {
         </Card>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          © {new Date().getFullYear()} נוגה ייעוץ ללימודים בחו"ל
+          © {new Date().getFullYear()} Primrose IEC - Overseas Studies Consulting
         </p>
       </div>
     </div>

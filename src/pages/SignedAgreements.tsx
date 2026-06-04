@@ -13,9 +13,9 @@ import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
 
 const typeLabels: Record<string, string> = {
-  package: 'חבילה',
-  hourly: 'שעתי',
-  edit: 'לערוך',
+  package: 'Package',
+  hourly: 'Hourly',
+  edit: 'Edit',
   mba: 'MBA',
 };
 
@@ -91,13 +91,13 @@ export default function SignedAgreements() {
   const renderAgreementContent = () => {
     if (!selectedAgreement || !templateContent) return null;
     let content = templateContent;
-    content = content.replace(/\[שם פרטי\]/g, selectedAgreement.first_name);
-    content = content.replace(/\[שם משפחה\]/g, selectedAgreement.last_name);
-    content = content.replace(/\[אימייל\]/g, selectedAgreement.email);
-    content = content.replace(/\[טלפון\]/g, selectedAgreement.phone);
-    content = content.replace(/\[ת\.ז\.\]/g, selectedAgreement.id_number);
-    content = content.replace(/\[כתובת\]/g, selectedAgreement.address);
-    content = content.replace(/\[תאריך לידה\]/g, selectedAgreement.birth_date);
+    content = content.replace(/\[First Name\]/g, selectedAgreement.first_name);
+    content = content.replace(/\[Last Name\]/g, selectedAgreement.last_name);
+    content = content.replace(/\[Email\]/g, selectedAgreement.email);
+    content = content.replace(/\[Phone\]/g, selectedAgreement.phone);
+    content = content.replace(/\[ID Number\]/g, selectedAgreement.id_number);
+    content = content.replace(/\[Address\]/g, selectedAgreement.address);
+    content = content.replace(/\[Date of Birth\]/g, selectedAgreement.birth_date);
     return content;
   };
 
@@ -165,22 +165,22 @@ export default function SignedAgreements() {
         remainingHeight -= pageHeight - margin * 2;
       }
 
-      pdf.save(`הסכם - ${selectedAgreement.first_name} ${selectedAgreement.last_name}.pdf`);
+      pdf.save(`Agreement - ${selectedAgreement.first_name} ${selectedAgreement.last_name}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);
-      toast.error('לא הצלחנו להוריד את ההסכם כ-PDF');
+      toast.error('Failed to download the agreement as-PDF');
     }
   };
 
 
   return (
     <MainLayout>
-      <div className="space-y-6 p-6" dir="rtl">
+      <div className="space-y-6 p-6">
         <div className="flex items-center gap-3">
           <FileText className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">הסכמים חתומים</h1>
+          <h1 className="text-2xl font-bold text-foreground">Signed Agreements</h1>
           <Badge variant="secondary" className="text-sm">
-            {agreements.length} הסכמים
+            {agreements.length} agreements
           </Badge>
         </div>
 
@@ -192,7 +192,7 @@ export default function SignedAgreements() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <FileText className="h-12 w-12 mb-3 opacity-50" />
-              <p>אין הסכמים חתומים עדיין</p>
+              <p>No signed agreements yet</p>
             </CardContent>
           </Card>
         ) : (
@@ -236,12 +236,12 @@ export default function SignedAgreements() {
         )}
 
         <Dialog open={!!selectedAgreement} onOpenChange={(open) => { if (!open) setSelectedAgreement(null); }}>
-          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <DialogTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  הסכם - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
+                  Agreement - {selectedAgreement?.first_name} {selectedAgreement?.last_name}
                 </DialogTitle>
                 <Button
                   size="sm"
@@ -251,7 +251,7 @@ export default function SignedAgreements() {
                   className="gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  הורד / שלח כ-PDF
+                  Download / Send as -PDF
                 </Button>
               </div>
             </DialogHeader>
@@ -262,34 +262,34 @@ export default function SignedAgreements() {
             ) : (
               <div ref={agreementContentRef} className="space-y-4 bg-background">
                 <div className="grid grid-cols-2 gap-4 text-sm border rounded-lg p-4 bg-muted/30">
-                  <div><span className="text-muted-foreground">שם:</span> {selectedAgreement?.first_name} {selectedAgreement?.last_name}</div>
-                  <div><span className="text-muted-foreground">אימייל:</span> {selectedAgreement?.email}</div>
-                  <div><span className="text-muted-foreground">טלפון:</span> {selectedAgreement?.phone}</div>
-                  <div><span className="text-muted-foreground">ת.ז.:</span> {selectedAgreement?.id_number}</div>
-                  <div><span className="text-muted-foreground">כתובת:</span> {selectedAgreement?.address}</div>
-                  <div><span className="text-muted-foreground">תאריך לידה:</span> {selectedAgreement?.birth_date}</div>
-                  <div><span className="text-muted-foreground">תאריך חתימה:</span> {selectedAgreement?.signed_at ? format(new Date(selectedAgreement.signed_at), 'dd/MM/yyyy HH:mm') : '-'}</div>
+                  <div><span className="text-muted-foreground">Name:</span> {selectedAgreement?.first_name} {selectedAgreement?.last_name}</div>
+                  <div><span className="text-muted-foreground">Email:</span> {selectedAgreement?.email}</div>
+                  <div><span className="text-muted-foreground">Phone:</span> {selectedAgreement?.phone}</div>
+                  <div><span className="text-muted-foreground">ID Number:</span> {selectedAgreement?.id_number}</div>
+                  <div><span className="text-muted-foreground">Address:</span> {selectedAgreement?.address}</div>
+                  <div><span className="text-muted-foreground">Date of Birth:</span> {selectedAgreement?.birth_date}</div>
+                  <div><span className="text-muted-foreground">Signed Date:</span> {selectedAgreement?.signed_at ? format(new Date(selectedAgreement.signed_at), 'dd/MM/yyyy HH:mm') : '-'}</div>
                   {selectedAgreement?.linkedin_profile && (
-                    <div><span className="text-muted-foreground">לינקדאין:</span> {selectedAgreement.linkedin_profile}</div>
+                    <div><span className="text-muted-foreground">LinkedIn:</span> {selectedAgreement.linkedin_profile}</div>
                   )}
                 </div>
 
                 {selectedAgreement?.mba_package_selections && selectedAgreement.mba_package_selections.length > 0 && (
                   <div className="border rounded-lg p-4 bg-muted/30 text-sm space-y-2">
-                    <p className="font-medium">חבילת הגשה:</p>
+                    <p className="font-medium">Application Package:</p>
                     <ul className="list-disc pr-5">
                       {selectedAgreement.mba_package_selections.map((s, i) => <li key={i}>{s}</li>)}
                     </ul>
-                    {selectedAgreement.mba_package_other && <p>אחר: {selectedAgreement.mba_package_other}</p>}
-                    {selectedAgreement.mba_payment_option && <p><span className="font-medium">אופן תשלום:</span> {selectedAgreement.mba_payment_option}</p>}
-                    {selectedAgreement.mba_payment_other && <p>אחר: {selectedAgreement.mba_payment_other}</p>}
+                    {selectedAgreement.mba_package_other && <p>Other: {selectedAgreement.mba_package_other}</p>}
+                    {selectedAgreement.mba_payment_option && <p><span className="font-medium">Payment Method:</span> {selectedAgreement.mba_payment_option}</p>}
+                    {selectedAgreement.mba_payment_other && <p>Other: {selectedAgreement.mba_payment_other}</p>}
                   </div>
                 )}
 
                 {templateContent && (
                   <div
                     className="prose prose-sm max-w-none border rounded-lg p-6"
-                    dir="rtl"
+                   
                     dangerouslySetInnerHTML={{ __html: renderAgreementContent() || '' }}
                   />
                 )}

@@ -54,7 +54,7 @@ export function FollowUpReminderPopup() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['follow-up-reminders-due'] });
-      toast.success('התזכורת סומנה כטופלה');
+      toast.success('Reminder marked as handled');
     },
   });
 
@@ -70,7 +70,7 @@ export function FollowUpReminderPopup() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['follow-up-reminders-due'] });
-      toast.success('התזכורת נדחתה בשבוע');
+      toast.success('Reminder snoozed for a week');
     },
   });
 
@@ -92,21 +92,21 @@ export function FollowUpReminderPopup() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-primary" />
-            תזכורת מעקב ({index + 1}/{dueReminders.length})
+            Follow-up Reminder ({index + 1}/{dueReminders.length})
           </DialogTitle>
           <DialogDescription>
-            הגיע הזמן לבדוק מה קורה עם <strong>{current.name}</strong>
-            {current.graduation_year ? ` (לקוח עבר ${current.graduation_year})` : ''}.
+            It's time to check in with <strong>{current.name}</strong>
+            {current.graduation_year ? ` (Alumnus ${current.graduation_year})` : ''}.
           </DialogDescription>
         </DialogHeader>
         <div className="py-2 space-y-2 text-sm">
           <div>
-            <span className="text-muted-foreground">תאריך תזכורת: </span>
-            {new Date(current.follow_up_reminder_date).toLocaleDateString('he-IL')}
+            <span className="text-muted-foreground">Reminder Date: </span>
+            {new Date(current.follow_up_reminder_date).toLocaleDateString('en-US')}
           </div>
           {current.follow_up_reminder_note && (
             <div className="bg-muted/50 rounded p-3">
-              <div className="text-xs text-muted-foreground mb-1">הערה:</div>
+              <div className="text-xs text-muted-foreground mb-1">Note:</div>
               <div>{current.follow_up_reminder_note}</div>
             </div>
           )}
@@ -117,7 +117,7 @@ export function FollowUpReminderPopup() {
             onClick={() => snoozeMutation.mutate(current.id)}
             disabled={snoozeMutation.isPending}
           >
-            דחה בשבוע
+            Snooze for a week
           </Button>
           <Button
             variant="outline"
@@ -129,8 +129,8 @@ export function FollowUpReminderPopup() {
               navigate(url);
             }}
           >
-            <ExternalLink className="h-4 w-4 ml-1" />
-            פתח לקוח
+            <ExternalLink className="h-4 w-4 mr-1" />
+            Open Student
           </Button>
           <Button
             onClick={() => {
@@ -138,7 +138,7 @@ export function FollowUpReminderPopup() {
             }}
             disabled={dismissMutation.isPending}
           >
-            סמן כטופל
+            Mark as Handled
           </Button>
         </DialogFooter>
       </DialogContent>

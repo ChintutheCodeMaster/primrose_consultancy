@@ -41,15 +41,15 @@ export function SetFollowUpReminderDialog({ open, onOpenChange, studentName, onC
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>הגדרת תזכורת מעקב</DialogTitle>
+          <DialogTitle>Set Follow-Up Reminder</DialogTitle>
           <DialogDescription>
-            לא הוזנו אוניברסיטאות שהתקבל אליהן עבור <strong>{studentName}</strong>.
-            כדאי להגדיר תזכורת לעקוב אחר הסטטוס.
+            No universities have been entered for <strong>{studentName}</strong> as accepted.
+            Consider setting a reminder to follow up on the status.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="reminder-date">תאריך תזכורת</Label>
+            <Label htmlFor="reminder-date">Reminder Date</Label>
             <Input
               id="reminder-date"
               type="date"
@@ -58,19 +58,19 @@ export function SetFollowUpReminderDialog({ open, onOpenChange, studentName, onC
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="reminder-note">הערה (אופציונלי)</Label>
+            <Label htmlFor="reminder-note">Note (optional)</Label>
             <Textarea
               id="reminder-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="לבדוק האם התקבל לאוניברסיטה..."
+              placeholder="Check if accepted to university..."
               rows={3}
             />
           </div>
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={handleSkip}>דלג / בלי תזכורת</Button>
-          <Button onClick={handleSave} disabled={!date}>שמור תזכורת</Button>
+          <Button variant="outline" onClick={handleSkip}>Skip / No Reminder</Button>
+          <Button onClick={handleSave} disabled={!date}>Save Reminder</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

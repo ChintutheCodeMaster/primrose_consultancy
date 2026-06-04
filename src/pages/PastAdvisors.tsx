@@ -36,12 +36,11 @@ export default function PastAdvisors() {
       .update({ is_active: true })
       .eq('id', advisorId);
 
-    if (error) {
-      toast.error('שגיאה בהפעלת היועץ מחדש');
+    if (error) {      toast.error('Error reactivating consultant');
       return;
     }
 
-    toast.success('היועץ הופעל מחדש בהצלחה');
+    toast.success('Consultant reactivated successfully');
     refetch();
   };
 
@@ -55,8 +54,8 @@ export default function PastAdvisors() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">יועצי עבר</h1>
-            <p className="text-muted-foreground">יועצים שכבר לא פעילים במערכת</p>
+            <h1 className="text-3xl font-bold text-foreground">Past Consultants</h1>
+            <p className="text-muted-foreground">Consultants who are no longer active in the system</p>
           </div>
           <Button 
             variant="outline" 
@@ -64,27 +63,27 @@ export default function PastAdvisors() {
             onClick={() => navigate('/advisors')}
           >
             <ArrowRight className="h-4 w-4" />
-            חזרה ליועצים פעילים
+            Back to Active Consultants
           </Button>
         </div>
 
         {/* Search */}
         <div className="relative max-w-md">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="חיפוש יועץ..."
+            placeholder="Search consultant..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-10"
+            className="pl-10"
           />
         </div>
 
         {/* Advisors Grid */}
         {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">טוען...</div>
+          <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : filteredAdvisors.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            {searchQuery ? 'לא נמצאו יועצים התואמים לחיפוש' : 'אין יועצי עבר במערכת'}
+            {searchQuery ? 'No consultants found matching the search' : 'No past consultants in the system'}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -94,7 +93,7 @@ export default function PastAdvisors() {
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{advisor.name}</CardTitle>
                     <Badge variant="secondary" className="bg-muted text-muted-foreground">
-                      לא פעיל
+                      Inactive
                     </Badge>
                   </div>
                 </CardHeader>
@@ -129,8 +128,8 @@ export default function PastAdvisors() {
                         size="sm"
                         onClick={() => openExternalFile(advisor.contract_url, `advisor-contract-${advisor.name}`)}
                       >
-                        <FileText className="h-4 w-4 ml-1" />
-                        חוזה
+                        <FileText className="h-4 w-4 mr-1" />
+                        Agreement
                       </Button>
                     )}
                     <Button
@@ -138,16 +137,16 @@ export default function PastAdvisors() {
                       size="sm"
                       onClick={() => window.open(`/advisor/${advisor.id}`, '_blank')}
                     >
-                      <ExternalLink className="h-4 w-4 ml-1" />
-                      פורטל
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Portal
                     </Button>
                     <Button
                       variant="default"
                       size="sm"
                       onClick={() => handleReactivate(advisor.id)}
                     >
-                      <RotateCcw className="h-4 w-4 ml-1" />
-                      הפעל מחדש
+                      <RotateCcw className="h-4 w-4 mr-1" />
+                      Reactivate
                     </Button>
                   </div>
                 </CardContent>

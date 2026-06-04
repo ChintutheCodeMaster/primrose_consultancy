@@ -57,7 +57,7 @@ function clickLink(href: string, options?: { download?: string; target?: "_blank
 
 export async function openExternalFile(url: string, fallbackName?: string) {
   if (!url) {
-    toast.error("לא נמצא קובץ לפתיחה");
+    toast.error("No file found to open");
     return;
   }
 

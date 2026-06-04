@@ -47,24 +47,24 @@ interface ConflictResolution {
 
 // Column mapping from Hebrew to our fields
 const COLUMN_MAP: Record<string, keyof ParsedLead> = {
-  'לקוח': 'name',
-  'שם': 'name',
-  'שם מלא': 'name',
-  'אימייל': 'email',
-  'טלפון': 'phone',
-  'סוג תואר': 'degreeType',
-  'סיכום פגישה': 'meetingSummary',
-  'יועץ מלווה': 'advisorName',
-  'יועץ': 'advisorName',
-  'מקור הפנייה': 'source',
-  'מקור': 'source',
-  'מקור הגעה': 'source',
-  'עלות שירות': 'packageCost',
-  'עלות חבילה': 'packageCost',
-  'שולם': 'amountPaid',
-  'סכום ששולם': 'amountPaid',
-  'הערות חבילה': 'packageNotes',
-  'הערות': 'packageNotes',
+  'Client': 'name',
+  'Name': 'name',
+  'Full Name': 'name',
+  'Email': 'email',
+  'Phone': 'phone',
+  'Degree Type': 'degreeType',
+  'Meeting Summary': 'meetingSummary',
+  'Assigned Consultant': 'advisorName',
+  'Consultant': 'advisorName',
+  'Lead Source': 'source',
+  'Source': 'source',
+  'Source': 'source',
+  'Service Cost': 'packageCost',
+  'Package Cost': 'packageCost',
+  'Paid': 'amountPaid',
+  'Amount Paid': 'amountPaid',
+  'Package Notes': 'packageNotes',
+  'Notes': 'packageNotes',
 };
 
 export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, year }: ImportLeadsExcelDialogProps) {
@@ -109,7 +109,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             lead,
             duplicateType: 'within_list',
             existingName: lead.name,
-            existingLocation: `שורה ${seenNames.get(normalizedName)! + 1} ברשימה`,
+            existingLocation: `Row ${seenNames.get(normalizedName)! + 1} in list`,
           });
         } else {
           seenNames.set(normalizedName, index);
@@ -130,7 +130,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             lead,
             duplicateType: 'existing_lead',
             existingName: matchingLead.name,
-            existingLocation: 'מתעניינים',
+            existingLocation: 'Inquiries',
           });
         }
 
@@ -149,7 +149,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             lead,
             duplicateType: 'existing_student',
             existingName: matchingStudent.name,
-            existingLocation: 'סטודנטים',
+            existingLocation: 'Students',
           });
         }
       });
@@ -161,7 +161,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
 
     } catch (error) {
       console.error('Error checking duplicates:', error);
-      toast.error('שגיאה בבדיקת כפילויות');
+      toast.error('Error checking duplicates');
     } finally {
       setIsChecking(false);
     }
@@ -181,7 +181,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
         if (jsonData.length < 2) {
-          setErrors(['הקובץ ריק או מכיל רק כותרות']);
+          setErrors(['The file is empty or contains only headers']);
           return;
         }
 
@@ -213,7 +213,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
           const phone = getValue('phone');
 
           if (!name) {
-            parseErrors.push(`שורה ${rowNum}: חסר שם`);
+            parseErrors.push(`Row ${rowNum}: missing name`);
             return;
           }
 
@@ -242,7 +242,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
 
       } catch (error) {
         console.error('Error parsing Excel:', error);
-        setErrors(['שגיאה בקריאת הקובץ. ודא שזה קובץ Excel תקין']);
+        setErrors(['Error reading the file. Make sure it is a valid Excel file.']);
       }
     };
 
@@ -280,7 +280,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
   const handleImport = async () => {
     const leadsToImport = getLeadsToImport();
     if (leadsToImport.length === 0) {
-      toast.info('אין מתעניינים לייבא');
+      toast.info('No inquiries to import');
       return;
     }
 
@@ -301,12 +301,12 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
 
       if (error) throw error;
 
-      toast.success(`יובאו ${leadsToImport.length} מתעניינים בהצלחה!`);
+      toast.success(`Imported ${leadsToImport.length} inquiries successfully!`);
       handleClose();
       onImportComplete();
     } catch (error) {
       console.error('Import error:', error);
-      toast.error('שגיאה בייבוא הנתונים');
+      toast.error('Error importing data');
     } finally {
       setIsLoading(false);
     }
@@ -323,9 +323,9 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
 
   const getDuplicateTypeLabel = (type: DuplicateInfo['duplicateType']) => {
     switch (type) {
-      case 'within_list': return 'כפול ברשימה';
-      case 'existing_lead': return 'קיים במתעניינים';
-      case 'existing_student': return 'קיים בסטודנטים';
+      case 'within_list': return 'Duplicate in list';
+      case 'existing_lead': return 'Exists in Inquiries';
+      case 'existing_student': return 'Exists in Students';
     }
   };
 
@@ -335,19 +335,19 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5" />
-            ייבוא מתעניינים מאקסל - {year}
+            Import inquiries from Excel - {year}
           </DialogTitle>
           <DialogDescription>
-            העלה קובץ Excel עם נתוני מתעניינים
+            Upload an Excel file with inquiry data
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Upload File */}
           <div className="bg-muted/50 rounded-lg p-4">
-            <h3 className="font-medium mb-2">העלה קובץ Excel</h3>
+            <h3 className="font-medium mb-2">Upload file Excel</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              העמודות הנתמכות: לקוח/שם, אימייל, טלפון, סוג תואר, סיכום פגישה, יועץ מלווה, מקור הפנייה, עלות שירות, שולם, הערות חבילה
+              Supported columns: Client/Name, Email, Phone, Degree Type, Meeting Summary, Assigned Consultant, Lead Source, Service Cost, Paid, Package Notes
             </p>
             <input
               ref={fileInputRef}
@@ -359,7 +359,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             />
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
               <Upload className="h-4 w-4 ml-2" />
-              בחר קובץ
+              Choose file
             </Button>
           </div>
 
@@ -367,7 +367,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
           {isChecking && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-6 w-6 animate-spin ml-2" />
-              <span>בודק כפילויות...</span>
+              <span>Checking duplicates...</span>
             </div>
           )}
 
@@ -376,14 +376,14 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             <div className="bg-destructive/10 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-4 w-4" />
-                שגיאות בקובץ
+                Errors in file
               </h3>
               <ul className="text-sm space-y-1">
                 {errors.slice(0, 5).map((error, index) => (
                   <li key={index} className="text-destructive">{error}</li>
                 ))}
                 {errors.length > 5 && (
-                  <li className="text-muted-foreground">...ועוד {errors.length - 5} שגיאות</li>
+                  <li className="text-muted-foreground">...and {errors.length - 5} errors</li>
                 )}
               </ul>
             </div>
@@ -394,7 +394,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
               <h3 className="font-medium mb-3 flex items-center gap-2 text-warning">
                 <AlertTriangle className="h-4 w-4" />
-                נמצאו {duplicates.length} כפילויות - יש לבחור מה לעשות
+                Found {duplicates.length} Duplicates - please choose what to do
               </h3>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {duplicates.map((dup, index) => (
@@ -409,8 +409,8 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">
                       {dup.duplicateType === 'within_list' 
-                        ? `מופיע גם ב${dup.existingLocation}`
-                        : `קיים כבר ב${dup.existingLocation}: ${dup.existingName}`}
+                        ? `also appears in ${dup.existingLocation}`
+                        : `already exists in ${dup.existingLocation}: ${dup.existingName}`}
                     </p>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -418,14 +418,14 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
                           checked={resolutions[index]?.action === 'skip'}
                           onCheckedChange={() => handleResolution(index, 'skip')}
                         />
-                        <span className="text-sm">דלג</span>
+                        <span className="text-sm">Skip</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <Checkbox 
                           checked={resolutions[index]?.action === 'import'}
                           onCheckedChange={() => handleResolution(index, 'import')}
                         />
-                        <span className="text-sm">ייבא בכל זאת</span>
+                        <span className="text-sm">Import anyway</span>
                       </label>
                     </div>
                   </div>
@@ -439,16 +439,16 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             <div className="bg-primary/5 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="h-4 w-4" />
-                תצוגה מקדימה ({getLeadsToImport().length} מתוך {previewData.length} ייובאו)
+                Preview ({getLeadsToImport().length} of {previewData.length} imported)
               </h3>
               <div className="max-h-40 overflow-y-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-right py-1">שם</th>
-                      <th className="text-right py-1">אימייל</th>
-                      <th className="text-right py-1">טלפון</th>
-                      <th className="text-right py-1">מקור</th>
+                      <th className="text-right py-1">Name</th>
+                      <th className="text-right py-1">Email</th>
+                      <th className="text-right py-1">Phone</th>
+                      <th className="text-right py-1">Source</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -476,7 +476,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
                     {previewData.length > 10 && (
                       <tr>
                         <td colSpan={4} className="py-1 text-muted-foreground">
-                          ...ועוד {previewData.length - 10} מתעניינים
+                          ...and {previewData.length - 10} Inquiries
                         </td>
                       </tr>
                     )}
@@ -496,10 +496,10 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                  מייבא...
+                  Importing...
                 </>
               ) : (
-                `ייבא ${getLeadsToImport().length} מתעניינים`
+                `Import ${getLeadsToImport().length} Inquiries`
               )}
             </Button>
           )}

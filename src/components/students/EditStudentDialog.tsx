@@ -19,7 +19,7 @@ import { Plus, Trash2, Upload, FileText, X, MessageSquare, Calendar, CalendarIco
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { useCountryOptions } from '@/hooks/useCountryOptions';
@@ -94,10 +94,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   const [newAppliedNotes, setNewAppliedNotes] = useState('');
 
   const applicationStatusLabels: Record<string, string> = {
-    submitted: 'הוגש',
-    waiting: 'ממתין לתשובה',
-    rejected: 'נדחה',
-    accepted: 'התקבל',
+    submitted: 'Submitted',
+    waiting: 'Waiting for response',
+    rejected: 'Rejected',
+    accepted: 'Accepted',
   };
 
   const { data: advisors = [] } = useQuery({
@@ -121,7 +121,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
   }, [student, open]);
 
   const parseCurrencyInput = (raw: string) => {
-    // Allow pasting values like "1,180", "₪1180", "1180.50"
+    // Allow pasting values like "1,180", "$1180", "1180.50"
     const cleaned = raw
       .replace(/[^0-9.,-]/g, '')
       .replace(/,/g, '');
@@ -209,7 +209,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
       setSourceSelection(currentSource);
       setCustomSource('');
     } else if (currentSource) {
-      setSourceSelection('אחר');
+      setSourceSelection('Other');
       setCustomSource(currentSource);
     } else {
       setSourceSelection('');
@@ -266,7 +266,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           
           if (error) {
             console.error('Error saving universities:', error);
-            toast.error('שגיאה בשמירת האוניברסיטאות');
+            toast.error('Error saving universities');
           } else {
             console.log('Universities saved successfully');
           }
@@ -297,7 +297,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             );
           if (insertAppliedErr) {
             console.error('Error saving applied universities:', insertAppliedErr);
-            toast.error('שגיאה בשמירת האוניברסיטאות שהוגשו');
+            toast.error('Error saving applied universities');
           }
         }
       }
@@ -318,7 +318,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             name: newUniversityName.trim(), 
             country: newUniversityCountry.trim(),
             degreeType: newUniversityDegreeType || undefined,
-            degreeTypeOther: newUniversityDegreeType === 'אחר' ? newUniversityDegreeTypeOther : undefined,
+            degreeTypeOther: newUniversityDegreeType === 'Other' ? newUniversityDegreeTypeOther : undefined,
             field: newUniversityField || undefined,
             studyYear: newUniversityStudyYear || undefined,
           }
@@ -373,10 +373,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
         acceptedUniversities: updatedUniversities
       });
 
-      toast.success('הקובץ הועלה בהצלחה');
+      toast.success('File uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('שגיאה בהעלאת הקובץ');
+      toast.error('Error uploading file');
     } finally {
       setUploadingFor(null);
     }
@@ -409,13 +409,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>עריכת סטודנט - {formData.name}</DialogTitle>
+          <DialogTitle>Edit Student - {formData.name}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">שם מלא</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -424,7 +424,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 dir="ltr"
@@ -435,7 +435,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="text"
@@ -445,13 +445,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               className={!formData.email ? 'border-orange-300' : ''}
             />
             {!formData.email && (
-              <p className="text-xs text-orange-600">⚠️ לא הוזנה כתובת אימייל</p>
+              <p className="text-xs text-orange-600">⚠️ No email address entered</p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Label htmlFor="degreeType">Degree Type</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -464,7 +464,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(v: StudentStatus) => setFormData({ ...formData, status: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -480,19 +480,19 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interestedCountry">מדינות מבוקשות</Label>
+              <Label htmlFor="interestedCountry">Desired Countries</Label>
               <MultiCountrySelect
                 value={formData.interestedCountry}
                 onChange={(v) => setFormData({ ...formData, interestedCountry: v })}
-                placeholder="בחר מדינות"
+                placeholder="Select countries"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="interestedField">תחום לימודים</Label>
+              <Label htmlFor="interestedField">Field of Interest</Label>
               <FieldAutocomplete
                 value={fieldSelection}
                 onChange={(v) => setFieldSelection(v)}
-                placeholder="בחר תחום"
+                placeholder="Select field"
               />
             </div>
           </div>
@@ -500,15 +500,15 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           {/* Student-specific fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="advisorName">יועצים</Label>
+              <Label htmlFor="advisorName">Consultants</Label>
               <MultiAdvisorSelect
                 value={formData.advisorName || ''}
                 onChange={(v) => setFormData({ ...formData, advisorName: v })}
-                placeholder="בחר יועצים"
+                placeholder="Select consultants"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="paymentType">סוג תשלום</Label>
+              <Label htmlFor="paymentType">Payment Type</Label>
               <Select 
                 value={(formData as any).paymentType || 'package'} 
                 onValueChange={(v: 'hourly' | 'package' | 'other') => setFormData({ ...formData, paymentType: v } as any)}
@@ -517,16 +517,16 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="hourly">שעתי</SelectItem>
-                  <SelectItem value="package">חבילה</SelectItem>
-                  <SelectItem value="other">משולב</SelectItem>
+                  <SelectItem value="hourly">Hourly</SelectItem>
+                  <SelectItem value="package">Package</SelectItem>
+                  <SelectItem value="other">Combined</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageCost">עלות חבילה (₪)</Label>
+            <Label htmlFor="packageCost">Package Cost ($)</Label>
             <Input
               id="packageCost"
               type="text"
@@ -539,7 +539,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amountPaid">שולם בפועל (₪)</Label>
+              <Label htmlFor="amountPaid">Amount Paid ($)</Label>
               <Input
                 id="amountPaid"
                 type="text"
@@ -550,51 +550,51 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-muted-foreground">יתרה לתשלום</Label>
+              <Label className="text-muted-foreground">Balance Due</Label>
               <div className="h-10 px-3 flex items-center rounded-md border bg-muted/50 text-muted-foreground">
-                ₪{(parseCurrencyInput(packageCostText) - parseCurrencyInput(amountPaidText)).toLocaleString()}
+                ${(parseCurrencyInput(packageCostText) - parseCurrencyInput(amountPaidText)).toLocaleString()}
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="paymentNotes">הערות תשלום</Label>
+            <Label htmlFor="paymentNotes">Payment Notes</Label>
             <Input
               id="paymentNotes"
               value={formData.paymentNotes || ''}
               onChange={(e) => setFormData({ ...formData, paymentNotes: e.target.value })}
-              placeholder="לדוגמה: תשלום 1 מתוך 4, ישלם חצי שני בסוף"
+              placeholder="e.g., Payment 1 of 4, remaining half at the end"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Label htmlFor="packageNotes">Package Notes</Label>
             <Textarea
               id="packageNotes"
               value={formData.packageNotes || ''}
               onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
               rows={2}
-              placeholder="הערות לגבי החבילה..."
+              placeholder="Notes about the package..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="advisorPaymentNotes">תשלום ליועץ</Label>
+            <Label htmlFor="advisorPaymentNotes">Payment to Consultant</Label>
             <Textarea
               id="advisorPaymentNotes"
               value={formData.advisorPaymentNotes || ''}
               onChange={(e) => setFormData({ ...formData, advisorPaymentNotes: e.target.value })}
               rows={2}
-              placeholder="פרטים על תשלום ליועץ (יוצג בפורטל היועצים כ'תשלום סטודנט')..."
+              placeholder="Details about payment to consultant (will be displayed in consultant portal as 'Student Payment')..."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="targetCountry">מדינה נבחרת</Label>
+              <Label htmlFor="targetCountry">Target Country</Label>
               <Select value={formData.targetCountry || ''} onValueChange={(v) => setFormData({ ...formData, targetCountry: v })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר מדינה" />
+                  <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
                   {countryOptions.map((country) => (
@@ -604,7 +604,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="targetUniversity">אוניברסיטאות יעד</Label>
+              <Label htmlFor="targetUniversity">Target Universities</Label>
               <MultiUniversitySelect
                 value={formData.targetUniversity}
                 onChange={(v) => setFormData({ ...formData, targetUniversity: v })}
@@ -613,7 +613,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="program">תוכנית לימודים</Label>
+            <Label htmlFor="program">Study Program</Label>
             <Input
               id="program"
               value={formData.program}
@@ -623,7 +623,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           {/* Accepted Universities Section */}
           <div className="space-y-3 p-4 bg-success/5 rounded-lg border border-success/20">
-            <Label className="text-base font-semibold">אוניברסיטאות שהתקבל אליהן</Label>
+            <Label className="text-base font-semibold">Accepted Universities</Label>
             
             {/* Add new university */}
             <div className="space-y-2">
@@ -631,43 +631,43 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 <CountryDropdown
                   value={newUniversityCountry}
                   onChange={setNewUniversityCountry}
-                  placeholder="בחר מדינה *"
+                  placeholder="Select Country *"
                   className={!newUniversityCountry && newUniversityName.trim() ? '[&>button]:border-orange-300 [&>button]:bg-orange-50' : ''}
                 />
                 <UniversityDropdown
                   value={newUniversityName}
                   onChange={setNewUniversityName}
-                  placeholder="שם האוניברסיטה *"
+                  placeholder="University Name *"
                 />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <Select value={newUniversityDegreeType} onValueChange={setNewUniversityDegreeType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="סוג תואר" />
+                    <SelectValue placeholder="Degree Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
-                    <SelectItem value="תואר שני">תואר שני</SelectItem>
-                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
-                    <SelectItem value="אחר">אחר</SelectItem>
+                    <SelectItem value="Bachelor's">Bachelor's</SelectItem>
+                    <SelectItem value="Master's">Master's</SelectItem>
+                    <SelectItem value="PhD">PhD</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
                 <FieldAutocomplete
                   value={newUniversityField}
                   onChange={setNewUniversityField}
-                  placeholder="תחום לימודים"
+                  placeholder="Field of Study"
                 />
                 <Input
                   value={newUniversityStudyYear}
                   onChange={(e) => setNewUniversityStudyYear(e.target.value)}
-                  placeholder="שנת לימודים"
+                  placeholder="Study Year"
                 />
               </div>
-              {newUniversityDegreeType === 'אחר' && (
+              {newUniversityDegreeType === 'Other' && (
                 <Input
                   value={newUniversityDegreeTypeOther}
                   onChange={(e) => setNewUniversityDegreeTypeOther(e.target.value)}
-                  placeholder="סוג תואר אחר..."
+                  placeholder="Other degree type..."
                 />
               )}
               <Button 
@@ -677,11 +677,11 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 disabled={!newUniversityCountry || !newUniversityName.trim()}
                 className="w-full"
               >
-                <Plus className="h-4 w-4 ml-2" />
-                הוסף אוניברסיטה
+                <Plus className="h-4 w-4 mr-2" />
+                Add University
               </Button>
               {!newUniversityCountry && newUniversityName.trim() && (
-                <p className="text-xs text-orange-600">יש לבחור מדינה כדי להוסיף</p>
+                <p className="text-xs text-orange-600">Please select a country to add</p>
               )}
             </div>
 
@@ -690,7 +690,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <div className="space-y-3">
                 {Object.entries(
                   formData.acceptedUniversities.reduce((acc, uni, index) => {
-                    const country = uni.country || 'ללא מדינה';
+                    const country = uni.country || 'No Country';
                     if (!acc[country]) acc[country] = [];
                     acc[country].push({ ...uni, originalIndex: index });
                     return acc;
@@ -707,12 +707,12 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                 <CountryDropdown
                                   value={uni.country || ''}
                                   onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { country: v })}
-                                  placeholder="מדינה"
+                                  placeholder="Country"
                                 />
                                 <UniversityDropdown
                                   value={uni.name}
                                   onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { name: v })}
-                                  placeholder="שם האוניברסיטה"
+                                  placeholder="University Name"
                                 />
                               </div>
                               <div className="grid grid-cols-3 gap-2">
@@ -721,31 +721,31 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                   onValueChange={(v) => updateAcceptedUniversity(uni.originalIndex, { degreeType: v })}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="סוג תואר" />
+                                    <SelectValue placeholder="Degree Type" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
-                                    <SelectItem value="תואר שני">תואר שני</SelectItem>
-                                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
-                                    <SelectItem value="אחר">אחר</SelectItem>
+                                    <SelectItem value="Bachelor's">Bachelor's</SelectItem>
+                                    <SelectItem value="Master's">Master's</SelectItem>
+                                    <SelectItem value="PhD">PhD</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FieldAutocomplete
                                   value={uni.field || ''}
                                   onChange={(v) => updateAcceptedUniversity(uni.originalIndex, { field: v })}
-                                  placeholder="תחום לימודים"
+                                  placeholder="Field of Study"
                                 />
                                 <Input
                                   value={uni.studyYear || ''}
                                   onChange={(e) => updateAcceptedUniversity(uni.originalIndex, { studyYear: e.target.value })}
-                                  placeholder="שנת לימודים"
+                                  placeholder="Study Year"
                                 />
                               </div>
-                              {uni.degreeType === 'אחר' && (
+                              {uni.degreeType === 'Other' && (
                                 <Input
                                   value={uni.degreeTypeOther || ''}
                                   onChange={(e) => updateAcceptedUniversity(uni.originalIndex, { degreeTypeOther: e.target.value })}
-                                  placeholder="סוג תואר אחר..."
+                                  placeholder="Other degree type..."
                                 />
                               )}
                               <div className="flex justify-end gap-2">
@@ -755,8 +755,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                   size="sm"
                                   onClick={() => setEditingUniversityIndex(null)}
                                 >
-                                  <Check className="h-4 w-4 ml-1" />
-                                  סיום עריכה
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Finish Editing
                                 </Button>
                               </div>
                             </div>
@@ -765,13 +765,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                               <div className="flex-1 min-w-0">
                                 <span className="font-medium">{uni.name}</span>
                                 {[
-                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                                   uni.field,
                                   uni.studyYear
                                 ].filter(Boolean).length > 0 && (
-                                  <span className="text-xs text-muted-foreground mr-2">
+                                  <span className="text-xs text-muted-foreground ml-2">
                                     {[
-                                      uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                      uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                                       uni.field,
                                       uni.studyYear
                                     ].filter(Boolean).join(' • ')}
@@ -787,7 +787,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                     onClick={() => openExternalFile(uni.acceptanceLetterUrl!, `acceptance-letter-${uni.name}`)}
                                   >
                                     <FileText className="h-4 w-4" />
-                                    מכתב קבלה
+                                    Acceptance Letter
                                   </button>
                                   <Button
                                     type="button"
@@ -795,7 +795,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                     size="icon"
                                     className="h-6 w-6"
                                     onClick={() => handleRemoveFile(uni.originalIndex)}
-                                    title="הסר מכתב קבלה"
+                                    title="Remove Acceptance Letter"
                                   >
                                     <X className="h-3 w-3" />
                                   </Button>
@@ -812,7 +812,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                     />
                                     <span className="inline-flex items-center gap-1 h-7 px-2 text-xs text-muted-foreground hover:bg-accent rounded-md">
                                       <Upload className="h-3 w-3" />
-                                      {uploadingFor === uni.originalIndex ? 'מעלה...' : 'החלף'}
+                                      {uploadingFor === uni.originalIndex ? 'Uploading...' : 'Replace'}
                                     </span>
                                   </label>
                                 </div>
@@ -830,7 +830,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                   />
                                   <span className="inline-flex items-center gap-1 h-9 px-3 border rounded-md text-sm hover:bg-accent">
                                     <Upload className="h-3 w-3" />
-                                    {uploadingFor === uni.originalIndex ? 'מעלה...' : 'העלה מכתב קבלה'}
+                                    {uploadingFor === uni.originalIndex ? 'Uploading...' : 'Upload Acceptance Letter'}
                                   </span>
                                 </label>
                               )}
@@ -841,7 +841,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                                 size="icon"
                                 className="h-8 w-8"
                                 onClick={() => setEditingUniversityIndex(uni.originalIndex)}
-                                title="ערוך"
+                                title="Edit"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -867,14 +867,14 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           {/* Applied Universities Section */}
           <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
-            <Label className="text-base font-semibold">אוניברסיטאות שהוגש אליהן</Label>
+            <Label className="text-base font-semibold">Applied Universities</Label>
 
             {/* Add new applied university */}
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <Select value={newAppliedCountry} onValueChange={setNewAppliedCountry}>
                   <SelectTrigger className={!newAppliedCountry && newAppliedName.trim() ? 'border-orange-300 bg-orange-50' : ''}>
-                    <SelectValue placeholder="בחר מדינה *" />
+                    <SelectValue placeholder="Select Country *" />
                   </SelectTrigger>
                   <SelectContent>
                     {countryOptions.map((c) => (
@@ -885,43 +885,43 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 <UniversityDropdown
                   value={newAppliedName}
                   onChange={setNewAppliedName}
-                  placeholder="שם האוניברסיטה *"
+                  placeholder="University Name *"
                 />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <Select value={newAppliedDegreeType} onValueChange={setNewAppliedDegreeType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="סוג תואר" />
+                    <SelectValue placeholder="Degree Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
-                    <SelectItem value="תואר שני">תואר שני</SelectItem>
-                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
-                    <SelectItem value="אחר">אחר</SelectItem>
+                    <SelectItem value="Bachelor's">Bachelor's</SelectItem>
+                    <SelectItem value="Master's">Master's</SelectItem>
+                    <SelectItem value="PhD">PhD</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
                 <FieldAutocomplete
                   value={newAppliedField}
                   onChange={setNewAppliedField}
-                  placeholder="תחום לימודים"
+                  placeholder="Field of Study"
                 />
                 <Input
                   value={newAppliedStudyYear}
                   onChange={(e) => setNewAppliedStudyYear(e.target.value)}
-                  placeholder="שנת לימודים"
+                  placeholder="Study Year"
                 />
               </div>
-              {newAppliedDegreeType === 'אחר' && (
+              {newAppliedDegreeType === 'Other' && (
                 <Input
                   value={newAppliedDegreeTypeOther}
                   onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)}
-                  placeholder="סוג תואר אחר..."
+                  placeholder="Other degree type..."
                 />
               )}
               <div className="grid grid-cols-2 gap-2">
                 <Select value={newAppliedStatus} onValueChange={setNewAppliedStatus}>
                   <SelectTrigger>
-                    <SelectValue placeholder="סטטוס בקשה" />
+                    <SelectValue placeholder="Application Status" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(applicationStatusLabels).map(([value, label]) => (
@@ -932,7 +932,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 <Input
                   value={newAppliedNotes}
                   onChange={(e) => setNewAppliedNotes(e.target.value)}
-                  placeholder="הערות (אופציונלי)"
+                  placeholder="Notes (optional)"
                 />
               </div>
               <Button
@@ -946,7 +946,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                       name: newAppliedName.trim(),
                       country: newAppliedCountry.trim(),
                       degreeType: newAppliedDegreeType || undefined,
-                      degreeTypeOther: newAppliedDegreeType === 'אחר' ? newAppliedDegreeTypeOther : undefined,
+                      degreeTypeOther: newAppliedDegreeType === 'Other' ? newAppliedDegreeTypeOther : undefined,
                       field: newAppliedField || undefined,
                       studyYear: newAppliedStudyYear || undefined,
                       applicationStatus: newAppliedStatus || 'submitted',
@@ -965,8 +965,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 disabled={!newAppliedCountry || !newAppliedName.trim()}
                 className="w-full"
               >
-                <Plus className="h-4 w-4 ml-2" />
-                הוסף הגשה
+                <Plus className="h-4 w-4 mr-2" />
+                Add Application
               </Button>
             </div>
 
@@ -975,7 +975,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               <div className="space-y-3">
                 {Object.entries(
                   appliedUniversities.reduce((acc, uni, index) => {
-                    const country = uni.country || 'ללא מדינה';
+                    const country = uni.country || 'No Country';
                     if (!acc[country]) acc[country] = [];
                     acc[country].push({ ...uni, originalIndex: index });
                     return acc;
@@ -994,13 +994,13 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                               </span>
                             </div>
                             {[
-                              uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                              uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                               uni.field,
                               uni.studyYear
                             ].filter(Boolean).length > 0 && (
                               <div className="text-xs text-muted-foreground mt-1">
                                 {[
-                                  uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                                  uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                                   uni.field,
                                   uni.studyYear
                                 ].filter(Boolean).join(' • ')}
@@ -1029,19 +1029,19 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="source">מקור הגעה</Label>
+            <Label htmlFor="source">Lead Source</Label>
             <Select 
               value={sourceSelection} 
               onValueChange={(v) => {
                 setSourceSelection(v);
-                if (v !== 'אחר') {
+                if (v !== 'Other') {
                   setFormData({ ...formData, source: v });
                   setCustomSource('');
                 }
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="בחר מקור" />
+                <SelectValue placeholder="Select source" />
               </SelectTrigger>
               <SelectContent className="bg-popover z-[100] max-h-60 overflow-y-auto" position="popper" sideOffset={4}>
                 {sourceOptions.map((src) => (
@@ -1049,9 +1049,9 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 ))}
               </SelectContent>
             </Select>
-            {sourceSelection === 'אחר' && (
+            {sourceSelection === 'Other' && (
               <Input
-                placeholder="הזן מקור אחר..."
+                placeholder="Enter other source..."
                 value={customSource}
                 onChange={(e) => {
                   setCustomSource(e.target.value);
@@ -1064,21 +1064,21 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           {/* Payment Reminder Date */}
           <div className="space-y-2">
-            <Label>תאריך תזכורת לתשלום</Label>
+            <Label>Payment Reminder Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-right font-normal",
+                    "w-full justify-start text-left font-normal",
                     !formData.paymentReminderDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-4 w-4" />
                   {formData.paymentReminderDate ? (
-                    format(formData.paymentReminderDate, "dd/MM/yyyy", { locale: he })
+                    format(formData.paymentReminderDate, "dd/MM/yyyy", { locale: enUS })
                   ) : (
-                    <span>בחר תאריך תזכורת</span>
+                    <span>Select reminder date</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -1100,8 +1100,8 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                 onClick={() => setFormData({ ...formData, paymentReminderDate: undefined })}
                 className="text-xs text-muted-foreground"
               >
-                <X className="h-3 w-3 ml-1" />
-                הסר תאריך תזכורת
+                <X className="h-3 w-3 mr-1" />
+                Remove reminder date
               </Button>
             )}
           </div>
@@ -1109,7 +1109,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           {/* Toggles for payment and agreement */}
           <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
             <div className="flex items-center justify-between">
-              <Label htmlFor="isPaid" className="cursor-pointer">שולם</Label>
+              <Label htmlFor="isPaid" className="cursor-pointer">Paid</Label>
               <Switch
                 id="isPaid"
                 checked={formData.isPaid}
@@ -1117,7 +1117,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
               />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="signedAgreement" className="cursor-pointer">חתם על הסכם</Label>
+              <Label htmlFor="signedAgreement" className="cursor-pointer">Signed Agreement</Label>
               <Switch
                 id="signedAgreement"
                 checked={formData.signedAgreement}
@@ -1127,7 +1127,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
+            <Label htmlFor="meetingSummary">Meeting Summary</Label>
             <Textarea
               id="meetingSummary"
               value={formData.meetingSummary}
@@ -1141,7 +1141,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
             <div className="space-y-3 p-4 bg-blue-50/50 rounded-lg border border-blue-200">
               <Label className="text-base font-semibold flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-blue-600" />
-                יומן שיחות מהיועץ ({conversations.length})
+                Consultant Conversation Log ({conversations.length})
               </Label>
               <ScrollArea className="max-h-48">
                 <div className="space-y-3 pr-4">
@@ -1150,7 +1150,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(conv.conversation_date), "dd/MM/yyyy HH:mm", { locale: he })}
+                          {format(new Date(conv.conversation_date), "dd/MM/yyyy HH:mm", { locale: enUS })}
                         </span>
                         {conv.advisor_name && (
                           <span className="text-blue-600">{conv.advisor_name}</span>
@@ -1159,7 +1159,7 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
                       <p className="text-sm">{conv.summary}</p>
                       {conv.follow_up_actions && (
                         <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-1">
-                          <strong>פעולות להמשך:</strong> {conv.follow_up_actions}
+                          <strong>Follow Up Actions:</strong> {conv.follow_up_actions}
                         </div>
                       )}
                     </div>
@@ -1171,10 +1171,10 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
 
           <div className="flex gap-2 pt-4">
             <Button type="submit" className="flex-1">
-              שמור שינויים
+              Save Changes
             </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              ביטול
+              Cancel
             </Button>
           </div>
         </form>

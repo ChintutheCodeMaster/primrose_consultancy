@@ -82,20 +82,20 @@ interface ProjectFormData {
 }
 
 const initialCollabForm: CollabFormData = { name: '', contact_name: '', contact_phone: '', contact_email: '', category: '', notes: '' };
-const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', currency: 'ILS', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
+const initialProjectForm: ProjectFormData = { name: '', description: '', payment_direction: 'income', amount: '', net_amount: '', currency: 'USD', payment_date: '', invoice_date: '', payment_request_date: '', status: 'active', category: '', notes: '', payment_notes: '' };
 
-const statusLabels: Record<string, string> = { active: 'פעיל', completed: 'הושלם', pending_payment: 'ממתין לתשלום', pending_invoice: 'ממתין לחשבונית' };
+const statusLabels: Record<string, string> = { active: 'Active', completed: 'Completed', pending_payment: 'Pending Payment', pending_invoice: 'Pending Invoice' };
 const statusColors: Record<string, string> = { active: 'bg-primary/20 text-primary', completed: 'bg-green-100 text-green-700', pending_payment: 'bg-yellow-100 text-yellow-700', pending_invoice: 'bg-orange-100 text-orange-700' };
-const directionLabels: Record<string, string> = { income: 'הכנסה', expense: 'הוצאה' };
+const directionLabels: Record<string, string> = { income: 'Income', expense: 'Expense' };
 
 const currencyOptions: { value: string; label: string; symbol: string }[] = [
-  { value: 'ILS', label: 'שקל (₪)', symbol: '₪' },
-  { value: 'USD', label: 'דולר ($)', symbol: '$' },
-  { value: 'EUR', label: 'יורו (€)', symbol: '€' },
-  { value: 'GBP', label: 'פאונד (£)', symbol: '£' },
+  { value: 'ILS', label: 'NIS ($)', symbol: '$' },
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'GBP', label: 'GBP (£)', symbol: '£' },
 ];
 
-const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '₪';
+const getCurrencySymbol = (currency?: string | null) => currencyOptions.find(c => c.value === currency)?.symbol || '$';
 
 function FrozenProjectsTable({ children }: { children: React.ReactNode }) {
   const contentScrollRef = useRef<HTMLDivElement>(null);
@@ -220,10 +220,10 @@ export default function Projects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collaborations'] });
-      toast.success('גוף שיתוף פעולה נוסף');
+      toast.success('Collaboration added successfully');
       closeCollabDialog();
     },
-    onError: () => toast.error('שגיאה בהוספה'),
+    onError: () => toast.error('Error adding collaboration'),
   });
 
   const updateCollabMutation = useMutation({
@@ -240,10 +240,10 @@ export default function Projects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collaborations'] });
-      toast.success('עודכן בהצלחה');
+      toast.success('Updated successfully');
       closeCollabDialog();
     },
-    onError: () => toast.error('שגיאה בעדכון'),
+    onError: () => toast.error('Error updating collaboration'),
   });
 
   const deleteCollabMutation = useMutation({
@@ -254,9 +254,9 @@ export default function Projects() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collaborations'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('נמחק בהצלחה');
+      toast.success('Deleted successfully');
     },
-    onError: () => toast.error('שגיאה במחיקה'),
+    onError: () => toast.error('Error deleting collaboration'),
   });
 
   // ── Project Mutations ──
@@ -270,7 +270,7 @@ export default function Projects() {
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
         net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
-        currency: data.currency || 'ILS',
+        currency: data.currency || 'USD',
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -285,10 +285,10 @@ export default function Projects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('פרויקט נוסף');
+      toast.success('Project added successfully');
       closeProjectDialog();
     },
-    onError: () => toast.error('שגיאה בהוספת פרויקט'),
+    onError: () => toast.error('Error adding project'),
   });
 
   const updateProjectMutation = useMutation({
@@ -302,7 +302,7 @@ export default function Projects() {
         payment_direction: data.payment_direction,
         amount: data.amount ? parseFloat(data.amount) : null,
         net_amount: data.net_amount ? parseFloat(data.net_amount) : null,
-        currency: data.currency || 'ILS',
+        currency: data.currency || 'USD',
         payment_date: data.payment_date || null,
         invoice_date: data.invoice_date || null,
         payment_request_date: data.payment_request_date || null,
@@ -318,10 +318,10 @@ export default function Projects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('פרויקט עודכן');
+      toast.success('Project updated successfully');
       closeProjectDialog();
     },
-    onError: () => toast.error('שגיאה בעדכון'),
+    onError: () => toast.error('Error updating project'),
   });
 
   const deleteProjectMutation = useMutation({
@@ -331,9 +331,9 @@ export default function Projects() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('פרויקט נמחק');
+      toast.success('Project deleted successfully');
     },
-    onError: () => toast.error('שגיאה במחיקה'),
+    onError: () => toast.error('Error deleting project'),
   });
 
   // ── Handlers ──
@@ -415,7 +415,7 @@ export default function Projects() {
 
   const openEditProject = (p: Project) => {
     setEditingProject(p);
-    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', net_amount: (p as any).net_amount?.toString() || '', currency: p.currency || 'ILS', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
+    setProjectForm({ name: p.name, description: p.description || '', payment_direction: p.payment_direction, amount: p.amount?.toString() || '', net_amount: (p as any).net_amount?.toString() || '', currency: p.currency || 'USD', payment_date: p.payment_date || '', invoice_date: p.invoice_date || '', payment_request_date: p.payment_request_date || '', status: p.status, category: p.category || '', notes: p.notes || '', payment_notes: p.payment_notes || '' });
     setFilePath(normalizeStoragePath(p.storage_path) || normalizeStoragePath(p.file_url));
   };
 
@@ -433,6 +433,7 @@ export default function Projects() {
     else if (addingProjectForCollabId) addProjectMutation.mutate({ collabId: addingProjectForCollabId, data: projectForm });
   };
 
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -443,8 +444,8 @@ export default function Projects() {
       const { error } = await supabase.storage.from('project-files').upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
       if (error) throw error;
       setFilePath(fileName);
-      toast.success('קובץ הועלה');
-    } catch { toast.error('שגיאה בהעלאת קובץ'); }
+      toast.success('File uploaded successfully');
+    } catch { toast.error('Error uploading file'); }
     finally { setUploadingFile(false); }
   };
 
@@ -455,7 +456,7 @@ export default function Projects() {
     const absoluteUrl = directUrl && /^https?:\/\//i.test(directUrl) ? directUrl : null;
 
     if (candidates.length === 0 && !absoluteUrl) {
-      toast.error('לא נמצא נתיב קובץ לפרויקט הזה');
+      toast.error('No file path found for this project.');
       return;
     }
 
@@ -473,10 +474,10 @@ export default function Projects() {
         return;
       }
 
-      toast.error('לא הצלחנו לפתוח את הקובץ');
+      toast.error('Could not open the file');
     } catch (error) {
       console.error('Failed to open project file', error);
-      toast.error('אירעה שגיאה בפתיחת הקובץ. נסי שוב.');
+      toast.error('An error occurred while opening the file. Please try again.');
     }
   };
 
@@ -485,37 +486,37 @@ export default function Projects() {
     <form onSubmit={handleCollabSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
-          <Label>שם הגוף *</Label>
+          <Label>Collaboration Name *</Label>
           <Input value={collabForm.name} onChange={e => setCollabForm(p => ({ ...p, name: e.target.value }))} required />
         </div>
         <div>
-          <Label>קטגוריה</Label>
-          <Input value={collabForm.category} onChange={e => setCollabForm(p => ({ ...p, category: e.target.value }))} placeholder="שיווק, תרגום, אירועים..." />
+          <Label>Category</Label>
+          <Input value={collabForm.category} onChange={e => setCollabForm(p => ({ ...p, category: e.target.value }))} placeholder="Marketing, Translation, Events..." />
         </div>
         <div />
         <div className="col-span-2 border-t pt-3">
-          <p className="text-sm font-medium text-muted-foreground mb-2">איש קשר</p>
+          <p className="text-sm font-medium text-muted-foreground mb-2">Contact Person</p>
         </div>
         <div>
-          <Label>שם</Label>
+          <Label>Name</Label>
           <Input value={collabForm.contact_name} onChange={e => setCollabForm(p => ({ ...p, contact_name: e.target.value }))} />
         </div>
         <div>
-          <Label>טלפון</Label>
+          <Label>Phone</Label>
           <Input value={collabForm.contact_phone} onChange={e => setCollabForm(p => ({ ...p, contact_phone: e.target.value }))} dir="ltr" />
         </div>
         <div className="col-span-2">
-          <Label>מייל</Label>
+          <Label>Email</Label>
           <Input value={collabForm.contact_email} onChange={e => setCollabForm(p => ({ ...p, contact_email: e.target.value }))} dir="ltr" />
         </div>
         <div className="col-span-2">
-          <Label>הערות כלליות</Label>
+          <Label>General Notes</Label>
           <Textarea value={collabForm.notes} onChange={e => setCollabForm(p => ({ ...p, notes: e.target.value }))} rows={2} />
         </div>
       </div>
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={closeCollabDialog}>ביטול</Button>
-        <Button type="submit">{editingCollab ? 'עדכן' : 'הוסף'}</Button>
+        <Button type="button" variant="outline" onClick={closeCollabDialog}>Cancel</Button>
+        <Button type="submit">{editingCollab ? 'Update' : 'Add'}</Button>
       </div>
     </form>
   );
@@ -525,25 +526,25 @@ export default function Projects() {
     <form onSubmit={handleProjectSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
-          <Label>שם הפרויקט *</Label>
+          <Label>Project Name *</Label>
           <Input value={projectForm.name} onChange={e => setProjectForm(p => ({ ...p, name: e.target.value }))} required />
         </div>
         <div className="col-span-2">
-          <Label>תיאור</Label>
+          <Label>Description</Label>
           <Textarea value={projectForm.description} onChange={e => setProjectForm(p => ({ ...p, description: e.target.value }))} rows={2} />
         </div>
         <div>
-          <Label>כיוון תשלום</Label>
+          <Label>Payment Direction</Label>
           <Select value={projectForm.payment_direction} onValueChange={v => setProjectForm(p => ({ ...p, payment_direction: v }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="income">הכנסה</SelectItem>
-              <SelectItem value="expense">הוצאה</SelectItem>
+              <SelectItem value="income">Income</SelectItem>
+              <SelectItem value="expense">Expense</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label>סכום</Label>
+          <Label>Amount</Label>
           <div className="flex gap-1">
             <Input type="text" inputMode="decimal" value={projectForm.amount} onChange={e => setProjectForm(p => ({ ...p, amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="flex-1" />
             <Select value={projectForm.currency} onValueChange={v => setProjectForm(p => ({ ...p, currency: v }))}>
@@ -555,42 +556,42 @@ export default function Projects() {
               </SelectContent>
             </Select>
           </div>
-          <Input type="text" inputMode="decimal" placeholder="סכום לאחר ניכוי מס (אופציונלי)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
+          <Input type="text" inputMode="decimal" placeholder="Net amount (optional)" value={projectForm.net_amount} onChange={e => setProjectForm(p => ({ ...p, net_amount: e.target.value.replace(/[^0-9.]/g, '') }))} className="mt-1 text-xs h-8" />
         </div>
         <div>
-          <Label>מתי נשלחה דרישת תשלום</Label>
+          <Label>Payment Request Date</Label>
           <Input type="date" value={projectForm.payment_request_date} onChange={e => setProjectForm(p => ({ ...p, payment_request_date: e.target.value }))} />
         </div>
         <div>
-          <Label>מתי הופקה חשבונית</Label>
+          <Label>Invoice Date</Label>
           <Input type="date" value={projectForm.invoice_date} onChange={e => setProjectForm(p => ({ ...p, invoice_date: e.target.value }))} />
         </div>
         <div>
-          <Label>מתי שולם</Label>
+          <Label>Payment Date</Label>
           <Input type="date" value={projectForm.payment_date} onChange={e => setProjectForm(p => ({ ...p, payment_date: e.target.value }))} />
         </div>
         <div>
-          <Label>סטטוס</Label>
+          <Label>Status</Label>
           <Select value={projectForm.status} onValueChange={v => setProjectForm(p => ({ ...p, status: v }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="active">פעיל</SelectItem>
-              <SelectItem value="completed">הושלם</SelectItem>
-              <SelectItem value="pending_payment">ממתין לתשלום</SelectItem>
-              <SelectItem value="pending_invoice">ממתין לחשבונית</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending_payment">Pending Payment</SelectItem>
+              <SelectItem value="pending_invoice">Pending Invoice</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label>קטגוריה</Label>
+          <Label>Category</Label>
           <Input value={projectForm.category} onChange={e => setProjectForm(p => ({ ...p, category: e.target.value }))} />
         </div>
         <div className="col-span-2">
-          <Label>הערות תשלום</Label>
+          <Label>Payment Notes</Label>
           <Textarea value={projectForm.payment_notes} onChange={e => setProjectForm(p => ({ ...p, payment_notes: e.target.value }))} rows={2} />
         </div>
         <div className="col-span-2">
-          <Label>צירוף קובץ (חשבונית / חוזה)</Label>
+          <Label>Attach File (Invoice / Contract)</Label>
           <div className="flex items-center gap-2">
             <Input type="file" onChange={handleFileUpload} disabled={uploadingFile} className="flex-1" />
             {filePath && (
@@ -600,7 +601,7 @@ export default function Projects() {
                   variant="outline"
                   size="icon"
                   onClick={() => openProjectFile({ storage_bucket: 'project-files', storage_path: filePath, file_url: null } as Project)}
-                  title="צפייה בקובץ"
+                  title="View File"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -609,7 +610,7 @@ export default function Projects() {
                   variant="outline"
                   size="icon"
                   onClick={() => setFilePath('')}
-                  title="הסרת קובץ"
+                  title="Remove File"
                   className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -617,17 +618,17 @@ export default function Projects() {
               </>
             )}
           </div>
-          {filePath && <p className="text-xs text-muted-foreground mt-1">קובץ מצורף: {filePath.replace(/^\d+-/, '')}</p>}
-          {uploadingFile && <p className="text-xs text-muted-foreground mt-1">מעלה...</p>}
+          {filePath && <p className="text-xs text-muted-foreground mt-1">Attached file: {filePath.replace(/^\d+-/, '')}</p>}
+          {uploadingFile && <p className="text-xs text-muted-foreground mt-1">Uploading...</p>}
         </div>
         <div className="col-span-2">
-          <Label>הערות</Label>
+          <Label>Notes</Label>
           <Textarea value={projectForm.notes} onChange={e => setProjectForm(p => ({ ...p, notes: e.target.value }))} rows={2} />
         </div>
       </div>
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={closeProjectDialog}>ביטול</Button>
-        <Button type="submit">{editingProject ? 'עדכן' : 'הוסף'}</Button>
+        <Button type="button" variant="outline" onClick={closeProjectDialog}>Cancel</Button>
+        <Button type="submit">{editingProject ? 'Update' : 'Add'}</Button>
       </div>
     </form>
   );
@@ -638,15 +639,15 @@ export default function Projects() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">פרויקטים ושיתופי פעולה ({collaborations.length})</h1>
-            <p className="text-muted-foreground mt-1">ניהול גופי שיתוף פעולה והפרויקטים שלהם</p>
+            <h1 className="text-3xl font-bold text-foreground">Projects and Collaborations ({collaborations.length})</h1>
+            <p className="text-muted-foreground mt-1">Manage collaboration entities and their projects</p>
           </div>
           <Dialog open={isAddCollabOpen} onOpenChange={open => { setIsAddCollabOpen(open); if (!open) closeCollabDialog(); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="h-4 w-4" />הוסף גוף שת״פ</Button>
+              <Button className="gap-2"><Plus className="h-4 w-4" />Add Collaboration Entity</Button>
             </DialogTrigger>
             <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>גוף שיתוף פעולה חדש</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>New Collaboration Entity</DialogTitle></DialogHeader>
               {collabFormContent}
             </DialogContent>
           </Dialog>
@@ -655,7 +656,7 @@ export default function Projects() {
         {/* Search */}
         <div className="relative">
           <Input
-            placeholder="חיפוש לפי שם גוף שת״פ, פרויקט, איש קשר..."
+            placeholder="Search by collaboration name, project, contact person..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="max-w-md"
@@ -664,13 +665,13 @@ export default function Projects() {
 
         {/* Content */}
         {loadingCollabs ? (
-          <div className="text-center py-12 text-muted-foreground">טוען...</div>
+          <div className="text-center py-12 text-muted-foreground">Loading...</div>
         ) : collaborations.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FolderKanban className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">אין גופי שיתוף פעולה</p>
-              <p className="text-sm text-muted-foreground/70">הוסיפי גוף ראשון כדי להתחיל</p>
+              <p className="text-muted-foreground">No collaboration entities</p>
+              <p className="text-sm text-muted-foreground/70">Add the first entity to get started</p>
             </CardContent>
           </Card>
         ) : (
@@ -697,7 +698,7 @@ export default function Projects() {
               const totalsByCurrency: Record<string, { income: number; expense: number; net: number }> = {};
               const netAmountByCurrency: Record<string, number> = {};
               collabProjects.forEach(p => {
-                const curr = p.currency || 'ILS';
+                const curr = p.currency || 'USD';
                 if (!totalsByCurrency[curr]) totalsByCurrency[curr] = { income: 0, expense: 0, net: 0 };
                 if (p.payment_direction === 'income') {
                   totalsByCurrency[curr].income += p.amount || 0;
@@ -726,17 +727,17 @@ export default function Projects() {
                               <CardTitle className="text-lg flex items-center gap-2">
                                 {collab.name}
                                 {pendingPaymentCount > 0 && (
-                                  <span className="inline-flex h-2 w-2 rounded-full bg-warning" title={`${pendingPaymentCount} ממתינים לתשלום`} />
+                                  <span className="inline-flex h-2 w-2 rounded-full bg-warning" title={`${pendingPaymentCount} pending payment`} />
                                 )}
                               </CardTitle>
                               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-0.5">
                                 {collab.category && <span>{collab.category}</span>}
-                                <span>{collabProjects.length} פרויקטים</span>
+                                <span>{collabProjects.length} projects</span>
                                 {currencyKeys.map(curr => {
                                   const t = totalsByCurrency[curr];
                                   if (t.income === 0 && t.expense === 0) return null;
                                   const sym = getCurrencySymbol(curr);
-                                  const label = t.income > 0 && t.expense === 0 ? 'הכנסות' : t.expense > 0 && t.income === 0 ? 'הוצאות' : 'נטו';
+                                  const label = t.income > 0 && t.expense === 0 ? 'Income' : t.expense > 0 && t.income === 0 ? 'Expenses' : 'Net';
                                   const netVal = netAmountByCurrency[curr] || 0;
                                   return (
                                     <span key={curr} className="flex items-center gap-2">
@@ -746,7 +747,7 @@ export default function Projects() {
                                       </span>
                                       {netVal > 0 && (
                                         <span className="text-muted-foreground text-xs">
-                                          (לאחר ניכוי: {sym}{netVal.toLocaleString()})
+                                          (Net after deduction: {sym}{netVal.toLocaleString()})
                                         </span>
                                       )}
                                     </span>
@@ -763,7 +764,7 @@ export default function Projects() {
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); openEditCollab(collab); }}>
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); if (confirm('למחוק את הגוף וכל הפרויקטים שלו?')) deleteCollabMutation.mutate(collab.id); }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); if (confirm('Delete the entity and all its projects?')) deleteCollabMutation.mutate(collab.id); }}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -780,23 +781,23 @@ export default function Projects() {
                     <CollapsibleContent>
                       <CardContent className="pt-0">
                         {collabProjects.length === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-4">אין פרויקטים עדיין</p>
+                          <p className="text-sm text-muted-foreground text-center py-4">No projects yet</p>
                         ) : (
                           <FrozenProjectsTable>
                             <table className="w-max min-w-full caption-bottom text-sm">
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead className="text-right">פרויקט</TableHead>
-                                  <TableHead className="text-right">כיוון</TableHead>
-                                  <TableHead className="text-right">סכום</TableHead>
-                                  <TableHead className="text-right">דרישת תשלום</TableHead>
-                                  <TableHead className="text-right">חשבונית</TableHead>
-                                  <TableHead className="text-right">מתי שולם</TableHead>
-                                  <TableHead className="text-right">סטטוס</TableHead>
-                                  <TableHead className="text-right">הערות תשלום</TableHead>
-                                  <TableHead className="text-right">הערות</TableHead>
-                                  <TableHead className="text-right">קובץ</TableHead>
-                                  <TableHead className="text-right">פעולות</TableHead>
+                                  <TableHead className="text-left">Project</TableHead>
+                                  <TableHead className="text-left">Direction</TableHead>
+                                  <TableHead className="text-left">Amount</TableHead>
+                                  <TableHead className="text-left">Payment Request</TableHead>
+                                  <TableHead className="text-left">Invoice</TableHead>
+                                  <TableHead className="text-left">Payment Date</TableHead>
+                                  <TableHead className="text-left">Status</TableHead>
+                                  <TableHead className="text-left">Payment Notes</TableHead>
+                                  <TableHead className="text-left">Notes</TableHead>
+                                  <TableHead className="text-left">File</TableHead>
+                                  <TableHead className="text-left">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -817,7 +818,7 @@ export default function Projects() {
                                       <div>
                                         {project.amount != null ? `${getCurrencySymbol(project.currency)}${project.amount.toLocaleString()}` : '-'}
                                         {(project as any).net_amount != null && (
-                                          <p className="text-xs text-muted-foreground">נטו: {getCurrencySymbol(project.currency)}{(project as any).net_amount.toLocaleString()}</p>
+                                          <p className="text-xs text-muted-foreground">Net: {getCurrencySymbol(project.currency)}{(project as any).net_amount.toLocaleString()}</p>
                                         )}
                                       </div>
                                     </TableCell>
@@ -841,7 +842,7 @@ export default function Projects() {
                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditProject(project)}>
                                           <Pencil className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => { if (confirm('למחוק?')) deleteProjectMutation.mutate(project.id); }}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => { if (confirm('Delete?')) deleteProjectMutation.mutate(project.id); }}>
                                           <Trash2 className="h-4 w-4" />
                                         </Button>
                                       </div>
@@ -864,7 +865,7 @@ export default function Projects() {
         {/* Edit Collab Dialog */}
         <Dialog open={!!editingCollab} onOpenChange={open => !open && closeCollabDialog()}>
           <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>עריכת גוף שיתוף פעולה</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Edit Collaboration Entity</DialogTitle></DialogHeader>
             {collabFormContent}
           </DialogContent>
         </Dialog>
@@ -872,7 +873,7 @@ export default function Projects() {
         {/* Add Project Dialog */}
         <Dialog open={!!addingProjectForCollabId} onOpenChange={open => !open && closeProjectDialog()}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>פרויקט חדש</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>New Project</DialogTitle></DialogHeader>
             {projectFormContent}
           </DialogContent>
         </Dialog>
@@ -880,7 +881,7 @@ export default function Projects() {
         {/* Edit Project Dialog */}
         <Dialog open={!!editingProject} onOpenChange={open => !open && closeProjectDialog()}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>עריכת פרויקט</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Edit Project</DialogTitle></DialogHeader>
             {projectFormContent}
           </DialogContent>
         </Dialog>

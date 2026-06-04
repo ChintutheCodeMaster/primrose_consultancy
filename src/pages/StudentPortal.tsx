@@ -21,7 +21,7 @@ import {
   Building
 } from "lucide-react";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface Student {
   id: string;
@@ -90,8 +90,8 @@ export default function StudentPortal() {
 
     if (studentError || !studentData) {
       toast({
-        title: "שגיאה",
-        description: "לא נמצא מועמד עם הקישור הזה",
+        title: "Error",
+        description: "No student found with this link.",
         variant: "destructive",
       });
       setLoading(false);
@@ -137,8 +137,8 @@ export default function StudentPortal() {
 
     if (error) {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לעדכן את הפריט",
+        title: "Error",
+        description: "Could not update the item.",
         variant: "destructive",
       });
       return;
@@ -164,12 +164,12 @@ export default function StudentPortal() {
 
   if (!student) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100 p-4">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-10 pb-10">
             <div className="text-6xl mb-4">😕</div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">הקישור לא תקין</h1>
-            <p className="text-gray-600">לא נמצא מועמד עם הקישור הזה</p>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">Invalid Link</h1>
+            <p className="text-gray-600">No student found with this link.</p>
           </CardContent>
         </Card>
       </div>
@@ -177,7 +177,7 @@ export default function StudentPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -185,10 +185,10 @@ export default function StudentPortal() {
             <GraduationCap className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            שלום, {student.name}! 👋
+            Hello, {student.name}! 👋
           </h1>
           <p className="text-lg text-primary font-medium">
-            נוגה ייעוץ ללימודים בחו"ל
+            Primrose IEC - Overseas Studies Consulting
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function StudentPortal() {
                   <User className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">היועץ שלך</p>
+                  <p className="text-sm text-muted-foreground">Your Consultant</p>
                   <p className="font-medium">{student.advisor_name}</p>
                 </div>
               </div>
@@ -217,9 +217,9 @@ export default function StudentPortal() {
               <div className="flex items-center gap-3">
                 <FileSignature className={`h-5 w-5 ${student.signed_agreement ? "text-green-600" : "text-orange-600"}`} />
                 <div>
-                  <p className="text-sm text-muted-foreground">הסכם עבודה</p>
+                  <p className="text-sm text-muted-foreground">Engagement Agreement</p>
                   <p className={`font-medium ${student.signed_agreement ? "text-green-700" : "text-orange-700"}`}>
-                    {student.signed_agreement ? "נחתם ✓" : "ממתין לחתימה"}
+                    {student.signed_agreement ? "Signed ✓" : "Awaiting Signature"}
                   </p>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export default function StudentPortal() {
                   className="mt-3 w-full"
                   onClick={() => window.open(`/agreement/${studentId}`, "_blank")}
                 >
-                  חתום על ההסכם
+                  Sign Agreement
                 </Button>
               )}
             </CardContent>
@@ -241,9 +241,9 @@ export default function StudentPortal() {
               <div className="flex items-center gap-3">
                 <CreditCard className={`h-5 w-5 ${student.is_paid ? "text-green-600" : "text-red-600"}`} />
                 <div>
-                  <p className="text-sm text-muted-foreground">תשלום</p>
+                  <p className="text-sm text-muted-foreground">Payment</p>
                   <p className={`font-medium ${student.is_paid ? "text-green-700" : "text-red-700"}`}>
-                    {student.is_paid ? "שולם ✓" : "ממתין לתשלום"}
+                    {student.is_paid ? "Paid ✓" : "Awaiting Payment"}
                   </p>
                 </div>
               </div>
@@ -256,13 +256,13 @@ export default function StudentPortal() {
               <div className="flex items-center gap-3">
                 <Building className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">יעד</p>
+                  <p className="text-sm text-muted-foreground">Target</p>
                   <p className="font-medium">
-                    {student.target_university || student.target_country || "טרם נקבע"}
+                    {student.target_university || student.target_country || "Not yet determined"}
                   </p>
                 </div>
-              </div>
-            </CardContent>
+              </CardContent>
+            </Card>
           </Card>
         </div>
 
@@ -272,14 +272,14 @@ export default function StudentPortal() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <GraduationCap className="h-5 w-5 text-green-600" />
-                אוניברסיטאות שהתקבלת אליהן 🎉
+                Universities you've been accepted to! 🎉
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {Object.entries(
                   acceptedUniversities.reduce((acc, uni) => {
-                    const country = uni.country || 'אחר';
+                    const country = uni.country || 'Other';
                     if (!acc[country]) acc[country] = [];
                     acc[country].push(uni);
                     return acc;
@@ -297,7 +297,7 @@ export default function StudentPortal() {
                               {(uni.degree_type || uni.field) && (
                                 <p className="text-xs text-muted-foreground">
                                   {[
-                                    uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                    uni.degree_type === 'Other' ? uni.degree_type_other : uni.degree_type,
                                     uni.field
                                   ].filter(Boolean).join(' • ')}
                                 </p>
@@ -312,7 +312,7 @@ export default function StudentPortal() {
                               className="gap-1"
                             >
                               <Download className="h-4 w-4" />
-                              מכתב קבלה
+                              Acceptance Letter
                             </Button>
                           )}
                         </div>
@@ -330,8 +330,8 @@ export default function StudentPortal() {
           <Card>
             <CardContent className="py-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">התקדמות בתהליך</span>
-                <span className="text-sm text-muted-foreground">{completedCount}/{checklist.length} משימות</span>
+                <span className="text-sm font-medium">Process Progress</span>
+                <span className="text-sm text-muted-foreground">{completedCount}/{checklist.length} tasks</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div 
@@ -348,13 +348,13 @@ export default function StudentPortal() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-primary" />
-              רשימת משימות
+              Task List
             </CardTitle>
           </CardHeader>
           <CardContent>
             {checklist.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                אין משימות כרגע
+                No tasks at the moment
               </p>
             ) : (
               <div className="space-y-3">
@@ -380,7 +380,7 @@ export default function StudentPortal() {
                       {item.due_date && (
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
                           <Clock className="h-3 w-3" />
-                          <span>עד {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}</span>
+                          <span>Due {format(new Date(item.due_date), "dd/MM/yyyy", { locale: enUS })}</span>
                         </div>
                       )}
                     </div>
@@ -396,22 +396,22 @@ export default function StudentPortal() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              מסמכים
+              Documents
             </CardTitle>
           </CardHeader>
           <CardContent>
             {documents.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                אין מסמכים כרגע
+                No documents at the moment
               </p>
             ) : (
               <div className="space-y-4">
                 {[
-                  { value: "strategy_questionnaire", label: "שאלון אסטרטגיה" },
-                  { value: "personal_essays", label: "חיבורים אישיים" },
-                  { value: "recommendations", label: "המלצות" },
-                  { value: "cv", label: "קורות חיים" },
-                  { value: "additional", label: "מסמכים נוספים" },
+                  { value: "strategy_questionnaire", label: "Strategy Questionnaire" },
+                  { value: "personal_essays", label: "Personal Essays" },
+                  { value: "recommendations", label: "Recommendations" },
+                  { value: "cv", label: "CV" },
+                  { value: "additional", label: "Additional Documents" },
                 ].map((cat) => {
                   const catDocs = documents.filter(d => d.category === cat.value);
                   if (catDocs.length === 0) return null;
@@ -440,8 +440,8 @@ export default function StudentPortal() {
                               size="sm"
                               onClick={() => openExternalFile(doc.file_url, doc.name)}
                             >
-                              <Download className="h-4 w-4 ml-1" />
-                              הורד
+                              <Download className="h-4 w-4 mr-1" />
+                              Download
                             </Button>
                           </div>
                         ))}
@@ -455,7 +455,7 @@ export default function StudentPortal() {
                   if (otherDocs.length === 0) return null;
                   return (
                     <div>
-                      <h4 className="font-medium text-sm text-muted-foreground mb-2">מסמכים כלליים</h4>
+                      <h4 className="font-medium text-sm text-muted-foreground mb-2">General Documents</h4>
                       <div className="space-y-2">
                         {otherDocs.map((doc) => (
                           <div 
@@ -478,8 +478,8 @@ export default function StudentPortal() {
                               size="sm"
                               onClick={() => openExternalFile(doc.file_url, doc.name)}
                             >
-                              <Download className="h-4 w-4 ml-1" />
-                              הורד
+                              <Download className="h-4 w-4 mr-1" />
+                              Download
                             </Button>
                           </div>
                         ))}
@@ -494,8 +494,8 @@ export default function StudentPortal() {
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground py-4">
-          <p>יש שאלות? צור קשר עם היועץ שלך</p>
-          <p className="mt-2">נוגה ייעוץ ללימודים בחו"ל © {new Date().getFullYear()}</p>
+          <p>Questions? Contact your consultant</p>
+          <p className="mt-2">Primrose IEC © {new Date().getFullYear()}</p>
         </div>
       </div>
     </div>

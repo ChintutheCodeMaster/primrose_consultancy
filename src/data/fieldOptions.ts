@@ -12,7 +12,7 @@ export const FIELD_OPTIONS = [
   'PSYCHOLOGY',
   'ARCHITECTURE',
   'PHD / DOCTORAL PROGRAMS',
-  'אחר',
+  'Other',
 ] as const;
 
 export type FieldOption = typeof FIELD_OPTIONS[number];

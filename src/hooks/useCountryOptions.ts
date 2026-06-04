@@ -23,10 +23,10 @@ export function useCountryOptions() {
     },
   });
 
-  // Return country names with "אחר" at the end
+  // Return country names with "Other" at the end
   const options = countryOptions.map(c => c.name);
-  if (!options.includes('אחר')) {
-    options.push('אחר');
+  if (!options.includes('Other')) {
+    options.push('Other');
   }
   
   return options;

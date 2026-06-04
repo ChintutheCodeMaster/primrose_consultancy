@@ -22,14 +22,14 @@ export function CopyableContact({ value, dir, label, className }: CopyableContac
       await navigator.clipboard.writeText(value);
       setCopied(true);
       toast({
-        title: 'הועתק!',
-        description: `${label || 'הערך'} הועתק ללוח: ${value}`,
+        title: 'Copied!',
+        description: `${label || 'The value'} has been copied to clipboard: ${value}`,
       });
       setTimeout(() => setCopied(false), 1500);
     } catch {
       toast({
-        title: 'שגיאה בהעתקה',
-        description: 'לא הצלחנו להעתיק את הערך',
+        title: 'Copy Error',
+        description: 'Failed to copy the value',
         variant: 'destructive',
       });
     }
@@ -41,7 +41,7 @@ export function CopyableContact({ value, dir, label, className }: CopyableContac
         type="button"
         onClick={handleCopy}
         dir={dir}
-        title="לחץ להעתקה"
+        title="Click to copy"
         className="truncate text-right hover:text-primary hover:underline cursor-pointer transition-colors"
       >
         {value}
@@ -49,7 +49,7 @@ export function CopyableContact({ value, dir, label, className }: CopyableContac
       <button
         type="button"
         onClick={handleCopy}
-        title="העתק"
+        title="Copy"
         className="shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
       >
         {copied ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}

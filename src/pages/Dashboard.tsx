@@ -49,27 +49,27 @@ export default function Dashboard() {
 
   // Helper to format student data for Excel
   const formatStudentData = (s: any) => ({
-    'שם': s.name,
-    'אימייל': s.email || '',
-    'טלפון': s.phone,
-    'סטטוס': s.status,
-    'סוג תואר': s.degree_type,
-    'תחום עניין': s.interested_field || '',
-    'מדינה מועדפת': s.interested_country || '',
-    'מדינת יעד': s.target_country || '',
-    'אוניברסיטת יעד': s.target_university || '',
-    'תוכנית': s.program || '',
-    'שנת סיום': s.graduation_year || '',
-    'מקור': s.source || '',
-    'יועץ': s.advisor_name || '',
-    'עלות חבילה': s.package_cost || 0,
-    'סכום ששולם': s.amount_paid || 0,
-    'שולם': s.is_paid ? 'כן' : 'לא',
-    'הערות תשלום': s.payment_notes || '',
-    'הסכם נחתם': s.signed_agreement ? 'כן' : 'לא',
-    'סיכום פגישה': s.meeting_summary || '',
-    'אוניברסיטאות מקבלות': s.accepted_universities?.map((u: any) => u.name).join(', ') || '',
-    'תאריך יצירה': s.created_at ? format(new Date(s.created_at), 'dd/MM/yyyy') : '',
+    'Name': s.name,
+    'Email': s.email || '',
+    'Phone': s.phone,
+    'Status': s.status,
+    'Degree Type': s.degree_type,
+    'Field of Interest': s.interested_field || '',
+    'Preferred Country': s.interested_country || '',
+    'Target Country': s.target_country || '',
+    'Target University': s.target_university || '',
+    'Program': s.program || '',
+    'Graduation Year': s.graduation_year || '',
+    'Source': s.source || '',
+    'Consultant': s.advisor_name || '',
+    'Package Cost': s.package_cost || 0,
+    'Amount Paid': s.amount_paid || 0,
+    'Paid': s.is_paid ? 'Yes' : 'No',
+    'Payment Notes': s.payment_notes || '',
+    'Agreement Signed': s.signed_agreement ? 'Yes' : 'No',
+    'Meeting Summary': s.meeting_summary || '',
+    'Accepted Universities': s.accepted_universities?.map((u: any) => u.name).join(', ') || '',
+    'Creation Date': s.created_at ? format(new Date(s.created_at), 'dd/MM/yyyy') : '',
   });
 
   // Export all data to Excel
@@ -138,46 +138,46 @@ export default function Dashboard() {
           const yearLeads = leads?.filter(l => l.leads_year === yearCat.year_value) || [];
           if (yearLeads.length > 0) {
             const leadsData = yearLeads.map(l => ({
-              'שם': l.name,
-              'אימייל': l.email,
-              'טלפון': l.phone,
-              'סטטוס': l.status,
-              'סוג תואר': l.degree_type,
-              'תחום עניין': l.interested_field || '',
-              'מדינה מועדפת': l.interested_country || '',
-              'מקור': l.source || '',
-              'סיכום פגישה': l.meeting_summary || '',
-              'תאריך יצירה': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
-              'קשר אחרון': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
+              'Name': l.name,
+              'Email': l.email,
+              'Phone': l.phone,
+              'Status': l.status,
+              'Degree Type': l.degree_type,
+              'Field of Interest': l.interested_field || '',
+              'Preferred Country': l.interested_country || '',
+              'Source': l.source || '',
+              'Meeting Summary': l.meeting_summary || '',
+              'Creation Date': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
+              'Last Contact': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
             }));
             const sheet = XLSX.utils.json_to_sheet(leadsData);
-            XLSX.utils.book_append_sheet(wb, sheet, `מתעניינים ${yearCat.display_label}`.substring(0, 31));
+            XLSX.utils.book_append_sheet(wb, sheet, `Inquiries ${yearCat.display_label}`.substring(0, 31));
           }
         });
       } else if (leads && leads.length > 0) {
         // Fallback: all leads in one sheet
         const leadsData = leads.map(l => ({
-          'שם': l.name,
-          'אימייל': l.email,
-          'טלפון': l.phone,
-          'סטטוס': l.status,
-          'סוג תואר': l.degree_type,
-          'תחום עניין': l.interested_field || '',
-          'מדינה מועדפת': l.interested_country || '',
-          'מקור': l.source || '',
-          'סיכום פגישה': l.meeting_summary || '',
-          'תאריך יצירה': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
-          'קשר אחרון': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
+          'Name': l.name,
+          'Email': l.email,
+          'Phone': l.phone,
+          'Status': l.status,
+          'Degree Type': l.degree_type,
+          'Field of Interest': l.interested_field || '',
+          'Preferred Country': l.interested_country || '',
+          'Source': l.source || '',
+          'Meeting Summary': l.meeting_summary || '',
+          'Creation Date': l.created_at ? format(new Date(l.created_at), 'dd/MM/yyyy') : '',
+          'Last Contact': l.last_contact_at ? format(new Date(l.last_contact_at), 'dd/MM/yyyy') : '',
         }));
         const sheet = XLSX.utils.json_to_sheet(leadsData);
-        XLSX.utils.book_append_sheet(wb, sheet, 'מתעניינים');
+        XLSX.utils.book_append_sheet(wb, sheet, 'Inquiries');
       }
 
       // ===== ACTIVE STUDENTS SECTION =====
       if (activeStudents && activeStudents.length > 0) {
         const studentsData = activeStudents.map(formatStudentData);
         const sheet = XLSX.utils.json_to_sheet(studentsData);
-        XLSX.utils.book_append_sheet(wb, sheet, 'סטודנטים פעילים');
+        XLSX.utils.book_append_sheet(wb, sheet, 'Active Students');
       }
 
       // ===== PAST CLIENTS SECTION - BY YEAR =====
@@ -189,14 +189,14 @@ export default function Dashboard() {
           if (yearClients.length > 0) {
             const clientsData = yearClients.map(formatStudentData);
             const sheet = XLSX.utils.json_to_sheet(clientsData);
-            XLSX.utils.book_append_sheet(wb, sheet, `לקוחות עבר ${yearCat.display_label}`.substring(0, 31));
+            XLSX.utils.book_append_sheet(wb, sheet, `Past Clients ${yearCat.display_label}`.substring(0, 31));
           }
         });
       } else if (pastClients && pastClients.length > 0) {
         // Fallback: Group by graduation_year
         const yearGroups = new Map<string, any[]>();
         pastClients.forEach(s => {
-          const year = s.graduation_year || 'לא ידוע';
+          const year = s.graduation_year || 'Unknown';
           if (!yearGroups.has(year)) yearGroups.set(year, []);
           yearGroups.get(year)!.push(s);
         });
@@ -204,7 +204,7 @@ export default function Dashboard() {
         yearGroups.forEach((clients, year) => {
           const clientsData = clients.map(formatStudentData);
           const sheet = XLSX.utils.json_to_sheet(clientsData);
-          XLSX.utils.book_append_sheet(wb, sheet, `לקוחות עבר ${year}`.substring(0, 31));
+          XLSX.utils.book_append_sheet(wb, sheet, `Past Clients ${year}`.substring(0, 31));
         });
       }
 
@@ -216,19 +216,19 @@ export default function Dashboard() {
       
       if (allDidNotContinue.length > 0) {
         const dncData = allDidNotContinue.map(item => ({
-          'שם': item.name,
-          'אימייל': item.email || '',
-          'טלפון': item.phone,
-          'סוג': item.type === 'lead' ? 'מתעניין' : 'סטודנט',
-          'סוג תואר': item.degree_type,
-          'תחום עניין': item.interested_field || '',
-          'מדינה מועדפת': item.interested_country || '',
-          'מקור': item.source || '',
-          'סיכום פגישה': item.meeting_summary || '',
-          'תאריך יצירה': item.created_at ? format(new Date(item.created_at), 'dd/MM/yyyy') : '',
+          'Name': item.name,
+          'Email': item.email || '',
+          'Phone': item.phone,
+          'Type': item.type === 'lead' ? 'Inquiry' : 'Student',
+          'Degree Type': item.degree_type,
+          'Field of Interest': item.interested_field || '',
+          'Preferred Country': item.interested_country || '',
+          'Source': item.source || '',
+          'Meeting Summary': item.meeting_summary || '',
+          'Creation Date': item.created_at ? format(new Date(item.created_at), 'dd/MM/yyyy') : '',
         }));
         const sheet = XLSX.utils.json_to_sheet(dncData);
-        XLSX.utils.book_append_sheet(wb, sheet, 'לא המשיכו');
+        XLSX.utils.book_append_sheet(wb, sheet, 'Closed/Lost');
       }
 
       // ===== ADVISORS SECTION =====
@@ -237,45 +237,45 @@ export default function Dashboard() {
 
       if (activeAdvisors.length > 0) {
         const advisorsData = activeAdvisors.map(a => ({
-          'שם': a.name,
-          'אימייל': a.email || '',
-          'טלפון': a.phone || '',
-          'סוג תשלום': a.payment_type || '',
-          'סכום תשלום': a.payment_amount || 0,
-          'הערות תשלום': a.payment_notes || '',
-          'הערות': a.notes || '',
+          'Name': a.name,
+          'Email': a.email || '',
+          'Phone': a.phone || '',
+          'Payment Type': a.payment_type || '',
+          'Payment Amount': a.payment_amount || 0,
+          'Payment Notes': a.payment_notes || '',
+          'Notes': a.notes || '',
         }));
         const sheet = XLSX.utils.json_to_sheet(advisorsData);
-        XLSX.utils.book_append_sheet(wb, sheet, 'יועצים פעילים');
+        XLSX.utils.book_append_sheet(wb, sheet, 'Active Consultants');
       }
 
       if (inactiveAdvisors.length > 0) {
         const advisorsData = inactiveAdvisors.map(a => ({
-          'שם': a.name,
-          'אימייל': a.email || '',
-          'טלפון': a.phone || '',
-          'סוג תשלום': a.payment_type || '',
-          'סכום תשלום': a.payment_amount || 0,
-          'הערות תשלום': a.payment_notes || '',
-          'הערות': a.notes || '',
+          'Name': a.name,
+          'Email': a.email || '',
+          'Phone': a.phone || '',
+          'Payment Type': a.payment_type || '',
+          'Payment Amount': a.payment_amount || 0,
+          'Payment Notes': a.payment_notes || '',
+          'Notes': a.notes || '',
         }));
         const sheet = XLSX.utils.json_to_sheet(advisorsData);
-        XLSX.utils.book_append_sheet(wb, sheet, 'יועצי עבר');
+        XLSX.utils.book_append_sheet(wb, sheet, 'Former Consultants');
       }
 
       // Download file
-      const fileName = `נתונים_${format(new Date(), 'dd-MM-yyyy')}.xlsx`;
+      const fileName = `PrimroseIEC_Data_${format(new Date(), 'dd-MM-yyyy')}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       toast({
-        title: "הקובץ הורד בהצלחה",
-        description: `הקובץ ${fileName} נשמר במחשב שלך`,
+        title: "File downloaded successfully",
+        description: `The file ${fileName} has been saved to your computer`,
       });
     } catch (error) {
       console.error('Export error:', error);
       toast({
-        title: "שגיאה בייצוא",
-        description: "לא ניתן היה לייצא את הנתונים",
+        title: "Export Error",
+        description: "Could not export data",
         variant: "destructive",
       });
     } finally {
@@ -311,7 +311,7 @@ export default function Dashboard() {
               email: lead.email,
               phone: lead.phone,
               location: 'did-not-continue',
-              locationLabel: 'לא המשיכו (מתעניין)',
+              locationLabel: 'Closed/Lost (Inquiry)',
               navigateTo: `/did-not-continue?highlight=${lead.id}`
             });
           } else {
@@ -321,7 +321,7 @@ export default function Dashboard() {
               email: lead.email,
               phone: lead.phone,
               location: 'leads',
-              locationLabel: 'מתעניינים',
+              locationLabel: 'Inquiries',
               navigateTo: `/leads?highlight=${lead.id}`
             });
           }
@@ -343,7 +343,7 @@ export default function Dashboard() {
               email: student.email,
               phone: student.phone,
               location: 'did-not-continue',
-              locationLabel: 'לא המשיכו (סטודנט)',
+              locationLabel: 'Closed/Lost (Student)',
               navigateTo: `/did-not-continue?highlight=${student.id}`
             });
           } else if (student.graduation_year) {
@@ -353,7 +353,7 @@ export default function Dashboard() {
               email: student.email,
               phone: student.phone,
               location: 'past-clients',
-              locationLabel: `לקוחות עבר ${student.graduation_year}`,
+              locationLabel: `Alumni ${student.graduation_year}`,
               navigateTo: `/past-clients/${student.graduation_year}?highlight=${student.id}`,
               year: student.graduation_year
             });
@@ -364,7 +364,7 @@ export default function Dashboard() {
               email: student.email,
               phone: student.phone,
               location: 'students',
-              locationLabel: 'סטודנטים',
+              locationLabel: 'Students',
               navigateTo: `/students?highlight=${student.id}`
             });
           }
@@ -484,14 +484,14 @@ export default function Dashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students-dashboard'] });
       toast({
-        title: "הוסר מהרשימה",
-        description: "הסטודנט הוסר מרשימת דורשי תשומת הלב",
+        title: "Removed from list",
+        description: "Student removed from the 'needs attention' list",
       });
     },
     onError: () => {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן להסיר את הסטודנט מהרשימה",
+        title: "Error",
+        description: "Could not remove student from the list",
         variant: "destructive",
       });
     }
@@ -510,14 +510,14 @@ export default function Dashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-agreements'] });
       toast({
-        title: "ההתראה הוסרה",
-        description: "ההתראה על חתימת ההסכם הוסרה",
+        title: "Notification dismissed",
+        description: "The agreement signed notification has been dismissed",
       });
     },
     onError: () => {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן להסיר את ההתראה",
+        title: "Error",
+        description: "Could not dismiss notification",
         variant: "destructive",
       });
     }
@@ -655,14 +655,14 @@ export default function Dashboard() {
 
     if (error) {
       toast({
-        title: "שגיאה",
-        description: "לא ניתן לעדכן את הסטודנט",
+        title: "Error",
+        description: "Could not update student",
         variant: "destructive",
       });
     } else {
       toast({
-        title: "עודכן בהצלחה",
-        description: "פרטי הסטודנט עודכנו",
+        title: "Updated successfully",
+        description: "Student details updated",
       });
       queryClient.invalidateQueries({ queryKey: ['students-dashboard'] });
     }
@@ -705,8 +705,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">שלום! 👋</h1>
-            <p className="text-muted-foreground mt-1">הנה סיכום הפעילות שלך</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Hello! 👋</h1>
+            <p className="text-muted-foreground mt-1">Here's a summary of your activity</p>
           </div>
           <Button
             onClick={exportToExcel}
@@ -718,7 +718,7 @@ export default function Dashboard() {
             ) : (
               <Download className="h-4 w-4" />
             )}
-            ייצוא לאקסל
+            Export to Excel
           </Button>
         </div>
 
@@ -728,7 +728,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               <Download className="h-5 w-5 text-primary shrink-0" />
               <p className="text-sm text-foreground">
-                תזכורת: כדאי לייצא גיבוי של הנתונים לאקסל 📋
+                Reminder: It's a good idea to export a data backup to Excel 📋
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -742,7 +742,7 @@ export default function Dashboard() {
                 className="gap-1.5"
               >
                 {isExporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                ייצוא
+                Export
               </Button>
               <Button
                 variant="ghost"
@@ -757,15 +757,15 @@ export default function Dashboard() {
         )}
         <div className="sticky top-0 z-40 bg-background pb-4 mb-4 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="חיפוש לפי שם, אימייל או טלפון..."
+              placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pr-11 h-12 text-base"
+              className="pl-11 h-12 text-base"
             />
             {isSearching && (
-              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
             )}
           </div>
 
@@ -805,7 +805,7 @@ export default function Dashboard() {
                 </div>
               ) : !isSearching ? (
                 <div className="p-6 text-center text-muted-foreground">
-                  לא נמצאו תוצאות
+                  No results found
                 </div>
               ) : null}
             </div>
@@ -819,7 +819,7 @@ export default function Dashboard() {
             className="cursor-pointer"
           >
             <StatCard
-              title="סטודנטים פעילים"
+              title="Active Students"
               value={activeStudentsCount}
               icon={GraduationCap}
             />
@@ -829,7 +829,7 @@ export default function Dashboard() {
             className="cursor-pointer"
           >
             <StatCard
-              title="דורשים תשומת לב"
+              title="Needs Attention"
               value={studentsNeedingAttention.length + pendingPaymentProjects.length}
               icon={AlertTriangle}
               className={(studentsNeedingAttention.length + pendingPaymentProjects.length) > 0 ? 'border-warning bg-warning/5' : ''}
@@ -840,10 +840,10 @@ export default function Dashboard() {
             className="cursor-pointer"
           >
             <StatCard
-              title="סטודנטים חדשים החודש"
+              title="New Students This Month"
               value={totalNewStudentsThisMonth}
               icon={UserCheck}
-              description={totalNewStudentsThisMonth > 0 ? `${activeNewStudents.length} פעילים • ${pastClientsNew.length} עבר • ${didNotContinueNew.length} לא המשיכו` : undefined}
+              description={totalNewStudentsThisMonth > 0 ? `${activeNewStudents.length} Active • ${pastClientsNew.length} Alumni • ${didNotContinueNew.length} Closed/Lost` : undefined}
             />
           </div>
         </div>
@@ -853,7 +853,7 @@ export default function Dashboard() {
           <div className="mb-8 bg-success/10 border border-success/30 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <FileCheck className="h-5 w-5 text-success" />
-              <h2 className="text-lg font-semibold text-foreground">הסכמים שנחתמו לאחרונה</h2>
+              <h2 className="text-lg font-semibold text-foreground">Recently Signed Agreements</h2>
             </div>
             <div className="space-y-2">
               {recentAgreements.map((agreement) => (
@@ -868,7 +868,7 @@ export default function Dashboard() {
                     <div>
                       <p className="font-medium text-foreground">{agreement.studentName}</p>
                       <p className="text-xs text-muted-foreground">
-                        נחתם ב-{format(agreement.signedAt, 'dd/MM/yyyy HH:mm')}
+                        Signed on {format(agreement.signedAt, 'dd/MM/yyyy HH:mm')}
                       </p>
                     </div>
                   </div>
@@ -877,7 +877,7 @@ export default function Dashboard() {
                     size="icon"
                     className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => dismissAgreementMutation.mutate(agreement.id)}
-                    title="הסר התראה"
+                    title="Dismiss notification"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -898,8 +898,8 @@ export default function Dashboard() {
                 <div>
                   <p className="font-semibold text-foreground">
                     {newWebsiteLeads.length === 1 
-                      ? 'נכנס מתעניין חדש מהאתר!' 
-                      : `נכנסו ${newWebsiteLeads.length} מתעניינים חדשים מהאתר!`}
+                      ? 'New inquiry from website!' 
+                      : `${newWebsiteLeads.length} new inquiries from website!`}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {newWebsiteLeads.map(l => l.name).join(', ')}
@@ -916,7 +916,7 @@ export default function Dashboard() {
                 }}
               >
                 <UserPlus className="h-3.5 w-3.5" />
-                צפה במתעניינים
+                View Inquiries
               </Button>
             </div>
           </div>
@@ -929,10 +929,10 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-warning" />
-                דורשים תשומת לב ({studentsNeedingAttention.length + pendingPaymentProjects.length})
+                Needs Attention ({studentsNeedingAttention.length + pendingPaymentProjects.length})
               </h2>
               <Link to="/students?filter=attention" className="text-sm text-primary hover:underline">
-                הצג הכל
+                View All
               </Link>
             </div>
             <div className="space-y-4 max-h-[600px] overflow-y-auto">
@@ -947,12 +947,12 @@ export default function Dashboard() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
+                        className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 bg-background/80 hover:bg-destructive hover:text-destructive-foreground"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDismiss(student.id);
                         }}
-                        title="הסר מרשימת דורשי תשומת לב"
+                        title="Remove from 'needs attention' list"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -963,16 +963,16 @@ export default function Dashboard() {
                         <StudentRow student={student as Student} showActions={false} />
                       </div>
                       {/* Attention reasons */}
-                      <div className="flex gap-2 mt-2 mr-4">
+                      <div className="flex gap-2 mt-2 ml-4">
                         {needsPaymentReminder && (
                           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-destructive/10 text-destructive">
                             <DollarSign className="h-3 w-3" />
-                            לא שולם
+                            Not paid
                           </span>
                         )}
                         {needsAgreementReminder && (
                           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">
-                            לא נחתם הסכם
+                            Agreement not signed
                           </span>
                         )}
                       </div>
@@ -981,7 +981,7 @@ export default function Dashboard() {
                 })
               ) : pendingPaymentProjects.length === 0 ? (
                 <div className="text-center py-8 bg-card rounded-xl border border-border/50">
-                  <p className="text-muted-foreground">🎉 אין סטודנטים שדורשים תשומת לב</p>
+                  <p className="text-muted-foreground">🎉 No students requiring attention</p>
                 </div>
               ) : null}
 
@@ -990,7 +990,7 @@ export default function Dashboard() {
                 <div className="mt-4">
                   <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-warning" />
-                    שת״פ ממתין לתשלום ({pendingPaymentProjects.length})
+                    Pending Payment Collaborations ({pendingPaymentProjects.length})
                   </h3>
                   {pendingPaymentProjects.map((project) => (
                     <div
@@ -1010,7 +1010,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       {project.amount != null && (
-                        <span className="text-sm font-medium text-foreground">₪{project.amount.toLocaleString()}</span>
+                        <span className="text-sm font-medium text-foreground">${project.amount.toLocaleString()}</span>
                       )}
                     </div>
                   ))}
@@ -1022,9 +1022,9 @@ export default function Dashboard() {
           {/* Recent Students */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground">סטודנטים אחרונים</h2>
+              <h2 className="text-xl font-semibold text-foreground">Recent Students</h2>
               <Link to="/students" className="text-sm text-primary hover:underline">
-                הצג הכל
+                View All
               </Link>
             </div>
             <div className="space-y-4">
@@ -1056,7 +1056,7 @@ export default function Dashboard() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <UserCheck className="h-5 w-5" />
-                סטודנטים חדשים החודש ({totalNewStudentsThisMonth})
+                New Students This Month ({totalNewStudentsThisMonth})
               </DialogTitle>
             </DialogHeader>
             <div className="max-h-[60vh] overflow-y-auto space-y-4">
@@ -1065,7 +1065,7 @@ export default function Dashboard() {
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-success"></div>
-                    סטודנטים פעילים ({activeNewStudents.length})
+                    Active Students ({activeNewStudents.length})
                   </h3>
                   <div className="space-y-1">
                     {activeNewStudents.map((student) => (
@@ -1095,7 +1095,7 @@ export default function Dashboard() {
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-primary"></div>
-                    לקוחות עבר ({pastClientsNew.length})
+                    Alumni ({pastClientsNew.length})
                   </h3>
                   <div className="space-y-1">
                     {pastClientsNew.map((student) => (
@@ -1113,7 +1113,7 @@ export default function Dashboard() {
                           </div>
                           <div>
                             <span className="font-medium text-sm">{student.name}</span>
-                            <span className="text-xs text-muted-foreground mr-2">({student.graduation_year})</span>
+                            <span className="text-xs text-muted-foreground ml-2">({student.graduation_year})</span>
                           </div>
                         </div>
                         <ExternalLink className="h-3 w-3 text-muted-foreground" />
@@ -1128,7 +1128,7 @@ export default function Dashboard() {
                 <div>
                   <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-destructive"></div>
-                    לא המשיכו ({didNotContinueNew.length})
+                    Closed/Lost ({didNotContinueNew.length})
                   </h3>
                   <div className="space-y-1">
                     {didNotContinueNew.map((student) => (
@@ -1155,7 +1155,7 @@ export default function Dashboard() {
 
               {totalNewStudentsThisMonth === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  אין סטודנטים חדשים החודש
+                  No new students this month
                 </div>
               )}
             </div>

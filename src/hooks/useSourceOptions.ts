@@ -23,10 +23,10 @@ export function useSourceOptions() {
     },
   });
 
-  // Return source names with "אחר" at the end
+  // Return source names with "Other" at the end
   const options = sourceOptions.map(s => s.name);
-  if (!options.includes('אחר')) {
-    options.push('אחר');
+  if (!options.includes('Other')) {
+    options.push('Other');
   }
   
   return options;

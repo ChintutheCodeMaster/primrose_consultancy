@@ -188,7 +188,7 @@ export default function Analytics() {
 
   // Calculate students by source
   const studentsBySource = (filteredStudents || []).reduce((acc, student) => {
-    const source = student.source || 'לא ידוע';
+    const source = student.source || 'Unknown';
     acc[source] = (acc[source] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -205,7 +205,7 @@ export default function Analytics() {
   const activeStudentsBySource = (students || [])
     .filter(s => !s.did_not_continue)
     .reduce((acc, student) => {
-      const source = student.source || 'לא ידוע';
+      const source = student.source || 'Unknown';
       allSources.add(source);
       acc[source] = (acc[source] || 0) + 1;
       return acc;
@@ -215,7 +215,7 @@ export default function Analytics() {
   const didNotContinueStudentsBySource = (students || [])
     .filter(s => s.did_not_continue)
     .reduce((acc, student) => {
-      const source = student.source || 'לא ידוע';
+      const source = student.source || 'Unknown';
       allSources.add(source);
       acc[source] = (acc[source] || 0) + 1;
       return acc;
@@ -225,7 +225,7 @@ export default function Analytics() {
   const didNotContinueLeadsBySource = (leads || [])
     .filter(l => l.did_not_continue)
     .reduce((acc, lead) => {
-      const source = lead.source || 'לא ידוע';
+      const source = lead.source || 'Unknown';
       allSources.add(source);
       acc[source] = (acc[source] || 0) + 1;
       return acc;
@@ -250,25 +250,25 @@ export default function Analytics() {
   const paidStudents = (filteredStudents || []).filter(s => s.is_paid).length;
 
   const funnelData = [
-    { name: 'מתעניינים', value: totalLeads, fill: COLORS[0] },
-    { name: 'פעילים', value: activeLeads, fill: COLORS[1] },
-    { name: 'הפכו לסטודנטים', value: convertedToStudents, fill: COLORS[2] },
-    { name: 'חתמו הסכם', value: signedAgreement, fill: COLORS[3] },
-    { name: 'שילמו', value: paidStudents, fill: COLORS[4] },
+    { name: 'Inquiries', value: totalLeads, fill: COLORS[0] },
+    { name: 'Active', value: activeLeads, fill: COLORS[1] },
+    { name: 'Became Students', value: convertedToStudents, fill: COLORS[2] },
+    { name: 'Signed Agreement', value: signedAgreement, fill: COLORS[3] },
+    { name: 'Paid', value: paidStudents, fill: COLORS[4] },
   ];
 
   // Students by degree type
   const studentsByDegree = (filteredStudents || []).reduce((acc, student) => {
-    const degree = student.degree_type || 'לא ידוע';
+    const degree = student.degree_type || 'Unknown';
     acc[degree] = (acc[degree] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const degreeLabels: Record<string, string> = {
-    bachelor: 'תואר ראשון',
-    master: 'תואר שני',
-    phd: 'דוקטורט',
-    'לא ידוע': 'לא ידוע',
+    bachelor: 'Bachelor',
+    master: 'Master',
+    phd: 'PhD',
+    'Unknown': 'Unknown',
   };
 
   const studentsByDegreeData = Object.entries(studentsByDegree).map(([degree, count]) => ({
@@ -278,7 +278,7 @@ export default function Analytics() {
 
   // Students by country
   const studentsByCountry = (filteredStudents || []).reduce((acc, student) => {
-    const country = student.interested_country || student.target_country || 'לא ידוע';
+    const country = student.interested_country || student.target_country || 'Unknown';
     // Handle multiple countries (comma separated)
     const countries = country.split(',').map(c => c.trim()).filter(Boolean);
     countries.forEach(c => {
@@ -297,7 +297,7 @@ export default function Analytics() {
 
   // Students by field of study
   const studentsByField = (filteredStudents || []).reduce((acc, student) => {
-    const field = student.interested_field || 'לא ידוע';
+    const field = student.interested_field || 'Unknown';
     acc[field] = (acc[field] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -343,7 +343,7 @@ export default function Analytics() {
     const total = seasonStudents.reduce((sum, s) => sum + Number(s.package_cost), 0);
     const count = seasonStudents.length;
     return {
-      label: `עונת ${year}`,
+      label: `Season ${year}`,
       average: count > 0 ? Math.round(total / count) : 0,
       count,
     };
@@ -353,7 +353,7 @@ export default function Analytics() {
   const avgCostByDegree = Object.entries(
     (students || []).reduce((acc, student) => {
       if (student.package_cost && student.package_cost > 0) {
-        const degree = student.degree_type || 'לא ידוע';
+        const degree = student.degree_type || 'Unknown';
         if (!acc[degree]) acc[degree] = { total: 0, count: 0 };
         acc[degree].total += Number(student.package_cost);
         acc[degree].count += 1;
@@ -370,7 +370,7 @@ export default function Analytics() {
   const avgCostByCountry = Object.entries(
     (students || []).reduce((acc, student) => {
       if (student.package_cost && student.package_cost > 0) {
-        const country = student.interested_country || student.target_country || 'לא ידוע';
+        const country = student.interested_country || student.target_country || 'Unknown';
         const countries = country.split(',').map(c => c.trim()).filter(Boolean);
         countries.forEach(c => {
           if (!acc[c]) acc[c] = { total: 0, count: 0 };
@@ -391,7 +391,7 @@ export default function Analytics() {
     const date = new Date();
     date.setMonth(date.getMonth() - (11 - i));
     return {
-      month: date.toLocaleDateString('he-IL', { month: 'short', year: '2-digit' }),
+      month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
       monthKey: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
     };
   });
@@ -483,7 +483,7 @@ export default function Analytics() {
   const projectsByCollabGrouped = (projects || [])
     .filter(p => p.amount && Number(p.amount) > 0)
     .reduce((acc, p) => {
-      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'Unassigned') : 'Unassigned';
       if (!acc[collabName]) acc[collabName] = { income: 0, expense: 0, projects: [] as { name: string; amount: number; direction: string; date: string | null }[] };
       const amount = Number(p.amount);
       if (p.payment_direction === 'income') {
@@ -511,7 +511,7 @@ export default function Analytics() {
     .filter(p => p.amount && Number(p.amount) > 0 && p.payment_date)
     .reduce((acc, p) => {
       const year = new Date(p.payment_date!).getFullYear().toString();
-      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך';
+      const collabName = p.collaboration_id ? (collabMap[p.collaboration_id] || 'Unassigned') : 'Unassigned';
       if (!acc[year]) acc[year] = {} as Record<string, number>;
       if (!acc[year][collabName]) acc[year][collabName] = 0;
       const amount = Number(p.amount);
@@ -521,7 +521,7 @@ export default function Analytics() {
 
   const allCollabNames = [...new Set((projects || [])
     .filter(p => p.amount && Number(p.amount) > 0)
-    .map(p => p.collaboration_id ? (collabMap[p.collaboration_id] || 'ללא שיוך') : 'ללא שיוך')
+    .map(p => p.collaboration_id ? (collabMap[p.collaboration_id] || 'Unassigned') : 'Unassigned')
   )];
 
   const projectsByYearCollabData = Object.entries(projectsByYearCollab)
@@ -537,8 +537,8 @@ export default function Analytics() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">אנליטיקס</h1>
-            <p className="text-muted-foreground mt-1">סטטיסטיקות ונתונים על הסטודנטים והמתעניינים</p>
+            <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
+            <p className="text-muted-foreground mt-1">Statistics and data about students and inquiries</p>
           </div>
           
           {/* Season Filter */}
@@ -546,12 +546,12 @@ export default function Analytics() {
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={seasonFilter} onValueChange={setSeasonFilter}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="עונת הגשה" />
+                <SelectValue placeholder="Application Season" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">כל העונות</SelectItem>
+                <SelectItem value="all">All Seasons</SelectItem>
                 {SEASON_YEARS.map((year) => (
-                  <SelectItem key={year} value={year}>עונת {year}</SelectItem>
+                  <SelectItem key={year} value={year}>Season {year}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -562,7 +562,7 @@ export default function Analytics() {
         <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">סה״כ מתעניינים</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Inquiries</CardTitle>
               <UserPlus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -571,7 +571,7 @@ export default function Analytics() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">סה״כ סטודנטים</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -580,7 +580,7 @@ export default function Analytics() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">יחס המרה</CardTitle>
+              <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -591,24 +591,24 @@ export default function Analytics() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">מחיר ממוצע לחבילה</CardTitle>
-              <span className="text-muted-foreground">₪</span>
+              <CardTitle className="text-sm font-medium">Avg. Package Price</CardTitle>
+              <span className="text-muted-foreground">$</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {avgPackageCostData.length > 0
-                  ? `₪${avgPackageCostData[avgPackageCostData.length - 1]?.average?.toLocaleString() || 0}`
-                  : '₪0'}
+                  ? `$${avgPackageCostData[avgPackageCostData.length - 1]?.average?.toLocaleString() || 0}`
+                  : '$0'}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">הכנסות {seasonFilter === 'all' ? 'כל העונות' : `עונת ${seasonFilter}`}</CardTitle>
+              <CardTitle className="text-sm font-medium">Income {seasonFilter === 'all' ? 'All Seasons' : `Season ${seasonFilter}`}</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₪{totalIncomeBySeason.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${totalIncomeBySeason.toLocaleString()}</div>
             </CardContent>
           </Card>
         </div>
@@ -618,7 +618,7 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              הכנסות החודש - ₪{totalIncomeThisMonth.toLocaleString()} ({incomeThisMonth.length} סטודנטים)
+              Income This Month - ${totalIncomeThisMonth.toLocaleString()} ({incomeThisMonth.length} Students)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -627,21 +627,21 @@ export default function Analytics() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-right w-[25%]">שם</TableHead>
-                      <TableHead className="text-right w-[20%]">סכום ששולם</TableHead>
-                      <TableHead className="text-right w-[20%]">תאריך תשלום</TableHead>
-                      <TableHead className="text-right w-[15%]">יועץ</TableHead>
-                      <TableHead className="text-right w-[20%]">סוג</TableHead>
+                      <TableHead className="text-left w-[25%]">Name</TableHead>
+                      <TableHead className="text-left w-[20%]">Amount Paid</TableHead>
+                      <TableHead className="text-left w-[20%]">Payment Date</TableHead>
+                      <TableHead className="text-left w-[15%]">Consultant</TableHead>
+                      <TableHead className="text-left w-[20%]">Type</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {incomeThisMonth.map((student) => (
                       <TableRow key={student.id}>
-                        <TableCell className="font-medium text-right">{student.name}</TableCell>
-                        <TableCell className="text-right" dir="ltr">₪{Number(student.amount_paid).toLocaleString()}</TableCell>
-                        <TableCell className="text-right">{new Date(student.payment_date).toLocaleDateString('he-IL')}</TableCell>
-                        <TableCell className="text-right">{student.advisor_name || '-'}</TableCell>
-                        <TableCell className="text-right">{student.graduation_year ? `לקוח עבר ${student.graduation_year}` : 'סטודנט פעיל'}</TableCell>
+                        <TableCell className="font-medium text-left">{student.name}</TableCell>
+                        <TableCell className="text-left" dir="ltr">${Number(student.amount_paid).toLocaleString()}</TableCell>
+                        <TableCell className="text-left">{new Date(student.payment_date).toLocaleDateString('en-US')}</TableCell>
+                        <TableCell className="text-left">{student.advisor_name || '-'}</TableCell>
+                        <TableCell className="text-left">{student.graduation_year ? `Alumni ${student.graduation_year}` : 'Active Student'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -649,7 +649,7 @@ export default function Analytics() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                אין תשלומים שנרשמו החודש
+                No payments recorded this month
               </div>
             )}
           </CardContent>
@@ -659,7 +659,7 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ArrowRight className="h-5 w-5" />
-              משפך המרה
+              Conversion Funnel
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -692,7 +692,7 @@ export default function Analytics() {
           {/* Students by Year */}
           <Card>
             <CardHeader>
-              <CardTitle>סטודנטים לפי שנה</CardTitle>
+              <CardTitle>Students by Year</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -701,7 +701,7 @@ export default function Analytics() {
                   <XAxis dataKey="year" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="count" name="Students" radius={[4, 4, 0, 0]}>
                     {studentsByYearData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -715,19 +715,19 @@ export default function Analytics() {
           {/* Average Package Cost by Year */}
           <Card>
             <CardHeader>
-              <CardTitle>מחיר ממוצע לחבילה לפי שנה</CardTitle>
+              <CardTitle>Average Package Cost by Year</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={avgPackageCostData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
-                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, 'ממוצע']} />
+                  <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Average']} />
                   <Line
                     type="monotone"
                     dataKey="average"
-                    name="מחיר ממוצע"
+                    name="Average Price"
                     stroke="hsl(var(--primary))"
                     strokeWidth={3}
                     dot={{ fill: 'hsl(var(--primary))', r: 6 }}
@@ -738,7 +738,7 @@ export default function Analytics() {
                       fill="hsl(var(--foreground))" 
                       fontSize={11} 
                       fontWeight={600}
-                      formatter={(value: number) => `₪${(value/1000).toFixed(1)}k`}
+                      formatter={(value: number) => `$${(value/1000).toFixed(1)}k`}
                     />
                   </Line>
                 </LineChart>
@@ -749,7 +749,7 @@ export default function Analytics() {
           {/* Monthly Trend */}
           <Card>
             <CardHeader>
-              <CardTitle>מגמת סטודנטים חדשים (12 חודשים אחרונים)</CardTitle>
+              <CardTitle>New Student Trend (Last 12 Months)</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -758,7 +758,7 @@ export default function Analytics() {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="students" name="סטודנטים" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="students" name="Students" radius={[4, 4, 0, 0]}>
                     {monthlyTrendData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -772,7 +772,7 @@ export default function Analytics() {
           {/* Monthly Conversion - Leads vs Students */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>המרה חודשית - מתעניינים לסטודנטים (12 חודשים אחרונים)</CardTitle>
+              <CardTitle>Monthly Conversion - Inquiries to Students (Last 12 Months)</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -783,18 +783,18 @@ export default function Analytics() {
                   <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                   <Tooltip 
                     formatter={(value, name) => {
-                      if (name === 'יחס המרה') return [`${value}%`, name];
+                      if (name === 'Conversion Rate') return [`${value}%`, name];
                       return [value, name];
                     }}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#3B82F6" radius={[4, 4, 0, 0]}>
+                  <Bar yAxisId="left" dataKey="leads" name="Inquiries" fill="#3B82F6" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="leads" position="top" fill="#3B82F6" fontSize={10} fontWeight={600} />
                   </Bar>
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים" fill="#10B981" radius={[4, 4, 0, 0]}>
+                  <Bar yAxisId="left" dataKey="students" name="Students" fill="#10B981" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="students" position="top" fill="#10B981" fontSize={10} fontWeight={600} />
                   </Bar>
-                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#F59E0B" strokeWidth={3} dot={{ fill: '#F59E0B', r: 5 }} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="Conversion Rate" stroke="#F59E0B" strokeWidth={3} dot={{ fill: '#F59E0B', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -803,30 +803,30 @@ export default function Analytics() {
           {/* Conversion by Season */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>המרה לפי עונת הגשה</CardTitle>
+              <CardTitle>Conversion by Application Season</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={conversionBySeason}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="season" tickFormatter={(v) => `עונת ${v}`} />
+                  <XAxis dataKey="season" tickFormatter={(v) => `Season ${v}`} />
                   <YAxis yAxisId="left" />
                   <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                   <Tooltip 
                     formatter={(value, name) => {
-                      if (name === 'יחס המרה') return [`${value}%`, name];
+                      if (name === 'Conversion Rate') return [`${value}%`, name];
                       return [value, name];
                     }}
-                    labelFormatter={(label) => `עונת ${label}`}
+                    labelFormatter={(label) => `Season ${label}`}
                   />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="leads" name="מתעניינים" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
+                  <Bar yAxisId="left" dataKey="leads" name="Inquiries" fill="#8B5CF6" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="leads" position="top" fill="#8B5CF6" fontSize={11} fontWeight={600} />
                   </Bar>
-                  <Bar yAxisId="left" dataKey="students" name="סטודנטים (לקוחות עבר)" fill="#EC4899" radius={[4, 4, 0, 0]}>
+                  <Bar yAxisId="left" dataKey="students" name="Students (Alumni)" fill="#EC4899" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="students" position="top" fill="#EC4899" fontSize={11} fontWeight={600} />
                   </Bar>
-                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="יחס המרה" stroke="#06B6D4" strokeWidth={3} dot={{ fill: '#06B6D4', r: 5 }} />
+                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" name="Conversion Rate" stroke="#06B6D4" strokeWidth={3} dot={{ fill: '#06B6D4', r: 5 }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -835,7 +835,7 @@ export default function Analytics() {
           {/* Students by Source */}
           <Card>
             <CardHeader>
-              <CardTitle>סטודנטים לפי מקור הגעה</CardTitle>
+              <CardTitle>Students by Source</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
@@ -850,7 +850,7 @@ export default function Analytics() {
                     tickFormatter={(value) => value.length > 18 ? value.substring(0, 18) + '...' : value}
                   />
                   <Tooltip />
-                  <Bar dataKey="count" name="סטודנטים" radius={[0, 4, 4, 0]}>
+                  <Bar dataKey="count" name="Students" radius={[0, 4, 4, 0]}>
                     {studentsBySourceData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -864,7 +864,7 @@ export default function Analytics() {
           {/* Source Comparison: Active vs Did Not Continue */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>מקור הפניה - סטודנטים פעילים לעומת לא המשיכו</CardTitle>
+              <CardTitle>Lead Source - Active Students vs. Closed/Lost</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
@@ -882,10 +882,10 @@ export default function Analytics() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="active" name="סטודנטים פעילים" fill="#10B981" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="active" name="Active Students" fill="#10B981" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="active" position="top" fill="#10B981" fontSize={11} fontWeight={600} />
                   </Bar>
-                  <Bar dataKey="didNotContinue" name="לא המשיכו" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="didNotContinue" name="Closed/Lost" fill="#EF4444" radius={[4, 4, 0, 0]}>
                     <LabelList dataKey="didNotContinue" position="top" fill="#EF4444" fontSize={11} fontWeight={600} />
                   </Bar>
                 </BarChart>
@@ -896,7 +896,7 @@ export default function Analytics() {
           {/* Students by Degree */}
           <Card>
             <CardHeader>
-              <CardTitle>התפלגות לפי סוג תואר</CardTitle>
+              <CardTitle>Distribution by Degree Type</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
@@ -941,7 +941,7 @@ export default function Analytics() {
           {/* Students by Country */}
           <Card>
             <CardHeader>
-              <CardTitle>התפלגות לפי מדינה</CardTitle>
+              <CardTitle>Distribution by Country</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
@@ -986,7 +986,7 @@ export default function Analytics() {
           {/* Students by Field of Study */}
           <Card>
             <CardHeader>
-              <CardTitle>התפלגות לפי תחום לימודים</CardTitle>
+              <CardTitle>Distribution by Field of Interest</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
@@ -1031,7 +1031,7 @@ export default function Analytics() {
           {/* Students by University */}
           <Card>
             <CardHeader>
-              <CardTitle>התפלגות לפי אוניברסיטה</CardTitle>
+              <CardTitle>Distribution by University</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center">
@@ -1077,24 +1077,24 @@ export default function Analytics() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                מחיר חבילה ממוצע
+                Average Package Price
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="season" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-4">
-                  <TabsTrigger value="season">לפי עונה</TabsTrigger>
-                  <TabsTrigger value="degree">לפי סוג תואר</TabsTrigger>
-                  <TabsTrigger value="country">לפי מדינה</TabsTrigger>
+                  <TabsTrigger value="season">By Season</TabsTrigger>
+                  <TabsTrigger value="degree">By Degree Type</TabsTrigger>
+                  <TabsTrigger value="country">By Country</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="season">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-primary/10">
-                        <TableHead className="text-right font-bold text-primary">עונה</TableHead>
-                        <TableHead className="text-right font-bold text-primary">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right font-bold text-primary">מספר סטודנטים</TableHead>
+                        <TableHead className="text-left font-bold text-primary">Season</TableHead>
+                        <TableHead className="text-left font-bold text-primary">Average Price</TableHead>
+                        <TableHead className="text-left font-bold text-primary">Number of Students</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1104,7 +1104,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium text-sm">
                               {row.count}
@@ -1113,7 +1113,7 @@ export default function Analytics() {
                         </TableRow>
                       )) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">No data available</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -1124,9 +1124,9 @@ export default function Analytics() {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-purple-100 dark:bg-purple-900/30">
-                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">סוג תואר</TableHead>
-                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right font-bold text-purple-700 dark:text-purple-300">מספר סטודנטים</TableHead>
+                        <TableHead className="text-left font-bold text-purple-700 dark:text-purple-300">Degree Type</TableHead>
+                        <TableHead className="text-left font-bold text-purple-700 dark:text-purple-300">Average Price</TableHead>
+                        <TableHead className="text-left font-bold text-purple-700 dark:text-purple-300">Number of Students</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1136,7 +1136,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium text-sm">
                               {row.count}
@@ -1145,7 +1145,7 @@ export default function Analytics() {
                         </TableRow>
                       )) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">No data available</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -1156,9 +1156,9 @@ export default function Analytics() {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-amber-100 dark:bg-amber-900/30">
-                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מדינה</TableHead>
-                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מחיר ממוצע</TableHead>
-                        <TableHead className="text-right font-bold text-amber-700 dark:text-amber-300">מספר סטודנטים</TableHead>
+                        <TableHead className="text-left font-bold text-amber-700 dark:text-amber-300">Country</TableHead>
+                        <TableHead className="text-left font-bold text-amber-700 dark:text-amber-300">Average Price</TableHead>
+                        <TableHead className="text-left font-bold text-amber-700 dark:text-amber-300">Number of Students</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1168,7 +1168,7 @@ export default function Analytics() {
                           className={index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}
                         >
                           <TableCell className="font-medium">{row.label}</TableCell>
-                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">₪{row.average.toLocaleString()}</TableCell>
+                          <TableCell className="text-emerald-600 dark:text-emerald-400 font-semibold">${row.average.toLocaleString()}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium text-sm">
                               {row.count}
@@ -1177,7 +1177,7 @@ export default function Analytics() {
                         </TableRow>
                       )) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center text-muted-foreground">אין נתונים</TableCell>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground">No data available</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -1193,12 +1193,12 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              הכנסות פרויקטים ושת״פ
+              Project & Collaboration Income
             </CardTitle>
             <div className="flex gap-4 text-sm mt-2">
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">הכנסות: ₪{totalProjectIncome.toLocaleString()}</span>
-              <span className="text-destructive font-semibold">הוצאות: ₪{totalProjectExpense.toLocaleString()}</span>
-              <span className="font-semibold">יתרה: ₪{(totalProjectIncome - totalProjectExpense).toLocaleString()}</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Income: ${totalProjectIncome.toLocaleString()}</span>
+              <span className="text-destructive font-semibold">Expenses: ${totalProjectExpense.toLocaleString()}</span>
+              <span className="font-semibold">Balance: ${(totalProjectIncome - totalProjectExpense).toLocaleString()}</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -1207,11 +1207,11 @@ export default function Analytics() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead className="text-right font-bold">גוף שת״פ</TableHead>
-                      <TableHead className="text-right font-bold">פרויקט</TableHead>
-                      <TableHead className="text-right font-bold">סוג</TableHead>
-                      <TableHead className="text-right font-bold">סכום</TableHead>
-                      <TableHead className="text-right font-bold">תאריך תשלום</TableHead>
+                      <TableHead className="text-left font-bold">Collaboration Partner</TableHead>
+                      <TableHead className="text-left font-bold">Project</TableHead>
+                      <TableHead className="text-left font-bold">Type</TableHead>
+                      <TableHead className="text-left font-bold">Amount</TableHead>
+                      <TableHead className="text-left font-bold">Payment Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1220,12 +1220,12 @@ export default function Analytics() {
                         {data.projects.map((project, pIdx) => (
                           <TableRow key={`${collabName}-${pIdx}`} className={pIdx % 2 === 0 ? 'bg-muted/30' : 'bg-background'}>
                             {pIdx === 0 && (
-                              <TableCell rowSpan={data.projects.length} className="font-bold align-top border-l">
+                              <TableCell rowSpan={data.projects.length} className="font-bold align-top border-r">
                                 <div>{collabName}</div>
                                 <div className="text-xs text-muted-foreground mt-1">
-                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">₪{data.income.toLocaleString()}</span>}
+                                  {data.income > 0 && <span className="text-emerald-600 dark:text-emerald-400">${data.income.toLocaleString()}</span>}
                                   {data.income > 0 && data.expense > 0 && ' | '}
-                                  {data.expense > 0 && <span className="text-destructive">-₪{data.expense.toLocaleString()}</span>}
+                                  {data.expense > 0 && <span className="text-destructive">-${data.expense.toLocaleString()}</span>}
                                 </div>
                               </TableCell>
                             )}
@@ -1236,13 +1236,13 @@ export default function Analytics() {
                                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
                                   : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                               }`}>
-                                {project.direction === 'income' ? 'הכנסה' : 'הוצאה'}
+                                {project.direction === 'income' ? 'Income' : 'Expense'}
                               </span>
                             </TableCell>
                             <TableCell className={`font-semibold ${project.direction === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}`}>
-                              ₪{project.amount.toLocaleString()}
+                              ${project.amount.toLocaleString()}
                             </TableCell>
-                            <TableCell>{project.date ? new Date(project.date).toLocaleDateString('he-IL') : '-'}</TableCell>
+                            <TableCell>{project.date ? new Date(project.date).toLocaleDateString('en-US') : '-'}</TableCell>
                           </TableRow>
                         ))}
                       </>
@@ -1251,7 +1251,7 @@ export default function Analytics() {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+              <div className="text-center py-8 text-muted-foreground">No data available</div>
             )}
           </CardContent>
         </Card>
@@ -1261,7 +1261,7 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              הכנסות פרויקטים ושת״פ לפי שנה וגוף
+              Project & Collaboration Income by Year and Partner
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1270,8 +1270,8 @@ export default function Analytics() {
                 <BarChart data={projectsByYearCollabData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" />
-                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value) => [`₪${Number(value).toLocaleString()}`, '']} />
+                  <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, '']} />
                   <Legend />
                   {allCollabNames.map((name, index) => (
                     <Bar 
@@ -1286,7 +1286,7 @@ export default function Analytics() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">אין נתונים</div>
+              <div className="text-center py-8 text-muted-foreground">No data available</div>
             )}
           </CardContent>
         </Card>

@@ -31,12 +31,12 @@ export function CountryOptionsManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['country-options'] });
       queryClient.invalidateQueries({ queryKey: ['country-options-all'] });
-      toast.success('המדינה נוספה בהצלחה');
+      toast.success('Country added successfully');
       setIsAddOpen(false);
       setNewCountryName('');
     },
     onError: () => {
-      toast.error('שגיאה בהוספת המדינה');
+      toast.error('Error adding country');
     },
   });
 
@@ -53,7 +53,7 @@ export function CountryOptionsManager() {
       queryClient.invalidateQueries({ queryKey: ['country-options-all'] });
     },
     onError: () => {
-      toast.error('שגיאה בעדכון המדינה');
+      toast.error('Error updating country');
     },
   });
 
@@ -65,10 +65,10 @@ export function CountryOptionsManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['country-options'] });
       queryClient.invalidateQueries({ queryKey: ['country-options-all'] });
-      toast.success('המדינה נמחקה');
+      toast.success('Country deleted');
     },
     onError: () => {
-      toast.error('שגיאה במחיקת המדינה');
+      toast.error('Error deleting country');
     },
   });
 
@@ -90,13 +90,13 @@ export function CountryOptionsManager() {
       queryClient.invalidateQueries({ queryKey: ['country-options-all'] });
     },
     onError: () => {
-      toast.error('שגיאה בשינוי הסדר');
+      toast.error('Error reordering');
     },
   });
 
   const handleAdd = () => {
     if (!newCountryName.trim()) {
-      toast.error('יש להזין שם מדינה');
+      toast.error('Please enter a country name');
       return;
     }
     addMutation.mutate(newCountryName.trim());
@@ -116,29 +116,29 @@ export function CountryOptionsManager() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle>מדינות</CardTitle>
-          <CardDescription>ניהול רשימת מדינות עבור לידים וסטודנטים</CardDescription>
+          <CardTitle>Countries</CardTitle>
+          <CardDescription>Manage the list of countries for Leads and Students</CardDescription>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
-              <Plus className="h-4 w-4 ml-2" />
-              הוסף מדינה
+              <Plus className="h-4 w-4 mr-2" />
+              Add Country
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>הוספת מדינה חדשה</DialogTitle>
+              <DialogTitle>Add New Country</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <Input 
-                placeholder="שם המדינה"
+                placeholder="Country Name"
                 value={newCountryName}
                 onChange={(e) => setNewCountryName(e.target.value)}
               />
               <Button onClick={handleAdd} disabled={addMutation.isPending} className="w-full">
-                {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
-                הוסף
+                {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Add
               </Button>
             </div>
           </DialogContent>
@@ -148,9 +148,9 @@ export function CountryOptionsManager() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>מדינה</TableHead>
-              <TableHead className="w-24">פעיל</TableHead>
-              <TableHead className="w-24">הזז</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead className="w-24">Active</TableHead>
+              <TableHead className="w-24">Move</TableHead>
               <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
@@ -202,14 +202,14 @@ export function CountryOptionsManager() {
             {countries.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  אין מדינות
+                  No countries
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
         <p className="text-sm text-muted-foreground mt-4">
-          💡 מדינות לא פעילות לא יופיעו ברשימת הבחירה, אבל יישארו מוצגות על רשומות קיימות
+          💡 Inactive countries will not appear in the selection list, but will remain visible on existing records.
         </p>
       </CardContent>
     </Card>

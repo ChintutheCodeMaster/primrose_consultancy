@@ -20,7 +20,7 @@ export function UniversityAutocomplete({
   value,
   onChange,
   onSelectSuggestion,
-  placeholder = "שם האוניברסיטה",
+  placeholder = "University Name",
   className
 }: UniversityAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<UniversitySuggestion[]>([]);
@@ -106,7 +106,7 @@ export function UniversityAutocomplete({
               key={`${suggestion.name}-${suggestion.country}-${index}`}
               type="button"
               className={cn(
-                "w-full px-3 py-2 text-right hover:bg-muted transition-colors",
+                "w-full px-3 py-2 text-left hover:bg-muted transition-colors",
                 "flex justify-between items-center gap-2"
               )}
               onClick={() => handleSelect(suggestion)}

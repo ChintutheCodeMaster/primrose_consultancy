@@ -42,8 +42,8 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalSource = sourceSelection === 'אחר' ? customSource : sourceSelection;
-    const finalField = fieldSelection === 'אחר' ? customField : fieldSelection;
+    const finalSource = sourceSelection === 'Other' ? customSource : sourceSelection;
+    const finalField = fieldSelection === 'Other' ? customField : fieldSelection;
     onAdd({ ...formData, source: finalSource, interestedField: finalField, leadsYear: selectedYear || defaultYear || '27' });
     setOpen(false);
     setFormData({
@@ -70,17 +70,17 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
-          ליד חדש
+          New Lead
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>הוספת ליד חדש</DialogTitle>
+          <DialogTitle>Add New Lead</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">שם מלא</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -89,7 +89,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 dir="ltr"
@@ -100,7 +100,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="text"
@@ -111,10 +111,10 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="leadsYear">שנת מתעניינים</Label>
+              <Label htmlFor="leadsYear">Inquiries Year</Label>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר שנה" />
+                  <SelectValue placeholder="Select year" />
                 </SelectTrigger>
                 <SelectContent>
                   {leadsCategories.map((cat) => (
@@ -124,7 +124,7 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="degreeType">סוג תואר</Label>
+              <Label htmlFor="degreeType">Degree Type</Label>
               <Select value={formData.degreeType} onValueChange={(v: DegreeType) => setFormData({ ...formData, degreeType: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -139,10 +139,10 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="source">מקור</Label>
+              <Label htmlFor="source">Source</Label>
               <Select value={sourceSelection} onValueChange={setSourceSelection}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר מקור" />
+                  <SelectValue placeholder="Select source" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {sourceOptions.map((src) => (
@@ -150,9 +150,9 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
-              {sourceSelection === 'אחר' && (
+              {sourceSelection === 'Other' && (
                 <Input
-                  placeholder="הזן מקור אחר..."
+                  placeholder="Enter other source..."
                   value={customSource}
                   onChange={(e) => setCustomSource(e.target.value)}
                   className="mt-2"
@@ -162,10 +162,10 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="country">מדינה</Label>
+              <Label htmlFor="country">Country</Label>
               <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר מדינה" />
+                  <SelectValue placeholder="Select country" />
                 </SelectTrigger>
                 <SelectContent>
                   {countryOptions.map((country) => (
@@ -175,10 +175,10 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="field">תחום לימודים</Label>
+              <Label htmlFor="field">Field of Interest</Label>
               <Select value={fieldSelection} onValueChange={setFieldSelection}>
                 <SelectTrigger>
-                  <SelectValue placeholder="בחר תחום" />
+                  <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {FIELD_OPTIONS.map((field) => (
@@ -186,9 +186,9 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
                   ))}
                 </SelectContent>
               </Select>
-              {fieldSelection === 'אחר' && (
+              {fieldSelection === 'Other' && (
                 <Input
-                  placeholder="הזן תחום אחר..."
+                  placeholder="Enter other field..."
                   value={customField}
                   onChange={(e) => setCustomField(e.target.value)}
                   className="mt-2"
@@ -197,27 +197,27 @@ export function AddLeadDialog({ onAdd, defaultYear }: AddLeadDialogProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="meetingSummary">סיכום פגישה</Label>
+            <Label htmlFor="meetingSummary">Meeting Summary</Label>
             <Textarea
               id="meetingSummary"
               value={formData.meetingSummary}
               onChange={(e) => setFormData({ ...formData, meetingSummary: e.target.value })}
               rows={3}
-              placeholder="רשום כאן סיכום של השיחה או הפגישה..."
+              placeholder="Write a summary of the call or meeting here..."
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="packageNotes">הערות חבילה</Label>
+            <Label htmlFor="packageNotes">Package Notes</Label>
             <Textarea
               id="packageNotes"
               value={formData.packageNotes}
               onChange={(e) => setFormData({ ...formData, packageNotes: e.target.value })}
               rows={2}
-              placeholder="הערות לגבי החבילה..."
+              placeholder="Notes regarding the package..."
             />
           </div>
           <Button type="submit" className="w-full">
-            הוסף ליד
+            Add Lead
           </Button>
         </form>
       </DialogContent>

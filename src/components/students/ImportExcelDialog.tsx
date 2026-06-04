@@ -34,18 +34,18 @@ export interface ImportedStudent {
 }
 
 const TEMPLATE_COLUMNS = [
-  { key: 'name', label: 'שם מלא', required: true },
-  { key: 'email', label: 'אימייל', required: false },
-  { key: 'phone', label: 'טלפון', required: true },
-  { key: 'graduation_year', label: 'שנת סיום', required: true },
-  { key: 'degree_type', label: 'סוג תואר', required: false },
-  { key: 'target_country', label: 'מדינת יעד', required: false },
-  { key: 'target_university', label: 'אוניברסיטה', required: false },
-  { key: 'program', label: 'תוכנית', required: false },
-  { key: 'package_cost', label: 'עלות חבילה', required: false },
-  { key: 'amount_paid', label: 'סכום ששולם', required: false },
-  { key: 'advisor_name', label: 'שם יועץ', required: false },
-  { key: 'source', label: 'מקור הגעה', required: false },
+  { key: 'name', label: 'Full Name', required: true },
+  { key: 'email', label: 'Email', required: false },
+  { key: 'phone', label: 'Phone', required: true },
+  { key: 'graduation_year', label: 'Graduation Year', required: true },
+  { key: 'degree_type', label: 'Degree Type', required: false },
+  { key: 'target_country', label: 'Target Country', required: false },
+  { key: 'target_university', label: 'Target University', required: false },
+  { key: 'program', label: 'Program', required: false },
+  { key: 'package_cost', label: 'Package Cost', required: false },
+  { key: 'amount_paid', label: 'Amount Paid', required: false },
+  { key: 'advisor_name', label: 'Advisor Name', required: false },
+  { key: 'source', label: 'Source', required: false },
 ];
 
 export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear }: ImportExcelDialogProps) {
@@ -57,16 +57,16 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
   const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([
       TEMPLATE_COLUMNS.map(col => col.label),
-      ['ישראל ישראלי', 'israel@email.com', '0501234567', graduationYear, 'bachelor', 'USA', 'MIT', 'Computer Science', '15000', '15000', 'דני כהן', 'המלצה']
+      ['John Doe', 'john.doe@email.com', '0501234567', graduationYear, 'bachelor', 'USA', 'MIT', 'Computer Science', '15000', '15000', 'Jane Smith', 'Referral']
     ]);
 
     // Set column widths
     ws['!cols'] = TEMPLATE_COLUMNS.map(() => ({ wch: 15 }));
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'לקוחות עבר');
-    XLSX.writeFile(wb, `תבנית_לקוחות_עבר_${graduationYear}.xlsx`);
-    toast.success('התבנית הורדה בהצלחה!');
+    XLSX.utils.book_append_sheet(wb, ws, 'Alumni');
+    XLSX.writeFile(wb, `Alumni_Template_${graduationYear}.xlsx`);
+    toast.success('Template downloaded successfully!');
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +83,7 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
         if (jsonData.length < 2) {
-          setErrors(['הקובץ ריק או מכיל רק כותרות']);
+          setErrors(['File is empty or contains only headers.']);
           return;
         }
 
@@ -97,14 +97,14 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
           if (!row || row.every(cell => !cell)) return; // Skip empty rows
 
           const rowNum = index + 2;
-          const name = String(row[headers.indexOf('שם מלא')] || '').trim();
-          const email = String(row[headers.indexOf('אימייל')] || '').trim();
-          const phone = String(row[headers.indexOf('טלפון')] || '').trim();
-          const gradYear = String(row[headers.indexOf('שנת סיום')] || graduationYear).trim();
+          const name = String(row[headers.indexOf('Full Name')] || '').trim();
+          const email = String(row[headers.indexOf('Email')] || '').trim();
+          const phone = String(row[headers.indexOf('Phone')] || '').trim();
+          const gradYear = String(row[headers.indexOf('Graduation Year')] || graduationYear).trim();
 
-          if (!name) parseErrors.push(`שורה ${rowNum}: חסר שם מלא`);
-          if (!email) parseErrors.push(`שורה ${rowNum}: ⚠️ חסר אימייל (אופציונלי)`);
-          if (!phone) parseErrors.push(`שורה ${rowNum}: חסר טלפון`);
+          if (!name) parseErrors.push(`Row ${rowNum}: Full name is missing.`);
+          if (!email) parseErrors.push(`Row ${rowNum}: ⚠️ Email is missing (optional).`);
+          if (!phone) parseErrors.push(`Row ${rowNum}: Phone is missing.`);
 
           if (name && phone) {
             students.push({
@@ -112,14 +112,14 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
               email: email || '',
               phone,
               graduationYear: gradYear,
-              degreeType: String(row[headers.indexOf('סוג תואר')] || '').trim() || undefined,
-              targetCountry: String(row[headers.indexOf('מדינת יעד')] || '').trim() || undefined,
-              targetUniversity: String(row[headers.indexOf('אוניברסיטה')] || '').trim() || undefined,
-              program: String(row[headers.indexOf('תוכנית')] || '').trim() || undefined,
-              packageCost: Number(row[headers.indexOf('עלות חבילה')]) || undefined,
-              amountPaid: Number(row[headers.indexOf('סכום ששולם')]) || undefined,
-              advisorName: String(row[headers.indexOf('שם יועץ')] || '').trim() || undefined,
-              source: String(row[headers.indexOf('מקור הגעה')] || '').trim() || undefined,
+              degreeType: String(row[headers.indexOf('Degree Type')] || '').trim() || undefined,
+              targetCountry: String(row[headers.indexOf('Target Country')] || '').trim() || undefined,
+              targetUniversity: String(row[headers.indexOf('Target University')] || '').trim() || undefined,
+              program: String(row[headers.indexOf('Program')] || '').trim() || undefined,
+              packageCost: Number(row[headers.indexOf('Package Cost')]) || undefined,
+              amountPaid: Number(row[headers.indexOf('Amount Paid')]) || undefined,
+              advisorName: String(row[headers.indexOf('Advisor Name')] || '').trim() || undefined,
+              source: String(row[headers.indexOf('Source')] || '').trim() || undefined,
             });
           }
         });
@@ -128,11 +128,11 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
         setPreviewData(students);
 
         if (students.length === 0 && parseErrors.length === 0) {
-          setErrors(['לא נמצאו נתונים תקינים בקובץ']);
+          setErrors(['No valid data found in the file.']);
         }
       } catch (error) {
         console.error('Error parsing Excel:', error);
-        setErrors(['שגיאה בקריאת הקובץ. ודא שזה קובץ Excel תקין']);
+        setErrors(['Error reading the file. Please ensure it is a valid Excel file.']);
       }
     };
 
@@ -151,7 +151,7 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
       onOpenChange(false);
     } catch (error) {
       console.error('Import error:', error);
-      toast.error('שגיאה בייבוא הנתונים');
+      toast.error('Error importing data.');
     } finally {
       setIsLoading(false);
     }
@@ -170,31 +170,31 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5" />
-            ייבוא לקוחות עבר מאקסל
+            Import Alumni from Excel
           </DialogTitle>
           <DialogDescription>
-            העלה קובץ Excel עם נתוני לקוחות עבר לשנת {graduationYear}
+            Upload an Excel file with alumni data for the {graduationYear} year.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Download Template */}
           <div className="bg-muted/50 rounded-lg p-4">
-            <h3 className="font-medium mb-2">שלב 1: הורד את התבנית</h3>
+            <h3 className="font-medium mb-2">Step 1: Download the Template</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              הורד את קובץ התבנית ומלא אותו עם נתוני הלקוחות
+              Download the template file and fill it with client data.
             </p>
             <Button variant="outline" onClick={downloadTemplate}>
-              <Download className="h-4 w-4 ml-2" />
-              הורד תבנית Excel
+              <Download className="h-4 w-4 mr-2" />
+              Download Excel Template
             </Button>
           </div>
 
           {/* Upload File */}
           <div className="bg-muted/50 rounded-lg p-4">
-            <h3 className="font-medium mb-2">שלב 2: העלה את הקובץ</h3>
+            <h3 className="font-medium mb-2">Step 2: Upload the File</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              העלה את קובץ ה-Excel המלא
+              Upload the completed Excel file.
             </p>
             <input
               ref={fileInputRef}
@@ -205,8 +205,8 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
               id="excel-upload"
             />
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-              <Upload className="h-4 w-4 ml-2" />
-              בחר קובץ
+              <Upload className="h-4 w-4 mr-2" />
+              Choose File
             </Button>
           </div>
 
@@ -215,14 +215,14 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
             <div className="bg-destructive/10 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-4 w-4" />
-                שגיאות בקובץ
+                File Errors
               </h3>
               <ul className="text-sm space-y-1">
                 {errors.slice(0, 5).map((error, index) => (
                   <li key={index} className="text-destructive">{error}</li>
                 ))}
                 {errors.length > 5 && (
-                  <li className="text-muted-foreground">...ועוד {errors.length - 5} שגיאות</li>
+                  <li className="text-muted-foreground">...and {errors.length - 5} more errors</li>
                 )}
               </ul>
             </div>
@@ -233,16 +233,16 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
             <div className="bg-primary/5 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="h-4 w-4" />
-                תצוגה מקדימה ({previewData.length} לקוחות)
+                Preview ({previewData.length} clients)
               </h3>
               <div className="max-h-40 overflow-y-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-right py-1">שם</th>
-                      <th className="text-right py-1">אימייל</th>
-                      <th className="text-right py-1">טלפון</th>
-                      <th className="text-right py-1">שנה</th>
+                      <th className="text-left py-1">Name</th>
+                      <th className="text-left py-1">Email</th>
+                      <th className="text-left py-1">Phone</th>
+                      <th className="text-left py-1">Year</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -257,7 +257,7 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
                     {previewData.length > 5 && (
                       <tr>
                         <td colSpan={4} className="py-1 text-muted-foreground">
-                          ...ועוד {previewData.length - 5} לקוחות
+                          ...and {previewData.length - 5} more clients
                         </td>
                       </tr>
                     )}
@@ -274,7 +274,7 @@ export function ImportExcelDialog({ open, onOpenChange, onImport, graduationYear
               disabled={isLoading}
               className="w-full"
             >
-              {isLoading ? 'מייבא...' : `ייבא ${previewData.length} לקוחות`}
+              {isLoading ? 'Importing...' : `Import ${previewData.length} clients`}
             </Button>
           )}
         </div>

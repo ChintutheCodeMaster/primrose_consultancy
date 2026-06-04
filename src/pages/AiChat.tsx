@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -42,17 +42,17 @@ async function streamChat({
   });
 
   if (resp.status === 429) {
-    toast.error('יותר מדי בקשות, נסי שוב בעוד רגע');
+    toast.error('Too many requests, please try again in a moment.');
     onDone();
     return;
   }
   if (resp.status === 402) {
-    toast.error('נגמרו הקרדיטים');
+    toast.error('Credits exhausted.');
     onDone();
     return;
   }
   if (!resp.ok || !resp.body) {
-    toast.error('שגיאה בחיבור ל-AI');
+    toast.error('Error connecting to AI.');
     onDone();
     return;
   }
@@ -114,10 +114,10 @@ async function streamChat({
 }
 
 const SUGGESTION_PROMPTS = [
-  'כמה סטודנטים פעילים יש לנו?',
-  'מי הסטודנטים שלומדים באנגליה?',
-  'כמה מתעניינים עדיין לא שילמו?',
-  'מי היועצים הכי עמוסים?',
+  'How many active Students do we have?',
+  'Which Students are studying in England?',
+  'How many Inquiries have not paid yet?',
+  'Which Consultants are the busiest?',
 ];
 
 export default function AiChat() {
@@ -223,7 +223,7 @@ export default function AiChat() {
     } catch (e) {
       console.error(e);
       setIsLoading(false);
-      toast.error('שגיאה בשליחת ההודעה');
+      toast.error('Error sending message');
     }
   }, [isLoading, messages, activeConversationId, saveMessage, queryClient]);
 
@@ -248,13 +248,13 @@ export default function AiChat() {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in flex flex-col h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" dir="rtl">
+      <div className="animate-fade-in flex flex-col h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" dir="ltr">
         <div className="mb-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
             <Sparkles className="h-7 w-7 text-primary" />
-            עוזר AI
+            AI Assistant
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">שאלי שאלות על הנתונים במערכת והAI ימצא את התשובות</p>
+          <p className="text-muted-foreground text-sm mt-1">Ask questions about the data in the system and the AI will find the answers.</p>
         </div>
 
         <div className="flex-1 flex gap-4 overflow-hidden min-h-0">
@@ -263,7 +263,7 @@ export default function AiChat() {
             <div className="p-3 border-b border-border">
               <Button onClick={startNewChat} variant="outline" size="sm" className="w-full gap-2">
                 <Plus className="h-4 w-4" />
-                שיחה חדשה
+                New Chat
               </Button>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -280,7 +280,7 @@ export default function AiChat() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm truncate text-foreground">{conv.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(conv.updated_at), 'd MMM', { locale: he })}
+                      {format(new Date(conv.updated_at), 'd MMM', { locale: enUS })}
                     </p>
                   </div>
                   <button
@@ -292,7 +292,7 @@ export default function AiChat() {
                 </div>
               ))}
               {conversations.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-4">אין שיחות שמורות</p>
+                <p className="text-xs text-muted-foreground text-center py-4">No conversations saved</p>
               )}
             </div>
           </div>
@@ -307,8 +307,8 @@ export default function AiChat() {
                     <Bot className="h-10 w-10 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-foreground mb-1">שלום! איך אפשר לעזור?</h3>
-                    <p className="text-muted-foreground text-sm">אני יכול לחפש סטודנטים, לידים, סטטיסטיקות ועוד</p>
+                    <h3 className="font-semibold text-lg text-foreground mb-1">Hello! How can I help?</h3>
+                    <p className="text-muted-foreground text-sm">I can search for Students, Leads, statistics, and more</p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center max-w-lg">
                     {SUGGESTION_PROMPTS.map((prompt) => (
@@ -340,7 +340,7 @@ export default function AiChat() {
                       : 'bg-muted/70 text-foreground'
                   }`}>
                     {msg.role === 'assistant' ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="rtl">
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="ltr">
                         <ReactMarkdown
                           components={{
                             a: ({ href, children, ...props }) => {
@@ -387,10 +387,10 @@ export default function AiChat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="שאלי שאלה על הנתונים במערכת..."
+                  placeholder="Ask a question about the data in the system..."
                   className="resize-none min-h-[44px] max-h-[120px]"
                   rows={1}
-                  dir="rtl"
+                  dir="ltr"
                 />
                 <Button
                   onClick={() => send(input)}

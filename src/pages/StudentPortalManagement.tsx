@@ -23,7 +23,7 @@ import {
   GripVertical
 } from "lucide-react";
 import { format } from "date-fns";
-import { he } from "date-fns/locale";
+import { enUS } from "date-fns/locale"; // Changed locale from he to enUS
 import {
   Dialog,
   DialogContent,
@@ -63,15 +63,15 @@ interface Student {
 }
 
 const documentCategories = [
-  { value: "strategy_questionnaire", label: "שאלון אסטרטגיה" },
-  { value: "personal_essays", label: "חיבורים אישיים" },
-  { value: "recommendations", label: "המלצות" },
-  { value: "cv", label: "קורות חיים" },
-  { value: "additional", label: "מסמכים נוספים" },
-  { value: "general", label: "כללי" },
-  { value: "start", label: "תחילת תהליך" },
-  { value: "application", label: "הגשות" },
-  { value: "acceptance", label: "קבלות" },
+  { value: "strategy_questionnaire", label: "Strategy Questionnaire" },
+  { value: "personal_essays", label: "Personal Essays" },
+  { value: "recommendations", label: "Recommendations" },
+  { value: "cv", label: "CV" },
+  { value: "additional", label: "Additional Documents" },
+  { value: "general", label: "General" },
+  { value: "start", label: "Process Start" },
+  { value: "application", label: "Applications" },
+  { value: "acceptance", label: "Acceptances" },
 ];
 
 export default function StudentPortalManagement() {
@@ -113,7 +113,7 @@ export default function StudentPortalManagement() {
       .maybeSingle();
 
     if (!studentData) {
-      toast({ title: "שגיאה", description: "לא נמצא סטודנט", variant: "destructive" });
+      toast({ title: "Error", description: "Student not found", variant: "destructive" });
       navigate("/students");
       return;
     }
@@ -151,9 +151,9 @@ export default function StudentPortalManagement() {
     });
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף פריט", variant: "destructive" });
+      toast({ title: "Error", description: "Could not add item", variant: "destructive" });
     } else {
-      toast({ title: "נוסף בהצלחה" });
+      toast({ title: "Added successfully" });
       setNewItemTitle("");
       setNewItemDescription("");
       setNewItemDueDate("");
@@ -170,7 +170,7 @@ export default function StudentPortalManagement() {
       .eq("id", itemId);
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן למחוק", variant: "destructive" });
+      toast({ title: "Error", description: "Could not delete item", variant: "destructive" });
     } else {
       setChecklist(prev => prev.filter(item => item.id !== itemId));
     }
@@ -202,7 +202,7 @@ export default function StudentPortalManagement() {
     ];
     const fileExt = selectedFile.name.split(".").pop()?.toLowerCase();
     if (!allowedTypes.includes(selectedFile.type) && !['pdf', 'doc', 'docx'].includes(fileExt || '')) {
-      toast({ title: "שגיאה", description: "ניתן להעלות קבצי PDF או Word בלבד", variant: "destructive" });
+      toast({ title: "Error", description: "Only PDF or Word files can be uploaded", variant: "destructive" });
       return;
     }
     
@@ -215,7 +215,7 @@ export default function StudentPortalManagement() {
       .upload(fileName, selectedFile, { contentType: selectedFile.type, cacheControl: "3600" });
 
     if (uploadError) {
-      toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+      toast({ title: "Error", description: "Could not upload file", variant: "destructive" });
       setUploading(false);
       return;
     }
@@ -233,9 +233,9 @@ export default function StudentPortalManagement() {
     });
 
     if (insertError) {
-      toast({ title: "שגיאה", description: "לא ניתן לשמור מסמך", variant: "destructive" });
+      toast({ title: "Error", description: "Could not save document", variant: "destructive" });
     } else {
-      toast({ title: "המסמך הועלה בהצלחה" });
+      toast({ title: "Document uploaded successfully" });
       setNewDocName("");
       setNewDocDescription("");
       setNewDocCategory("general");
@@ -259,7 +259,7 @@ export default function StudentPortalManagement() {
       .eq("id", docId);
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן למחוק", variant: "destructive" });
+      toast({ title: "Error", description: "Could not delete", variant: "destructive" });
     } else {
       setDocuments(prev => prev.filter(doc => doc.id !== docId));
     }
@@ -268,7 +268,7 @@ export default function StudentPortalManagement() {
   const copyPortalLink = () => {
     const link = `${window.location.origin}/portal/${studentId}`;
     navigator.clipboard.writeText(link);
-    toast({ title: "הקישור הועתק!", description: "קישור לפורטל המועמד הועתק ללוח" });
+    toast({ title: "Link copied!", description: "Candidate portal link copied to clipboard" });
   };
 
   if (loading) {
@@ -291,17 +291,17 @@ export default function StudentPortalManagement() {
               <ArrowRight className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">ניהול פורטל - {student?.name}</h1>
-              <p className="text-sm text-muted-foreground">ניהול צ'קליסט ומסמכים לפורטל המועמד</p>
+              <h1 className="text-2xl font-bold text-foreground">Portal Management - {student?.name}</h1>
+              <p className="text-sm text-muted-foreground">Manage checklist and documents for the candidate portal</p>
             </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={copyPortalLink}>
-              <ExternalLink className="h-4 w-4 ml-2" />
-              העתק קישור לפורטל
+              <ExternalLink className="h-4 w-4 mr-2" /> {/* Changed ml-2 to mr-2 for LTR */}
+              Copy Portal Link
             </Button>
             <Button variant="outline" onClick={() => window.open(`/portal/${studentId}`, "_blank")}>
-              צפה בפורטל
+              View Portal
             </Button>
           </div>
         </div>
@@ -312,38 +312,38 @@ export default function StudentPortalManagement() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
-                צ'קליסט ({checklist.length} פריטים)
+                Checklist ({checklist.length} items)
               </CardTitle>
               <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm">
-                    <Plus className="h-4 w-4 ml-1" />
-                    הוסף פריט
+                    <Plus className="h-4 w-4 mr-1" /> {/* Changed ml-1 to mr-1 for LTR */}
+                    Add Item
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>הוספת פריט לצ'קליסט</DialogTitle>
+                    <DialogTitle>Add Checklist Item</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label>כותרת *</Label>
+                      <Label>Title *</Label>
                       <Input
                         value={newItemTitle}
                         onChange={(e) => setNewItemTitle(e.target.value)}
-                        placeholder="לדוגמה: הגשת תעודות"
+                        placeholder="e.g., Submit application forms"
                       />
                     </div>
                     <div>
-                      <Label>תיאור</Label>
+                      <Label>Description</Label>
                       <Textarea
                         value={newItemDescription}
                         onChange={(e) => setNewItemDescription(e.target.value)}
-                        placeholder="פרטים נוספים..."
+                        placeholder="Additional details..."
                       />
                     </div>
                     <div>
-                      <Label>תאריך יעד</Label>
+                      <Label>Due Date</Label>
                       <Input
                         type="date"
                         value={newItemDueDate}
@@ -351,8 +351,8 @@ export default function StudentPortalManagement() {
                       />
                     </div>
                     <Button onClick={addChecklistItem} disabled={saving} className="w-full">
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                      הוסף
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />} {/* Changed ml-2 to mr-2 for LTR */}
+                      Add
                     </Button>
                   </div>
                 </DialogContent>
@@ -360,7 +360,7 @@ export default function StudentPortalManagement() {
             </CardHeader>
             <CardContent>
               {checklist.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">אין פריטים בצ'קליסט</p>
+                <p className="text-center text-muted-foreground py-8">No checklist items</p>
               ) : (
                 <div className="space-y-2">
                   {checklist.map((item) => (
@@ -381,7 +381,7 @@ export default function StudentPortalManagement() {
                         </p>
                         {item.due_date && (
                           <p className="text-xs text-muted-foreground">
-                            עד {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}
+                            By {format(new Date(item.due_date), "dd/MM/yyyy", { locale: enUS })} {/* Changed locale from he to enUS */}
                           </p>
                         )}
                       </div>
@@ -405,38 +405,38 @@ export default function StudentPortalManagement() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
-                מסמכים ({documents.length})
+                Documents ({documents.length})
               </CardTitle>
               <Dialog open={isAddDocOpen} onOpenChange={setIsAddDocOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm">
-                    <Upload className="h-4 w-4 ml-1" />
-                    העלה מסמך
+                    <Upload className="h-4 w-4 mr-1" /> {/* Changed ml-1 to mr-1 for LTR */}
+                    Upload Document
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>העלאת מסמך</DialogTitle>
+                    <DialogTitle>Upload Document</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label>שם המסמך *</Label>
+                      <Label>Document Name *</Label>
                       <Input
                         value={newDocName}
                         onChange={(e) => setNewDocName(e.target.value)}
-                        placeholder="לדוגמה: מדריך הגשה"
+                        placeholder="e.g., Application Guide"
                       />
                     </div>
                     <div>
-                      <Label>תיאור</Label>
+                      <Label>Description</Label>
                       <Textarea
                         value={newDocDescription}
                         onChange={(e) => setNewDocDescription(e.target.value)}
-                        placeholder="פרטים נוספים..."
+                        placeholder="Additional details..."
                       />
                     </div>
                     <div>
-                      <Label>קטגוריה</Label>
+                      <Label>Category</Label>
                       <Select value={newDocCategory} onValueChange={setNewDocCategory}>
                         <SelectTrigger>
                           <SelectValue />
@@ -451,7 +451,7 @@ export default function StudentPortalManagement() {
                       </Select>
                     </div>
                     <div>
-                      <Label>קובץ * (PDF או Word בלבד)</Label>
+                      <Label>File * (PDF or Word only)</Label>
                       <Input
                         type="file"
                         accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -459,8 +459,8 @@ export default function StudentPortalManagement() {
                       />
                     </div>
                     <Button onClick={() => uploadDocument()} disabled={uploading} className="w-full">
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
-                      העלה
+                      {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />} {/* Changed ml-2 to mr-2 for LTR */}
+                      Upload
                     </Button>
                   </div>
                 </DialogContent>
@@ -489,7 +489,7 @@ export default function StudentPortalManagement() {
                               const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
                               const ext = file.name.split(".").pop()?.toLowerCase();
                               if (!allowedTypes.includes(file.type) && !['pdf', 'doc', 'docx'].includes(ext || '')) {
-                                toast({ title: "שגיאה", description: "ניתן להעלות קבצי PDF או Word בלבד", variant: "destructive" });
+                                toast({ title: "Error", description: "Only PDF or Word files can be uploaded", variant: "destructive" });
                                 e.target.value = '';
                                 return;
                               }
@@ -499,7 +499,7 @@ export default function StudentPortalManagement() {
                                 .from("student-documents")
                                 .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
                               if (uploadError) {
-                                toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+                                toast({ title: "Error", description: "Could not upload file", variant: "destructive" });
                                 setUploading(false);
                                 e.target.value = '';
                                 return;
@@ -512,9 +512,9 @@ export default function StudentPortalManagement() {
                                 category: cat.value,
                               });
                               if (insertError) {
-                                toast({ title: "שגיאה", description: "לא ניתן לשמור מסמך", variant: "destructive" });
+                                toast({ title: "Error", description: "Could not save document", variant: "destructive" });
                               } else {
-                                toast({ title: "המסמך הועלה בהצלחה" });
+                                toast({ title: "Document uploaded successfully" });
                                 fetchData();
                               }
                               setUploading(false);
@@ -523,12 +523,12 @@ export default function StudentPortalManagement() {
                           />
                           <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer">
                             <Plus className="h-3 w-3" />
-                            העלה
+                            Upload
                           </span>
                         </label>
                       </div>
                       {catDocs.length === 0 ? (
-                        <p className="text-xs text-muted-foreground">אין מסמכים</p>
+                        <p className="text-xs text-muted-foreground">No documents</p>
                       ) : (
                         <div className="space-y-1.5">
                           {catDocs.map((doc) => (
@@ -554,7 +554,7 @@ export default function StudentPortalManagement() {
                   if (otherDocs.length === 0) return null;
                   return (
                     <div className="border rounded-lg p-3">
-                      <h4 className="font-medium text-sm mb-2">אחר ({otherDocs.length})</h4>
+                      <h4 className="font-medium text-sm mb-2">Other ({otherDocs.length})</h4>
                       <div className="space-y-1.5">
                         {otherDocs.map((doc) => (
                           <div key={doc.id} className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">

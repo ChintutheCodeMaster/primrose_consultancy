@@ -92,8 +92,8 @@ export function ReviewImportDialog({
       const updated = { ...c, ...updates };
       // Recalculate issues
       const issues: string[] = [];
-      if (!updated.name.trim()) issues.push('חסר שם');
-      if (!updated.email.trim() && !updated.phone.trim()) issues.push('חסר אימייל או טלפון');
+      if (!updated.name.trim()) issues.push('Missing Name');
+      if (!updated.email.trim() && !updated.phone.trim()) issues.push('Missing Email or Phone');
       updated.issues = issues;
       updated.hasIssues = issues.length > 0;
       return updated;
@@ -121,9 +121,9 @@ export function ReviewImportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>סקירת נתונים לפני ייבוא - לקוחות עבר {graduationYear}</DialogTitle>
+          <DialogTitle>Review Data Before Import - Alumni {graduationYear}</DialogTitle>
           <DialogDescription>
-            נמצאו {clients.length} רשומות. סקור ותקן את הנתונים לפני הייבוא.
+            {clients.length} records found. Review and correct the data before import.
           </DialogDescription>
         </DialogHeader>
 
@@ -131,20 +131,20 @@ export function ReviewImportDialog({
         <div className="flex flex-wrap gap-3 py-2 border-b">
           <Badge variant="outline" className="gap-1">
             <CheckCircle2 className="h-3 w-3 text-green-500" />
-            נבחרו: {selectedClients.length}
+            Selected: {selectedClients.length}
           </Badge>
           <Badge variant="outline" className="gap-1">
             <AlertCircle className="h-3 w-3 text-amber-500" />
-            עם בעיות: {clientsWithIssues.length}
+            With Issues: {clientsWithIssues.length}
           </Badge>
-          <div className="flex items-center gap-2 mr-auto">
+          <div className="flex items-center gap-2 ml-auto">
             <Checkbox 
               id="filter-issues" 
               checked={filterIssues}
               onCheckedChange={(checked) => setFilterIssues(checked === true)}
             />
             <label htmlFor="filter-issues" className="text-sm cursor-pointer">
-              הצג רק רשומות עם בעיות
+              Show only records with issues
             </label>
           </div>
         </div>
@@ -157,7 +157,7 @@ export function ReviewImportDialog({
             onCheckedChange={toggleSelectAll}
           />
           <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
-            בחר הכל ({filteredClients.length})
+            Select All ({filteredClients.length})
           </label>
         </div>
 
@@ -182,7 +182,7 @@ export function ReviewImportDialog({
                     onClick={() => setExpandedId(expandedId === client.id ? null : client.id)}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{client.name || '(ללא שם)'}</span>
+                      <span className="font-medium">{client.name || '(No Name)'}</span>
                       {client.hasIssues && (
                         <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
                           {client.issues.join(', ')}
@@ -192,8 +192,8 @@ export function ReviewImportDialog({
                     <div className="text-sm text-muted-foreground flex flex-wrap gap-2 mt-1">
                       {client.email && <span>{client.email}</span>}
                       {client.phone && <span>{client.phone}</span>}
-                      {client.advisorName && <span>יועץ: {client.advisorName}</span>}
-                      {client.amountPaid > 0 && <span>שולם: ₪{client.amountPaid.toLocaleString()}</span>}
+                      {client.advisorName && <span>Consultant: {client.advisorName}</span>}
+                      {client.amountPaid > 0 && <span>Paid: ${client.amountPaid.toLocaleString()}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
@@ -229,37 +229,37 @@ export function ReviewImportDialog({
                   <div className="border-t p-3 bg-muted/30 text-sm space-y-2">
                     {client.meetingSummary && (
                       <div>
-                        <span className="font-medium">סיכום פגישה: </span>
+                        <span className="font-medium">Meeting Summary: </span>
                         <span className="whitespace-pre-wrap">{client.meetingSummary}</span>
                       </div>
                     )}
                     {client.packageNotes && (
                       <div>
-                        <span className="font-medium">הערות חבילה: </span>
+                        <span className="font-medium">Package Notes: </span>
                         <span>{client.packageNotes}</span>
                       </div>
                     )}
                     {client.acceptedTo && (
                       <div>
-                        <span className="font-medium">התקבל ל: </span>
+                        <span className="font-medium">Accepted To: </span>
                         <span>{client.acceptedTo}</span>
                       </div>
                     )}
                     {client.notes && (
                       <div>
-                        <span className="font-medium">הערות: </span>
+                        <span className="font-medium">Notes: </span>
                         <span>{client.notes}</span>
                       </div>
                     )}
                     {client.degreeType && (
                       <div>
-                        <span className="font-medium">סוג תואר: </span>
+                        <span className="font-medium">Degree Type: </span>
                         <span>{client.degreeType}</span>
                       </div>
                     )}
                     {client.source && (
                       <div>
-                        <span className="font-medium">מקור: </span>
+                        <span className="font-medium">Source: </span>
                         <span>{client.source}</span>
                       </div>
                     )}
@@ -271,15 +271,15 @@ export function ReviewImportDialog({
                   <div className="border-t p-3 bg-muted/30 space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-sm font-medium">שם</label>
+                        <label className="text-sm font-medium">Name</label>
                         <Input
                           value={client.name}
                           onChange={(e) => updateClient(client.id, { name: e.target.value })}
-                          placeholder="שם מלא"
+                          placeholder="Full Name"
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">אימייל</label>
+                        <label className="text-sm font-medium">Email</label>
                         <Input
                           value={client.email}
                           onChange={(e) => updateClient(client.id, { email: e.target.value })}
@@ -287,23 +287,23 @@ export function ReviewImportDialog({
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">טלפון</label>
+                        <label className="text-sm font-medium">Phone</label>
                         <Input
                           value={client.phone}
                           onChange={(e) => updateClient(client.id, { phone: e.target.value })}
-                          placeholder="050-1234567"
+                          placeholder="123-456-7890"
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">יועץ</label>
+                        <label className="text-sm font-medium">Consultant</label>
                         <Input
                           value={client.advisorName}
                           onChange={(e) => updateClient(client.id, { advisorName: e.target.value })}
-                          placeholder="שם היועץ"
+                          placeholder="Consultant's Name"
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">סכום ששולם</label>
+                        <label className="text-sm font-medium">Amount Paid</label>
                         <Input
                           type="number"
                           value={client.amountPaid}
@@ -312,43 +312,43 @@ export function ReviewImportDialog({
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium">מקור</label>
+                        <label className="text-sm font-medium">Source</label>
                         <Input
                           value={client.source}
                           onChange={(e) => updateClient(client.id, { source: e.target.value })}
-                          placeholder="מקור הגעה"
+                          placeholder="Lead Source"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium">סיכום פגישה</label>
+                      <label className="text-sm font-medium">Meeting Summary</label>
                       <Textarea
                         value={client.meetingSummary}
                         onChange={(e) => updateClient(client.id, { meetingSummary: e.target.value })}
-                        placeholder="סיכום הפגישה..."
+                        placeholder="Meeting summary..."
                         rows={3}
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">הערות חבילה</label>
+                      <label className="text-sm font-medium">Package Notes</label>
                       <Input
                         value={client.packageNotes}
                         onChange={(e) => updateClient(client.id, { packageNotes: e.target.value })}
-                        placeholder="פרטי החבילה..."
+                        placeholder="Package details..."
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">התקבל ל</label>
+                      <label className="text-sm font-medium">Accepted To</label>
                       <Input
                         value={client.acceptedTo}
                         onChange={(e) => updateClient(client.id, { acceptedTo: e.target.value })}
-                        placeholder="שם האוניברסיטה/תכנית"
+                        placeholder="University/Program Name"
                       />
                     </div>
                     <div className="flex justify-end">
                       <Button size="sm" onClick={() => setEditingId(null)}>
-                        <Save className="h-4 w-4 ml-1" />
-                        סיום עריכה
+                        <Save className="h-4 w-4 mr-1" />
+                        Finish Editing
                       </Button>
                     </div>
                   </div>
@@ -361,13 +361,13 @@ export function ReviewImportDialog({
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            ביטול
+            Cancel
           </Button>
           <Button 
             onClick={handleImport} 
             disabled={isLoading || selectedClients.length === 0}
           >
-            {isLoading ? 'מייבא...' : `ייבא ${selectedClients.length} לקוחות`}
+            {isLoading ? 'Importing...' : `Import ${selectedClients.length} Clients`}
           </Button>
         </div>
       </DialogContent>

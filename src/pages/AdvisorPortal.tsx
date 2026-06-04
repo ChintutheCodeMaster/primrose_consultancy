@@ -14,11 +14,11 @@ import { openExternalFile } from "@/lib/file-open";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { FIELD_OPTIONS } from "@/data/fieldOptions";
 import { UniversityDropdown } from "@/components/ui/university-dropdown";
-import { 
-  GraduationCap, 
-  User, 
-  Phone, 
-  Mail, 
+import {
+  GraduationCap,
+  User,
+  Phone,
+  Mail,
   ChevronLeft,
   Plus,
   Trash2,
@@ -110,10 +110,10 @@ interface AppliedUniversity {
 }
 
 const applicationStatusLabels: Record<string, string> = {
-  submitted: 'הוגש',
-  waiting: 'ממתין לתשובה',
-  rejected: 'נדחה',
-  accepted: 'התקבל',
+  submitted: 'Submitted',
+  waiting: 'Waiting for response',
+  rejected: 'Rejected',
+  accepted: 'Accepted',
 };
 
 interface Scholarship {
@@ -151,15 +151,15 @@ interface Conversation {
 }
 
 const documentCategories = [
-  { value: "strategy_questionnaire", label: "שאלון אסטרטגיה" },
-  { value: "personal_essays", label: "חיבורים אישיים" },
-  { value: "recommendations", label: "המלצות" },
-  { value: "cv", label: "קורות חיים" },
-  { value: "additional", label: "מסמכים נוספים" },
-  { value: "general", label: "כללי" },
-  { value: "start", label: "תחילת תהליך" },
-  { value: "application", label: "הגשות" },
-  { value: "acceptance", label: "לאן התקבל/ה" },
+  { value: "strategy_questionnaire", label: "Strategy Questionnaire" },
+  { value: "personal_essays", label: "Personal Essays" },
+  { value: "recommendations", label: "Recommendations" },
+  { value: "cv", label: "CV" },
+  { value: "additional", label: "Additional Documents" },
+  { value: "general", label: "General" },
+  { value: "start", label: "Process Start" },
+  { value: "application", label: "Applications" },
+  { value: "acceptance", label: "Accepted To" },
 ];
 
 export default function AdvisorPortal() {
@@ -173,7 +173,7 @@ export default function AdvisorPortal() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
   // Selected student for management
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
@@ -196,14 +196,14 @@ export default function AdvisorPortal() {
   const [newAppliedNotes, setNewAppliedNotes] = useState('');
   const [editingAppliedId, setEditingAppliedId] = useState<string | null>(null);
   const [editAppliedData, setEditAppliedData] = useState<Partial<AppliedUniversity>>({});
-  
+
   // New item states
   const [newItemTitle, setNewItemTitle] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemDueDate, setNewItemDueDate] = useState("");
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+
   // New document states
   const [newDocName, setNewDocName] = useState("");
   const [newDocDescription, setNewDocDescription] = useState("");
@@ -330,7 +330,7 @@ export default function AdvisorPortal() {
       .from('target_university_options')
       .insert({ name: trimmed, sort_order: universityOptions.length + 1 });
     if (error && error.code !== '23505') {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף אוניברסיטה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add university", variant: "destructive" });
       return;
     }
     if (!universityOptions.includes(trimmed)) {
@@ -340,7 +340,7 @@ export default function AdvisorPortal() {
     setCustomUniValue('');
     setShowAddCustomUni(false);
     setUniDropdownOpen(false);
-    toast({ title: `${trimmed} נוספה לרשימה` });
+    toast({ title: `${trimmed} added to list` });
   };
 
   const handleAddCustomScholarship = async () => {
@@ -350,7 +350,7 @@ export default function AdvisorPortal() {
       .from('scholarship_options')
       .insert({ name: trimmed, sort_order: scholarshipOptions.length + 1 });
     if (error && error.code !== '23505') {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף מלגה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add scholarship", variant: "destructive" });
       return;
     }
     if (!scholarshipOptions.includes(trimmed)) {
@@ -360,12 +360,12 @@ export default function AdvisorPortal() {
     setCustomScholarshipValue('');
     setShowAddCustomScholarship(false);
     setScholarshipDropdownOpen(false);
-    toast({ title: `${trimmed} נוספה לרשימה` });
+    toast({ title: `${trimmed} added to list` });
   };
 
   const fetchAdvisorData = async () => {
     setLoading(true);
-    
+
     // Fetch advisor info (including password)
     const { data: advisorData, error: advisorError } = await supabase
       .from("advisors")
@@ -375,8 +375,8 @@ export default function AdvisorPortal() {
 
     if (advisorError || !advisorData) {
       toast({
-        title: "שגיאה",
-        description: "לא נמצא יועץ עם הקישור הזה",
+        title: "Error",
+        description: "No advisor found with this link",
         variant: "destructive",
       });
       setLoading(false);
@@ -409,16 +409,16 @@ export default function AdvisorPortal() {
     });
 
     // Split into active and past students
-    const active = advisorStudents.filter(s => 
-      (!s.did_not_continue) && 
-      s.status !== 'accepted' && 
+    const active = advisorStudents.filter(s =>
+      (!s.did_not_continue) &&
+      s.status !== 'accepted' &&
       s.status !== 'graduated' &&
       !s.graduation_year
     );
-    
-    const past = advisorStudents.filter(s => 
-      s.did_not_continue || 
-      s.status === 'accepted' || 
+
+    const past = advisorStudents.filter(s =>
+      s.did_not_continue ||
+      s.status === 'accepted' ||
       s.status === 'graduated' ||
       s.graduation_year
     );
@@ -500,7 +500,7 @@ export default function AdvisorPortal() {
     };
     if (newAppliedDegreeType) {
       insertData.degree_type = newAppliedDegreeType;
-      if (newAppliedDegreeType === 'אחר' && newAppliedDegreeTypeOther.trim()) {
+      if (newAppliedDegreeType === 'Other' && newAppliedDegreeTypeOther.trim()) {
         insertData.degree_type_other = newAppliedDegreeTypeOther;
       }
     }
@@ -510,9 +510,9 @@ export default function AdvisorPortal() {
 
     const { error } = await (supabase as any).from("applied_universities").insert(insertData);
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף הגשה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add application", variant: "destructive" });
     } else {
-      toast({ title: "ההגשה נוספה בהצלחה" });
+      toast({ title: "Application added successfully" });
       setNewAppliedName('');
       setNewAppliedCountry('');
       setNewAppliedDegreeType('');
@@ -534,7 +534,7 @@ export default function AdvisorPortal() {
       .eq("id", id);
     if (!error) {
       setAppliedUniversities(prev => prev.filter(u => u.id !== id));
-      toast({ title: "ההגשה נמחקה" });
+      toast({ title: "Application deleted" });
     }
   };
 
@@ -551,7 +551,7 @@ export default function AdvisorPortal() {
         name: editAppliedData.name,
         country: editAppliedData.country || null,
         degree_type: editAppliedData.degree_type || null,
-        degree_type_other: editAppliedData.degree_type === 'אחר' ? (editAppliedData.degree_type_other || null) : null,
+        degree_type_other: editAppliedData.degree_type === 'Other' ? (editAppliedData.degree_type_other || null) : null,
         field: editAppliedData.field || null,
         study_year: editAppliedData.study_year || null,
         application_status: editAppliedData.application_status || 'submitted',
@@ -560,21 +560,21 @@ export default function AdvisorPortal() {
       .eq("id", editingAppliedId);
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to update", variant: "destructive" });
     } else {
       setAppliedUniversities(prev =>
-        prev.map(u => u.id === editingAppliedId ? { ...u, ...editAppliedData, degree_type_other: editAppliedData.degree_type === 'אחר' ? editAppliedData.degree_type_other || null : null } as AppliedUniversity : u)
+        prev.map(u => u.id === editingAppliedId ? { ...u, ...editAppliedData, degree_type_other: editAppliedData.degree_type === 'Other' ? editAppliedData.degree_type_other || null : null } as AppliedUniversity : u)
       );
       setEditingAppliedId(null);
       setEditAppliedData({});
-      toast({ title: "ההגשה עודכנה" });
+      toast({ title: "Application updated" });
     }
   };
 
 
   const addChecklistItem = async () => {
     if (!newItemTitle.trim() || !selectedStudent) return;
-    
+
     setSaving(true);
     const { error } = await supabase.from("student_checklist_items").insert({
       student_id: selectedStudent.id,
@@ -585,9 +585,9 @@ export default function AdvisorPortal() {
     });
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף פריט", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add item", variant: "destructive" });
     } else {
-      toast({ title: "נוסף בהצלחה" });
+      toast({ title: "Successfully Added" });
       setNewItemTitle("");
       setNewItemDescription("");
       setNewItemDueDate("");
@@ -625,18 +625,18 @@ export default function AdvisorPortal() {
 
   const uploadDocument = async () => {
     if (!selectedFile || !newDocName.trim() || !selectedStudent) return;
-    
+
     setUploading(true);
-    
+
     const fileExt = selectedFile.name.split(".").pop();
     const fileName = `${selectedStudent.id}/${Date.now()}.${fileExt}`;
-    
+
     const { error: uploadError } = await supabase.storage
       .from("student-documents")
       .upload(fileName, selectedFile, { contentType: selectedFile.type, cacheControl: "3600" });
 
     if (uploadError) {
-      toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to upload file", variant: "destructive" });
       setUploading(false);
       return;
     }
@@ -654,9 +654,9 @@ export default function AdvisorPortal() {
     });
 
     if (insertError) {
-      toast({ title: "שגיאה", description: "לא ניתן לשמור מסמך", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to save document", variant: "destructive" });
     } else {
-      toast({ title: "המסמך הועלה בהצלחה" });
+      toast({ title: "Document uploaded successfully" });
       setNewDocName("");
       setNewDocDescription("");
       setNewDocCategory("general");
@@ -686,7 +686,7 @@ export default function AdvisorPortal() {
   // Conversation functions
   const addConversation = async () => {
     if (!newConversationSummary.trim() || !selectedStudent || !advisor) return;
-    
+
     setSavingConversation(true);
     const { error } = await supabase.from("student_conversations").insert({
       student_id: selectedStudent.id,
@@ -697,9 +697,9 @@ export default function AdvisorPortal() {
     });
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף שיחה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add conversation", variant: "destructive" });
     } else {
-      toast({ title: "השיחה נוספה בהצלחה" });
+      toast({ title: "Conversation added successfully" });
       setNewConversationSummary("");
       setNewConversationFollowUp("");
       setIsAddConversationOpen(false);
@@ -716,14 +716,14 @@ export default function AdvisorPortal() {
 
     if (!error) {
       setConversations(prev => prev.filter(c => c.id !== convId));
-      toast({ title: "השיחה נמחקה" });
+      toast({ title: "Conversation deleted" });
     }
   };
 
   // Acceptance functions
   const addAcceptedUniversity = async () => {
     if (!newUniversityName.trim() || !newUniversityCountry.trim() || !selectedStudent) return;
-    
+
     setSavingAcceptance(true);
     const insertData: any = {
       student_id: selectedStudent.id,
@@ -732,7 +732,7 @@ export default function AdvisorPortal() {
     };
     if (newAcceptanceDegreeType) {
       insertData.degree_type = newAcceptanceDegreeType;
-      if (newAcceptanceDegreeType === 'אחר' && newAcceptanceDegreeTypeOther.trim()) {
+      if (newAcceptanceDegreeType === 'Other' && newAcceptanceDegreeTypeOther.trim()) {
         insertData.degree_type_other = newAcceptanceDegreeTypeOther;
       }
     }
@@ -742,13 +742,13 @@ export default function AdvisorPortal() {
     if (newAcceptanceStudyYear.trim()) {
       insertData.study_year = newAcceptanceStudyYear.trim();
     }
-    
+
     const { error } = await supabase.from("accepted_universities").insert(insertData);
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף קבלה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add acceptance", variant: "destructive" });
     } else {
-      toast({ title: "הקבלה נוספה בהצלחה" });
+      toast({ title: "Admission added successfully" });
       setNewUniversityName("");
       setNewUniversityCountry("");
       setNewAcceptanceDegreeType("");
@@ -763,18 +763,18 @@ export default function AdvisorPortal() {
 
   const uploadAcceptanceLetter = async (uniId: string, file: File) => {
     if (!selectedStudent) return;
-    
+
     setUploadingAcceptance(uniId);
-    
+
     const fileExt = file.name.split(".").pop();
     const fileName = `${selectedStudent.id}/${uniId}/${Date.now()}.${fileExt}`;
-    
+
     const { error: uploadError } = await supabase.storage
       .from("acceptance-letters")
       .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
 
     if (uploadError) {
-      toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to upload file", variant: "destructive" });
       setUploadingAcceptance(null);
       return;
     }
@@ -789,10 +789,10 @@ export default function AdvisorPortal() {
       .eq("id", uniId);
 
     if (updateError) {
-      toast({ title: "שגיאה", description: "לא ניתן לשמור קישור", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to save link", variant: "destructive" });
     } else {
-      toast({ title: "מכתב הקבלה הועלה בהצלחה" });
-      setAcceptedUniversities(prev => 
+      toast({ title: "Acceptance letter uploaded successfully" });
+      setAcceptedUniversities(prev =>
         prev.map(u => u.id === uniId ? { ...u, acceptance_letter_url: urlData.publicUrl } : u)
       );
     }
@@ -807,7 +807,7 @@ export default function AdvisorPortal() {
 
     if (!error) {
       setAcceptedUniversities(prev => prev.filter(u => u.id !== uniId));
-      toast({ title: "הקבלה נמחקה" });
+      toast({ title: "Admission deleted" });
     }
   };
   const startEditUniversity = (uni: AcceptedUniversity) => {
@@ -823,28 +823,28 @@ export default function AdvisorPortal() {
         name: editUniData.name,
         country: editUniData.country || null,
         degree_type: editUniData.degree_type || null,
-        degree_type_other: editUniData.degree_type === 'אחר' ? (editUniData.degree_type_other || null) : null,
+        degree_type_other: editUniData.degree_type === 'Other' ? (editUniData.degree_type_other || null) : null,
         field: editUniData.field || null,
         study_year: editUniData.study_year || null,
       })
       .eq("id", editingUniId);
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן לעדכן", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to update", variant: "destructive" });
     } else {
       setAcceptedUniversities(prev =>
-        prev.map(u => u.id === editingUniId ? { ...u, ...editUniData, degree_type_other: editUniData.degree_type === 'אחר' ? editUniData.degree_type_other || null : null } : u)
+        prev.map(u => u.id === editingUniId ? { ...u, ...editUniData, degree_type_other: editUniData.degree_type === 'Other' ? editUniData.degree_type_other || null : null } : u)
       );
       setEditingUniId(null);
       setEditUniData({});
-      toast({ title: "הקבלה עודכנה" });
+      toast({ title: "Admission updated" });
     }
   };
 
 
   const addScholarship = async () => {
     if (!newScholarshipName.trim() || !selectedStudent) return;
-    
+
     setSavingScholarship(true);
     const { error } = await supabase.from("student_scholarships").insert({
       student_id: selectedStudent.id,
@@ -854,9 +854,9 @@ export default function AdvisorPortal() {
     });
 
     if (error) {
-      toast({ title: "שגיאה", description: "לא ניתן להוסיף מלגה", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to add scholarship", variant: "destructive" });
     } else {
-      toast({ title: "המלגה נוספה בהצלחה" });
+      toast({ title: "Scholarship added successfully" });
       setNewScholarshipName("");
       setNewScholarshipAmount("");
       setNewScholarshipNotes("");
@@ -874,12 +874,12 @@ export default function AdvisorPortal() {
 
     if (!error) {
       setScholarships(prev => prev.filter(s => s.id !== scholarshipId));
-      toast({ title: "המלגה נמחקה" });
+      toast({ title: "Scholarship deleted" });
     }
   };
 
   const currentStudents = activeTab === "active" ? activeStudents : pastStudents;
-  const filteredStudents = currentStudents.filter(s => 
+  const filteredStudents = currentStudents.filter(s =>
     s.name.includes(searchTerm) || (s.email && s.email.includes(searchTerm)) || (s.phone && s.phone.includes(searchTerm))
   );
 
@@ -893,12 +893,12 @@ export default function AdvisorPortal() {
 
   if (!advisor) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100 p-4" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100 p-4" dir="ltr">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-10 pb-10">
             <div className="text-6xl mb-4">😕</div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">הקישור לא תקין</h1>
-            <p className="text-gray-600">לא נמצא יועץ עם הקישור הזה</p>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">Invalid Link</h1>
+            <p className="text-gray-600">No advisor found with this link</p>
           </CardContent>
         </Card>
       </div>
@@ -917,7 +917,7 @@ export default function AdvisorPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="ltr">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -925,10 +925,10 @@ export default function AdvisorPortal() {
             <User className="h-8 w-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            שלום, {advisor.name}! 👋
+            Hello, {advisor.name}! 👋
           </h1>
           <p className="text-lg text-primary font-medium">
-            נוגה ייעוץ ללימודים בחו"ל - פורטל יועץ
+            Primrose IEC - Consultant Portal
           </p>
         </div>
 
@@ -938,26 +938,26 @@ export default function AdvisorPortal() {
             {/* Back button and student info */}
             <div className="flex items-center justify-between">
               <Button variant="outline" onClick={() => setSelectedStudent(null)}>
-                <ChevronLeft className="h-4 w-4 ml-1" />
-                חזרה לרשימה
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Back to list
               </Button>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   onClick={() => window.open(`/portal/${selectedStudent.id}`, "_blank")}
                 >
-                  <ExternalLink className="h-4 w-4 ml-1" />
-                  צפה בפורטל
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  View Portal
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => {
                     const link = `${window.location.origin}/portal/${selectedStudent.id}`;
                     navigator.clipboard.writeText(link);
-                    toast({ title: "הקישור הועתק!" });
+                    toast({ title: "Link copied!" });
                   }}
                 >
-                  העתק קישור לפורטל
+                  Copy Portal Link
                 </Button>
               </div>
             </div>
@@ -984,28 +984,28 @@ export default function AdvisorPortal() {
                       {selectedStudent.degree_type && (
                         <span className="flex items-center gap-1">
                           <GraduationCap className="h-3 w-3" />
-                          סוג תואר: {selectedStudent.degree_type === 'bachelor' ? 'תואר ראשון' : selectedStudent.degree_type === 'master' ? 'תואר שני' : selectedStudent.degree_type === 'phd' ? 'דוקטורט' : selectedStudent.degree_type === 'scholarship' ? 'מלגה' : selectedStudent.degree_type}
+                          Degree Type: {selectedStudent.degree_type === 'bachelor' ? 'Bachellor' : selectedStudent.degree_type === 'master' ? 'Master' : selectedStudent.degree_type === 'phd' ? 'PhD' : selectedStudent.degree_type === 'scholarship' ? 'Scholarship' : selectedStudent.degree_type}
                         </span>
                       )}
                       {selectedStudent.interested_country && (
-                        <span>מדינה מבוקשת: {selectedStudent.interested_country}</span>
+                        <span>Country of Interest: {selectedStudent.interested_country}</span>
                       )}
                       {selectedStudent.interested_field && (
-                        <span>תחום לימודים: {selectedStudent.interested_field}</span>
+                        <span>Field of Study: {selectedStudent.interested_field}</span>
                       )}
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     {selectedStudent.payment_type && (
                       <span className="px-3 py-1 rounded-full text-sm bg-primary/10 text-primary">
-                        תעריף: {selectedStudent.payment_type === 'hourly' ? 'שעתי' : selectedStudent.payment_type === 'package' ? 'חבילה' : selectedStudent.payment_type === 'other' ? 'משולב' : selectedStudent.payment_type}
+                        Rate: {selectedStudent.payment_type === 'hourly' ? 'Hourly' : selectedStudent.payment_type === 'package' ? 'Package' : selectedStudent.payment_type === 'other' ? 'Hybrid' : selectedStudent.payment_type}
                       </span>
                     )}
                     <span className={`px-3 py-1 rounded-full text-sm ${selectedStudent.signed_agreement ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                      {selectedStudent.signed_agreement ? 'חתם הסכם' : 'לא חתם'}
+                      {selectedStudent.signed_agreement ? 'Signed Agreement' : 'No Agreement'}
                     </span>
                     <span className={`px-3 py-1 rounded-full text-sm ${selectedStudent.is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {selectedStudent.is_paid ? 'שולם' : 'לא שולם'}
+                      {selectedStudent.is_paid ? 'Paid' : 'Unpaid'}
                     </span>
                   </div>
                 </div>
@@ -1015,7 +1015,7 @@ export default function AdvisorPortal() {
             {selectedStudent.advisor_payment_notes && (
               <Card className="border-primary/30 bg-primary/5">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">תשלום סטודנט</CardTitle>
+                  <CardTitle className="text-base">Student Payment</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap">{selectedStudent.advisor_payment_notes}</p>
@@ -1036,38 +1036,38 @@ export default function AdvisorPortal() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-green-600" />
-                        לאן התקבל/ה ({acceptedUniversities.length + scholarships.length})
+                        Accepted To ({acceptedUniversities.length + scholarships.length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Universities sub-section */}
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold text-sm">אוניברסיטאות ({acceptedUniversities.length})</h4>
+                          <h4 className="font-semibold text-sm">Universities ({acceptedUniversities.length})</h4>
                           <Dialog open={isAddAcceptanceOpen} onOpenChange={setIsAddAcceptanceOpen}>
                             <DialogTrigger asChild>
                               <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-100">
-                                <Plus className="h-4 w-4 ml-1" />
-                                הוסף
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>הוספת קבלה לאוניברסיטה</DialogTitle>
+                                <DialogTitle>Add University Acceptance</DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
-                                    <Label>מדינה *</Label>
+                                    <Label>Country *</Label>
                                     <div ref={countryDropdownRef} className="relative">
                                       <div
                                         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
                                         onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
                                       >
                                         <span className={newUniversityCountry ? "" : "text-muted-foreground"}>
-                                          {newUniversityCountry || "בחר מדינה"}
+                                          {newUniversityCountry || "Select Country"}
                                         </span>
-                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-90" />
                                       </div>
                                       {countryDropdownOpen && (
                                         <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
@@ -1075,7 +1075,7 @@ export default function AdvisorPortal() {
                                             <Input
                                               value={countrySearch}
                                               onChange={(e) => setCountrySearch(e.target.value)}
-                                              placeholder="חפש מדינה..."
+                                              placeholder="Search country..."
                                               className="h-8 text-sm"
                                               autoFocus
                                             />
@@ -1087,7 +1087,7 @@ export default function AdvisorPortal() {
                                                 <button
                                                   key={option}
                                                   type="button"
-                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityCountry === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  className={`w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors ${newUniversityCountry === option ? "bg-primary/10 font-medium" : ""}`}
                                                   onClick={() => {
                                                     setNewUniversityCountry(option);
                                                     setCountryDropdownOpen(false);
@@ -1098,25 +1098,25 @@ export default function AdvisorPortal() {
                                                 </button>
                                               ))}
                                             {countryOptions.filter(opt => opt.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
-                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
                                             )}
                                           </div>
                                           <div className="border-t p-2">
                                             {!showAddCustomCountry ? (
                                               <button
                                                 type="button"
-                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                className="w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2 text-primary"
                                                 onClick={() => setShowAddCustomCountry(true)}
                                               >
                                                 <Plus className="h-4 w-4" />
-                                                הוסף מדינה חדשה
+                                                Add New Country
                                               </button>
                                             ) : (
                                               <div className="flex gap-2">
                                                 <Input
                                                   value={customCountryValue}
                                                   onChange={(e) => setCustomCountryValue(e.target.value)}
-                                                  placeholder="שם המדינה..."
+                                                  placeholder="Country Name..."
                                                   className="h-8 text-sm flex-1"
                                                   autoFocus
                                                   onKeyDown={async (e) => {
@@ -1141,7 +1141,7 @@ export default function AdvisorPortal() {
                                                     setCountryDropdownOpen(false);
                                                   }
                                                 }}>
-                                                  הוסף
+                                                  Add
                                                 </Button>
                                               </div>
                                             )}
@@ -1151,16 +1151,16 @@ export default function AdvisorPortal() {
                                     </div>
                                   </div>
                                   <div>
-                                    <Label>אוניברסיטה *</Label>
+                                    <Label>University *</Label>
                                     <div ref={uniDropdownRef} className="relative">
                                       <div
                                         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
                                         onClick={() => setUniDropdownOpen(!uniDropdownOpen)}
                                       >
                                         <span className={newUniversityName ? "" : "text-muted-foreground"}>
-                                          {newUniversityName || "בחר אוניברסיטה"}
+                                          {newUniversityName || "Select University"}
                                         </span>
-                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-90" />
                                       </div>
                                       {uniDropdownOpen && (
                                         <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
@@ -1168,7 +1168,7 @@ export default function AdvisorPortal() {
                                             <Input
                                               value={uniSearch}
                                               onChange={(e) => setUniSearch(e.target.value)}
-                                              placeholder="חפש אוניברסיטה..."
+                                              placeholder="Search university..."
                                               className="h-8 text-sm"
                                               autoFocus
                                             />
@@ -1180,7 +1180,7 @@ export default function AdvisorPortal() {
                                                 <button
                                                   key={option}
                                                   type="button"
-                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  className={`w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors ${newUniversityName === option ? "bg-primary/10 font-medium" : ""}`}
                                                   onClick={() => {
                                                     setNewUniversityName(option);
                                                     setUniDropdownOpen(false);
@@ -1191,32 +1191,32 @@ export default function AdvisorPortal() {
                                                 </button>
                                               ))}
                                             {universityOptions.filter(opt => opt.toLowerCase().includes(uniSearch.toLowerCase())).length === 0 && (
-                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
                                             )}
                                           </div>
                                           <div className="border-t p-2">
                                             {!showAddCustomUni ? (
                                               <button
                                                 type="button"
-                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                className="w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2 text-primary"
                                                 onClick={() => setShowAddCustomUni(true)}
                                               >
                                                 <Plus className="h-4 w-4" />
-                                                הוסף אוניברסיטה חדשה
+                                                Add New University
                                               </button>
                                             ) : (
                                               <div className="flex gap-2">
                                                 <Input
                                                   value={customUniValue}
                                                   onChange={(e) => setCustomUniValue(e.target.value)}
-                                                  placeholder="שם האוניברסיטה..."
+                                                  placeholder="University Name..."
                                                   className="h-8 text-sm flex-1"
                                                   dir="ltr"
                                                   autoFocus
                                                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomUniversity())}
                                                 />
                                                 <Button type="button" size="sm" className="h-8" onClick={handleAddCustomUniversity}>
-                                                  הוסף
+                                                  Add
                                                 </Button>
                                               </div>
                                             )}
@@ -1226,41 +1226,41 @@ export default function AdvisorPortal() {
                                     </div>
                                   </div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
-                                    <Label>סוג תואר</Label>
+                                    <Label>Degree Type</Label>
                                     <Select value={newAcceptanceDegreeType} onValueChange={setNewAcceptanceDegreeType}>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="בחר סוג תואר" />
+                                        <SelectValue placeholder="Select Degree" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
-                                        <SelectItem value="תואר שני">תואר שני</SelectItem>
-                                        <SelectItem value="דוקטורט">דוקטורט</SelectItem>
-                                        <SelectItem value="אחר">אחר</SelectItem>
+                                        <SelectItem value="bachelor">Bachellor</SelectItem>
+                                        <SelectItem value="master">Master</SelectItem>
+                                        <SelectItem value="phd">PhD</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
                                       </SelectContent>
                                     </Select>
-                                    {newAcceptanceDegreeType === 'אחר' && (
+                                    {newAcceptanceDegreeType === 'other' && (
                                       <Input
                                         value={newAcceptanceDegreeTypeOther}
                                         onChange={(e) => setNewAcceptanceDegreeTypeOther(e.target.value)}
-                                        placeholder="פרט..."
+                                        placeholder="Specify..."
                                         className="mt-2"
                                       />
                                     )}
                                   </div>
                                   <div>
-                                    <Label>תחום</Label>
+                                    <Label>Field</Label>
                                     <div ref={fieldDropdownRef} className="relative">
                                       <div
                                         className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
                                         onClick={() => setFieldDropdownOpen(!fieldDropdownOpen)}
                                       >
                                         <span className={newAcceptanceField ? "" : "text-muted-foreground"}>
-                                          {newAcceptanceField || "בחר תחום"}
+                                          {newAcceptanceField || "Select Field"}
                                         </span>
-                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                        <ChevronLeft className="h-4 w-4 opacity-50 rotate-90" />
                                       </div>
                                       {fieldDropdownOpen && (
                                         <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
@@ -1268,7 +1268,7 @@ export default function AdvisorPortal() {
                                             <Input
                                               value={fieldSearch}
                                               onChange={(e) => setFieldSearch(e.target.value)}
-                                              placeholder="חפש תחום..."
+                                              placeholder="Search Field..."
                                               className="h-8 text-sm"
                                               autoFocus
                                             />
@@ -1280,7 +1280,7 @@ export default function AdvisorPortal() {
                                                 <button
                                                   key={option}
                                                   type="button"
-                                                  className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newAcceptanceField === option ? "bg-primary/10 font-medium" : ""}`}
+                                                  className={`w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors ${newAcceptanceField === option ? "bg-primary/10 font-medium" : ""}`}
                                                   onClick={() => {
                                                     setNewAcceptanceField(option);
                                                     setFieldDropdownOpen(false);
@@ -1291,25 +1291,25 @@ export default function AdvisorPortal() {
                                                 </button>
                                               ))}
                                             {fieldOptions.filter(opt => opt.toLowerCase().includes(fieldSearch.toLowerCase())).length === 0 && (
-                                              <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                              <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
                                             )}
                                           </div>
                                           <div className="border-t p-2">
                                             {!showAddCustomField ? (
                                               <button
                                                 type="button"
-                                                className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                                className="w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2 text-primary"
                                                 onClick={() => setShowAddCustomField(true)}
                                               >
                                                 <Plus className="h-4 w-4" />
-                                                הוסף תחום חדש
+                                                Add New Field
                                               </button>
                                             ) : (
                                               <div className="flex gap-2">
                                                 <Input
                                                   value={customFieldValue}
                                                   onChange={(e) => setCustomFieldValue(e.target.value)}
-                                                  placeholder="שם התחום..."
+                                                  placeholder="Field Name..."
                                                   className="h-8 text-sm flex-1"
                                                   autoFocus
                                                   onKeyDown={(e) => {
@@ -1334,7 +1334,7 @@ export default function AdvisorPortal() {
                                                     setFieldDropdownOpen(false);
                                                   }
                                                 }}>
-                                                  הוסף
+                                                  Add
                                                 </Button>
                                               </div>
                                             )}
@@ -1346,24 +1346,24 @@ export default function AdvisorPortal() {
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label className="text-sm">שנת לימודים</Label>
+                                  <Label className="text-sm">Study Year</Label>
                                   <Input
                                     value={newAcceptanceStudyYear}
                                     onChange={(e) => setNewAcceptanceStudyYear(e.target.value)}
-                                    placeholder="לדוגמה: 2025-2026"
+                                    placeholder="Example: 2025-2026"
                                   />
                                 </div>
 
                                 <Button onClick={addAcceptedUniversity} disabled={savingAcceptance || !newUniversityCountry || !newUniversityName.trim()} className="w-full">
-                                  {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                                  הוסף
+                                  {savingAcceptance ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                                  Add
                                 </Button>
                               </div>
                             </DialogContent>
                           </Dialog>
                         </div>
                         {acceptedUniversities.length === 0 ? (
-                          <p className="text-center text-muted-foreground py-4 text-sm">אין אוניברסיטאות</p>
+                          <p className="text-center text-muted-foreground py-4 text-sm">No universities</p>
                         ) : (
                           <div className="space-y-2">
                             {acceptedUniversities.map((uni) => (
@@ -1374,12 +1374,12 @@ export default function AdvisorPortal() {
                                       <Input
                                         value={editUniData.name || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, name: e.target.value }))}
-                                        placeholder="שם אוניברסיטה"
+                                        placeholder="University Name"
                                       />
                                       <Input
                                         value={editUniData.country || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, country: e.target.value }))}
-                                        placeholder="מדינה"
+                                        placeholder="Country"
                                       />
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
@@ -1388,37 +1388,37 @@ export default function AdvisorPortal() {
                                         value={editUniData.degree_type || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, degree_type: e.target.value }))}
                                       >
-                                        <option value="">סוג תואר</option>
-                                        <option value="תואר ראשון">תואר ראשון</option>
-                                        <option value="תואר שני">תואר שני</option>
-                                        <option value="דוקטורט">דוקטורט</option>
-                                        <option value="אחר">אחר</option>
+                                        <option value="">Degree Type</option>
+                                        <option value="bachelor">Bachellor</option>
+                                        <option value="master">Master</option>
+                                        <option value="phd">PhD</option>
+                                        <option value="other">Other</option>
                                       </select>
                                       <Input
                                         value={editUniData.field || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, field: e.target.value }))}
-                                        placeholder="תחום"
+                                        placeholder="Field"
                                       />
                                       <Input
                                         value={editUniData.study_year || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, study_year: e.target.value }))}
-                                        placeholder="שנת לימודים"
+                                        placeholder="Study Year"
                                       />
                                     </div>
-                                    {editUniData.degree_type === 'אחר' && (
+                                    {editUniData.degree_type === 'other' && (
                                       <Input
                                         value={editUniData.degree_type_other || ''}
                                         onChange={(e) => setEditUniData(prev => ({ ...prev, degree_type_other: e.target.value }))}
-                                        placeholder="פירוט סוג תואר"
+                                        placeholder="Specify Degree Type"
                                       />
                                     )}
                                     <div className="flex gap-2 justify-end">
                                       <Button variant="ghost" size="sm" onClick={() => { setEditingUniId(null); setEditUniData({}); }}>
-                                        ביטול
+                                        Cancel
                                       </Button>
                                       <Button size="sm" onClick={saveEditUniversity} className="gap-1">
                                         <Save className="h-3 w-3" />
-                                        שמור
+                                        Save
                                       </Button>
                                     </div>
                                   </>
@@ -1430,7 +1430,7 @@ export default function AdvisorPortal() {
                                       <p className="text-xs text-muted-foreground">
                                         {[
                                           uni.country,
-                                          uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type,
+                                          uni.degree_type === 'other' ? uni.degree_type_other : uni.degree_type,
                                           uni.field,
                                           uni.study_year
                                         ].filter(Boolean).join(' • ')}
@@ -1439,7 +1439,7 @@ export default function AdvisorPortal() {
                                     {uni.acceptance_letter_url ? (
                                       <Button variant="outline" size="sm" onClick={() => openExternalFile(uni.acceptance_letter_url!, `acceptance-letter-${uni.name}`)} className="gap-1">
                                         <FileText className="h-3 w-3" />
-                                        מכתב קבלה
+                                        Acceptance Letter
                                       </Button>
                                     ) : (
                                       <>
@@ -1448,7 +1448,7 @@ export default function AdvisorPortal() {
                                         <Button variant="outline" size="sm" disabled={uploadingAcceptance === uni.id}
                                           onClick={() => document.getElementById(`upload-${uni.id}`)?.click()} className="gap-1">
                                           {uploadingAcceptance === uni.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
-                                          העלה מכתב
+                                          Upload Letter
                                         </Button>
                                       </>
                                     )}
@@ -1472,38 +1472,38 @@ export default function AdvisorPortal() {
                       {/* Scholarships sub-section */}
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold text-sm">מלגות ({scholarships.length})</h4>
+                          <h4 className="font-semibold text-sm">Scholarships ({scholarships.length})</h4>
                           <Dialog open={isAddScholarshipOpen} onOpenChange={setIsAddScholarshipOpen}>
                             <DialogTrigger asChild>
                               <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-100">
-                                <Plus className="h-4 w-4 ml-1" />
-                                הוסף
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>הוספת מלגה</DialogTitle>
+                                <DialogTitle>Add Scholarship</DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div>
-                                  <Label>שם המלגה *</Label>
+                                  <Label>Scholarship Name *</Label>
                                   <div ref={scholarshipDropdownRef} className="relative">
                                     <div
                                       className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm cursor-pointer"
                                       onClick={() => setScholarshipDropdownOpen(!scholarshipDropdownOpen)}
                                     >
                                       <span className={newScholarshipName ? "" : "text-muted-foreground"}>
-                                        {newScholarshipName || "בחר מלגה"}
+                                        {newScholarshipName || "Select Scholarship"}
                                       </span>
-                                      <ChevronLeft className="h-4 w-4 opacity-50 rotate-[-90deg]" />
+                                      <ChevronLeft className="h-4 w-4 opacity-50 rotate-90" />
                                     </div>
                                     {scholarshipDropdownOpen && (
                                       <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg">
                                         <div className="p-2">
                                           <Input
                                             value={scholarshipSearch}
-                                            onChange={(e) => setScholarshipSearch(e.target.value)}
-                                            placeholder="חפש מלגה..."
+                                            onChange={(e) => setSearchScholarshipSearch(e.target.value)}
+                                            placeholder="Search scholarship..."
                                             className="h-8 text-sm"
                                             autoFocus
                                           />
@@ -1515,7 +1515,7 @@ export default function AdvisorPortal() {
                                               <button
                                                 key={option}
                                                 type="button"
-                                                className={`w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors ${newScholarshipName === option ? "bg-primary/10 font-medium" : ""}`}
+                                                className={`w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors ${newScholarshipName === option ? "bg-primary/10 font-medium" : ""}`}
                                                 onClick={() => {
                                                   setNewScholarshipName(option);
                                                   setScholarshipDropdownOpen(false);
@@ -1526,31 +1526,31 @@ export default function AdvisorPortal() {
                                               </button>
                                             ))}
                                           {scholarshipOptions.filter(opt => opt.toLowerCase().includes(scholarshipSearch.toLowerCase())).length === 0 && (
-                                            <p className="px-3 py-2 text-sm text-muted-foreground">לא נמצאו תוצאות</p>
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">No results found</p>
                                           )}
                                         </div>
                                         <div className="border-t p-2">
                                           {!showAddCustomScholarship ? (
                                             <button
                                               type="button"
-                                              className="w-full px-3 py-1.5 text-sm text-right hover:bg-muted transition-colors flex items-center gap-2 text-primary"
+                                              className="w-full px-3 py-1.5 text-sm text-left hover:bg-muted transition-colors flex items-center gap-2 text-primary"
                                               onClick={() => setShowAddCustomScholarship(true)}
                                             >
                                               <Plus className="h-4 w-4" />
-                                              הוסף מלגה חדשה
+                                              Add New Scholarship
                                             </button>
                                           ) : (
                                             <div className="flex gap-2">
                                               <Input
                                                 value={customScholarshipValue}
                                                 onChange={(e) => setCustomScholarshipValue(e.target.value)}
-                                                placeholder="שם המלגה..."
+                                                placeholder="Scholarship Name..."
                                                 className="h-8 text-sm flex-1"
                                                 autoFocus
                                                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomScholarship())}
                                               />
                                               <Button type="button" size="sm" className="h-8" onClick={handleAddCustomScholarship}>
-                                                הוסף
+                                                Add
                                               </Button>
                                             </div>
                                           )}
@@ -1560,33 +1560,33 @@ export default function AdvisorPortal() {
                                   </div>
                                 </div>
                                 <div>
-                                  <Label>סכום מלגה</Label>
+                                  <Label>Scholarship Amount</Label>
                                   <Input
                                     value={newScholarshipAmount}
                                     onChange={(e) => setNewScholarshipAmount(e.target.value)}
-                                    placeholder="לדוגמה: $10,000"
+                                    placeholder="Example: $10,000"
                                     dir="ltr"
                                   />
                                 </div>
                                 <div>
-                                  <Label>הערות</Label>
+                                  <Label>Notes</Label>
                                   <Textarea
                                     value={newScholarshipNotes}
                                     onChange={(e) => setNewScholarshipNotes(e.target.value)}
-                                    placeholder="הערות נוספות..."
+                                    placeholder="Additional notes..."
                                     rows={2}
                                   />
                                 </div>
                                 <Button onClick={addScholarship} disabled={savingScholarship || !newScholarshipName.trim()} className="w-full">
-                                  {savingScholarship ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                                  הוסף
+                                  {savingScholarship ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                                  Add
                                 </Button>
                               </div>
                             </DialogContent>
                           </Dialog>
                         </div>
                         {scholarships.length === 0 ? (
-                          <p className="text-center text-muted-foreground py-4 text-sm">אין מלגות</p>
+                          <p className="text-center text-muted-foreground py-4 text-sm">No scholarships</p>
                         ) : (
                           <div className="space-y-2">
                             {scholarships.map((sch) => (
@@ -1594,7 +1594,7 @@ export default function AdvisorPortal() {
                                 <GraduationCap className="h-5 w-5 text-amber-600 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate">{sch.name}</p>
-                                  {sch.amount && <p className="text-xs text-muted-foreground">סכום: {sch.amount}</p>}
+                                  {sch.amount && <p className="text-xs text-muted-foreground">Amount: {sch.amount}</p>}
                                   {sch.notes && <p className="text-xs text-muted-foreground">{sch.notes}</p>}
                                 </div>
                                 <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteScholarship(sch.id)}>
@@ -1613,62 +1613,62 @@ export default function AdvisorPortal() {
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-primary" />
-                        לאן הגיש/ה ({appliedUniversities.length})
+                        Where Did They Apply? ({appliedUniversities.length})
                       </CardTitle>
                       <Dialog open={isAddAppliedOpen} onOpenChange={setIsAddAppliedOpen}>
                         <DialogTrigger asChild>
                           <Button size="sm" variant="outline">
-                            <Plus className="h-4 w-4 ml-1" />
-                            הוסף הגשה
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Application
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle>הוספת הגשת בקשה</DialogTitle>
+                            <DialogTitle>Add Application Request</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <Label>מדינה *</Label>
+                                <Label>Country *</Label>
                                 <Select value={newAppliedCountry} onValueChange={setNewAppliedCountry}>
-                                  <SelectTrigger><SelectValue placeholder="בחר מדינה" /></SelectTrigger>
+                                  <SelectTrigger><SelectValue placeholder="Select Country" /></SelectTrigger>
                                   <SelectContent>
                                     {countryOptions.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
                                   </SelectContent>
                                 </Select>
                               </div>
                               <div>
-                                <Label>שם האוניברסיטה *</Label>
-                                <UniversityDropdown value={newAppliedName} onChange={setNewAppliedName} placeholder="בחר אוניברסיטה" />
+                                <Label>University Name *</Label>
+                                <UniversityDropdown value={newAppliedName} onChange={setNewAppliedName} placeholder="Select University" />
                               </div>
                             </div>
                             <div className="grid grid-cols-3 gap-3">
                               <div>
-                                <Label>סוג תואר</Label>
+                                <Label>Degree Type</Label>
                                 <Select value={newAppliedDegreeType} onValueChange={setNewAppliedDegreeType}>
-                                  <SelectTrigger><SelectValue placeholder="בחר" /></SelectTrigger>
+                                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="תואר ראשון">תואר ראשון</SelectItem>
-                                    <SelectItem value="תואר שני">תואר שני</SelectItem>
-                                    <SelectItem value="דוקטורט">דוקטורט</SelectItem>
-                                    <SelectItem value="אחר">אחר</SelectItem>
+                                    <SelectItem value="bachelor">Bachellor</SelectItem>
+                                    <SelectItem value="master">Master</SelectItem>
+                                    <SelectItem value="phd">PhD</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
                               <div>
-                                <Label>תחום</Label>
-                                <Input value={newAppliedField} onChange={(e) => setNewAppliedField(e.target.value)} placeholder="תחום" />
+                                <Label>Field</Label>
+                                <Input value={newAppliedField} onChange={(e) => setNewAppliedField(e.target.value)} placeholder="Field" />
                               </div>
                               <div>
-                                <Label>שנה</Label>
-                                <Input value={newAppliedStudyYear} onChange={(e) => setNewAppliedStudyYear(e.target.value)} placeholder="שנת לימודים" />
+                                <Label>Year</Label>
+                                <Input value={newAppliedStudyYear} onChange={(e) => setNewAppliedStudyYear(e.target.value)} placeholder="Study Year" />
                               </div>
                             </div>
-                            {newAppliedDegreeType === 'אחר' && (
-                              <Input value={newAppliedDegreeTypeOther} onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)} placeholder="פירוט סוג תואר" />
+                            {newAppliedDegreeType === 'other' && (
+                              <Input value={newAppliedDegreeTypeOther} onChange={(e) => setNewAppliedDegreeTypeOther(e.target.value)} placeholder="Specify Degree Type" />
                             )}
                             <div>
-                              <Label>סטטוס בקשה</Label>
+                              <Label>Application Status</Label>
                               <Select value={newAppliedStatus} onValueChange={setNewAppliedStatus}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -1677,12 +1677,12 @@ export default function AdvisorPortal() {
                               </Select>
                             </div>
                             <div>
-                              <Label>הערות</Label>
-                              <Textarea value={newAppliedNotes} onChange={(e) => setNewAppliedNotes(e.target.value)} rows={2} placeholder="הערות (אופציונלי)" />
+                              <Label>Notes</Label>
+                              <Textarea value={newAppliedNotes} onChange={(e) => setNewAppliedNotes(e.target.value)} rows={2} placeholder="Notes (optional)" />
                             </div>
                             <Button onClick={addAppliedUniversity} disabled={savingApplied || !newAppliedCountry || !newAppliedName.trim()} className="w-full">
-                              {savingApplied ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                              הוסף
+                              {savingApplied ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                              Add
                             </Button>
                           </div>
                         </DialogContent>
@@ -1690,7 +1690,7 @@ export default function AdvisorPortal() {
                     </CardHeader>
                     <CardContent>
                       {appliedUniversities.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-4 text-sm">אין הגשות עדיין</p>
+                        <p className="text-center text-muted-foreground py-4 text-sm">No applications yet</p>
                       ) : (
                         <div className="space-y-2">
                           {appliedUniversities.map((uni) => (
@@ -1698,30 +1698,30 @@ export default function AdvisorPortal() {
                               {editingAppliedId === uni.id ? (
                                 <>
                                   <div className="grid grid-cols-2 gap-2">
-                                    <UniversityDropdown value={editAppliedData.name || ''} onChange={(v) => setEditAppliedData(prev => ({ ...prev, name: v }))} placeholder="שם אוניברסיטה" />
-                                    <Input value={editAppliedData.country || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, country: e.target.value }))} placeholder="מדינה" />
+                                    <UniversityDropdown value={editAppliedData.name || ''} onChange={(v) => setEditAppliedData(prev => ({ ...prev, name: v }))} placeholder="University Name" />
+                                    <Input value={editAppliedData.country || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, country: e.target.value }))} placeholder="Country" />
                                   </div>
                                   <div className="grid grid-cols-3 gap-2">
                                     <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={editAppliedData.degree_type || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, degree_type: e.target.value }))}>
-                                      <option value="">סוג תואר</option>
-                                      <option value="תואר ראשון">תואר ראשון</option>
-                                      <option value="תואר שני">תואר שני</option>
-                                      <option value="דוקטורט">דוקטורט</option>
-                                      <option value="אחר">אחר</option>
+                                      <option value="">Degree Type</option>
+                                      <option value="bachelor">Bachellor</option>
+                                      <option value="master">Master</option>
+                                      <option value="phd">PhD</option>
+                                      <option value="other">Other</option>
                                     </select>
-                                    <Input value={editAppliedData.field || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, field: e.target.value }))} placeholder="תחום" />
-                                    <Input value={editAppliedData.study_year || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, study_year: e.target.value }))} placeholder="שנה" />
+                                    <Input value={editAppliedData.field || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, field: e.target.value }))} placeholder="Field" />
+                                    <Input value={editAppliedData.study_year || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, study_year: e.target.value }))} placeholder="Year" />
                                   </div>
-                                  {editAppliedData.degree_type === 'אחר' && (
-                                    <Input value={editAppliedData.degree_type_other || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, degree_type_other: e.target.value }))} placeholder="פירוט סוג תואר" />
+                                  {editAppliedData.degree_type === 'other' && (
+                                    <Input value={editAppliedData.degree_type_other || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, degree_type_other: e.target.value }))} placeholder="Specify Degree Type" />
                                   )}
                                   <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={editAppliedData.application_status || 'submitted'} onChange={(e) => setEditAppliedData(prev => ({ ...prev, application_status: e.target.value }))}>
                                     {Object.entries(applicationStatusLabels).map(([v, l]) => (<option key={v} value={v}>{l}</option>))}
                                   </select>
-                                  <Textarea value={editAppliedData.notes || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, notes: e.target.value }))} rows={2} placeholder="הערות" />
+                                  <Textarea value={editAppliedData.notes || ''} onChange={(e) => setEditAppliedData(prev => ({ ...prev, notes: e.target.value }))} rows={2} placeholder="Notes" />
                                   <div className="flex gap-2 justify-end">
-                                    <Button variant="ghost" size="sm" onClick={() => { setEditingAppliedId(null); setEditAppliedData({}); }}>ביטול</Button>
-                                    <Button size="sm" onClick={saveEditApplied} className="gap-1"><Save className="h-3 w-3" />שמור</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => { setEditingAppliedId(null); setEditAppliedData({}); }}>Cancel</Button>
+                                    <Button size="sm" onClick={saveEditApplied} className="gap-1"><Save className="h-3 w-3" />Save</Button>
                                   </div>
                                 </>
                               ) : (
@@ -1735,7 +1735,7 @@ export default function AdvisorPortal() {
                                       </span>
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                      {[uni.country, uni.degree_type === 'אחר' ? uni.degree_type_other : uni.degree_type, uni.field, uni.study_year].filter(Boolean).join(' • ')}
+                                      {[uni.country, uni.degree_type === 'other' ? uni.degree_type_other : uni.degree_type, uni.field, uni.study_year].filter(Boolean).join(' • ')}
                                     </p>
                                     {uni.notes && (<p className="text-xs text-muted-foreground italic mt-1">{uni.notes}</p>)}
                                   </div>
@@ -1755,41 +1755,41 @@ export default function AdvisorPortal() {
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <MessageSquare className="h-5 w-5 text-blue-600" />
-                        יומן שיחות ({conversations.length})
+                        Conversation Log ({conversations.length})
                       </CardTitle>
                       <Dialog open={isAddConversationOpen} onOpenChange={setIsAddConversationOpen}>
                         <DialogTrigger asChild>
                           <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                            <Plus className="h-4 w-4 ml-1" />
-                            הוסף שיחה
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Conversation
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>הוספת שיחה</DialogTitle>
+                            <DialogTitle>Add Conversation</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label>סיכום השיחה *</Label>
+                              <Label>Conversation Summary *</Label>
                               <Textarea
                                 value={newConversationSummary}
                                 onChange={(e) => setNewConversationSummary(e.target.value)}
-                                placeholder="מה דובר בשיחה?"
+                                placeholder="What was discussed in the conversation?"
                                 rows={4}
                               />
                             </div>
                             <div>
-                              <Label>פעולות להמשך</Label>
+                              <Label>Follow-up Actions</Label>
                               <Textarea
                                 value={newConversationFollowUp}
                                 onChange={(e) => setNewConversationFollowUp(e.target.value)}
-                                placeholder="מה צריך לעשות בהמשך?"
+                                placeholder="What needs to be done next?"
                                 rows={2}
                               />
                             </div>
                             <Button onClick={addConversation} disabled={savingConversation} className="w-full">
-                              {savingConversation ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                              הוסף
+                              {savingConversation ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                              Add
                             </Button>
                           </div>
                         </DialogContent>
@@ -1797,7 +1797,7 @@ export default function AdvisorPortal() {
                     </CardHeader>
                     <CardContent>
                       {conversations.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-8">אין שיחות מתועדות</p>
+                        <p className="text-center text-muted-foreground py-8">No conversations recorded</p>
                       ) : (
                         <div className="space-y-3 max-h-80 overflow-y-auto">
                           {conversations.map((conv) => (
@@ -1822,7 +1822,7 @@ export default function AdvisorPortal() {
                               <p className="text-sm">{conv.summary}</p>
                               {conv.follow_up_actions && (
                                 <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                                  <strong>פעולות להמשך:</strong> {conv.follow_up_actions}
+                                  <strong>Follow-up Actions:</strong> {conv.follow_up_actions}
                                 </div>
                               )}
                             </div>
@@ -1840,37 +1840,37 @@ export default function AdvisorPortal() {
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 text-primary" />
-                        צ'קליסט ({checklist.length})
+                        Checklist ({checklist.length})
                       </CardTitle>
                       <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
                         <DialogTrigger asChild>
                           <Button size="sm">
-                            <Plus className="h-4 w-4 ml-1" />
-                            הוסף
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>הוספת פריט לצ'קליסט</DialogTitle>
+                            <DialogTitle>Add Checklist Item</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label>כותרת *</Label>
+                              <Label>Title *</Label>
                               <Input
                                 value={newItemTitle}
                                 onChange={(e) => setNewItemTitle(e.target.value)}
-                                placeholder="לדוגמה: הגשת תעודות"
+                                placeholder="Example: Submit Transcripts"
                               />
                             </div>
                             <div>
-                              <Label>תיאור</Label>
+                              <Label>Description</Label>
                               <Textarea
                                 value={newItemDescription}
                                 onChange={(e) => setNewItemDescription(e.target.value)}
                               />
                             </div>
                             <div>
-                              <Label>תאריך יעד</Label>
+                              <Label>Due Date</Label>
                               <Input
                                 type="date"
                                 value={newItemDueDate}
@@ -1878,8 +1878,8 @@ export default function AdvisorPortal() {
                               />
                             </div>
                             <Button onClick={addChecklistItem} disabled={saving} className="w-full">
-                              {saving ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Plus className="h-4 w-4 ml-2" />}
-                              הוסף
+                              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                              Add
                             </Button>
                           </div>
                         </DialogContent>
@@ -1887,7 +1887,7 @@ export default function AdvisorPortal() {
                     </CardHeader>
                     <CardContent>
                       {checklist.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-8">אין פריטים</p>
+                        <p className="text-center text-muted-foreground py-8">No items</p>
                       ) : (
                         <div className="space-y-2">
                           {checklist.map((item) => (
@@ -1907,7 +1907,7 @@ export default function AdvisorPortal() {
                                 </p>
                                 {item.due_date && (
                                   <p className="text-xs text-muted-foreground">
-                                    עד {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}
+                                    By {format(new Date(item.due_date), "dd/MM/yyyy", { locale: he })}
                                   </p>
                                 )}
                               </div>
@@ -1931,36 +1931,36 @@ export default function AdvisorPortal() {
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-primary" />
-                        מסמכים ({documents.length})
+                        Documents ({documents.length})
                       </CardTitle>
                       <Dialog open={isAddDocOpen} onOpenChange={setIsAddDocOpen}>
                         <DialogTrigger asChild>
                           <Button size="sm">
-                            <Upload className="h-4 w-4 ml-1" />
-                            העלה
+                            <Upload className="h-4 w-4 mr-1" />
+                            Upload
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>העלאת מסמך</DialogTitle>
+                            <DialogTitle>Upload Document</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label>שם המסמך *</Label>
+                              <Label>Document Name *</Label>
                               <Input
                                 value={newDocName}
                                 onChange={(e) => setNewDocName(e.target.value)}
                               />
                             </div>
                             <div>
-                              <Label>תיאור</Label>
+                              <Label>Description</Label>
                               <Textarea
                                 value={newDocDescription}
                                 onChange={(e) => setNewDocDescription(e.target.value)}
                               />
                             </div>
                             <div>
-                              <Label>קטגוריה</Label>
+                              <Label>Category</Label>
                               <Select value={newDocCategory} onValueChange={setNewDocCategory}>
                                 <SelectTrigger>
                                   <SelectValue />
@@ -1975,16 +1975,16 @@ export default function AdvisorPortal() {
                               </Select>
                             </div>
                             <div>
-                              <Label>קובץ * (PDF או Word בלבד)</Label>
+                              <Label>File * (PDF or Word only)</Label>
                               <Input
                                 type="file"
                                 accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                               />
                             </div>
-                            <Button onClick={uploadDocument} disabled={uploading} className="w-full">
-                              {uploading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
-                              העלה
+                            <Button onClick={uploadDocument} disabled={uploading || !selectedFile || !newDocName.trim()} className="w-full">
+                              {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                              Upload
                             </Button>
                           </div>
                         </DialogContent>
@@ -2009,7 +2009,7 @@ export default function AdvisorPortal() {
                                       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
                                       const ext = file.name.split(".").pop()?.toLowerCase();
                                       if (!allowedTypes.includes(file.type) && !['pdf', 'doc', 'docx'].includes(ext || '')) {
-                                        toast({ title: "שגיאה", description: "ניתן להעלות קבצי PDF או Word בלבד", variant: "destructive" });
+                                        toast({ title: "Error", description: "Only PDF or Word files can be uploaded", variant: "destructive" });
                                         e.target.value = '';
                                         return;
                                       }
@@ -2019,7 +2019,7 @@ export default function AdvisorPortal() {
                                         .from("student-documents")
                                         .upload(fileName, file, { contentType: file.type, cacheControl: "3600" });
                                       if (uploadError) {
-                                        toast({ title: "שגיאה", description: "לא ניתן להעלות קובץ", variant: "destructive" });
+                                        toast({ title: "Error", description: "Failed to upload file", variant: "destructive" });
                                         setUploading(false);
                                         e.target.value = '';
                                         return;
@@ -2032,9 +2032,9 @@ export default function AdvisorPortal() {
                                         category: cat.value,
                                       });
                                       if (insertError) {
-                                        toast({ title: "שגיאה", description: "לא ניתן לשמור מסמך", variant: "destructive" });
+                                        toast({ title: "Error", description: "Failed to save document", variant: "destructive" });
                                       } else {
-                                        toast({ title: "המסמך הועלה בהצלחה" });
+                                        toast({ title: "Document uploaded successfully" });
                                         selectStudent(selectedStudent);
                                       }
                                       setUploading(false);
@@ -2043,12 +2043,12 @@ export default function AdvisorPortal() {
                                   />
                                   <span className="inline-flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer">
                                     <Plus className="h-3 w-3" />
-                                    העלה
+                                    Upload
                                   </span>
                                 </label>
                               </div>
                               {catDocs.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">אין מסמכים</p>
+                                <p className="text-xs text-muted-foreground">No documents</p>
                               ) : (
                                 <div className="space-y-1.5">
                                   {catDocs.map((doc) => (
@@ -2074,7 +2074,7 @@ export default function AdvisorPortal() {
                           if (otherDocs.length === 0) return null;
                           return (
                             <div className="border rounded-lg p-3">
-                              <h4 className="font-medium text-sm mb-2">אחר ({otherDocs.length})</h4>
+                              <h4 className="font-medium text-sm mb-2">Other ({otherDocs.length})</h4>
                               <div className="space-y-1.5">
                                 {otherDocs.map((doc) => (
                                   <div key={doc.id} className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
@@ -2107,31 +2107,31 @@ export default function AdvisorPortal() {
               <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
                 <TabsTrigger value="active" className="gap-2">
                   <GraduationCap className="h-4 w-4" />
-                  סטודנטים פעילים ({activeStudents.length})
+                  Active Students ({activeStudents.length})
                 </TabsTrigger>
                 <TabsTrigger value="past" className="gap-2">
                   <History className="h-4 w-4" />
-                  לקוחות עבר ({pastStudents.length})
+                  Alumni ({pastStudents.length})
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
             {/* Search */}
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="חיפוש סטודנט..."
+                placeholder="Search student..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
+                className="pl-10"
               />
             </div>
 
             {/* Students Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredStudents.map((student) => (
-                <Card 
-                  key={student.id} 
+                <Card
+                  key={student.id}
                   className="cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => selectStudent(student)}
                 >
@@ -2153,24 +2153,24 @@ export default function AdvisorPortal() {
                           // Determine the correct page based on student status
                           let targetUrl = `/students?highlight=${student.id}`;
                           if (student.did_not_continue) {
-                            targetUrl = `/did-not-continue/2025-ומטה?highlight=${student.id}`;
+                            targetUrl = `/did-not-continue/2025-and-below?highlight=${student.id}`;
                           } else if (student.graduation_year) {
                             // Has graduation year - goes to past clients
                             targetUrl = `/past-clients/${student.graduation_year}?highlight=${student.id}`;
                           }
                           window.open(targetUrl, '_blank');
                         }}
-                        title="פתח כרטיס לקוח בחלון חדש"
+                        title="Open student card in new window"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs ${student.signed_agreement ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {student.signed_agreement ? 'חתם' : 'לא חתם'}
+                        {student.signed_agreement ? 'Signed' : 'Not Signed'}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full text-xs ${student.is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {student.is_paid ? 'שולם' : 'לא שולם'}
+                        {student.is_paid ? 'Paid' : 'Unpaid'}
                       </span>
                       {student.target_country && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
@@ -2179,17 +2179,17 @@ export default function AdvisorPortal() {
                       )}
                       {student.did_not_continue && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700">
-                          לא המשיך
+                          Closed/Lost
                         </span>
                       )}
                       {student.status === "accepted" && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
-                          התקבל
+                          Accepted
                         </span>
                       )}
                       {student.status !== "accepted" && acceptedStudentIds.has(student.id) && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">
-                          התקבל/ה
+                          Accepted
                         </span>
                       )}
                     </div>
@@ -2203,9 +2203,9 @@ export default function AdvisorPortal() {
                 <CardContent className="py-12 text-center">
                   <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    {currentStudents.length === 0 
-                      ? (activeTab === "active" ? "אין סטודנטים פעילים" : "אין לקוחות עבר")
-                      : "לא נמצאו תוצאות"
+                    {currentStudents.length === 0
+                      ? (activeTab === "active" ? "No active students" : "No alumni")
+                      : "No results found"
                     }
                   </p>
                 </CardContent>
@@ -2220,7 +2220,7 @@ export default function AdvisorPortal() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
-                יועצים נוספים
+                Other Consultants
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -2253,7 +2253,7 @@ export default function AdvisorPortal() {
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground py-4">
-          <p>נוגה ייעוץ ללימודים בחו"ל © {new Date().getFullYear()}</p>
+          <p>Primrose IEC © {new Date().getFullYear()}</p>
         </div>
       </div>
     </div>
