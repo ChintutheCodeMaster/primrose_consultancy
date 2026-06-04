@@ -207,7 +207,7 @@ export default function TempImportDidNotContinue() {
       if (skipped > 0) {
         setStatus(`${skipped} records already exist, importing ${toInsert.length} new...`);
       } else {
-        setStatus(`מImport ${toInsert.length} records...`);
+        setStatus(`Importing ${toInsert.length} records...`);
       }
 
       // Insert into LEADS table in batches
@@ -317,7 +317,7 @@ export default function TempImportDidNotContinue() {
           </div>
 
           <Button onClick={doImport} disabled={importing} size="lg">
-            {importing ? 'מImport...' : `Import ${records.length} records to inquiries`}
+            {importing ? 'Importing...' : `Import ${records.length} records to inquiries`}
           </Button>
         </>
       )}

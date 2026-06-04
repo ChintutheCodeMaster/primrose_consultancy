@@ -811,7 +811,7 @@ export default function DidNotContinue() {
               <div className="flex flex-wrap gap-2">
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${selectedStudent.signed_agreement ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning-foreground'}`}>
                   {selectedStudent.signed_agreement ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                  <span>{selectedStudent.signed_agreement ? 'Agreement signed' : 'לא Agreement signed'}</span>
+                  <span>{selectedStudent.signed_agreement ? 'Agreement signed' : 'Agreement not signed'}</span>
                 </div>
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${selectedStudent.is_paid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
                   {selectedStudent.is_paid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}

@@ -439,7 +439,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
             <div className="bg-primary/5 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="h-4 w-4" />
-                Preview ({getLeadsToImport().length} of {previewData.length} יImported)
+                Preview ({getLeadsToImport().length} of {previewData.length} imported)
               </h3>
               <div className="max-h-40 overflow-y-auto">
                 <table className="w-full text-sm">
@@ -496,7 +496,7 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                  מImport...
+                  Importing...
                 </>
               ) : (
                 `Import ${getLeadsToImport().length} Inquiries`

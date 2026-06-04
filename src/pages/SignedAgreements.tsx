@@ -95,7 +95,7 @@ export default function SignedAgreements() {
     content = content.replace(/\[Last Name\]/g, selectedAgreement.last_name);
     content = content.replace(/\[Email\]/g, selectedAgreement.email);
     content = content.replace(/\[Phone\]/g, selectedAgreement.phone);
-    content = content.replace(/\[ת\.ז\.\]/g, selectedAgreement.id_number);
+    content = content.replace(/\[ID Number\]/g, selectedAgreement.id_number);
     content = content.replace(/\[Address\]/g, selectedAgreement.address);
     content = content.replace(/\[Date of Birth\]/g, selectedAgreement.birth_date);
     return content;
