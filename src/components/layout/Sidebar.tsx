@@ -9,14 +9,14 @@ import { useSidebarCategories } from '@/hooks/useSidebarCategories';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 
 const navigation = [
-  { name: 'דשבורד', href: '/', icon: LayoutDashboard },
-  { name: 'סטודנטים', href: '/students', icon: GraduationCap },
+  { name: 'Dashboard', href: '/app', icon: LayoutDashboard },
+  { name: 'Students', href: '/students', icon: GraduationCap },
 ];
 
 const agreementTemplateTypes = [
-  { type: 'package', label: 'חבילה' },
-  { type: 'hourly', label: 'שעתי' },
-  { type: 'edit', label: 'לערוך' },
+  { type: 'package', label: 'Package' },
+  { type: 'hourly', label: 'Hourly' },
+  { type: 'edit', label: 'Edit' },
   { type: 'mba', label: 'MBA' },
 ] as const;
 
@@ -58,21 +58,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
+        <Link to="/app" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary">
             <GraduationCap className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-sidebar-foreground">נוגה</h1>
-            <p className="text-xs text-sidebar-foreground/60">לימודים בחו״ל</p>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Primrose</h1>
+            <p className="text-xs text-sidebar-foreground/60">IEC workspace</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Global Search */}
       <div className="px-4 py-3 border-b border-sidebar-border">
         <GlobalSearchInput 
-          placeholder="חיפוש לקוחות..." 
+          placeholder="Search students..." 
           className="w-full"
         />
       </div>
@@ -109,7 +109,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}>
             <div className="flex items-center gap-3">
               <UserPlus className="h-5 w-5" />
-              מתעניינים
+              Inquiries
             </div>
             <ChevronDown className={cn(
               'h-4 w-4 transition-transform duration-200',
@@ -148,7 +148,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}>
             <div className="flex items-center gap-3">
               <History className="h-5 w-5" />
-              לקוחות עבר
+              Alumni
             </div>
             <ChevronDown className={cn(
               'h-4 w-4 transition-transform duration-200',
@@ -187,7 +187,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}>
             <div className="flex items-center gap-3">
               <Users className="h-5 w-5" />
-              לא המשיכו
+              Closed / Lost
             </div>
             <ChevronDown className={cn(
               'h-4 w-4 transition-transform duration-200',
@@ -228,7 +228,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <UserCircle className="h-5 w-5" />
-          יועצים
+          Consultants
         </Link>
 
         {/* Analytics */}
@@ -243,7 +243,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <BarChart3 className="h-5 w-5" />
-          אנליטיקס
+          Analytics
         </Link>
 
         {/* Projects */}
@@ -258,7 +258,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <FolderKanban className="h-5 w-5" />
-          פרויקטים ושת״פ
+          Projects
         </Link>
 
         {/* AI Chat */}
@@ -273,7 +273,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <Sparkles className="h-5 w-5" />
-          עוזר AI
+          AI Assistant
         </Link>
 
         {/* Agreement Collapsible */}
@@ -286,7 +286,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}>
             <div className="flex items-center gap-3">
               <FileText className="h-5 w-5" />
-              הסכם תחילת תהליך
+              Engagement Agreements
             </div>
             <ChevronDown className={cn(
               'h-4 w-4 transition-transform duration-200',
@@ -325,7 +325,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
               )}
             >
-              הסכמים חתומים
+              Signed Agreements
             </Link>
           </CollapsibleContent>
         </Collapsible>
@@ -339,7 +339,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
         >
           <Settings className="h-5 w-5" />
-          הגדרות
+          Settings
         </Link>
       </div>
     </div>
@@ -356,12 +356,12 @@ export function MobileSidebar() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="fixed top-4 right-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md"
+          className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md"
         >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-72 p-0 bg-sidebar">
+      <SheetContent side="left" className="w-72 p-0 bg-sidebar">
         <SidebarContent onNavigate={() => setOpen(false)} />
       </SheetContent>
     </Sheet>
@@ -371,7 +371,7 @@ export function MobileSidebar() {
 // Desktop sidebar
 export function DesktopSidebar() {
   return (
-    <aside className="fixed right-0 top-0 z-40 h-screen w-64 bg-sidebar border-l border-sidebar-border hidden lg:block">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar border-r border-sidebar-border hidden lg:block">
       <SidebarContent />
     </aside>
   );
