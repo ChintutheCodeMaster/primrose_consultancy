@@ -52,7 +52,8 @@ const App = () => (
           <Route path="/app" element={<Index />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/leads/:year" element={<Leads />} />
-          <Route path="/students" element={<Students />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/onboarding/new-student" element={<OnboardingWizard />} />
           <Route path="/advisors" element={<Advisors />} />
           <Route path="/past-advisors" element={<PastAdvisors />} />
           <Route path="/did-not-continue/:year" element={<DidNotContinue />} />
