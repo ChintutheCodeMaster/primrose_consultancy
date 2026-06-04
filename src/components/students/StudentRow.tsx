@@ -39,9 +39,9 @@ const pastClientsYears = ['2026', '2025', '2024', '2023', '2022'];
 type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 const agreementTypeLabels: Record<AgreementType, string> = {
-  package: 'חבילה',
-  hourly: 'שעתי',
-  edit: 'לערוך',
+  package: 'Package',
+  hourly: 'Hourly',
+  edit: 'Edit',
   mba: 'MBA',
 };
 
@@ -75,8 +75,8 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
     const link = `${window.location.origin}/agreement/${student.id}?type=${agreementType}`;
     navigator.clipboard.writeText(link);
     toast({
-      title: "הקישור הועתק!",
-      description: `קישור להסכם ${agreementTypeLabels[agreementType]} הועתק ללוח`,
+      title: "Link copied!",
+      description: `${agreementTypeLabels[agreementType]} agreement link copied to clipboard`,
     });
   };
 
@@ -86,7 +86,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {needsAgreementReminder && (
         <div className="flex items-center gap-2 bg-warning/10 text-warning-foreground px-4 py-2 rounded-lg mb-4">
           <AlertTriangle className="h-4 w-4 text-warning" />
-          <span className="text-sm font-medium">תזכורת: לא חתם על הסכם עבודה ({daysSinceCreation} ימים מתחילת התהליך)</span>
+          <span className="text-sm font-medium">Reminder: Hasn't signed engagement agreement ({daysSinceCreation} days since creation)</span>
         </div>
       )}
 
@@ -95,10 +95,10 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         <div className="flex items-center gap-2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg mb-4">
           <AlertTriangle className="h-4 w-4 text-destructive" />
           <span className="text-sm font-medium">
-            תזכורת: לא שילם 
+            Reminder: Hasn't paid
             {paymentReminderDate 
-              ? ` (תזכורת ל-${format(new Date(paymentReminderDate), 'dd/MM/yyyy', { locale: he })})`
-              : ` (${daysSinceCreation} ימים מתחילת התהליך)`
+              ? ` (Reminder for ${format(new Date(paymentReminderDate), 'dd/MM/yyyy', { locale: he })})`
+              : ` (${daysSinceCreation} days since creation)`
             }
           </span>
         </div>
@@ -134,19 +134,19 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
               className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-success/20 text-success hover:bg-success/30 transition-colors cursor-pointer"
             >
               <FileSignature className="h-4 w-4" />
-              <span>חתם הסכם</span>
+              <span>Agreement Signed</span>
             </button>
           ) : (
             <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-warning/20 text-warning-foreground">
               <XCircle className="h-4 w-4" />
-              <span>לא חתם הסכם</span>
+              <span>Agreement Not Signed</span>
             </div>
           )}
           
           {/* Payment Status Badge */}
           <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
             {student.isPaid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-            <span>{student.isPaid ? 'שולם' : 'לא שולם'}</span>
+            <span>{student.isPaid ? 'Paid' : 'Not Paid'}</span>
           </div>
           
           {showActions && (
@@ -157,10 +157,10 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 size="sm" 
                 onClick={() => navigate(`/student-portal/${student.id}`)}
                 className="gap-1"
-                title="ניהול פורטל מועמד"
+                title="Manage Student Portal"
               >
                 <Settings className="h-3 w-3" />
-                ניהול פורטל
+                Manage Portal
               </Button>
 
               {/* Agreement Type Select + Copy Link */}
@@ -170,9 +170,9 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
-                    <SelectItem value="package">חבילה</SelectItem>
-                    <SelectItem value="hourly">שעתי</SelectItem>
-                    <SelectItem value="edit">לערוך</SelectItem>
+                    <SelectItem value="package">Package</SelectItem>
+                    <SelectItem value="hourly">Hourly</SelectItem>
+                    <SelectItem value="edit">Edit</SelectItem>
                     <SelectItem value="mba">MBA</SelectItem>
                   </SelectContent>
                 </Select>
@@ -181,17 +181,17 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   size="sm" 
                   onClick={copyAgreementLink}
                   className="gap-1"
-                  title="העתק קישור להסכם"
+                  title="Copy agreement link"
                 >
                   <Link2 className="h-3 w-3" />
-                  קישור להסכם
+                  Agreement Link
                 </Button>
               </div>
 
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
                   <Pencil className="h-3 w-3" />
-                  עריכה
+                  Edit
                 </Button>
               )}
               {onDidNotContinue && (
@@ -202,7 +202,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   className="gap-1 text-muted-foreground hover:text-destructive hover:border-destructive"
                 >
                   <UserX className="h-3 w-3" />
-                  לא המשיך
+                  Closed/Lost
                 </Button>
               )}
               {onMoveToPastClient && (
@@ -210,7 +210,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   <DropdownMenuTrigger asChild>
                     <Button variant="default" size="sm" className="gap-1">
                       <History className="h-3 w-3" />
-                      העבר ללקוח עבר
+                      Move to Alumni
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -219,7 +219,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                         key={year} 
                         onClick={() => onMoveToPastClient(year)}
                       >
-                        לקוחות עבר {year}
+                        Alumni {year}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -230,20 +230,20 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   <AlertDialogTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-1 text-primary hover:text-primary hover:border-primary">
                       <RotateCcw className="h-3 w-3" />
-                      החזר לסטודנט
+                      Restore to Student
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>החזרת לקוח עבר לסטודנט פעיל</AlertDialogTitle>
+                      <AlertDialogTitle>Restore Alumni to Active Student</AlertDialogTitle>
                       <AlertDialogDescription>
-                        פעולה זו תחזיר את "{student.name}" להיות סטודנט פעיל. שנת הסיום תימחק והסטטוס ישתנה לפעיל.
+                        This action will restore "{student.name}" to an active student. The graduation year will be deleted and the status will change to active.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction onClick={onRestoreToStudent}>
-                        החזר לסטודנט
+                        Restore to Student
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -258,20 +258,20 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                       className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                     >
                       <Trash2 className="h-3 w-3" />
-                      מחיקה
+                      Delete
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        פעולה זו תמחק לצמיתות את הסטודנט "{student.name}" ואת כל המידע הקשור אליו. לא ניתן לבטל פעולה זו.
+                        This action will permanently delete the student "{student.name}" and all related information. This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>ביטול</AlertDialogCancel>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        מחק
+                        Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -290,15 +290,15 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         </div>
         <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Mail className="h-4 w-4 shrink-0" />
-          <CopyableContact value={student.email} dir="ltr" label="אימייל" />
+          <CopyableContact value={student.email} dir="ltr" label="Email" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground min-w-0">
           <Phone className="h-4 w-4 shrink-0" />
-          <CopyableContact value={student.phone} dir="ltr" label="טלפון" />
+          <CopyableContact value={student.phone} dir="ltr" label="Phone" />
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4 shrink-0" />
-          <span>נוצר {format(student.createdAt, 'dd/MM/yyyy', { locale: he })}</span>
+          <span>Created {format(student.createdAt, 'dd/MM/yyyy', { locale: he })}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="h-4 w-4 shrink-0" />
@@ -310,7 +310,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         </div>
         <div className="flex items-center gap-2 text-muted-foreground col-span-2">
           <Share2 className="h-4 w-4 shrink-0" />
-          <span>מקור: {student.source}</span>
+          <span>Source: {student.source}</span>
         </div>
       </div>
 
@@ -321,43 +321,43 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
           <DollarSign className="h-4 w-4 shrink-0" />
           <span>
             {student.paymentType === 'hourly' 
-              ? 'תשלום שעתי' 
+              ? 'Hourly Payment' 
               : student.paymentType === 'package' 
-                ? `עלות חבילה: $${student.packageCost.toLocaleString()}`
-                : `משולב - עלות חבילה: $${student.packageCost.toLocaleString()}`
+                ? `Package Cost: $${student.packageCost.toLocaleString()}`
+                : `Blended - Package Cost: $${student.packageCost.toLocaleString()}`
             }
           </span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground font-medium">
           <DollarSign className="h-4 w-4 shrink-0 text-success" />
-          <span className="text-success">שולם בפועל: ${amountPaid.toLocaleString()}</span>
+          <span className="text-success">Amount Paid: ${amountPaid.toLocaleString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <User className="h-4 w-4 shrink-0" />
-          <span>יועץ: {student.advisorName}</span>
+          <span>Consultant: {student.advisorName}</span>
         </div>
         {student.targetCountry && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0 text-primary" />
-            <span className="font-medium">מדינה נבחרת: {student.targetCountry}</span>
+            <span className="font-medium">Target Country: {student.targetCountry}</span>
           </div>
         )}
         {student.targetUniversity && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Building className="h-4 w-4 shrink-0 text-primary" />
-            <span className="font-medium">אוניברסיטה נבחרת: {student.targetUniversity}</span>
+            <span className="font-medium">Target University: {student.targetUniversity}</span>
           </div>
         )}
         {student.program && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <GraduationCap className="h-4 w-4 shrink-0 text-primary" />
-            <span className="font-medium">תוכנית: {student.program}</span>
+            <span className="font-medium">Program: {student.program}</span>
           </div>
         )}
         {student.paymentNotes && (
           <div className="flex items-center gap-2 text-muted-foreground col-span-full">
             <FileText className="h-4 w-4 shrink-0" />
-            <span>הערות תשלום: {student.paymentNotes}</span>
+            <span>Payment Notes: {student.paymentNotes}</span>
           </div>
         )}
       </div>
@@ -365,29 +365,29 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {/* Applied Universities */}
       {student.appliedUniversities && student.appliedUniversities.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border/50">
-          <p className="text-xs font-medium text-muted-foreground mb-2">אוניברסיטאות שהוגש אליהן:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Universities Applied To:</p>
           <div className="flex flex-wrap gap-2">
             {student.appliedUniversities.map((uni, index) => {
               const statusLabels: Record<string, string> = {
-                submitted: 'הוגש',
-                waiting: 'ממתין לתשובה',
-                rejected: 'נדחה',
-                accepted: 'התקבל',
+                submitted: 'Submitted',
+                waiting: 'Waiting for response',
+                rejected: 'Rejected',
+                accepted: 'Accepted',
               };
-              const statusLabel = statusLabels[uni.applicationStatus || 'submitted'] || 'הוגש';
+              const statusLabel = statusLabels[uni.applicationStatus || 'submitted'] || 'Submitted';
               return (
                 <div key={index} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm">
                   <FileText className="h-3 w-3" />
                   <span>{uni.name}</span>
                   {uni.country && <span className="text-primary/70">({uni.country})</span>}
                   {[
-                    uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                    uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                     uni.field,
                     uni.studyYear,
                   ].filter(Boolean).length > 0 && (
                     <span className="text-primary/60 text-xs">
                       • {[
-                        uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                        uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                         uni.field,
                         uni.studyYear,
                       ].filter(Boolean).join(' • ')}
@@ -404,7 +404,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {/* Accepted Universities */}
       {student.acceptedUniversities.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border/50">
-          <p className="text-xs font-medium text-muted-foreground mb-2">אוניברסיטאות שהתקבל אליהן:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Universities Accepted To:</p>
           <div className="flex flex-wrap gap-2">
             {student.acceptedUniversities.map((uni, index) => (
               <div key={index} className="flex flex-col gap-1">
@@ -413,13 +413,13 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   <span>{uni.name}</span>
                   {uni.country && <span className="text-success/70">({uni.country})</span>}
                   {[
-                    uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                    uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                     uni.field,
                     uni.studyYear
                   ].filter(Boolean).length > 0 && (
                     <span className="text-success/60 text-xs">
                       • {[
-                        uni.degreeType === 'אחר' ? uni.degreeTypeOther : uni.degreeType,
+                        uni.degreeType === 'Other' ? uni.degreeTypeOther : uni.degreeType,
                         uni.field,
                         uni.studyYear
                       ].filter(Boolean).join(' • ')}
@@ -436,7 +436,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                     }}
                   >
                     <FileText className="h-3 w-3" />
-                    צפה במכתב קבלה
+                    View Acceptance Letter
                   </button>
                 )}
               </div>
@@ -448,7 +448,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {/* Website Inquiry */}
       {student.websiteInquiry && (
         <div className="mt-4 border-t border-border/50 pt-4">
-          <p className="text-xs font-medium text-muted-foreground mb-1">פנייה מהאתר:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Website Inquiry:</p>
           <p className="text-sm text-card-foreground bg-muted/50 rounded-lg p-3 whitespace-pre-wrap">
             {student.websiteInquiry}
           </p>
@@ -458,7 +458,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {/* Meeting Summary */}
       {student.meetingSummary && (
         <div className="mt-4 border-t border-border/50 pt-4">
-          <p className="text-xs font-medium text-muted-foreground mb-1">סיכום פגישה:</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1">Meeting Summary:</p>
           <p className="text-sm text-card-foreground bg-muted/50 rounded-lg p-3">
             {student.meetingSummary}
           </p>
