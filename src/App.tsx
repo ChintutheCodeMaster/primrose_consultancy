@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PasswordGate } from "@/components/auth/PasswordGate";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import Leads from "./pages/Leads";
 import Students from "./pages/Students";
 import PastClients from "./pages/PastClients";
@@ -43,8 +44,11 @@ const App = () => (
           <Route path="/portal/:studentId" element={<StudentPortal />} />
           <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
           
-          {/* Protected routes */}
-          <Route path="/" element={<PasswordGate><Index /></PasswordGate>} />
+          {/* Public marketing site */}
+          <Route path="/" element={<Landing />} />
+
+          {/* Protected app */}
+          <Route path="/app" element={<PasswordGate><Index /></PasswordGate>} />
           <Route path="/analytics" element={<PasswordGate><Analytics /></PasswordGate>} />
           <Route path="/leads/:year" element={<PasswordGate><Leads /></PasswordGate>} />
           <Route path="/students" element={<PasswordGate><Students /></PasswordGate>} />
