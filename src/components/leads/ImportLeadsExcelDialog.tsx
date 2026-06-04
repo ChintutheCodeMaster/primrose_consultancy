@@ -58,7 +58,7 @@ const COLUMN_MAP: Record<string, keyof ParsedLead> = {
   'Consultant': 'advisorName',
   'Lead Source': 'source',
   'Source': 'source',
-  'Source': 'source',
+  'Origin': 'source',
   'Service Cost': 'packageCost',
   'Package Cost': 'packageCost',
   'Paid': 'amountPaid',
