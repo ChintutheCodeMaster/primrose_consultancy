@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
