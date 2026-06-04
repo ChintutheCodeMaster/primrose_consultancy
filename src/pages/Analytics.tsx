@@ -1290,6 +1290,10 @@ export default function Analytics() {
             )}
           </CardContent>
         </Card>
+
+        <div className="mt-6">
+          <BenchmarksPanel />
+        </div>
       </div>
     </MainLayout>
   );
