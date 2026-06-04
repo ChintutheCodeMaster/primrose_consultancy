@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { BenchmarksPanel } from '@/components/analytics/BenchmarksPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -1290,6 +1291,10 @@ export default function Analytics() {
             )}
           </CardContent>
         </Card>
+
+        <div className="mt-6">
+          <BenchmarksPanel />
+        </div>
       </div>
     </MainLayout>
   );

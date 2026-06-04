@@ -242,6 +242,39 @@ export type Database = {
           },
         ]
       }
+      benchmark_percentiles: {
+        Row: {
+          computed_at: string
+          id: string
+          metric: string
+          p25: number | null
+          p50: number | null
+          p75: number | null
+          period: string
+          sample_size: number
+        }
+        Insert: {
+          computed_at?: string
+          id?: string
+          metric: string
+          p25?: number | null
+          p50?: number | null
+          p75?: number | null
+          period: string
+          sample_size?: number
+        }
+        Update: {
+          computed_at?: string
+          id?: string
+          metric?: string
+          p25?: number | null
+          p50?: number | null
+          p75?: number | null
+          period?: string
+          sample_size?: number
+        }
+        Relationships: []
+      }
       collaborations: {
         Row: {
           category: string | null
@@ -272,6 +305,54 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+        }
+        Relationships: []
+      }
+      college_reference: {
+        Row: {
+          acceptance_rate: number | null
+          city: string | null
+          created_at: string
+          id: string
+          is_common_app: boolean | null
+          is_test_optional: boolean | null
+          median_act: number | null
+          median_sat: number | null
+          name: string
+          ranking_tier: string | null
+          setting: string | null
+          size: number | null
+          state: string | null
+        }
+        Insert: {
+          acceptance_rate?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_common_app?: boolean | null
+          is_test_optional?: boolean | null
+          median_act?: number | null
+          median_sat?: number | null
+          name: string
+          ranking_tier?: string | null
+          setting?: string | null
+          size?: number | null
+          state?: string | null
+        }
+        Update: {
+          acceptance_rate?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_common_app?: boolean | null
+          is_test_optional?: boolean | null
+          median_act?: number | null
+          median_sat?: number | null
+          name?: string
+          ranking_tier?: string | null
+          setting?: string | null
+          size?: number | null
+          state?: string | null
         }
         Relationships: []
       }
@@ -413,6 +494,63 @@ export type Database = {
           next_year?: string
           transition_date?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      org_benchmark_settings: {
+        Row: {
+          created_at: string
+          id: string
+          last_computed_at: string | null
+          metrics: Json
+          opted_in: boolean
+          org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_computed_at?: string | null
+          metrics?: Json
+          opted_in?: boolean
+          org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_computed_at?: string | null
+          metrics?: Json
+          opted_in?: boolean
+          org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      outcomes_share_tokens: {
+        Row: {
+          cohort_year: number
+          config: Json
+          created_at: string
+          id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          cohort_year: number
+          config?: Json
+          created_at?: string
+          id?: string
+          status?: string
+          token: string
+        }
+        Update: {
+          cohort_year?: number
+          config?: Json
+          created_at?: string
+          id?: string
+          status?: string
+          token?: string
         }
         Relationships: []
       }
@@ -1179,6 +1317,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "student_scholarships_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_strategy_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          input_snapshot: Json
+          mode: string
+          output_json: Json
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input_snapshot: Json
+          mode?: string
+          output_json: Json
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input_snapshot?: Json
+          mode?: string
+          output_json?: Json
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_strategy_reviews_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"

@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/hooks/use-toast';
 import type { Student, StudentStatus, DegreeType } from '@/types/crm';
 import * as XLSX from 'xlsx';
+import { DeadlineRadar } from '@/components/dashboard/DeadlineRadar';
 
 interface SearchResult {
   id: string;
@@ -721,6 +722,9 @@ export default function Dashboard() {
             Export to Excel
           </Button>
         </div>
+
+        {/* Deadline Radar */}
+        <DeadlineRadar />
 
         {/* Export Reminder */}
         {showExportReminder && (

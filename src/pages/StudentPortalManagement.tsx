@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { StudentApplicantProfile } from "@/components/students/StudentApplicantProfile";
 import { StudentCollegeList } from "@/components/students/StudentCollegeList";
+import { StudentStrategistPanel } from "@/components/students/StudentStrategistPanel";
 import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
 import { 
   ArrowRight, 
@@ -586,6 +587,7 @@ export default function StudentPortalManagement() {
             <StudentJourneyTokenPanel studentId={studentId} />
             <StudentApplicantProfile studentId={studentId} />
             <StudentCollegeList studentId={studentId} />
+            <StudentStrategistPanel studentId={studentId} />
           </>
         )}
       </div>

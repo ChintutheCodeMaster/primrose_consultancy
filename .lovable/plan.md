@@ -1,110 +1,127 @@
-# Student Portal — "MyJourney"
+# Tier-3 Differentiators — Build Plan
 
-A polished, supportive workspace the student opens via a private tokenized link (`/journey/:token`). Goal: every interaction feels seamless, professional, and on the student's side. The consultant sees everything that happens here from inside the CRM.
+Four features that turn the platform from "good CRM" into a "must-have" for IECs. Built in this order because each reuses data the previous one produces.
 
-## Information architecture
+---
 
-A single page with a left rail and a main canvas. Sections (left rail):
+## 1. Deadline Radar (Dashboard)
 
-1. **Home** — warm greeting, next 3 actions, upcoming deadlines, latest message from consultant.
-2. **My Colleges** — read-only view of the working list (reach/target/likely/safety) with deadline countdowns and per-school status.
-3. **Tasks** — checklist items the consultant assigns (essays, forms, recommendation requests). Each task can have a deadline, link, and attached docs.
-4. **Documents** — versioned doc exchange (see below).
-5. **Writing Lab** — AI workspace (essay feedback, brainstorm coach, grammar polish). Ethics-first.
-6. **AI Detector** — paste/upload text → "likely AI-written" score + highlighted passages + reasoning. Educational, not punitive.
-7. **Messages** — threaded chat with the consultant (lightweight; richer file talk lives inside each document version).
-8. **Profile** — read-only summary of intake answers + a "Request an update" button.
+**What the user sees:** a card at the top of `/app` Dashboard:
+> ⏰ **12 deadlines in next 14 days** across **4 students**
+> Next up: *Sarah Chen — Stanford REA (Nov 1)*
+> [View all →]
 
-Top bar: student's preferred name, consultant's name + avatar, "Need help?" link.
+Click → opens a drill-in drawer grouped by week, then by student, with quick links to the student record.
 
-## Documents — versioned + inline comments
+**Data:** uses existing `student_colleges` rows. Adds a `deadline_date` column if not already populated, plus `application_plan` enum (`ED`, `ED2`, `EA`, `REA`, `RD`, `Rolling`). Color-codes by urgency (red <7d, amber <14d, gray <30d).
 
-- **Per-document timeline.** Student creates a document (e.g. "Common App Personal Statement"). Each upload becomes v1, v2, v3… with timestamp and word count. Each version has a status: `draft → submitted → in review → changes requested → approved`.
-- **Inline comments on the rendered text.** For .txt/.md/.docx (extracted to text) and pasted text, the version opens in a reader pane where consultant or student can select a range and leave a comment thread. Comments are anchored to the version; resolving a thread marks it done.
-- **Binary files** (PDF, images) get version-level comments only — anchored highlights are not supported in this pass.
-- **Notifications.** New comments / new versions trigger a "for you" pill in Home and a row in Messages.
+**Where it lives:** new `<DeadlineRadar />` component on `Dashboard.tsx`, plus a `/deadlines` full-page view.
 
-## Writing Lab — ethical by design
+**Effort:** small. ~½ day.
 
-One workspace with three modes the student toggles between:
+---
 
-- **Essay feedback** — student pastes/loads a draft + the prompt. AI returns: thesis check, structure outline of what's actually there, voice notes, prompt-fit gaps, three Socratic questions. **Never rewrites prose.**
-- **Brainstorm coach** — guided chat that helps the student mine experiences, narrow themes, and build an outline. Stops at outline; refuses to draft paragraphs.
-- **Grammar & clarity polish** — surface fixes only (typos, run-ons, awkward phrasing). Shows tracked-changes view; student must accept each change individually. Explicitly does not change ideas, voice, or structure.
+## 2. AI Application Strategist
 
-Each mode banner displays an ethics note: "This tool helps you think and revise. The words must be yours — colleges expect your authentic voice."
+**What the user sees:** new "Strategy" tab on each student record. Top of the tab shows the student's academic profile (GPA, SAT/ACT, rigor, intended major) and their current college list with each college flagged **Reach / Target / Likely / Wildcard**. A button "Run AI Strategy Review" produces:
 
-Every Lab interaction is logged (mode, prompt, output) and visible to the consultant in their CRM view of the student. This is shown to the student up-front (trust + transparency).
+- **Balance verdict** — "Your list is 7 reach / 1 target / 1 likely — top-heavy. Add 2–3 targets."
+- **Per-college reasoning** — why each was bucketed (admit rate vs student profile delta).
+- **Gap flags** — missing financial-aid safety, missing geographic diversity, missing rolling-admission option, no test-optional schools given low test score, etc.
+- **Suggested additions** — 3–5 named colleges that would balance the list, with a one-line rationale each.
 
-## AI Detector
+Runs server-side via Lovable AI Gateway (`google/gemini-3-flash-preview` for speed, fall back to `gemini-2.5-pro` if user clicks "Deep review"). Result saved to `student_strategy_reviews` so consultants can compare versions over time.
 
-- Paste text or pull from a document version.
-- Returns: overall score (0–100), confidence band, per-paragraph highlights, and a plain-English explanation of the signals (perplexity proxy, burstiness, vocabulary uniformity, sentence-length variance).
-- Includes a clear disclaimer: "Heuristic indicator, not proof. Use it to gut-check your own drafts."
-- Built on Lovable AI (Gemini). Free, immediate.
+**Ethical guardrail:** banner above output — "AI suggestions are a starting point, not a verdict. Always validate with current admit data."
 
-## Home (the emotional anchor)
+**Data needed:**
+- `student_profile_extras` already has GPA / test scores → reuse.
+- New small seed table `college_reference` with ~500 popular US colleges + acceptance rate + median SAT (one-time scraped from public IPEDS / Common Data Set). Avoids hallucinated numbers.
+- New table `student_strategy_reviews` (id, student_id, model, input_snapshot, output_json, created_at).
 
-- "Hi {preferred name} — you're on track."
-- 3 next actions, deadline-sorted.
-- A single ambient progress ring (% of tasks done in current phase: Discovery / List Building / Applications / Decisions).
-- Latest consultant note + reply box.
-- Quick links to Writing Lab and AI Detector.
+**Where it lives:** new tab on `StudentDetail`. Edge function `student-strategy`. No client-side prompts.
 
-## Technical details
+**Effort:** medium. ~1.5 days (most of it is seeding the college reference data cleanly).
 
-### Auth model
-Tokenized — student opens `/journey/:token`. Token is a row in `student_portal_tokens` (`student_id`, `token`, `status`, `expires_at`, `last_seen_at`). Rotatable + revocable from the CRM. No login screen.
+---
 
-### New tables
-- `student_portal_tokens` — access control.
-- `student_documents_v2` — `id, student_id, title, kind (essay/form/other), prompt_text, status`.
-- `student_document_versions` — `id, document_id, version_no, body_text, file_url, file_mime, word_count, status, created_by ('student'|'consultant'), created_at`.
-- `student_document_comments` — `id, version_id, anchor_start, anchor_end, author ('student'|'consultant'), body, resolved_at`.
-- `student_messages` — `id, student_id, author, body, attachment_url, created_at`.
-- `student_ai_sessions` — `id, student_id, mode ('feedback'|'brainstorm'|'polish'|'detector'), input_text, output_json, created_at`. Auditable + shown to consultant.
-- `student_tasks` — `id, student_id, title, description, due_date, status, link_url, created_by`.
-- Extend `students` with `phase ('discovery'|'list'|'applications'|'decisions')` and `preferred_name`.
+## 3. Outcomes Report PDF
 
-All new tables: RLS enabled, permissive policies for now (matches current no-auth build), with GRANTs to anon + authenticated + service_role. When real auth lands in Phase 2, policies tighten to `student_id IN (current org's students)` for consultants and `token-bound` access for student-facing reads via an Edge Function.
+**What the user sees:** new page `/outcomes` with a year picker. Shows a live preview of a one-pager, plus "Download PDF" and "Share public link" buttons.
 
-### Edge functions
-- `student-ai` — single function with `mode` parameter (`feedback | brainstorm | polish | detector`). Streams Gemini Flash. System prompts are server-side (never client). Refuses to produce drafted prose in feedback/brainstorm modes.
-- `student-portal-auth` — validates token, returns scoped student data. Touches `last_seen_at`.
+The one-pager (US Letter, branded with the consultant's logo + color):
 
-### Storage
-- New bucket `student-portal-docs` (private). Versions store signed URLs.
+```text
+┌─────────────────────────────────────────────┐
+│  [Logo]  Class of 2026 — Outcomes           │
+│                                             │
+│  47 students placed                         │
+│  $2.1M in scholarships earned               │
+│  92% admitted to a top-3 choice             │
+│                                             │
+│  Where they're going:                       │
+│  ● Stanford ● MIT ● UPenn ● NYU ● Michigan  │
+│  (+ 23 more — see back)                     │
+│                                             │
+│  Notable wins:                              │
+│  • 4 Ivy League acceptances                 │
+│  • Full-ride to Vanderbilt                  │
+│  • Rhodes finalist                          │
+│                                             │
+│  [Consultant photo]  Want results like      │
+│  these for your family? → primrose/jane     │
+└─────────────────────────────────────────────┘
+```
 
-### Routes
-- `/journey/:token` — public, no MainLayout, custom student shell.
-- Inside CRM: new "Student Portal" tab on the existing student record showing live mirror of everything above + AI session log + token management.
+Generated server-side with the `pdf` skill (reportlab) so output is consistent across browsers. Consultant can toggle which stats to show, edit the "Notable wins" bullets, and pick which schools to feature.
 
-### Files (high level)
-- `src/pages/StudentJourney.tsx` — token-validated shell + nav.
-- `src/components/journey/Home.tsx`, `Colleges.tsx`, `Tasks.tsx`, `Documents.tsx`, `WritingLab.tsx`, `AiDetector.tsx`, `Messages.tsx`, `Profile.tsx`.
-- `src/components/journey/DocumentReader.tsx` — versioned reader + inline comment anchors.
-- `supabase/functions/student-ai/index.ts`, `supabase/functions/student-portal-auth/index.ts`.
-- CRM-side: `src/components/students/StudentPortalMirror.tsx` mounted in the student record.
+**Data:** pulls from `students` (graduated this cycle), `accepted_universities`, `student_scholarships`. Scholarship $ aggregated from existing `student_scholarships.amount`.
 
-## Visual direction
+**Where it lives:** new `/outcomes` route, edge function `generate-outcomes-pdf`, public share URL `/outcomes/share/:token` (view-only, no auth, like the journey portal).
 
-- Calm, premium, "I am in good hands" — soft surfaces, generous spacing, warm primary, large readable type.
-- Not a CRM. Not a school portal. Closer to Notion + Linear + a personal coach.
-- Mobile-first: students will use phones constantly.
+**Effort:** medium. ~1 day.
 
-## Out of scope for this pass
+---
 
-- Google Docs–style live co-editing.
-- Recommendation-letter solicitation workflow.
-- Payments / billing visibility to students.
-- Parent role (single shared link covers families for now).
-- Real auth (token-only until Phase 2).
+## 4. Benchmarks (Anonymized, Opt-In)
 
-## Build order (suggested phases, each independently usable)
+**What the user sees:** new "Benchmarks" widget on Analytics page (only renders if user opted in):
 
-1. Token + shell + Home + Profile + read-only Colleges.
-2. Tasks + Messages.
-3. Documents (versioned uploads, status, inline comments for text).
-4. Writing Lab (feedback → brainstorm → polish).
-5. AI Detector.
-6. CRM-side mirror tab + AI session log.
+> Your **conversion rate** is **34%** — top quartile is **41%**.
+> Your **avg package** is **$8,400** — median is **$7,200**.
+> Your **acceptance rate to top-50** is **62%** — median is **54%**.
+
+Opt-in toggle in Settings → Privacy. Clear copy: "Share anonymized aggregate metrics to unlock benchmarks. We never share student names, school names, or any identifying info."
+
+**How aggregation works:**
+- Nightly edge function `compute-benchmark-metrics` runs per org, computes 6–8 metrics, writes to `org_benchmark_snapshots` (org_id, metric, value, period).
+- Second function `compute-benchmark-percentiles` reads all opted-in snapshots, computes p25/p50/p75 per metric, writes to `benchmark_percentiles` (metric, period, p25, p50, p75, sample_size).
+- Widget shows percentiles only when `sample_size >= 10` (otherwise "Not enough data yet — invite peers").
+
+**Privacy:** no row-level data ever leaves the org. Only computed scalar metrics. Pre-Phase-2 (no real orgs yet) we ship the UI + table + opt-in flow, but percentiles stay hidden behind a "Coming soon — joins live when 10+ practices opt in" message.
+
+**Effort:** medium. ~1 day for the metrics + UI; the network-effect part activates once Phase 2 multi-tenancy ships.
+
+---
+
+## Build order & rough effort
+
+| # | Feature | Effort | Why this order |
+|---|---|---|---|
+| 1 | Deadline Radar | ½ day | Tiny win, immediate dashboard "wow", uses existing data |
+| 2 | Outcomes PDF | 1 day | Pure marketing tool, no AI/seed-data complexity |
+| 3 | AI Strategist | 1.5 days | Highest perceived value; needs college reference seed |
+| 4 | Benchmarks | 1 day | Lays groundwork; visible value lights up after Phase 2 |
+
+**Total: ~4 days of build.**
+
+---
+
+## Open questions before I start
+
+1. **College reference seed** — OK to ship with ~500 most-applied-to US colleges from public IPEDS data, expandable later? Or do you want all ~2,500 from day one?
+2. **Outcomes PDF** — should the public share link be one per cohort (e.g. Class of 2026) or one global "Outcomes" page that updates yearly?
+3. **Strategist deep vs fast mode** — ship both, or just fast for v1?
+4. **Benchmark metrics** — confirm the 6–8 metrics you'd want exposed (suggested: conversion rate, avg package, % admitted to top-50, % admitted to top-25, avg # apps per student, scholarship $ per student, % students with ED accept, ED accept rate).
+
+Answer those and I'll build in the order above.
