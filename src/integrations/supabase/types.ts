@@ -648,6 +648,41 @@ export type Database = {
           },
         ]
       }
+      student_ai_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          input_text: string | null
+          mode: string
+          output_json: Json | null
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input_text?: string | null
+          mode: string
+          output_json?: Json | null
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input_text?: string | null
+          mode?: string
+          output_json?: Json | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_ai_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_checklist_items: {
         Row: {
           created_at: string
@@ -808,6 +843,94 @@ export type Database = {
           },
         ]
       }
+      student_document_comments: {
+        Row: {
+          anchor_end: number | null
+          anchor_start: number | null
+          author: string
+          body: string
+          created_at: string
+          id: string
+          resolved_at: string | null
+          version_id: string
+        }
+        Insert: {
+          anchor_end?: number | null
+          anchor_start?: number | null
+          author: string
+          body: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          version_id: string
+        }
+        Update: {
+          anchor_end?: number | null
+          anchor_start?: number | null
+          author?: string
+          body?: string
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_document_comments_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "student_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_document_versions: {
+        Row: {
+          body_text: string | null
+          created_at: string
+          created_by: string
+          document_id: string
+          file_mime: string | null
+          file_url: string | null
+          id: string
+          status: string
+          version_no: number
+          word_count: number | null
+        }
+        Insert: {
+          body_text?: string | null
+          created_at?: string
+          created_by?: string
+          document_id: string
+          file_mime?: string | null
+          file_url?: string | null
+          id?: string
+          status?: string
+          version_no?: number
+          word_count?: number | null
+        }
+        Update: {
+          body_text?: string | null
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          file_mime?: string | null
+          file_url?: string | null
+          id?: string
+          status?: string
+          version_no?: number
+          word_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "student_documents_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_documents: {
         Row: {
           category: string | null
@@ -839,6 +962,123 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "student_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_documents_v2: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          prompt_text: string | null
+          status: string
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          prompt_text?: string | null
+          status?: string
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          prompt_text?: string | null
+          status?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_documents_v2_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_messages: {
+        Row: {
+          attachment_url: string | null
+          author: string
+          body: string
+          created_at: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          author: string
+          body: string
+          created_at?: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          author?: string
+          body?: string
+          created_at?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_messages_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_portal_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          last_seen_at: string | null
+          status: string
+          student_id: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_seen_at?: string | null
+          status?: string
+          student_id: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_seen_at?: string | null
+          status?: string
+          student_id?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_portal_tokens_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
@@ -946,6 +1186,56 @@ export type Database = {
           },
         ]
       }
+      student_tasks: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          link_url: string | null
+          sort_order: number
+          status: string
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          link_url?: string | null
+          sort_order?: number
+          status?: string
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          link_url?: string | null
+          sort_order?: number
+          status?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_tasks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           advisor_id: string | null
@@ -976,7 +1266,9 @@ export type Database = {
           payment_notes: string | null
           payment_reminder_date: string | null
           payment_type: string | null
+          phase: string | null
           phone: string | null
+          preferred_name: string | null
           program: string | null
           signed_agreement: boolean | null
           source: string | null
@@ -1015,7 +1307,9 @@ export type Database = {
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
+          phase?: string | null
           phone?: string | null
+          preferred_name?: string | null
           program?: string | null
           signed_agreement?: boolean | null
           source?: string | null
@@ -1054,7 +1348,9 @@ export type Database = {
           payment_notes?: string | null
           payment_reminder_date?: string | null
           payment_type?: string | null
+          phase?: string | null
           phone?: string | null
+          preferred_name?: string | null
           program?: string | null
           signed_agreement?: boolean | null
           source?: string | null

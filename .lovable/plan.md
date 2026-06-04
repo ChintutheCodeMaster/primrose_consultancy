@@ -1,116 +1,110 @@
-# Primrose IEC — Pivot Plan
+# Student Portal — "MyJourney"
 
-Transform the existing Hebrew single-tenant "Noga" CRM into **Primrose IEC**, a multi-tenant English-language SaaS for Independent Educational Consultants (IECA-style: US college admissions, grad school, boarding school advising).
+A polished, supportive workspace the student opens via a private tokenized link (`/journey/:token`). Goal: every interaction feels seamless, professional, and on the student's side. The consultant sees everything that happens here from inside the CRM.
 
-Because this is a very large pivot, I'll ship it in **5 phases**. Each phase is independently usable so you can preview, sell demos, and course-correct between phases.
+## Information architecture
 
----
+A single page with a left rail and a main canvas. Sections (left rail):
 
-## Phase 1 — Foundation: rebrand, English UI, LTR layout
+1. **Home** — warm greeting, next 3 actions, upcoming deadlines, latest message from consultant.
+2. **My Colleges** — read-only view of the working list (reach/target/likely/safety) with deadline countdowns and per-school status.
+3. **Tasks** — checklist items the consultant assigns (essays, forms, recommendation requests). Each task can have a deadline, link, and attached docs.
+4. **Documents** — versioned doc exchange (see below).
+5. **Writing Lab** — AI workspace (essay feedback, brainstorm coach, grammar polish). Ethics-first.
+6. **AI Detector** — paste/upload text → "likely AI-written" score + highlighted passages + reasoning. Educational, not punitive.
+7. **Messages** — threaded chat with the consultant (lightweight; richer file talk lives inside each document version).
+8. **Profile** — read-only summary of intake answers + a "Request an update" button.
 
-Goal: the app looks and reads like an English product overnight, even though business logic still matches the Noga model.
+Top bar: student's preferred name, consultant's name + avatar, "Need help?" link.
 
-- Rebrand to **Primrose IEC**: app name, logo placeholder, favicon, `index.html` title + meta description + JSON-LD (SoftwareApplication), README.
-- Flip `<html dir="rtl" lang="he">` → `dir="ltr" lang="en"`. Audit Tailwind for `mr-*/ml-*`, `right-*/left-*`, `text-right/left`, `flex-row-reverse` — swap to logical equivalents (`ms-*/me-*`, `start/end`) where it matters.
-- Translate every visible UI string to American English. Map Hebrew domain terms → IEC vocabulary:
-  - מתעניינים → **Inquiries**
-  - סטודנטים → **Students**
-  - לקוחות עבר → **Alumni**
-  - לא המשיכו → **Closed/Lost**
-  - יועצים → **Consultants** (and Past Consultants)
-  - הסכם → **Engagement Agreement**
-  - פגישה / סיכום פגישה → **Meeting Notes**
-  - מקור הגעה → **Lead Source**
-  - תחום לימודים → **Field of Interest**
-- Replace Israeli specifics: ₪ → $, VAT (17%) toggle, Israeli phone format → international (libphonenumber).
-- Replace the Wix webhook with a generic "Website Inquiry Webhook" page in Settings that gives the consultant their unique URL + sample payload (works for Wix, Squarespace, WordPress, Calendly, Typeform, etc.).
-- Keep Noga's data shape for now — just translate enums (`active/accepted/enrolled/graduated/paused` already English; surface them with friendly labels).
+## Documents — versioned + inline comments
 
----
+- **Per-document timeline.** Student creates a document (e.g. "Common App Personal Statement"). Each upload becomes v1, v2, v3… with timestamp and word count. Each version has a status: `draft → submitted → in review → changes requested → approved`.
+- **Inline comments on the rendered text.** For .txt/.md/.docx (extracted to text) and pasted text, the version opens in a reader pane where consultant or student can select a range and leave a comment thread. Comments are anchored to the version; resolving a thread marks it done.
+- **Binary files** (PDF, images) get version-level comments only — anchored highlights are not supported in this pass.
+- **Notifications.** New comments / new versions trigger a "for you" pill in Home and a row in Messages.
 
-## Phase 2 — Multi-tenant SaaS infrastructure
+## Writing Lab — ethical by design
 
-Goal: each consultant or firm signs up, gets isolated data, can invite colleagues.
+One workspace with three modes the student toggles between:
 
-- Enable **Lovable Cloud auth**: email/password + Google sign-in. Replace the `PasswordGate` + `NogaNoga123` localStorage gate entirely.
-- New tables:
-  - `organizations` (firm name, plan, billing email, logo, brand color, currency, timezone)
-  - `profiles` (1:1 with auth.users — name, avatar, default org)
-  - `organization_members` (user_id, org_id, role: owner/admin/consultant/assistant/viewer)
-  - `user_roles` via security-definer `has_role()` function (per project rules — never store roles on profiles)
-- Add `organization_id uuid not null` to every existing tenant-scoped table (`students`, `leads`, `advisors`, `projects`, `student_documents`, `agreements`, `ai_conversations`, `sidebar_categories`, `source_options`, `country_options`, `field_options`, etc.).
-- Rewrite every RLS policy: `using (organization_id = current_org_id())` via a security-definer helper that reads the active org from JWT claims or `organization_members`.
-- Active-organization switcher in the header for users who belong to multiple firms.
-- Invite-by-email flow with role assignment; pending invites table.
-- Password reset page at `/reset-password`.
+- **Essay feedback** — student pastes/loads a draft + the prompt. AI returns: thesis check, structure outline of what's actually there, voice notes, prompt-fit gaps, three Socratic questions. **Never rewrites prose.**
+- **Brainstorm coach** — guided chat that helps the student mine experiences, narrow themes, and build an outline. Stops at outline; refuses to draft paragraphs.
+- **Grammar & clarity polish** — surface fixes only (typos, run-ons, awkward phrasing). Shows tracked-changes view; student must accept each change individually. Explicitly does not change ideas, voice, or structure.
 
----
+Each mode banner displays an ethics note: "This tool helps you think and revise. The words must be yours — colleges expect your authentic voice."
 
-## Phase 3 — IECA workflow adaptation (the part that makes it sellable)
+Every Lab interaction is logged (mode, prompt, output) and visible to the consultant in their CRM view of the student. This is shown to the student up-front (trust + transparency).
 
-Goal: the data model speaks "college admissions consultant," not generic CRM.
+## AI Detector
 
-New first-class concepts on the Student record:
+- Paste text or pull from a document version.
+- Returns: overall score (0–100), confidence band, per-paragraph highlights, and a plain-English explanation of the signals (perplexity proxy, burstiness, vocabulary uniformity, sentence-length variance).
+- Includes a clear disclaimer: "Heuristic indicator, not proof. Use it to gut-check your own drafts."
+- Built on Lovable AI (Gemini). Free, immediate.
 
-- **Student profile**: graduation year, current school, GPA (weighted/unweighted), test scores (SAT/ACT/IELTS/TOEFL/GRE/GMAT) with date + superscore, intended majors (multi), extracurriculars, hooks.
-- **College list builder**: a `student_colleges` table with college name, type (reach/target/likely), application plan (ED/ED2/EA/REA/RD/Rolling), deadline, status (researching/in-progress/submitted/accepted/waitlisted/deferred/denied/enrolled), application portal (Common App / Coalition / direct / UC / ApplyTexas), supplemental essays required, recommendation count, fee.
-- **Application tasks/checklists** auto-generated per college from a template library (essays, recs, transcript, test scores, FA forms, interview).
-- **Essay tracker**: drafts, status, word count, deadline, link to Google Doc.
-- **Recommendation tracker**: teacher/counselor, subject, request status, submitted date.
-- **Meeting log**: replaces "contact documentation," with meeting type (intro, working session, college list, essay review, decision), duration → billable hours.
-- **Hours & retainer ledger** (replaces ₪ package logic): hourly rate, retainer balance, sessions logged → automatic billing math, all in USD by default but currency is per-org.
-- **Decision dashboard per student**: a visual board of all schools with status pills, deadlines countdown, and admit/deny outcomes.
-- **Parent contacts**: separate child entity on Student (name, email, phone, relationship) since IECs always work with parents.
+## Home (the emotional anchor)
 
-Seed data: a "Common 50" US universities + top international list pre-loaded into `target_university_options`; a default IECA-style checklist template per application plan.
+- "Hi {preferred name} — you're on track."
+- 3 next actions, deadline-sorted.
+- A single ambient progress ring (% of tasks done in current phase: Discovery / List Building / Applications / Decisions).
+- Latest consultant note + reply box.
+- Quick links to Writing Lab and AI Detector.
 
----
+## Technical details
 
-## Phase 4 — Marketing site + onboarding + billing
+### Auth model
+Tokenized — student opens `/journey/:token`. Token is a row in `student_portal_tokens` (`student_id`, `token`, `status`, `expires_at`, `last_seen_at`). Rotatable + revocable from the CRM. No login screen.
 
-Goal: someone arriving from IECA can self-serve sign up and pay.
+### New tables
+- `student_portal_tokens` — access control.
+- `student_documents_v2` — `id, student_id, title, kind (essay/form/other), prompt_text, status`.
+- `student_document_versions` — `id, document_id, version_no, body_text, file_url, file_mime, word_count, status, created_by ('student'|'consultant'), created_at`.
+- `student_document_comments` — `id, version_id, anchor_start, anchor_end, author ('student'|'consultant'), body, resolved_at`.
+- `student_messages` — `id, student_id, author, body, attachment_url, created_at`.
+- `student_ai_sessions` — `id, student_id, mode ('feedback'|'brainstorm'|'polish'|'detector'), input_text, output_json, created_at`. Auditable + shown to consultant.
+- `student_tasks` — `id, student_id, title, description, due_date, status, link_url, created_by`.
+- Extend `students` with `phase ('discovery'|'list'|'applications'|'decisions')` and `preferred_name`.
 
-- Public marketing pages at `/` (replaces the current `Index` dashboard, which moves to `/app`):
-  - Hero, problem/solution, features, screenshots, pricing, testimonials, FAQ, CTA.
-  - Sections written for IECs: "Built for independent educational consultants," "Manage 50+ students without losing the thread," "Track every college on every student's list."
-  - Proper SEO: title, meta description, canonical, OG tags, JSON-LD SoftwareApplication + Organization.
-- Sign-up flow → onboarding wizard: org name, brand color, currency, timezone, invite teammates, sample data toggle.
-- **Pricing/billing via Lovable's built-in Stripe payments**: Solo ($X/mo), Practice ($Y/mo, 5 seats), Firm ($Z/mo, unlimited seats). Free 14-day trial.
+All new tables: RLS enabled, permissive policies for now (matches current no-auth build), with GRANTs to anon + authenticated + service_role. When real auth lands in Phase 2, policies tighten to `student_id IN (current org's students)` for consultants and `token-bound` access for student-facing reads via an Edge Function.
 
----
+### Edge functions
+- `student-ai` — single function with `mode` parameter (`feedback | brainstorm | polish | detector`). Streams Gemini Flash. System prompts are server-side (never client). Refuses to produce drafted prose in feedback/brainstorm modes.
+- `student-portal-auth` — validates token, returns scoped student data. Touches `last_seen_at`.
 
-## Phase 5 — Polish, docs, launch prep
+### Storage
+- New bucket `student-portal-docs` (private). Versions store signed URLs.
 
-- Email branding: Primrose IEC sender domain, branded auth emails (signup, reset, invite).
-- In-app onboarding tour, empty-state coaching, sample student.
-- Help center page with how-to articles for the IEC workflows.
-- Security review: run `supabase--linter`, confirm RLS on every tenant-scoped table, HIBP password check on, no email auto-confirm.
-- Public remix off; legal pages (Terms, Privacy, DPA stub).
+### Routes
+- `/journey/:token` — public, no MainLayout, custom student shell.
+- Inside CRM: new "Student Portal" tab on the existing student record showing live mirror of everything above + AI session log + token management.
 
----
+### Files (high level)
+- `src/pages/StudentJourney.tsx` — token-validated shell + nav.
+- `src/components/journey/Home.tsx`, `Colleges.tsx`, `Tasks.tsx`, `Documents.tsx`, `WritingLab.tsx`, `AiDetector.tsx`, `Messages.tsx`, `Profile.tsx`.
+- `src/components/journey/DocumentReader.tsx` — versioned reader + inline comment anchors.
+- `supabase/functions/student-ai/index.ts`, `supabase/functions/student-portal-auth/index.ts`.
+- CRM-side: `src/components/students/StudentPortalMirror.tsx` mounted in the student record.
 
-## What I'd build right now (Phase 1)
+## Visual direction
 
-If you approve, I'll start Phase 1 in this run:
+- Calm, premium, "I am in good hands" — soft surfaces, generous spacing, warm primary, large readable type.
+- Not a CRM. Not a school portal. Closer to Notion + Linear + a personal coach.
+- Mobile-first: students will use phones constantly.
 
-1. Update `index.html` (title, meta, lang/dir, JSON-LD) and project name.
-2. Build a `src/i18n/en.ts` dictionary covering the most-trafficked pages — Sidebar, Dashboard, Inquiries (Leads), Students, Settings, Login gate — and swap the literals in those files.
-3. Translate all enum labels and dropdown defaults (sources, countries, fields) via a migration that seeds English equivalents in `source_options`, `country_options`, `field_options`, `target_university_options`.
-4. Currency switch: replace hard-coded ₪ with a `formatCurrency()` helper defaulting to USD, VAT toggle defaulting off.
-5. New landing/marketing page draft at `/` (current Dashboard moves to `/app`).
+## Out of scope for this pass
 
-Phases 2–5 each become their own plan when you're ready.
+- Google Docs–style live co-editing.
+- Recommendation-letter solicitation workflow.
+- Payments / billing visibility to students.
+- Parent role (single shared link covers families for now).
+- Real auth (token-only until Phase 2).
 
----
+## Build order (suggested phases, each independently usable)
 
-## Technical notes
-
-- Multi-tenancy: prefer **shared schema + `organization_id` column + RLS** over schema-per-tenant. Cleaner migrations, cheaper, and Supabase RLS handles isolation safely.
-- Active org resolution: store `active_organization_id` in `profiles`; expose via a `current_org_id()` SQL function used in all RLS policies. Switching orgs = update profile + refresh queries.
-- Existing Noga data: since the product is going multi-tenant, the current single dataset will be wrapped into a default "Noga" org so nothing is lost during migration; you keep using your own instance and new sign-ups are isolated.
-- Hebrew text in DB (existing source/country options, sidebar labels): keep as-is for the Noga org, seed English defaults for new orgs.
-- IECA trademark: avoid using "IECA" in product name/marketing (it's a member organization); position as "for independent educational consultants."
-
----
-
-**Scope check before I start:** This pivot is roughly 5–10x the size of a normal change request. Phase 1 alone is a multi-hour build touching ~40+ files. I'll execute Phase 1 end-to-end once you approve, then pause for your review before Phase 2.
+1. Token + shell + Home + Profile + read-only Colleges.
+2. Tasks + Messages.
+3. Documents (versioned uploads, status, inline comments for text).
+4. Writing Lab (feedback → brainstorm → polish).
+5. AI Detector.
+6. CRM-side mirror tab + AI session log.

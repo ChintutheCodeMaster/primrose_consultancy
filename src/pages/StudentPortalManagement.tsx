@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { openExternalFile } from "@/lib/file-open";
 import { StudentApplicantProfile } from "@/components/students/StudentApplicantProfile";
 import { StudentCollegeList } from "@/components/students/StudentCollegeList";
+import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
 import { 
   ArrowRight, 
   Plus, 
@@ -582,6 +583,7 @@ export default function StudentPortalManagement() {
         {/* IECA workflow: applicant profile + college list */}
         {studentId && (
           <>
+            <StudentJourneyTokenPanel studentId={studentId} />
             <StudentApplicantProfile studentId={studentId} />
             <StudentCollegeList studentId={studentId} />
           </>

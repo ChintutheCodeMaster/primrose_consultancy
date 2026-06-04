@@ -27,6 +27,7 @@ import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
+import StudentJourney from "./pages/StudentJourney";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,8 @@ const App = () => (
           <Route path="/agreement/demo" element={<AgreementPreview />} />
           <Route path="/portal/:studentId" element={<StudentPortal />} />
           <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
+          <Route path="/journey/:token" element={<StudentJourney />} />
+          
           
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
