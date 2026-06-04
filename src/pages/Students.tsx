@@ -6,7 +6,7 @@ import { AddStudentDialog } from '@/components/students/AddStudentDialog';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, ArrowUpDown } from 'lucide-react';
+import { X, ArrowUpDown, Sparkles } from 'lucide-react';
 import { Student, StudentStatus, studentStatusLabels, degreeTypeLabels, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
