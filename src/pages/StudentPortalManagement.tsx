@@ -587,6 +587,7 @@ export default function StudentPortalManagement() {
             <StudentJourneyTokenPanel studentId={studentId} />
             <StudentApplicantProfile studentId={studentId} />
             <StudentCollegeList studentId={studentId} />
+            <StudentStrategistPanel studentId={studentId} />
           </>
         )}
       </div>
