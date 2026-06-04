@@ -287,15 +287,15 @@ export default function TempImportDidNotContinue() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="text-right p-1">#</th>
-                  <th className="text-right p-1">Name</th>
-                  <th className="text-right p-1">Degree Type</th>
-                  <th className="text-right p-1">Date</th>
-                  <th className="text-right p-1">Consultant</th>
-                  <th className="text-right p-1">Phone</th>
-                  <th className="text-right p-1">Email</th>
-                  <th className="text-right p-1">Package Notes</th>
-                  <th className="text-right p-1">Reason</th>
+                  <th className="text-left p-1">#</th>
+                  <th className="text-left p-1">Name</th>
+                  <th className="text-left p-1">Degree Type</th>
+                  <th className="text-left p-1">Date</th>
+                  <th className="text-left p-1">Consultant</th>
+                  <th className="text-left p-1">Phone</th>
+                  <th className="text-left p-1">Email</th>
+                  <th className="text-left p-1">Package Notes</th>
+                  <th className="text-left p-1">Reason</th>
                 </tr>
               </thead>
               <tbody>
