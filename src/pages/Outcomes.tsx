@@ -44,11 +44,11 @@ export default function Outcomes() {
       const { data: students } = await supabase
         .from("students")
         .select("id, accepted_universities(university_name)")
-        .eq("graduation_year", year);
+        .eq("graduation_year", String(year));
       const { data: scholarships } = await supabase
         .from("student_scholarships")
         .select("amount, students!inner(graduation_year)")
-        .eq("students.graduation_year", year);
+        .eq("students.graduation_year", String(year));
 
       const schools = new Set<string>();
       for (const s of (students || []) as any[]) {
