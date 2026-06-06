@@ -74,7 +74,7 @@ const TYPE_META: Record<string, { label: string; color: string; dot: string }> =
 };
 
 const REMINDER_OPTS = [
-  { value: '', label: 'No reminder' },
+  { value: 'none', label: 'No reminder' },
   { value: '0', label: 'At time of event' },
   { value: '10', label: '10 minutes before' },
   { value: '30', label: '30 minutes before' },
