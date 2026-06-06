@@ -126,6 +126,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setCountrySelection('');
+    setCustomCountry('');
     setFieldSelection('');
     setCustomField('');
     setPackageCostText('');
