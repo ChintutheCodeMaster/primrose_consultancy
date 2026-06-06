@@ -78,6 +78,10 @@ export function JourneyHome({
 
       <JourneyProgress studentId={studentId} student={student} />
 
+      <JourneyHomeCalendar studentId={studentId} onOpenCalendar={() => onNavigate('calendar')} />
+
+
+
 
 
       {/* Next actions */}
