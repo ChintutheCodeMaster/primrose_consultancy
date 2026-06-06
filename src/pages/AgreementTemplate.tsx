@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import nogaLogo from "@/assets/noga-logo.png";
+
 
 type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
@@ -110,17 +110,19 @@ export default function AgreementTemplate() {
 
   const handleSave = async (type: AgreementType) => {
     const template = templates[type];
-    if (!template) return;
-
     setSaving(type);
-    const { error } = await supabase
-      .from("agreement_templates")
-      .update({
-        content: editedContent[type],
-        name: editedName[type],
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", template.id);
+
+    const payload = {
+      content: editedContent[type] || '',
+      name: editedName[type] || `${agreementTypeConfig[type].label} Agreement`,
+      type,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error } = template
+      ? await supabase.from("agreement_templates").update(payload).eq("id", template.id)
+      : await supabase.from("agreement_templates").insert(payload);
 
     if (error) {
       toast({
@@ -137,6 +139,7 @@ export default function AgreementTemplate() {
     }
     setSaving(null);
   };
+
 
   const handlePreview = (type: AgreementType) => {
     window.open(`/agreement/demo?type=${type}`, "_blank");
@@ -175,7 +178,7 @@ export default function AgreementTemplate() {
             setSearchParams({ type: next });
           }}
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
               const config = agreementTypeConfig[type];
               const Icon = config.icon;
@@ -196,13 +199,10 @@ export default function AgreementTemplate() {
               <TabsContent key={type} value={type}>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
-                      <img src={nogaLogo} alt="Primrose IEC" className="h-12 w-12 object-contain" />
-                      <CardTitle className="flex items-center gap-2">
-                        <config.icon className="h-5 w-5 text-primary" />
-                        {config.label} Agreement
-                      </CardTitle>
-                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      <config.icon className="h-5 w-5 text-primary" />
+                      {config.label} Agreement
+                    </CardTitle>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
                         <Eye className="h-4 w-4 mr-2" />
@@ -219,38 +219,36 @@ export default function AgreementTemplate() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6 pt-6">
-                    {template ? (
-                      <>
-                        <div>
-                          <Label htmlFor={`name-${type}`}>Template Name</Label>
-                          <Input
-                            id={`name-${type}`}
-                            value={editedName[type]}
-                            onChange={(e) => setEditedName(prev => ({ ...prev, [type]: e.target.value }))}
-                            className="max-w-md"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Agreement Content</Label>
-                          <p className="text-xs text-muted-foreground mb-2">
-                            Use the formatting buttons in the toolbar to add headings, emphasis, and other styles
-                          </p>
-                          <RichTextEditor
-                            content={editedContent[type]}
-                            onChange={(content) => setEditedContent(prev => ({ ...prev, [type]: content }))}
-                          />
-                        </div>
+                    <div>
+                      <Label htmlFor={`name-${type}`}>Template Name</Label>
+                      <Input
+                        id={`name-${type}`}
+                        value={editedName[type]}
+                        placeholder={`${config.label} Agreement`}
+                        onChange={(e) => setEditedName(prev => ({ ...prev, [type]: e.target.value }))}
+                        className="max-w-md"
+                      />
+                    </div>
 
-                        <p className="text-sm text-muted-foreground pt-4 border-t">
-                          Last updated: {new Date(template.updated_at).toLocaleDateString("en-US")}
-                        </p>
-                      </>
+                    <div className="space-y-2">
+                      <Label>Agreement Content</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Add text, headings, lists, and formatting. Click Save to publish this template.
+                      </p>
+                      <RichTextEditor
+                        content={editedContent[type]}
+                        onChange={(content) => setEditedContent(prev => ({ ...prev, [type]: content }))}
+                      />
+                    </div>
+
+                    {template ? (
+                      <p className="text-sm text-muted-foreground pt-4 border-t">
+                        Last updated: {new Date(template.updated_at).toLocaleDateString("en-US")}
+                      </p>
                     ) : (
-                      <div className="py-8 text-center">
-                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">No template found for {config.label} agreement</p>
-                      </div>
+                      <p className="text-sm text-muted-foreground pt-4 border-t">
+                        New template — write your {config.label.toLowerCase()} agreement above and click Save.
+                      </p>
                     )}
                   </CardContent>
                 </Card>
