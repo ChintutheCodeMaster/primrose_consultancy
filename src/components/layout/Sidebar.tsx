@@ -57,14 +57,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex h-20 items-center justify-center border-b border-sidebar-border/40">
+      <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
         <Link to="/app" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-            <GraduationCap className="h-6 w-6 text-sidebar-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary">
+            <GraduationCap className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-2xl font-display tracking-tight text-sidebar-foreground">Primrose</h1>
-            <p className="text-xs text-sidebar-foreground/70">IEC workspace</p>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Primrose</h1>
+            <p className="text-xs text-sidebar-foreground/60">IEC workspace</p>
           </div>
         </Link>
       </div>
@@ -373,7 +373,7 @@ export function MobileSidebar() {
 // Desktop sidebar
 export function DesktopSidebar() {
   return (
-    <aside className="fixed left-3 top-3 z-40 h-[calc(100vh-1.5rem)] w-64 bg-sidebar text-sidebar-foreground rounded-[2rem] shadow-lg hidden lg:block overflow-hidden">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar border-r border-sidebar-border hidden lg:block">
       <SidebarContent />
     </aside>
   );
