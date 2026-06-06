@@ -16,6 +16,8 @@ import { StudentStrategistPanel } from "@/components/students/StudentStrategistP
 import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
 import { JourneyProgress } from "@/components/journey/JourneyProgress";
 import { JourneyFiles } from "@/components/journey/JourneyFiles";
+import { JourneyCalendar } from "@/components/journey/JourneyCalendar";
+import { CalendarReminderWatcher } from "@/components/journey/CalendarReminderWatcher";
 import { 
   ArrowRight, 
   Plus, 
@@ -349,6 +351,15 @@ export default function StudentPortalManagement() {
             <JourneyFiles studentId={studentId!} mode="counselor" />
           </CardContent>
         </Card>
+
+        {/* Shared calendar */}
+        <Card>
+          <CardContent className="p-5">
+            <CalendarReminderWatcher studentId={studentId!} />
+            <JourneyCalendar studentId={studentId!} mode="counselor" />
+          </CardContent>
+        </Card>
+
 
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

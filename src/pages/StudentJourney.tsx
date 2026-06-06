@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User } from 'lucide-react';
+import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JourneyHome } from '@/components/journey/JourneyHome';
 import { JourneyColleges } from '@/components/journey/JourneyColleges';
@@ -13,13 +13,16 @@ import { JourneyDetector } from '@/components/journey/JourneyDetector';
 import { JourneyMessages } from '@/components/journey/JourneyMessages';
 import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
+import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
+import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
 
-type Section = 'home' | 'colleges' | 'tasks' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
+type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
 
 const NAV: { id: Section; label: string; icon: any }[] = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'colleges', label: 'My Colleges', icon: GraduationCap },
   { id: 'tasks', label: 'Tasks', icon: ListChecks },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'files', label: 'Files', icon: FolderArchive },
   { id: 'documents', label: 'Essays', icon: FileText },
   { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
@@ -152,9 +155,11 @@ export default function StudentJourney() {
 
         {/* Canvas */}
         <main className="min-w-0">
+          <CalendarReminderWatcher studentId={studentId} />
           {section === 'home' && <JourneyHome student={student} studentId={studentId} onNavigate={setSection} />}
           {section === 'colleges' && <JourneyColleges studentId={studentId} />}
           {section === 'tasks' && <JourneyTasks studentId={studentId} />}
+          {section === 'calendar' && <JourneyCalendar studentId={studentId} mode="student" />}
           {section === 'files' && <JourneyFiles studentId={studentId} mode="student" />}
           {section === 'documents' && <JourneyDocuments studentId={studentId} />}
           {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
