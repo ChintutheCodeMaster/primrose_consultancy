@@ -15,6 +15,9 @@ export default {
     extend: {
       fontFamily: {
         heebo: ['Heebo', 'sans-serif'],
+        sans: ['Fira Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"DM Serif Display"', 'ui-serif', 'Georgia', 'serif'],
+        serif: ['"DM Serif Display"', 'ui-serif', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
