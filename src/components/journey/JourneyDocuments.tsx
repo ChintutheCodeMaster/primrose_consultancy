@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +8,22 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, Upload, FileText, ChevronRight, MessageCircle, Check, Loader2 } from 'lucide-react';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import {
+  Plus,
+  FileText,
+  ChevronRight,
+  MessageCircle,
+  Check,
+  GitBranch,
+  GitCompareArrows,
+  Loader2,
+  History,
+  CheckCircle2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { diffWords } from 'diff';
 
 const STATUS_COLOR: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
@@ -25,6 +38,17 @@ const STATUS_LABEL: Record<string, string> = {
   in_review: 'In review',
   changes_requested: 'Changes requested',
   approved: 'Approved',
+};
+
+const stripHtml = (html: string) => {
+  if (!html) return '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+const countWords = (html: string) => {
+  const t = stripHtml(html).trim();
+  return t ? t.split(/\s+/).length : 0;
 };
 
 export function JourneyDocuments({ studentId }: { studentId: string }) {
@@ -61,9 +85,9 @@ export function JourneyDocuments({ studentId }: { studentId: string }) {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Essays & Documents</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Essays, forms, and anything else you and your consultant iterate on.
+            Write directly in the editor. Snapshot a version anytime to lock it in and compare changes later.
           </p>
         </div>
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
@@ -74,9 +98,10 @@ export function JourneyDocuments({ studentId }: { studentId: string }) {
           </DialogTrigger>
           <NewDocDialog
             studentId={studentId}
-            onCreated={() => {
+            onCreated={(id) => {
               setNewOpen(false);
               load();
+              setSelectedDocId(id);
             }}
           />
         </Dialog>
@@ -92,11 +117,7 @@ export function JourneyDocuments({ studentId }: { studentId: string }) {
 
       <div className="space-y-2">
         {docs.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => setSelectedDocId(d.id)}
-            className="w-full text-left"
-          >
+          <button key={d.id} onClick={() => setSelectedDocId(d.id)} className="w-full text-left">
             <Card className="hover:border-primary/50 transition-colors">
               <CardContent className="p-4 flex items-center gap-3">
                 <FileText className="h-5 w-5 text-muted-foreground" />
@@ -117,7 +138,13 @@ export function JourneyDocuments({ studentId }: { studentId: string }) {
   );
 }
 
-function NewDocDialog({ studentId, onCreated }: { studentId: string; onCreated: () => void }) {
+function NewDocDialog({
+  studentId,
+  onCreated,
+}: {
+  studentId: string;
+  onCreated: (id: string) => void;
+}) {
   const [title, setTitle] = useState('');
   const [kind, setKind] = useState('essay');
   const [prompt, setPrompt] = useState('');
@@ -126,18 +153,31 @@ function NewDocDialog({ studentId, onCreated }: { studentId: string; onCreated: 
   const create = async () => {
     if (!title.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from('student_documents_v2').insert({
-      student_id: studentId,
-      title: title.trim(),
-      kind,
-      prompt_text: prompt || null,
-    });
+    const { data, error } = await supabase
+      .from('student_documents_v2')
+      .insert({
+        student_id: studentId,
+        title: title.trim(),
+        kind,
+        prompt_text: prompt || null,
+      })
+      .select('id')
+      .single();
     setSaving(false);
-    if (error) {
+    if (error || !data) {
       toast.error('Failed to create');
       return;
     }
-    onCreated();
+    // Seed a blank V1 draft so the editor opens cleanly
+    await supabase.from('student_document_versions').insert({
+      document_id: data.id,
+      version_no: 1,
+      body_text: '',
+      word_count: 0,
+      created_by: 'student',
+      status: 'draft',
+    });
+    onCreated(data.id);
   };
 
   return (
@@ -148,7 +188,11 @@ function NewDocDialog({ studentId, onCreated }: { studentId: string; onCreated: 
       <div className="space-y-3">
         <div className="space-y-1">
           <Label>Title</Label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Common App Personal Statement" />
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Common App Personal Statement"
+          />
         </div>
         <div className="space-y-1">
           <Label>Type</Label>
@@ -170,19 +214,24 @@ function NewDocDialog({ studentId, onCreated }: { studentId: string; onCreated: 
           <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3} />
         </div>
         <Button onClick={create} disabled={saving || !title.trim()} className="w-full">
-          {saving ? 'Creating...' : 'Create document'}
+          {saving ? 'Creating…' : 'Create document'}
         </Button>
       </div>
     </DialogContent>
   );
 }
 
+type View = 'edit' | 'compare';
+
 function DocumentDetail({ documentId, onBack }: { documentId: string; onBack: () => void }) {
   const [doc, setDoc] = useState<any>(null);
   const [versions, setVersions] = useState<any[]>([]);
-  const [selectedVersion, setSelectedVersion] = useState<any | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [view, setView] = useState<View>('edit');
+  const [compareLeft, setCompareLeft] = useState<string | null>(null);
+  const [compareRight, setCompareRight] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = async (preferLatest = false) => {
     const [{ data: d }, { data: v }] = await Promise.all([
       supabase.from('student_documents_v2').select('*').eq('id', documentId).maybeSingle(),
       supabase
@@ -193,12 +242,21 @@ function DocumentDetail({ documentId, onBack }: { documentId: string; onBack: ()
     ]);
     setDoc(d);
     setVersions(v || []);
-    if (v && v.length && !selectedVersion) setSelectedVersion(v[0]);
+    if (v && v.length) {
+      if (preferLatest || !activeId || !v.find((x) => x.id === activeId)) {
+        setActiveId(v[0].id);
+      }
+    }
   };
 
   useEffect(() => {
-    load();
+    load(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documentId]);
+
+  const active = useMemo(() => versions.find((v) => v.id === activeId) || null, [versions, activeId]);
+  const latest = versions[0];
+  const isLatest = active && latest && active.id === latest.id;
 
   if (!doc) return null;
 
@@ -207,113 +265,366 @@ function DocumentDetail({ documentId, onBack }: { documentId: string; onBack: ()
       <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground">
         ← Back to documents
       </button>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{doc.title}</h1>
+
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight truncate">{doc.title}</h1>
           {doc.prompt_text && (
             <p className="text-sm text-muted-foreground mt-1 italic">"{doc.prompt_text}"</p>
           )}
         </div>
-        <Badge variant="outline" className={STATUS_COLOR[doc.status] || ''}>
-          {STATUS_LABEL[doc.status] || doc.status}
-        </Badge>
-      </div>
-
-      <NewVersionForm documentId={documentId} nextVersionNo={(versions[0]?.version_no || 0) + 1} onCreated={load} />
-
-      <div className="grid lg:grid-cols-[200px_1fr] gap-4">
-        {/* Version list */}
-        <div className="space-y-1">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Versions</div>
-          {versions.map((v) => (
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className={STATUS_COLOR[doc.status] || ''}>
+            {STATUS_LABEL[doc.status] || doc.status}
+          </Badge>
+          <div className="flex rounded-md border overflow-hidden">
             <button
-              key={v.id}
-              onClick={() => setSelectedVersion(v)}
+              onClick={() => setView('edit')}
               className={cn(
-                'w-full text-left px-3 py-2 rounded-lg border text-sm',
-                selectedVersion?.id === v.id ? 'border-primary bg-primary/5' : 'hover:bg-muted',
+                'px-3 py-1.5 text-xs font-medium flex items-center gap-1',
+                view === 'edit' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
               )}
             >
-              <div className="font-medium">v{v.version_no}</div>
-              <div className="text-xs text-muted-foreground">
-                {new Date(v.created_at).toLocaleDateString()} · {v.word_count || 0} words
-              </div>
+              <FileText className="h-3 w-3" /> Editor
             </button>
-          ))}
+            <button
+              onClick={() => {
+                setView('compare');
+                if (versions.length >= 2) {
+                  setCompareLeft(versions[1].id);
+                  setCompareRight(versions[0].id);
+                }
+              }}
+              className={cn(
+                'px-3 py-1.5 text-xs font-medium flex items-center gap-1 border-l',
+                view === 'compare' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
+              )}
+            >
+              <GitCompareArrows className="h-3 w-3" /> Compare
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-[200px_1fr] gap-4">
+        {/* Versions rail */}
+        <div className="space-y-1 lg:max-h-[70vh] lg:overflow-y-auto pr-1">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1 flex items-center gap-1">
+            <History className="h-3 w-3" /> Versions
+          </div>
+          {versions.map((v) => {
+            const isActive = activeId === v.id;
+            return (
+              <button
+                key={v.id}
+                onClick={() => {
+                  setActiveId(v.id);
+                  setView('edit');
+                }}
+                className={cn(
+                  'w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors',
+                  isActive ? 'border-primary bg-primary/5' : 'hover:bg-muted',
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">V{v.version_no}</span>
+                  {v.id === latest?.id && (
+                    <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                      latest
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {new Date(v.created_at).toLocaleDateString()} · {v.word_count || 0} words
+                </div>
+                <div className="text-[10px] text-muted-foreground capitalize">
+                  by {v.created_by} · {v.status}
+                </div>
+              </button>
+            );
+          })}
           {versions.length === 0 && (
             <div className="text-xs text-muted-foreground p-2">No versions yet.</div>
           )}
         </div>
 
-        {/* Reader */}
-        <div>{selectedVersion && <VersionReader version={selectedVersion} onChanged={load} />}</div>
+        {/* Canvas */}
+        <div className="min-w-0">
+          {view === 'edit' && active && (
+            <VersionEditor
+              key={active.id}
+              version={active}
+              isLatest={!!isLatest}
+              documentId={documentId}
+              onSaved={(latestPreferred) => load(latestPreferred)}
+            />
+          )}
+          {view === 'compare' && (
+            <CompareView
+              versions={versions}
+              leftId={compareLeft}
+              rightId={compareRight}
+              onChangeLeft={setCompareLeft}
+              onChangeRight={setCompareRight}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function NewVersionForm({
-  documentId,
-  nextVersionNo,
-  onCreated,
-}: {
-  documentId: string;
-  nextVersionNo: number;
-  onCreated: () => void;
-}) {
-  const [body, setBody] = useState('');
-  const [saving, setSaving] = useState(false);
+/* -------------------- EDITOR -------------------- */
 
-  const submit = async () => {
-    if (!body.trim()) return;
-    setSaving(true);
-    const wordCount = body.trim().split(/\s+/).length;
-    const { error } = await supabase.from('student_document_versions').insert({
-      document_id: documentId,
-      version_no: nextVersionNo,
-      body_text: body,
-      word_count: wordCount,
-      created_by: 'student',
-      status: 'submitted',
-    });
-    await supabase.from('student_documents_v2').update({ status: 'submitted' }).eq('id', documentId);
-    setSaving(false);
-    if (error) {
-      toast.error('Failed to save version');
-      return;
-    }
-    setBody('');
-    onCreated();
-    toast.success(`Version ${nextVersionNo} submitted`);
+function VersionEditor({
+  version,
+  isLatest,
+  documentId,
+  onSaved,
+}: {
+  version: any;
+  isLatest: boolean;
+  documentId: string;
+  onSaved: (preferLatest: boolean) => void;
+}) {
+  const [body, setBody] = useState<string>(version.body_text || '');
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [snapshotting, setSnapshotting] = useState(false);
+  const timer = useRef<number | null>(null);
+
+  // Reset when version changes
+  useEffect(() => {
+    setBody(version.body_text || '');
+    setSavedAt(null);
+  }, [version.id]);
+
+  // Debounced autosave (only when editing the latest version)
+  const scheduleSave = useCallback(
+    (next: string) => {
+      if (!isLatest) return;
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(async () => {
+        await supabase
+          .from('student_document_versions')
+          .update({ body_text: next, word_count: countWords(next) })
+          .eq('id', version.id);
+        await supabase
+          .from('student_documents_v2')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', documentId);
+        setSavedAt(new Date());
+      }, 800);
+    },
+    [version.id, isLatest, documentId],
+  );
+
+  const handleChange = (next: string) => {
+    setBody(next);
+    scheduleSave(next);
   };
 
+  const snapshot = async () => {
+    setSnapshotting(true);
+    // Make sure the latest edits are saved first
+    if (isLatest) {
+      await supabase
+        .from('student_document_versions')
+        .update({ body_text: body, word_count: countWords(body), status: 'submitted' })
+        .eq('id', version.id);
+    }
+    // Find next version number
+    const { data: maxRow } = await supabase
+      .from('student_document_versions')
+      .select('version_no')
+      .eq('document_id', documentId)
+      .order('version_no', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextNo = (maxRow?.version_no || 0) + 1;
+
+    // Create a fresh editable draft seeded with the snapshotted body
+    const { error } = await supabase.from('student_document_versions').insert({
+      document_id: documentId,
+      version_no: nextNo,
+      body_text: body,
+      word_count: countWords(body),
+      created_by: 'student',
+      status: 'draft',
+    });
+    setSnapshotting(false);
+    if (error) {
+      toast.error('Could not snapshot');
+      return;
+    }
+    toast.success(`Snapshotted V${nextNo - 1} · now editing V${nextNo}`);
+    onSaved(true);
+  };
+
+  const wordCount = countWords(body);
+
   return (
-    <Card>
-      <CardContent className="p-4 space-y-2">
-        <div className="text-sm font-medium">Add version {nextVersionNo}</div>
-        <Textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          rows={6}
-          placeholder="Paste your draft here..."
-        />
-        <div className="flex justify-end">
-          <Button onClick={submit} disabled={saving || !body.trim()} className="gap-2">
-            <Upload className="h-4 w-4" /> Submit version
-          </Button>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-3">
+          <span className="font-medium text-foreground">V{version.version_no}</span>
+          <span>{wordCount} words</span>
+          {isLatest ? (
+            savedAt ? (
+              <span className="flex items-center gap-1 text-emerald-600">
+                <CheckCircle2 className="h-3 w-3" /> Saved {savedAt.toLocaleTimeString()}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Autosaving…</span>
+            )
+          ) : (
+            <span className="text-amber-600">Read-only (older version)</span>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        {isLatest && (
+          <Button onClick={snapshot} size="sm" className="gap-1" disabled={snapshotting}>
+            {snapshotting ? <Loader2 className="h-3 w-3 animate-spin" /> : <GitBranch className="h-3 w-3" />}
+            Snapshot version
+          </Button>
+        )}
+      </div>
+
+      {isLatest ? (
+        <RichTextEditor content={body} onChange={handleChange} />
+      ) : (
+        <Card>
+          <CardContent
+            className="prose prose-sm max-w-none p-6"
+            // Show old versions read-only
+            dangerouslySetInnerHTML={{ __html: body || '<p class="text-muted-foreground">Empty</p>' }}
+          />
+        </Card>
+      )}
+
+      <CommentsPanel version={version} />
+    </div>
   );
 }
 
-function VersionReader({ version, onChanged }: { version: any; onChanged: () => void }) {
+/* -------------------- COMPARE / TRACK CHANGES -------------------- */
+
+function CompareView({
+  versions,
+  leftId,
+  rightId,
+  onChangeLeft,
+  onChangeRight,
+}: {
+  versions: any[];
+  leftId: string | null;
+  rightId: string | null;
+  onChangeLeft: (id: string) => void;
+  onChangeRight: (id: string) => void;
+}) {
+  const left = versions.find((v) => v.id === leftId);
+  const right = versions.find((v) => v.id === rightId);
+
+  if (versions.length < 2) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-sm text-muted-foreground">
+          You need at least two versions to compare. Snapshot the current draft to create another one.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const leftText = left ? stripHtml(left.body_text || '') : '';
+  const rightText = right ? stripHtml(right.body_text || '') : '';
+  const parts = useMemo(() => diffWords(leftText, rightText), [leftText, rightText]);
+  const added = parts.filter((p) => p.added).reduce((n, p) => n + (p.value.trim().split(/\s+/).filter(Boolean).length || 0), 0);
+  const removed = parts.filter((p) => p.removed).reduce((n, p) => n + (p.value.trim().split(/\s+/).filter(Boolean).length || 0), 0);
+
+  return (
+    <div className="space-y-3">
+      <div className="grid sm:grid-cols-2 gap-2">
+        <div>
+          <Label className="text-xs">Older version</Label>
+          <Select value={leftId || undefined} onValueChange={onChangeLeft}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose…" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              {versions.map((v) => (
+                <SelectItem key={v.id} value={v.id}>
+                  V{v.version_no} · {new Date(v.created_at).toLocaleDateString()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs">Newer version</Label>
+          <Select value={rightId || undefined} onValueChange={onChangeRight}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose…" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              {versions.map((v) => (
+                <SelectItem key={v.id} value={v.id}>
+                  V{v.version_no} · {new Date(v.created_at).toLocaleDateString()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-sm bg-emerald-200 dark:bg-emerald-500/40" />
+          +{added} added
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-sm bg-rose-200 dark:bg-rose-500/40" />
+          −{removed} removed
+        </span>
+      </div>
+
+      <Card>
+        <CardContent className="p-6 whitespace-pre-wrap leading-relaxed text-[15px]">
+          {parts.map((p, i) => {
+            if (p.added)
+              return (
+                <span
+                  key={i}
+                  className="bg-emerald-100 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-100 rounded-sm px-0.5"
+                >
+                  {p.value}
+                </span>
+              );
+            if (p.removed)
+              return (
+                <span
+                  key={i}
+                  className="bg-rose-100 text-rose-900 line-through dark:bg-rose-500/20 dark:text-rose-100 rounded-sm px-0.5"
+                >
+                  {p.value}
+                </span>
+              );
+            return <span key={i}>{p.value}</span>;
+          })}
+          {!leftText && !rightText && (
+            <span className="text-muted-foreground">Both versions are empty.</span>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/* -------------------- COMMENTS -------------------- */
+
+function CommentsPanel({ version }: { version: any }) {
   const [comments, setComments] = useState<any[]>([]);
-  const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
   const [draft, setDraft] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const loadComments = async () => {
+  const load = async () => {
     const { data } = await supabase
       .from('student_document_comments')
       .select('*')
@@ -323,37 +634,15 @@ function VersionReader({ version, onChanged }: { version: any; onChanged: () => 
   };
 
   useEffect(() => {
-    loadComments();
-    setSelection(null);
-    setDraft('');
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [version.id]);
 
-  const text = version.body_text || '';
-
-  const onSelect = (e: React.SyntheticEvent<HTMLDivElement>) => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) {
-      setSelection(null);
-      return;
-    }
-    const root = e.currentTarget;
-    const range = sel.getRangeAt(0);
-    if (!root.contains(range.commonAncestorContainer)) return;
-    const preRange = range.cloneRange();
-    preRange.selectNodeContents(root);
-    preRange.setEnd(range.startContainer, range.startOffset);
-    const start = preRange.toString().length;
-    const end = start + range.toString().length;
-    if (end > start) setSelection({ start, end });
-  };
-
-  const postComment = async () => {
+  const post = async () => {
     if (!draft.trim()) return;
     setPosting(true);
     const { error } = await supabase.from('student_document_comments').insert({
       version_id: version.id,
-      anchor_start: selection?.start ?? null,
-      anchor_end: selection?.end ?? null,
       author: 'student',
       body: draft.trim(),
     });
@@ -363,108 +652,57 @@ function VersionReader({ version, onChanged }: { version: any; onChanged: () => 
       return;
     }
     setDraft('');
-    setSelection(null);
-    loadComments();
+    load();
   };
 
   const resolve = async (id: string) => {
-    await supabase.from('student_document_comments').update({ resolved_at: new Date().toISOString() }).eq('id', id);
-    loadComments();
+    await supabase
+      .from('student_document_comments')
+      .update({ resolved_at: new Date().toISOString() })
+      .eq('id', id);
+    load();
   };
 
-  // Render text with highlighted comment spans
-  const segments = useMemo(() => {
-    const anchored = comments.filter((c) => c.anchor_start != null && c.anchor_end != null && !c.resolved_at);
-    if (anchored.length === 0) return [{ text, highlighted: false }];
-    const points = new Set<number>([0, text.length]);
-    anchored.forEach((c) => {
-      points.add(c.anchor_start);
-      points.add(c.anchor_end);
-    });
-    const sorted = Array.from(points).sort((a, b) => a - b);
-    const out: { text: string; highlighted: boolean }[] = [];
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const a = sorted[i];
-      const b = sorted[i + 1];
-      const segment = text.slice(a, b);
-      const isHi = anchored.some((c) => c.anchor_start <= a && c.anchor_end >= b);
-      out.push({ text: segment, highlighted: isHi });
-    }
-    return out;
-  }, [text, comments]);
-
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+        <MessageCircle className="h-3 w-3" /> Comments on V{version.version_no} ({comments.length})
+      </div>
       <Card>
-        <CardContent className="p-5">
-          <div
-            className="whitespace-pre-wrap text-[15px] leading-relaxed select-text"
-            onMouseUp={onSelect}
-          >
-            {segments.map((s, i) =>
-              s.highlighted ? (
-                <mark key={i} className="bg-amber-200/60 dark:bg-amber-500/30 px-0.5 rounded-sm">
-                  {s.text}
-                </mark>
-              ) : (
-                <span key={i}>{s.text}</span>
-              ),
-            )}
+        <CardContent className="p-3 space-y-2">
+          <Textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={2}
+            placeholder="Leave a note for your consultant…"
+          />
+          <div className="flex justify-end">
+            <Button size="sm" onClick={post} disabled={posting || !draft.trim()}>
+              Post comment
+            </Button>
           </div>
         </CardContent>
       </Card>
-
-      {selection && (
-        <Card className="border-primary">
-          <CardContent className="p-3 space-y-2">
-            <div className="text-xs text-muted-foreground">
-              Commenting on: "{text.slice(selection.start, selection.end).slice(0, 80)}..."
+      {comments.map((c) => (
+        <Card key={c.id} className={c.resolved_at ? 'opacity-50' : ''}>
+          <CardContent className="p-3 text-sm">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium capitalize">{c.author}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">
+                  {new Date(c.created_at).toLocaleString()}
+                </span>
+                {!c.resolved_at && (
+                  <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => resolve(c.id)}>
+                    <Check className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
             </div>
-            <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={2} placeholder="Your comment..." />
-            <div className="flex gap-2 justify-end">
-              <Button variant="ghost" size="sm" onClick={() => setSelection(null)}>
-                Cancel
-              </Button>
-              <Button size="sm" onClick={postComment} disabled={posting || !draft.trim()}>
-                Post comment
-              </Button>
-            </div>
+            <div className="whitespace-pre-wrap">{c.body}</div>
           </CardContent>
         </Card>
-      )}
-
-      {comments.length > 0 && (
-        <div className="space-y-2">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-            <MessageCircle className="h-3 w-3" /> Comments ({comments.length})
-          </div>
-          {comments.map((c) => (
-            <Card key={c.id} className={c.resolved_at ? 'opacity-50' : ''}>
-              <CardContent className="p-3 text-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium capitalize">{c.author}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleString()}
-                    </span>
-                    {!c.resolved_at && (
-                      <Button size="sm" variant="ghost" className="h-6 px-2" onClick={() => resolve(c.id)}>
-                        <Check className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                {c.anchor_start != null && (
-                  <div className="text-xs italic text-muted-foreground mb-1">
-                    "{(version.body_text || '').slice(c.anchor_start, c.anchor_end).slice(0, 80)}..."
-                  </div>
-                )}
-                <div className="whitespace-pre-wrap">{c.body}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      ))}
     </div>
   );
 }
