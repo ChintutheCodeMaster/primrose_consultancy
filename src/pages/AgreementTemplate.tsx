@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import nogaLogo from "@/assets/noga-logo.png";
+
 
 type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
@@ -175,7 +175,7 @@ export default function AgreementTemplate() {
             setSearchParams({ type: next });
           }}
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
               const config = agreementTypeConfig[type];
               const Icon = config.icon;
@@ -196,13 +196,10 @@ export default function AgreementTemplate() {
               <TabsContent key={type} value={type}>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
-                      <img src={nogaLogo} alt="Primrose IEC" className="h-12 w-12 object-contain" />
-                      <CardTitle className="flex items-center gap-2">
-                        <config.icon className="h-5 w-5 text-primary" />
-                        {config.label} Agreement
-                      </CardTitle>
-                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      <config.icon className="h-5 w-5 text-primary" />
+                      {config.label} Agreement
+                    </CardTitle>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
                         <Eye className="h-4 w-4 mr-2" />

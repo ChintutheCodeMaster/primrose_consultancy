@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, FileText } from "lucide-react";
-import nogaLogo from "@/assets/noga-logo.png";
+
 
 const AgreementPreview = () => {
   const [searchParams] = useSearchParams();
@@ -59,9 +59,8 @@ const AgreementPreview = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" dir="ltr">
       <div className="max-w-3xl mx-auto">
-        {/* Header with Logo */}
+        {/* Header */}
         <div className="text-center mb-8">
-          <img src={nogaLogo} alt="Primrose IEC" className="h-20 w-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {templateName || "Work Order Form"}
           </h1>

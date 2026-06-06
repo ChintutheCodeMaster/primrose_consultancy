@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle2, FileText, Loader2 } from "lucide-react";
-import nogaLogo from "@/assets/noga-logo.png";
+
 interface FormData {
   firstName: string;
   lastName: string;
@@ -281,9 +281,8 @@ const Agreement = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4" >
       <div className="max-w-3xl mx-auto">
-        {/* Header with Logo */}
+        {/* Header */}
         <div className="text-center mb-8">
-          <img src={nogaLogo} alt="Primrose IEC" className="h-20 w-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Engagement Agreement Form
           </h1>
