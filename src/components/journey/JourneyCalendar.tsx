@@ -427,7 +427,7 @@ function EventDialog({
       setAllDay(!!editing.all_day);
       setStartAt(toLocalInput(new Date(editing.start_at)));
       setEndAt(editing.end_at ? toLocalInput(new Date(editing.end_at)) : '');
-      setReminder(editing.reminder_minutes_before != null ? String(editing.reminder_minutes_before) : '');
+      setReminder(editing.reminder_minutes_before != null ? String(editing.reminder_minutes_before) : 'none');
     } else {
       const base = new Date(defaultDate);
       base.setHours(10, 0, 0, 0);
