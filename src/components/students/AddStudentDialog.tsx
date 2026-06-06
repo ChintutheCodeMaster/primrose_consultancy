@@ -64,20 +64,35 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     return Number.isFinite(n) ? n : 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalSource = sourceSelection === 'Other' ? customSource : sourceSelection;
+    const finalSource = sourceSelection === 'Other' ? customSource.trim() : sourceSelection;
+    const finalCountry = countrySelection === 'Other' ? customCountry.trim() : countrySelection;
     const finalField = fieldSelection;
     
     // Validate source is required
     if (!finalSource.trim()) {
       return;
     }
+
+    // Persist newly-added source / country so they're available next time
+    try {
+      if (sourceSelection === 'Other' && finalSource) {
+        await supabase.from('source_options').insert({ name: finalSource, is_active: true }).select();
+      }
+      if (countrySelection === 'Other' && finalCountry) {
+        await supabase.from('country_options').insert({ name: finalCountry, is_active: true }).select();
+      }
+    } catch (err) {
+      console.warn('Could not save new option (may already exist):', err);
+    }
     
     // Parse numeric values from text fields
     const finalFormData = {
       ...formData,
       source: finalSource,
+      interestedCountry: finalCountry,
+      targetCountry: finalCountry,
       interestedField: finalField,
       packageCost: parseNumber(packageCostText),
       amountPaid: parseNumber(amountPaidText),
