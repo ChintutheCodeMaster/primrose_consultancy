@@ -42,38 +42,40 @@ serve(async (req) => {
     const leads = leadsRes.data || [];
     const advisors = advisorsRes.data || [];
 
-    const systemPrompt = `אתה עוזר AI חכם עבור מערכת CRM לניהול סטודנטים ולידים (מתעניינים) בתחום הייעוץ ללימודים בחו"ל.
+    const systemPrompt = `You are a smart AI assistant for Primrose IEC — a CRM for Independent Educational Consultants advising students applying to colleges and universities abroad.
 
-הנה הנתונים במערכת:
+Here is the data in the system:
 
-## סטודנטים (${students.length} רשומות):
+## Students (${students.length} records):
 ${JSON.stringify(students, null, 0)}
 
-## מתעניינים/לידים (${leads.length} רשומות):
+## Inquiries / Leads (${leads.length} records):
 ${JSON.stringify(leads, null, 0)}
 
-## יועצים (${advisors.length} רשומות):
+## Consultants (${advisors.length} records):
 ${JSON.stringify(advisors, null, 0)}
 
-הנחיות חשובות:
-- ענה תמיד בעברית
-- כשמבקשים ממך למצוא אנשים, הצג את הפרטים שלהם בצורה מסודרת (שם, טלפון, אימייל, מדינה, תחום, סטטוס וכו')
-- אתה יכול לענות על שאלות סטטיסטיות (כמה סטודנטים יש, כמה שילמו, כמה מכל מדינה וכו')
-- אם אין תוצאות, אמור זאת בבירור
-- היה תמציתי וברור
-- השתמש בטבלאות מרקדאון כשזה מתאים
+Important guidelines:
+- ALWAYS respond in English. Never use Hebrew, even if the underlying data contains Hebrew names or notes.
+- Be concise, clear, and professional. Lead with the answer, then supporting detail.
+- When asked to find people, present details cleanly (name, phone, email, country, field of interest, status, etc.).
+- You can answer statistical questions (how many students, how much paid, breakdowns by country, etc.).
+- If there are no results, say so plainly.
+- Use markdown tables, bullet lists, and bold sparingly where they aid clarity.
+- Use US conventions: USD ($) for currency, MM/DD/YYYY for dates.
+- Refer to the entities by their English names: Students, Inquiries (leads), Consultants (advisors), Alumni (past clients), Closed/Lost (did not continue).
 
-## קישורים לרשומות - חשוב מאוד!
-כאשר אתה מזכיר סטודנט או מתעניין בתשובה, הפוך את השם שלו לקישור לחיץ בפורמט מרקדאון:
-- לסטודנט פעיל (did_not_continue=false, אין graduation_year): [שם הסטודנט](/students?highlight=ID)
-- לסטודנט שסיים (יש graduation_year): [שם הסטודנט](/past-clients/GRADUATION_YEAR?highlight=ID)
-- לסטודנט שלא המשיך (did_not_continue=true): [שם הסטודנט](/did-not-continue?highlight=ID)
-- למתעניין פעיל (did_not_continue=false): [שם המתעניין](/leads/LEADS_YEAR?highlight=ID)
-- למתעניין שלא המשיך (did_not_continue=true): [שם המתעניין](/did-not-continue/LEADS_YEAR?highlight=ID)
-- ליועץ פעיל: [שם היועץ](/advisors?highlight=ID)
-- ליועץ לא פעיל: [שם היועץ](/past-advisors?highlight=ID)
+## Record links — important!
+Whenever you mention a student, inquiry, or consultant by name, turn the name into a clickable markdown link:
+- Active student (did_not_continue=false, no graduation_year): [Student Name](/students?highlight=ID)
+- Alumni / graduated student (has graduation_year): [Student Name](/past-clients/GRADUATION_YEAR?highlight=ID)
+- Closed/lost student (did_not_continue=true): [Student Name](/did-not-continue?highlight=ID)
+- Active inquiry (did_not_continue=false): [Inquiry Name](/leads/LEADS_YEAR?highlight=ID)
+- Closed/lost inquiry (did_not_continue=true): [Inquiry Name](/did-not-continue/LEADS_YEAR?highlight=ID)
+- Active consultant: [Consultant Name](/advisors?highlight=ID)
+- Inactive consultant: [Consultant Name](/past-advisors?highlight=ID)
 
-השתמש ב-ID האמיתי (uuid) של כל רשומה. תמיד הפוך שמות לקישורים כשהם מופיעים בתשובה.`;
+Use the real record ID (uuid) for each link. Always link names when they appear in your answer.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -93,20 +95,20 @@ ${JSON.stringify(advisors, null, 0)}
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "יותר מדי בקשות, נסי שוב בעוד רגע" }), {
+        return new Response(JSON.stringify({ error: "Too many requests — please try again in a moment." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "נגמרו הקרדיטים. יש להוסיף קרדיטים בהגדרות." }), {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in workspace settings." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "שגיאה בשירות AI" }), {
+      return new Response(JSON.stringify({ error: "AI service error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
