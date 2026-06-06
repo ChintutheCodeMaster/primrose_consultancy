@@ -110,6 +110,8 @@ export default function StudentJourney() {
   }
 
   const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
+  const terms = getProgramTerms(student.degree_type);
+  const NAV = buildNav(terms.navLabel);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
