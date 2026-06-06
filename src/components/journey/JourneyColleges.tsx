@@ -2,6 +2,26 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const BUCKET_COLOR: Record<string, string> = {
   reach: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
@@ -12,14 +32,19 @@ const BUCKET_COLOR: Record<string, string> = {
 
 export function JourneyColleges({ studentId }: { studentId: string }) {
   const [colleges, setColleges] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    supabase
+  const load = async () => {
+    const { data } = await supabase
       .from('student_colleges')
       .select('*')
       .eq('student_id', studentId)
-      .order('sort_order')
-      .then(({ data }) => setColleges(data || []));
+      .order('sort_order');
+    setColleges(data || []);
+  };
+
+  useEffect(() => {
+    load();
   }, [studentId]);
 
   const grouped = ['reach', 'target', 'likely', 'safety'].map((b) => ({
@@ -29,17 +54,26 @@ export function JourneyColleges({ studentId }: { studentId: string }) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">My Colleges</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Your working list, organized by reach. Talk to your consultant to add or change.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">My Colleges</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Your working list, organized by reach. Add schools you're considering — your consultant
+            will see them too.
+          </p>
+        </div>
+        <AddCollegeDialog
+          studentId={studentId}
+          open={open}
+          onOpenChange={setOpen}
+          onAdded={load}
+        />
       </div>
 
       {colleges.length === 0 && (
         <Card>
           <CardContent className="p-6 text-sm text-muted-foreground">
-            Your consultant hasn't added any colleges yet.
+            No colleges yet — add your first one above.
           </CardContent>
         </Card>
       )}
@@ -82,5 +116,107 @@ export function JourneyColleges({ studentId }: { studentId: string }) {
           ),
       )}
     </div>
+  );
+}
+
+function AddCollegeDialog({
+  studentId,
+  open,
+  onOpenChange,
+  onAdded,
+}: {
+  studentId: string;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onAdded: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [bucket, setBucket] = useState('target');
+  const [plan, setPlan] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const reset = () => {
+    setName('');
+    setBucket('target');
+    setPlan('');
+    setDeadline('');
+  };
+
+  const save = async () => {
+    if (!name.trim()) {
+      toast.error('College name is required');
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from('student_colleges').insert({
+      student_id: studentId,
+      college_name: name.trim(),
+      list_bucket: bucket,
+      application_plan: plan || null,
+      deadline: deadline || null,
+    });
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success('College added');
+    reset();
+    onOpenChange(false);
+    onAdded();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="gap-1 shrink-0">
+          <Plus className="h-4 w-4" /> Add college
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add a college</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <div>
+            <Label>College name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Brown University" />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <Select value={bucket} onValueChange={setBucket}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="reach">Reach</SelectItem>
+                <SelectItem value="target">Target</SelectItem>
+                <SelectItem value="likely">Likely</SelectItem>
+                <SelectItem value="safety">Safety</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Application plan</Label>
+              <Input value={plan} onChange={(e) => setPlan(e.target.value)} placeholder="ED, EA, RD…" />
+            </div>
+            <div>
+              <Label>Deadline</Label>
+              <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
