@@ -874,10 +874,13 @@ export type Database = {
           created_at: string
           deadline: string | null
           decision_at: string | null
+          essays_status: string | null
           id: string
           list_bucket: string
+          locked_at: string | null
           notes: string | null
           portal_url: string | null
+          recs_status: string | null
           scholarship_amount: number | null
           sort_order: number
           status: string
@@ -893,10 +896,13 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           decision_at?: string | null
+          essays_status?: string | null
           id?: string
           list_bucket?: string
+          locked_at?: string | null
           notes?: string | null
           portal_url?: string | null
+          recs_status?: string | null
           scholarship_amount?: number | null
           sort_order?: number
           status?: string
@@ -912,10 +918,13 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           decision_at?: string | null
+          essays_status?: string | null
           id?: string
           list_bucket?: string
+          locked_at?: string | null
           notes?: string | null
           portal_url?: string | null
+          recs_status?: string | null
           scholarship_amount?: number | null
           sort_order?: number
           status?: string
@@ -1110,33 +1119,48 @@ export type Database = {
       student_documents_v2: {
         Row: {
           created_at: string
+          file_path: string | null
+          folder: string | null
           id: string
           kind: string
           prompt_text: string | null
+          requested_by: string | null
+          review_status: string | null
           status: string
           student_id: string
           title: string
           updated_at: string
+          uploaded_by: string | null
         }
         Insert: {
           created_at?: string
+          file_path?: string | null
+          folder?: string | null
           id?: string
           kind?: string
           prompt_text?: string | null
+          requested_by?: string | null
+          review_status?: string | null
           status?: string
           student_id: string
           title: string
           updated_at?: string
+          uploaded_by?: string | null
         }
         Update: {
           created_at?: string
+          file_path?: string | null
+          folder?: string | null
           id?: string
           kind?: string
           prompt_text?: string | null
+          requested_by?: string | null
+          review_status?: string | null
           status?: string
           student_id?: string
           title?: string
           updated_at?: string
+          uploaded_by?: string | null
         }
         Relationships: [
           {
@@ -1150,27 +1174,36 @@ export type Database = {
       }
       student_messages: {
         Row: {
+          attachment_path: string | null
           attachment_url: string | null
           author: string
           body: string
+          cc_parent: boolean | null
           created_at: string
           id: string
+          read_at: string | null
           student_id: string
         }
         Insert: {
+          attachment_path?: string | null
           attachment_url?: string | null
           author: string
           body: string
+          cc_parent?: boolean | null
           created_at?: string
           id?: string
+          read_at?: string | null
           student_id: string
         }
         Update: {
+          attachment_path?: string | null
           attachment_url?: string | null
           author?: string
           body?: string
+          cc_parent?: boolean | null
           created_at?: string
           id?: string
+          read_at?: string | null
           student_id?: string
         }
         Relationships: [
@@ -1226,8 +1259,15 @@ export type Database = {
       }
       student_profile_extras: {
         Row: {
+          about_me: string | null
           act_score: number | null
+          activities: Json | null
+          awards: Json | null
+          career_goals: string | null
+          class_rank: string | null
+          counselor_notes: string | null
           created_at: string
+          current_school: string | null
           duolingo_score: number | null
           extracurriculars: string | null
           gpa: number | null
@@ -1238,14 +1278,25 @@ export type Database = {
           ielts_score: number | null
           intended_majors: string[]
           notes: string | null
+          onboarded_at: string | null
+          parent_email: string | null
+          parent_name: string | null
+          parent_phone: string | null
           sat_score: number | null
           student_id: string
           toefl_score: number | null
           updated_at: string
         }
         Insert: {
+          about_me?: string | null
           act_score?: number | null
+          activities?: Json | null
+          awards?: Json | null
+          career_goals?: string | null
+          class_rank?: string | null
+          counselor_notes?: string | null
           created_at?: string
+          current_school?: string | null
           duolingo_score?: number | null
           extracurriculars?: string | null
           gpa?: number | null
@@ -1256,14 +1307,25 @@ export type Database = {
           ielts_score?: number | null
           intended_majors?: string[]
           notes?: string | null
+          onboarded_at?: string | null
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
           sat_score?: number | null
           student_id: string
           toefl_score?: number | null
           updated_at?: string
         }
         Update: {
+          about_me?: string | null
           act_score?: number | null
+          activities?: Json | null
+          awards?: Json | null
+          career_goals?: string | null
+          class_rank?: string | null
+          counselor_notes?: string | null
           created_at?: string
+          current_school?: string | null
           duolingo_score?: number | null
           extracurriculars?: string | null
           gpa?: number | null
@@ -1274,6 +1336,10 @@ export type Database = {
           ielts_score?: number | null
           intended_majors?: string[]
           notes?: string | null
+          onboarded_at?: string | null
+          parent_email?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
           sat_score?: number | null
           student_id?: string
           toefl_score?: number | null
@@ -1361,6 +1427,7 @@ export type Database = {
       }
       student_tasks: {
         Row: {
+          college_id: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -1370,10 +1437,12 @@ export type Database = {
           sort_order: number
           status: string
           student_id: string
+          template_key: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          college_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -1383,10 +1452,12 @@ export type Database = {
           sort_order?: number
           status?: string
           student_id: string
+          template_key?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          college_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -1396,10 +1467,18 @@ export type Database = {
           sort_order?: number
           status?: string
           student_id?: string
+          template_key?: string | null
           title?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "student_tasks_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "student_colleges"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "student_tasks_student_id_fkey"
             columns: ["student_id"]
