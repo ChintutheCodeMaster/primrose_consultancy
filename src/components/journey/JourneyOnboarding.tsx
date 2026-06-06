@@ -18,6 +18,7 @@ type Props = {
 const STEPS = ['Welcome', 'About you', 'Academics', 'Interests', 'Family', 'Done'] as const;
 
 export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
+  const terms = getProgramTerms(student.degree_type);
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
 
