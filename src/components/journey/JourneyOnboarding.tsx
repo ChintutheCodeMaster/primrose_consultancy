@@ -167,7 +167,7 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
             )}
 
             {step === 2 && (
-              <Section title="Academics" subtitle="Numbers help us right-size your college list.">
+              <Section title={terms.testSectionTitle} subtitle={terms.academicsSubtitle}>
                 <div className="grid sm:grid-cols-2 gap-3">
                   <Field label="GPA">
                     <Input value={gpa} onChange={(e) => setGpa(e.target.value)} placeholder="3.85" />
@@ -177,16 +177,18 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
                   </Field>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <Field label="SAT score">
-                    <Input value={sat} onChange={(e) => setSat(e.target.value)} placeholder="1450" />
+                  <Field label={terms.test1.label}>
+                    <Input value={sat} onChange={(e) => setSat(e.target.value)} placeholder={terms.test1.placeholder} />
                   </Field>
-                  <Field label="ACT score">
-                    <Input value={act} onChange={(e) => setAct(e.target.value)} placeholder="32" />
+                  <Field label={terms.test2.label}>
+                    <Input value={act} onChange={(e) => setAct(e.target.value)} placeholder={terms.test2.placeholder} />
                   </Field>
                 </div>
-                <Field label="Class rank (optional)">
-                  <Input value={classRank} onChange={(e) => setClassRank(e.target.value)} placeholder="Top 10%" />
-                </Field>
+                {terms.showClassRank && (
+                  <Field label="Class rank (optional)">
+                    <Input value={classRank} onChange={(e) => setClassRank(e.target.value)} placeholder="Top 10%" />
+                  </Field>
+                )}
               </Section>
             )}
 
