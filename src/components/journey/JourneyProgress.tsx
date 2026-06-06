@@ -28,7 +28,7 @@ export function JourneyProgress({
       const [{ data: extras }, { data: colleges }, { data: applied }] = await Promise.all([
         supabase.from('student_profile_extras').select('*').eq('student_id', studentId).maybeSingle(),
         supabase.from('student_colleges').select('id, status, locked_at, submitted_at, essays_status').eq('student_id', studentId),
-        supabase.from('applied_universities').select('id, status').eq('student_id', studentId),
+        supabase.from('applied_universities').select('id, application_status').eq('student_id', studentId),
       ]);
 
       const onboarded = !!extras?.onboarded_at;
@@ -36,9 +36,9 @@ export function JourneyProgress({
       const collegesList = colleges || [];
       const listLocked = collegesList.some((c) => c.locked_at) || collegesList.length >= 6;
       const essaysStarted = collegesList.some((c) => c.essays_status && c.essays_status !== 'not_started');
-      const submitted = (applied || []).filter((a) => ['submitted', 'accepted', 'rejected', 'waitlisted'].includes(a.status));
+      const submitted = (applied || []).filter((a: any) => ['submitted', 'accepted', 'rejected', 'waitlisted'].includes(a.application_status));
       const anySubmitted = submitted.length > 0;
-      const decisionsIn = (applied || []).some((a) => ['accepted', 'rejected', 'waitlisted'].includes(a.status));
+      const decisionsIn = (applied || []).some((a: any) => ['accepted', 'rejected', 'waitlisted'].includes(a.application_status));
       const enrolled = student?.status === 'enrolled' || student?.status === 'graduated';
 
       const raw: Stage[] = [
