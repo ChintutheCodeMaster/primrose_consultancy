@@ -462,7 +462,7 @@ function EventDialog({
       all_day: allDay,
       start_at: new Date(startAt).toISOString(),
       end_at: endAt && !allDay ? new Date(endAt).toISOString() : null,
-      reminder_minutes_before: reminder === '' ? null : Number(reminder),
+      reminder_minutes_before: reminder === 'none' || reminder === '' ? null : Number(reminder),
       created_by: mode,
     };
     const res = editing
