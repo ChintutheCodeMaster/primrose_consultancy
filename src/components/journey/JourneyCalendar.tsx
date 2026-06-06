@@ -74,7 +74,7 @@ const TYPE_META: Record<string, { label: string; color: string; dot: string }> =
 };
 
 const REMINDER_OPTS = [
-  { value: '', label: 'No reminder' },
+  { value: 'none', label: 'No reminder' },
   { value: '0', label: 'At time of event' },
   { value: '10', label: '10 minutes before' },
   { value: '30', label: '30 minutes before' },
@@ -427,7 +427,7 @@ function EventDialog({
       setAllDay(!!editing.all_day);
       setStartAt(toLocalInput(new Date(editing.start_at)));
       setEndAt(editing.end_at ? toLocalInput(new Date(editing.end_at)) : '');
-      setReminder(editing.reminder_minutes_before != null ? String(editing.reminder_minutes_before) : '');
+      setReminder(editing.reminder_minutes_before != null ? String(editing.reminder_minutes_before) : 'none');
     } else {
       const base = new Date(defaultDate);
       base.setHours(10, 0, 0, 0);
@@ -462,7 +462,7 @@ function EventDialog({
       all_day: allDay,
       start_at: new Date(startAt).toISOString(),
       end_at: endAt && !allDay ? new Date(endAt).toISOString() : null,
-      reminder_minutes_before: reminder === '' ? null : Number(reminder),
+      reminder_minutes_before: reminder === 'none' || reminder === '' ? null : Number(reminder),
       created_by: mode,
     };
     const res = editing
