@@ -160,7 +160,7 @@ export default function StudentJourney() {
         <main className="min-w-0">
           <CalendarReminderWatcher studentId={studentId} />
           {section === 'home' && <JourneyHome student={student} studentId={studentId} onNavigate={setSection} />}
-          {section === 'colleges' && <JourneyColleges studentId={studentId} />}
+          {section === 'colleges' && <JourneyColleges studentId={studentId} degreeType={student.degree_type} />}
           {section === 'tasks' && <JourneyTasks studentId={studentId} />}
           {section === 'calendar' && <JourneyCalendar studentId={studentId} mode="student" />}
           {section === 'files' && <JourneyFiles studentId={studentId} mode="student" />}
