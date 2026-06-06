@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getProgramTerms } from '@/lib/programTerms';
 
 const BUCKET_COLOR: Record<string, string> = {
   reach: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
