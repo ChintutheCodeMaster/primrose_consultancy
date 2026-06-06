@@ -246,20 +246,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           Analytics
         </Link>
 
-        {/* Outcomes */}
-        <Link
-          to="/outcomes"
-          onClick={handleClick}
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-            location.pathname.startsWith('/outcomes')
-              ? 'bg-sidebar-accent text-sidebar-primary'
-              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}
-        >
-          <Trophy className="h-5 w-5" />
-          Outcomes
-        </Link>
 
 
         {/* Projects */}

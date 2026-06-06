@@ -29,8 +29,6 @@ import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import StudentJourney from "./pages/StudentJourney";
 import Deadlines from "./pages/Deadlines";
-import Outcomes from "./pages/Outcomes";
-import OutcomesShare from "./pages/OutcomesShare";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 
 const queryClient = new QueryClient();
@@ -71,8 +69,6 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/ai-chat" element={<AiChat />} />
           <Route path="/deadlines" element={<Deadlines />} />
-          <Route path="/outcomes" element={<Outcomes />} />
-          <Route path="/outcomes/share/:token" element={<OutcomesShare />} />
           <Route path="/temp-export" element={<TempExportEmails />} />
           <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
           <Route path="*" element={<NotFound />} />
