@@ -4,10 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
 import { JourneyProgress } from '@/components/journey/JourneyProgress';
+import { getProgramTerms } from '@/lib/programTerms';
 
-const PHASE_LABEL: Record<string, string> = {
+const PHASE_LABEL_BASE: Record<string, string> = {
   discovery: 'Discovery',
-  list: 'Building your list',
   applications: 'Applications',
   decisions: 'Decisions',
 };
