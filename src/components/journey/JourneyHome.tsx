@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
 import { JourneyProgress } from '@/components/journey/JourneyProgress';
+import { JourneyHomeCalendar } from '@/components/journey/JourneyHomeCalendar';
 import { getProgramTerms } from '@/lib/programTerms';
 
 const PHASE_LABEL_BASE: Record<string, string> = {
@@ -76,6 +77,10 @@ export function JourneyHome({
       </div>
 
       <JourneyProgress studentId={studentId} student={student} />
+
+      <JourneyHomeCalendar studentId={studentId} onOpenCalendar={() => onNavigate('calendar')} />
+
+
 
 
 
