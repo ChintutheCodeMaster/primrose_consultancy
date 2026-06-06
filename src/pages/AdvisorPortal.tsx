@@ -944,17 +944,43 @@ export default function AdvisorPortal() {
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => window.open(`/portal/${selectedStudent.id}`, "_blank")}
+                  onClick={async () => {
+                    const { data } = await supabase
+                      .from('student_portal_tokens')
+                      .select('token')
+                      .eq('student_id', selectedStudent.id)
+                      .eq('status', 'active')
+                      .order('created_at', { ascending: false })
+                      .limit(1)
+                      .maybeSingle();
+                    if (!data?.token) {
+                      toast({ title: 'No active link', description: 'Ask the counselor to generate a portal link.', variant: 'destructive' });
+                      return;
+                    }
+                    window.open(`/journey/${data.token}`, '_blank');
+                  }}
                 >
                   <ExternalLink className="h-4 w-4 mr-1" />
                   View Portal
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    const link = `${window.location.origin}/portal/${selectedStudent.id}`;
+                  onClick={async () => {
+                    const { data } = await supabase
+                      .from('student_portal_tokens')
+                      .select('token')
+                      .eq('student_id', selectedStudent.id)
+                      .eq('status', 'active')
+                      .order('created_at', { ascending: false })
+                      .limit(1)
+                      .maybeSingle();
+                    if (!data?.token) {
+                      toast({ title: 'No active link', variant: 'destructive' });
+                      return;
+                    }
+                    const link = `${window.location.origin}/journey/${data.token}`;
                     navigator.clipboard.writeText(link);
-                    toast({ title: "Link copied!" });
+                    toast({ title: 'Link copied!' });
                   }}
                 >
                   Copy Portal Link
