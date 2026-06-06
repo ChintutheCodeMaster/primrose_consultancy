@@ -48,7 +48,7 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
   const finish = async () => {
     setSaving(true);
     try {
-      await supabase
+      const studentUpdate = await supabase
         .from('students')
         .update({
           name: name || student.name,
@@ -58,6 +58,7 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
           graduation_year: graduationYear || null,
         })
         .eq('id', studentId);
+      if (studentUpdate.error) throw studentUpdate.error;
 
       const payload: any = {
         student_id: studentId,
@@ -69,7 +70,9 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
         sat_score: sat ? Number(sat) : null,
         act_score: act ? Number(act) : null,
         class_rank: classRank || null,
-        intended_majors: majors ? majors.split(',').map((m) => m.trim()).filter(Boolean) : null,
+        intended_majors: majors
+          ? majors.split(',').map((m) => m.trim()).filter(Boolean)
+          : [],
         career_goals: careerGoals || null,
         about_me: aboutMe || null,
         parent_name: parentName || null,
@@ -83,15 +86,16 @@ export function JourneyOnboarding({ studentId, student, onComplete }: Props) {
         .eq('student_id', studentId)
         .maybeSingle();
 
-      if (existing) {
-        await supabase.from('student_profile_extras').update(payload).eq('id', existing.id);
-      } else {
-        await supabase.from('student_profile_extras').insert(payload);
-      }
+      const write = existing
+        ? await supabase.from('student_profile_extras').update(payload).eq('id', existing.id)
+        : await supabase.from('student_profile_extras').insert(payload);
+      if (write.error) throw write.error;
+
       toast.success('Welcome aboard!');
       onComplete();
     } catch (e: any) {
-      toast.error('Could not save. Please try again.');
+      console.error('Onboarding save failed:', e);
+      toast.error(e?.message ? `Could not save: ${e.message}` : 'Could not save. Please try again.');
     } finally {
       setSaving(false);
     }
