@@ -27,6 +27,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [countrySelection, setCountrySelection] = useState('');
+  const [customCountry, setCustomCountry] = useState('');
   const [fieldSelection, setFieldSelection] = useState('');
   const [customField, setCustomField] = useState('');
   const [packageCostText, setPackageCostText] = useState('');
