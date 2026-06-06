@@ -124,11 +124,13 @@ function AddCollegeDialog({
   open,
   onOpenChange,
   onAdded,
+  terms,
 }: {
   studentId: string;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onAdded: () => void;
+  terms: ReturnType<typeof getProgramTerms>;
 }) {
   const [name, setName] = useState('');
   const [bucket, setBucket] = useState('target');
@@ -145,7 +147,7 @@ function AddCollegeDialog({
 
   const save = async () => {
     if (!name.trim()) {
-      toast.error('College name is required');
+      toast.error(`${terms.Noun} name is required`);
       return;
     }
     setSaving(true);
@@ -161,7 +163,7 @@ function AddCollegeDialog({
       toast.error(error.message);
       return;
     }
-    toast.success('College added');
+    toast.success(`${terms.Noun} added`);
     reset();
     onOpenChange(false);
     onAdded();
@@ -171,17 +173,17 @@ function AddCollegeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button size="sm" className="gap-1 shrink-0">
-          <Plus className="h-4 w-4" /> Add college
+          <Plus className="h-4 w-4" /> {terms.addLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add a college</DialogTitle>
+          <DialogTitle>Add a {terms.noun}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <Label>College name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Brown University" />
+            <Label>{terms.Noun} name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={terms.namePlaceholder} />
           </div>
           <div>
             <Label>Category</Label>
