@@ -27,6 +27,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
 
   const [sourceSelection, setSourceSelection] = useState('');
   const [customSource, setCustomSource] = useState('');
+  const [countrySelection, setCountrySelection] = useState('');
+  const [customCountry, setCustomCountry] = useState('');
   const [fieldSelection, setFieldSelection] = useState('');
   const [customField, setCustomField] = useState('');
   const [packageCostText, setPackageCostText] = useState('');
@@ -62,20 +64,35 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     return Number.isFinite(n) ? n : 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalSource = sourceSelection === 'Other' ? customSource : sourceSelection;
+    const finalSource = sourceSelection === 'Other' ? customSource.trim() : sourceSelection;
+    const finalCountry = countrySelection === 'Other' ? customCountry.trim() : countrySelection;
     const finalField = fieldSelection;
     
     // Validate source is required
     if (!finalSource.trim()) {
       return;
     }
+
+    // Persist newly-added source / country so they're available next time
+    try {
+      if (sourceSelection === 'Other' && finalSource) {
+        await supabase.from('source_options').insert({ name: finalSource, is_active: true }).select();
+      }
+      if (countrySelection === 'Other' && finalCountry) {
+        await supabase.from('country_options').insert({ name: finalCountry, is_active: true }).select();
+      }
+    } catch (err) {
+      console.warn('Could not save new option (may already exist):', err);
+    }
     
     // Parse numeric values from text fields
     const finalFormData = {
       ...formData,
       source: finalSource,
+      interestedCountry: finalCountry,
+      targetCountry: finalCountry,
       interestedField: finalField,
       packageCost: parseNumber(packageCostText),
       amountPaid: parseNumber(amountPaidText),
@@ -109,6 +126,8 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     });
     setSourceSelection('');
     setCustomSource('');
+    setCountrySelection('');
+    setCustomCountry('');
     setFieldSelection('');
     setCustomField('');
     setPackageCostText('');
@@ -211,16 +230,24 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="interestedCountry">Desired Country</Label>
-              <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v, targetCountry: v })}>
+              <Select value={countrySelection} onValueChange={setCountrySelection}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover z-50">
                   {countryOptions.map((country) => (
                     <SelectItem key={country} value={country}>{country}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {countrySelection === 'Other' && (
+                <Input
+                  placeholder="Enter new country..."
+                  value={customCountry}
+                  onChange={(e) => setCustomCountry(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">Field of Interest</Label>
