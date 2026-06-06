@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Home, GraduationCap, ListChecks, FileText, FlaskConical, ShieldCheck, MessageSquare, User } from 'lucide-react';
+import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JourneyHome } from '@/components/journey/JourneyHome';
 import { JourneyColleges } from '@/components/journey/JourneyColleges';
 import { JourneyTasks } from '@/components/journey/JourneyTasks';
 import { JourneyDocuments } from '@/components/journey/JourneyDocuments';
+import { JourneyFiles } from '@/components/journey/JourneyFiles';
 import { JourneyWritingLab } from '@/components/journey/JourneyWritingLab';
 import { JourneyDetector } from '@/components/journey/JourneyDetector';
 import { JourneyMessages } from '@/components/journey/JourneyMessages';
 import { JourneyProfile } from '@/components/journey/JourneyProfile';
+import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 
-type Section = 'home' | 'colleges' | 'tasks' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
+type Section = 'home' | 'colleges' | 'tasks' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
 
 const NAV: { id: Section; label: string; icon: any }[] = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'colleges', label: 'My Colleges', icon: GraduationCap },
   { id: 'tasks', label: 'Tasks', icon: ListChecks },
-  { id: 'documents', label: 'Documents', icon: FileText },
+  { id: 'files', label: 'Files', icon: FolderArchive },
+  { id: 'documents', label: 'Essays', icon: FileText },
   { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
   { id: 'detector', label: 'AI Detector', icon: ShieldCheck },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
@@ -30,8 +33,18 @@ export default function StudentJourney() {
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [student, setStudent] = useState<any>(null);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [section, setSection] = useState<Section>('home');
   const [invalid, setInvalid] = useState(false);
+
+  const checkOnboarding = async (sid: string) => {
+    const { data } = await supabase
+      .from('student_profile_extras')
+      .select('onboarded_at')
+      .eq('student_id', sid)
+      .maybeSingle();
+    setNeedsOnboarding(!data?.onboarded_at);
+  };
 
   useEffect(() => {
     (async () => {
@@ -63,6 +76,7 @@ export default function StudentJourney() {
         .eq('token', token);
       const { data: s } = await supabase.from('students').select('*').eq('id', sid).maybeSingle();
       setStudent(s);
+      await checkOnboarding(sid);
       setLoading(false);
     })();
   }, [token]);
@@ -77,6 +91,18 @@ export default function StudentJourney() {
 
   if (invalid || !studentId || !student) {
     return <Navigate to="/" replace />;
+  }
+
+  if (needsOnboarding) {
+    return (
+      <JourneyOnboarding
+        studentId={studentId}
+        student={student}
+        onComplete={async () => {
+          await checkOnboarding(studentId);
+        }}
+      />
+    );
   }
 
   const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
@@ -101,7 +127,7 @@ export default function StudentJourney() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
         {/* Left rail */}
         <nav className="lg:sticky lg:top-20 self-start">
-          <div className="grid grid-cols-4 lg:grid-cols-1 gap-1 p-1 rounded-xl bg-card border">
+          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-1 gap-1 p-1 rounded-xl bg-card border">
             {NAV.map((n) => {
               const Icon = n.icon;
               const active = section === n.id;
@@ -129,6 +155,7 @@ export default function StudentJourney() {
           {section === 'home' && <JourneyHome student={student} studentId={studentId} onNavigate={setSection} />}
           {section === 'colleges' && <JourneyColleges studentId={studentId} />}
           {section === 'tasks' && <JourneyTasks studentId={studentId} />}
+          {section === 'files' && <JourneyFiles studentId={studentId} mode="student" />}
           {section === 'documents' && <JourneyDocuments studentId={studentId} />}
           {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
           {section === 'detector' && <JourneyDetector studentId={studentId} />}

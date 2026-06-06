@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
+import { JourneyProgress } from '@/components/journey/JourneyProgress';
 
 const PHASE_LABEL: Record<string, string> = {
   discovery: 'Discovery',
