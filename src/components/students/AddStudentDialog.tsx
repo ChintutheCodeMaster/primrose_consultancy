@@ -230,16 +230,24 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="interestedCountry">Desired Country</Label>
-              <Select value={formData.interestedCountry} onValueChange={(v) => setFormData({ ...formData, interestedCountry: v, targetCountry: v })}>
+              <Select value={countrySelection} onValueChange={setCountrySelection}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover z-50">
                   {countryOptions.map((country) => (
                     <SelectItem key={country} value={country}>{country}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {countrySelection === 'Other' && (
+                <Input
+                  placeholder="Enter new country..."
+                  value={customCountry}
+                  onChange={(e) => setCustomCountry(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="interestedField">Field of Interest</Label>
