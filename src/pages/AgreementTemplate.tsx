@@ -7,74 +7,89 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Save, Loader2, Eye, Package, Clock, Edit3 } from "lucide-react";
+import {
+  FileText,
+  Save,
+  Loader2,
+  Eye,
+  Package,
+  Clock,
+  GraduationCap,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-
-
-type AgreementType = 'package' | 'hourly' | 'edit' | 'mba';
 
 interface AgreementTemplate {
   id: string;
   name: string;
   content: string;
-  type: AgreementType;
+  type: string;
   is_active: boolean;
   updated_at: string;
 }
 
-const agreementTypeConfig: Record<AgreementType, { label: string; icon: typeof Package }> = {
-  package: { label: 'Package', icon: Package },
-  hourly: { label: 'Hourly', icon: Clock },
-  edit: { label: 'Edit', icon: Edit3 },
-  mba: { label: 'MBA', icon: Package },
+// Built-in defaults — always show even if no row exists yet.
+const BUILT_IN: { type: string; label: string }[] = [
+  { type: "package", label: "Package" },
+  { type: "hourly", label: "Hourly" },
+  { type: "mba", label: "MBA" },
+];
+
+const BUILT_IN_TYPES = new Set(BUILT_IN.map((b) => b.type));
+// Legacy/hidden types we don't surface as tabs
+const HIDDEN_TYPES = new Set(["edit"]);
+
+const iconFor = (type: string) => {
+  if (type === "hourly") return Clock;
+  if (type === "mba") return GraduationCap;
+  return Package;
 };
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 40) || `template_${Date.now()}`;
 
 export default function AgreementTemplate() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [templates, setTemplates] = useState<Record<AgreementType, AgreementTemplate | null>>({
-    package: null,
-    hourly: null,
-    edit: null,
-    mba: null,
-  });
+  const [templates, setTemplates] = useState<Record<string, AgreementTemplate | null>>({});
+  const [order, setOrder] = useState<{ type: string; label: string }[]>([]);
+  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
+  const [editedName, setEditedName] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState<string>("package");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<AgreementType | null>(null);
-  const [editedContent, setEditedContent] = useState<Record<AgreementType, string>>({
-    package: '',
-    hourly: '',
-    edit: '',
-    mba: '',
-  });
-  const [editedName, setEditedName] = useState<Record<AgreementType, string>>({
-    package: '',
-    hourly: '',
-    edit: '',
-    mba: '',
-  });
-  const [activeTab, setActiveTab] = useState<AgreementType>('package');
+  const [saving, setSaving] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
-    document.title = 'Agreement Templates | Primrose IEC';
+    document.title = "Agreement Templates | Primrose IEC";
   }, []);
-
-  useEffect(() => {
-    const type = searchParams.get('type');
-    if (type === 'package' || type === 'hourly' || type === 'edit' || type === 'mba') {
-      setActiveTab(type);
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const t = searchParams.get("type");
+    if (t && order.find((o) => o.type === t)) setActiveTab(t);
+  }, [searchParams, order]);
+
   const fetchTemplates = async () => {
-    const { data, error } = await supabase
-      .from("agreement_templates")
-      .select("*")
-      .in("type", ['package', 'hourly', 'edit', 'mba']);
+    const { data, error } = await supabase.from("agreement_templates").select("*");
 
     if (error) {
       toast({
@@ -82,39 +97,48 @@ export default function AgreementTemplate() {
         description: "Failed to load agreement templates",
         variant: "destructive",
       });
-    } else if (data) {
-      const templatesMap: Record<AgreementType, AgreementTemplate | null> = {
-        package: null,
-        hourly: null,
-        edit: null,
-        mba: null,
-      };
-      const contentMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '', mba: '' };
-      const nameMap: Record<AgreementType, string> = { package: '', hourly: '', edit: '', mba: '' };
-
-      data.forEach((t) => {
-        const type = t.type as AgreementType;
-        if (type in templatesMap) {
-          templatesMap[type] = t as AgreementTemplate;
-          contentMap[type] = t.content;
-          nameMap[type] = t.name;
-        }
-      });
-
-      setTemplates(templatesMap);
-      setEditedContent(contentMap);
-      setEditedName(nameMap);
+      setLoading(false);
+      return;
     }
+
+    const tplMap: Record<string, AgreementTemplate | null> = {};
+    const contentMap: Record<string, string> = {};
+    const nameMap: Record<string, string> = {};
+
+    // Seed defaults
+    for (const b of BUILT_IN) {
+      tplMap[b.type] = null;
+      contentMap[b.type] = "";
+      nameMap[b.type] = `${b.label} Agreement`;
+    }
+
+    const extras: { type: string; label: string }[] = [];
+    (data || []).forEach((t: any) => {
+      if (HIDDEN_TYPES.has(t.type)) return;
+      tplMap[t.type] = t;
+      contentMap[t.type] = t.content || "";
+      nameMap[t.type] = t.name || t.type;
+      if (!BUILT_IN_TYPES.has(t.type)) {
+        extras.push({ type: t.type, label: t.name || t.type });
+      }
+    });
+
+    extras.sort((a, b) => a.label.localeCompare(b.label));
+    setOrder([...BUILT_IN, ...extras]);
+    setTemplates(tplMap);
+    setEditedContent(contentMap);
+    setEditedName(nameMap);
     setLoading(false);
   };
 
-  const handleSave = async (type: AgreementType) => {
+  const handleSave = async (type: string) => {
     const template = templates[type];
     setSaving(type);
 
+    const label = order.find((o) => o.type === type)?.label || type;
     const payload = {
-      content: editedContent[type] || '',
-      name: editedName[type] || `${agreementTypeConfig[type].label} Agreement`,
+      content: editedContent[type] || "",
+      name: editedName[type] || label,
       type,
       is_active: true,
       updated_at: new Date().toISOString(),
@@ -133,16 +157,59 @@ export default function AgreementTemplate() {
     } else {
       toast({
         title: "Saved Successfully",
-        description: `${agreementTypeConfig[type].label} agreement template updated`,
+        description: `${label} agreement template updated`,
       });
       fetchTemplates();
     }
     setSaving(null);
   };
 
-
-  const handlePreview = (type: AgreementType) => {
+  const handlePreview = (type: string) => {
     window.open(`/agreement/demo?type=${type}`, "_blank");
+  };
+
+  const handleAdd = async () => {
+    const name = newName.trim();
+    if (!name) {
+      toast({ title: "Name required", description: "Give your template a name.", variant: "destructive" });
+      return;
+    }
+    let type = slugify(name);
+    // ensure unique
+    if (templates[type] || BUILT_IN_TYPES.has(type)) {
+      type = `${type}_${Date.now().toString(36)}`;
+    }
+    const { error } = await supabase.from("agreement_templates").insert({
+      type,
+      name,
+      content: "",
+      is_active: true,
+    });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Template added", description: name });
+    setAddOpen(false);
+    setNewName("");
+    await fetchTemplates();
+    setActiveTab(type);
+    setSearchParams({ type });
+  };
+
+  const handleDelete = async (type: string) => {
+    const template = templates[type];
+    if (!template) return;
+    if (!confirm(`Delete the "${editedName[type]}" template? This cannot be undone.`)) return;
+    const { error } = await supabase.from("agreement_templates").delete().eq("id", template.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Template deleted" });
+    setActiveTab("package");
+    setSearchParams({ type: "package" });
+    fetchTemplates();
   };
 
   if (loading) {
@@ -158,52 +225,70 @@ export default function AgreementTemplate() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Agreement Templates</h1>
+              <p className="text-sm text-muted-foreground">
+                Edit your engagement agreement templates. Click any tab to edit it directly.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Agreement Templates</h1>
-            <p className="text-sm text-muted-foreground">
-              Edit the various agreement templates - Package, Hourly, and Edit
-            </p>
-          </div>
+          <Button onClick={() => setAddOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" /> Add template
+          </Button>
         </div>
 
         <Tabs
           value={activeTab}
           onValueChange={(v) => {
-            const next = v as AgreementType;
-            setActiveTab(next);
-            setSearchParams({ type: next });
+            setActiveTab(v);
+            setSearchParams({ type: v });
           }}
         >
-          <TabsList className="grid w-full grid-cols-4">
-            {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
-              const config = agreementTypeConfig[type];
-              const Icon = config.icon;
+          <TabsList
+            className="w-full flex flex-wrap gap-1 h-auto justify-start"
+          >
+            {order.map((o) => {
+              const Icon = iconFor(o.type);
               return (
-                <TabsTrigger key={type} value={type} className="gap-2">
+                <TabsTrigger key={o.type} value={o.type} className="gap-2">
                   <Icon className="h-4 w-4" />
-                  {config.label}
+                  {o.label}
                 </TabsTrigger>
               );
             })}
           </TabsList>
 
-          {(Object.keys(agreementTypeConfig) as AgreementType[]).map((type) => {
+          {order.map((o) => {
+            const type = o.type;
             const template = templates[type];
-            const config = agreementTypeConfig[type];
+            const Icon = iconFor(type);
+            const isCustom = !BUILT_IN_TYPES.has(type);
 
             return (
               <TabsContent key={type} value={type}>
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+                  <CardHeader className="flex flex-row items-center justify-between border-b pb-4 gap-2 flex-wrap">
                     <CardTitle className="flex items-center gap-2">
-                      <config.icon className="h-5 w-5 text-primary" />
-                      {config.label} Agreement
+                      <Icon className="h-5 w-5 text-primary" />
+                      {editedName[type] || o.label}
                     </CardTitle>
                     <div className="flex gap-2">
+                      {isCustom && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(type)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" onClick={() => handlePreview(type)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Preview
@@ -223,9 +308,9 @@ export default function AgreementTemplate() {
                       <Label htmlFor={`name-${type}`}>Template Name</Label>
                       <Input
                         id={`name-${type}`}
-                        value={editedName[type]}
-                        placeholder={`${config.label} Agreement`}
-                        onChange={(e) => setEditedName(prev => ({ ...prev, [type]: e.target.value }))}
+                        value={editedName[type] || ""}
+                        placeholder={`${o.label} Agreement`}
+                        onChange={(e) => setEditedName((prev) => ({ ...prev, [type]: e.target.value }))}
                         className="max-w-md"
                       />
                     </div>
@@ -236,8 +321,10 @@ export default function AgreementTemplate() {
                         Add text, headings, lists, and formatting. Click Save to publish this template.
                       </p>
                       <RichTextEditor
-                        content={editedContent[type]}
-                        onChange={(content) => setEditedContent(prev => ({ ...prev, [type]: content }))}
+                        content={editedContent[type] || ""}
+                        onChange={(content) =>
+                          setEditedContent((prev) => ({ ...prev, [type]: content }))
+                        }
                       />
                     </div>
 
@@ -247,7 +334,7 @@ export default function AgreementTemplate() {
                       </p>
                     ) : (
                       <p className="text-sm text-muted-foreground pt-4 border-t">
-                        New template — write your {config.label.toLowerCase()} agreement above and click Save.
+                        New template — write your {o.label.toLowerCase()} agreement above and click Save.
                       </p>
                     )}
                   </CardContent>
@@ -257,6 +344,34 @@ export default function AgreementTemplate() {
           })}
         </Tabs>
       </div>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add agreement template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div>
+              <Label>Template name</Label>
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="e.g. Test Prep, College Counseling, PhD"
+                autoFocus
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                You'll be able to edit the content right after creating it.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAdd}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
