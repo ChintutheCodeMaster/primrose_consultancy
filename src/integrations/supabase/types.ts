@@ -821,6 +821,62 @@ export type Database = {
           },
         ]
       }
+      student_calendar_events: {
+        Row: {
+          all_day: boolean
+          created_at: string
+          created_by: string
+          description: string | null
+          end_at: string | null
+          event_type: string
+          id: string
+          location: string | null
+          reminder_minutes_before: number | null
+          start_at: string
+          student_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_at?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          reminder_minutes_before?: number | null
+          start_at: string
+          student_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_at?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          reminder_minutes_before?: number | null
+          start_at?: string
+          student_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_calendar_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_checklist_items: {
         Row: {
           created_at: string
