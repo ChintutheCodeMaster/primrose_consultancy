@@ -31,9 +31,10 @@ const BUCKET_COLOR: Record<string, string> = {
   safety: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 };
 
-export function JourneyColleges({ studentId }: { studentId: string }) {
+export function JourneyColleges({ studentId, degreeType }: { studentId: string; degreeType?: string | null }) {
   const [colleges, setColleges] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const terms = getProgramTerms(degreeType);
 
   const load = async () => {
     const { data } = await supabase
@@ -57,24 +58,22 @@ export function JourneyColleges({ studentId }: { studentId: string }) {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">My Colleges</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Your working list, organized by reach. Add schools you're considering — your consultant
-            will see them too.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{terms.sectionTitle}</h1>
+          <p className="text-muted-foreground mt-1 text-sm">{terms.listSubtitle}</p>
         </div>
         <AddCollegeDialog
           studentId={studentId}
           open={open}
           onOpenChange={setOpen}
           onAdded={load}
+          terms={terms}
         />
       </div>
 
       {colleges.length === 0 && (
         <Card>
           <CardContent className="p-6 text-sm text-muted-foreground">
-            No colleges yet — add your first one above.
+            No {terms.nounPlural} yet — add your first one above.
           </CardContent>
         </Card>
       )}
