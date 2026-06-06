@@ -73,6 +73,10 @@ export function JourneyHome({
         </p>
       </div>
 
+      <JourneyProgress studentId={studentId} student={student} />
+
+
+
       {/* Next actions */}
       <Card>
         <CardContent className="p-5">
