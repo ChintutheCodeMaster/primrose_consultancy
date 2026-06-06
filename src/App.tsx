@@ -29,8 +29,6 @@ import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import StudentJourney from "./pages/StudentJourney";
 import Deadlines from "./pages/Deadlines";
-import Outcomes from "./pages/Outcomes";
-import OutcomesShare from "./pages/OutcomesShare";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 
 const queryClient = new QueryClient();
