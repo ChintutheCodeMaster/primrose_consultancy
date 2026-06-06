@@ -119,7 +119,7 @@ export function JourneyHome({
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">Upcoming deadlines</h2>
             <Button variant="ghost" size="sm" onClick={() => onNavigate('colleges')}>
-              All colleges <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              All {terms.nounPlural} <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </div>
           {upcoming.length === 0 ? (
