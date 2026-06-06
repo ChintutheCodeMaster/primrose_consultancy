@@ -15,12 +15,13 @@ import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
+import { getProgramTerms } from '@/lib/programTerms';
 
 type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
 
-const NAV: { id: Section; label: string; icon: any }[] = [
+const buildNav = (collegesLabel: string): { id: Section; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
-  { id: 'colleges', label: 'My Colleges', icon: GraduationCap },
+  { id: 'colleges', label: collegesLabel, icon: GraduationCap },
   { id: 'tasks', label: 'Tasks', icon: ListChecks },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'files', label: 'Files', icon: FolderArchive },
@@ -109,6 +110,8 @@ export default function StudentJourney() {
   }
 
   const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
+  const terms = getProgramTerms(student.degree_type);
+  const NAV = buildNav(terms.navLabel);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
@@ -157,7 +160,7 @@ export default function StudentJourney() {
         <main className="min-w-0">
           <CalendarReminderWatcher studentId={studentId} />
           {section === 'home' && <JourneyHome student={student} studentId={studentId} onNavigate={setSection} />}
-          {section === 'colleges' && <JourneyColleges studentId={studentId} />}
+          {section === 'colleges' && <JourneyColleges studentId={studentId} degreeType={student.degree_type} />}
           {section === 'tasks' && <JourneyTasks studentId={studentId} />}
           {section === 'calendar' && <JourneyCalendar studentId={studentId} mode="student" />}
           {section === 'files' && <JourneyFiles studentId={studentId} mode="student" />}

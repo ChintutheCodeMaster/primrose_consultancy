@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, Circle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getProgramTerms } from '@/lib/programTerms';
 
 type Stage = {
   key: string;
@@ -25,6 +26,7 @@ export function JourneyProgress({
 
   useEffect(() => {
     (async () => {
+      const terms = getProgramTerms(student?.degree_type);
       const [{ data: extras }, { data: colleges }, { data: applied }] = await Promise.all([
         supabase.from('student_profile_extras').select('*').eq('student_id', studentId).maybeSingle(),
         supabase.from('student_colleges').select('id, status, locked_at, submitted_at, essays_status').eq('student_id', studentId),
@@ -44,7 +46,7 @@ export function JourneyProgress({
       const raw: Stage[] = [
         { key: 'onboarding', label: 'Onboarded', status: onboarded ? 'done' : 'active' },
         { key: 'profile', label: 'Profile complete', status: profileComplete ? 'done' : onboarded ? 'active' : 'todo' },
-        { key: 'list', label: 'College list', status: listLocked ? 'done' : profileComplete ? 'active' : 'todo' },
+        { key: 'list', label: terms.listStageLabel, status: listLocked ? 'done' : profileComplete ? 'active' : 'todo' },
         { key: 'essays', label: 'Essays', status: essaysStarted ? (anySubmitted ? 'done' : 'active') : listLocked ? 'active' : 'todo' },
         { key: 'submitted', label: 'Applications', status: anySubmitted ? 'done' : essaysStarted ? 'active' : 'todo' },
         { key: 'decisions', label: 'Decisions', status: decisionsIn ? 'done' : anySubmitted ? 'active' : 'todo' },

@@ -4,10 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
 import { JourneyProgress } from '@/components/journey/JourneyProgress';
+import { getProgramTerms } from '@/lib/programTerms';
 
-const PHASE_LABEL: Record<string, string> = {
+const PHASE_LABEL_BASE: Record<string, string> = {
   discovery: 'Discovery',
-  list: 'Building your list',
   applications: 'Applications',
   decisions: 'Decisions',
 };
@@ -62,6 +62,8 @@ export function JourneyHome({
     .slice(0, 4);
 
   const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
+  const terms = getProgramTerms(student.degree_type);
+  const PHASE_LABEL: Record<string, string> = { ...PHASE_LABEL_BASE, list: terms.listPhaseLabel };
   const phase = PHASE_LABEL[student.phase] || PHASE_LABEL.discovery;
 
   return (
@@ -117,7 +119,7 @@ export function JourneyHome({
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">Upcoming deadlines</h2>
             <Button variant="ghost" size="sm" onClick={() => onNavigate('colleges')}>
-              All colleges <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              All {terms.nounPlural} <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </div>
           {upcoming.length === 0 ? (

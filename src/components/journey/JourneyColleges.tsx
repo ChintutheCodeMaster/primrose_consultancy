@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getProgramTerms } from '@/lib/programTerms';
 
 const BUCKET_COLOR: Record<string, string> = {
   reach: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
@@ -30,9 +31,10 @@ const BUCKET_COLOR: Record<string, string> = {
   safety: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
 };
 
-export function JourneyColleges({ studentId }: { studentId: string }) {
+export function JourneyColleges({ studentId, degreeType }: { studentId: string; degreeType?: string | null }) {
   const [colleges, setColleges] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const terms = getProgramTerms(degreeType);
 
   const load = async () => {
     const { data } = await supabase
@@ -56,24 +58,22 @@ export function JourneyColleges({ studentId }: { studentId: string }) {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">My Colleges</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Your working list, organized by reach. Add schools you're considering — your consultant
-            will see them too.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{terms.sectionTitle}</h1>
+          <p className="text-muted-foreground mt-1 text-sm">{terms.listSubtitle}</p>
         </div>
         <AddCollegeDialog
           studentId={studentId}
           open={open}
           onOpenChange={setOpen}
           onAdded={load}
+          terms={terms}
         />
       </div>
 
       {colleges.length === 0 && (
         <Card>
           <CardContent className="p-6 text-sm text-muted-foreground">
-            No colleges yet — add your first one above.
+            No {terms.nounPlural} yet — add your first one above.
           </CardContent>
         </Card>
       )}
@@ -124,11 +124,13 @@ function AddCollegeDialog({
   open,
   onOpenChange,
   onAdded,
+  terms,
 }: {
   studentId: string;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onAdded: () => void;
+  terms: ReturnType<typeof getProgramTerms>;
 }) {
   const [name, setName] = useState('');
   const [bucket, setBucket] = useState('target');
@@ -145,7 +147,7 @@ function AddCollegeDialog({
 
   const save = async () => {
     if (!name.trim()) {
-      toast.error('College name is required');
+      toast.error(`${terms.Noun} name is required`);
       return;
     }
     setSaving(true);
@@ -161,7 +163,7 @@ function AddCollegeDialog({
       toast.error(error.message);
       return;
     }
-    toast.success('College added');
+    toast.success(`${terms.Noun} added`);
     reset();
     onOpenChange(false);
     onAdded();
@@ -171,17 +173,17 @@ function AddCollegeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button size="sm" className="gap-1 shrink-0">
-          <Plus className="h-4 w-4" /> Add college
+          <Plus className="h-4 w-4" /> {terms.addLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add a college</DialogTitle>
+          <DialogTitle>Add a {terms.noun}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
           <div>
-            <Label>College name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Brown University" />
+            <Label>{terms.Noun} name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={terms.namePlaceholder} />
           </div>
           <div>
             <Label>Category</Label>
