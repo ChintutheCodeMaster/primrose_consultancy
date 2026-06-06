@@ -15,12 +15,13 @@ import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
+import { getProgramTerms } from '@/lib/programTerms';
 
 type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
 
-const NAV: { id: Section; label: string; icon: any }[] = [
+const buildNav = (collegesLabel: string): { id: Section; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
-  { id: 'colleges', label: 'My Colleges', icon: GraduationCap },
+  { id: 'colleges', label: collegesLabel, icon: GraduationCap },
   { id: 'tasks', label: 'Tasks', icon: ListChecks },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'files', label: 'Files', icon: FolderArchive },
