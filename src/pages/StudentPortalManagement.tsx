@@ -14,6 +14,8 @@ import { StudentApplicantProfile } from "@/components/students/StudentApplicantP
 import { StudentCollegeList } from "@/components/students/StudentCollegeList";
 import { StudentStrategistPanel } from "@/components/students/StudentStrategistPanel";
 import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
+import { JourneyProgress } from "@/components/journey/JourneyProgress";
+import { JourneyFiles } from "@/components/journey/JourneyFiles";
 import { 
   ArrowRight, 
   Plus, 
@@ -269,10 +271,38 @@ export default function StudentPortalManagement() {
     }
   };
 
-  const copyPortalLink = () => {
-    const link = `${window.location.origin}/portal/${studentId}`;
+  const copyPortalLink = async () => {
+    const { data } = await supabase
+      .from('student_portal_tokens')
+      .select('token')
+      .eq('student_id', studentId!)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data?.token) {
+      toast({ title: 'No active link', description: 'Generate a portal link first (see panel below).', variant: 'destructive' });
+      return;
+    }
+    const link = `${window.location.origin}/journey/${data.token}`;
     navigator.clipboard.writeText(link);
-    toast({ title: "Link copied!", description: "Candidate portal link copied to clipboard" });
+    toast({ title: "Link copied!", description: "Student portal link copied to clipboard" });
+  };
+
+  const openPortal = async () => {
+    const { data } = await supabase
+      .from('student_portal_tokens')
+      .select('token')
+      .eq('student_id', studentId!)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data?.token) {
+      toast({ title: 'No active link', description: 'Generate a portal link first.', variant: 'destructive' });
+      return;
+    }
+    window.open(`/journey/${data.token}`, '_blank');
   };
 
   if (loading) {
@@ -301,14 +331,25 @@ export default function StudentPortalManagement() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={copyPortalLink}>
-              <ExternalLink className="h-4 w-4 mr-2" /> {/* Changed ml-2 to mr-2 for LTR */}
+              <ExternalLink className="h-4 w-4 mr-2" />
               Copy Portal Link
             </Button>
-            <Button variant="outline" onClick={() => window.open(`/portal/${studentId}`, "_blank")}>
+            <Button variant="outline" onClick={openPortal}>
               View Portal
             </Button>
           </div>
         </div>
+
+        {/* Progress bar (counselor view) */}
+        <JourneyProgress studentId={studentId!} student={student} />
+
+        {/* File exchange — same component the student sees */}
+        <Card>
+          <CardContent className="p-5">
+            <JourneyFiles studentId={studentId!} mode="counselor" />
+          </CardContent>
+        </Card>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Checklist Management */}

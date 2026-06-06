@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Copy, RefreshCw, Link as LinkIcon, ShieldOff, Loader2 } from 'lucide-react';
+import { Copy, RefreshCw, Link as LinkIcon, ShieldOff, Loader2, Mail, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 function genToken() {
@@ -73,6 +73,20 @@ export function StudentJourneyTokenPanel({ studentId }: { studentId: string }) {
     toast.success('Link copied');
   };
 
+  const emailLink = () => {
+    if (!url) return;
+    const subject = encodeURIComponent('Your private student portal');
+    const body = encodeURIComponent(
+      `Hi,\n\nHere is your private portal link. Keep it confidential:\n\n${url}\n\nIt is where we'll exchange documents, track your application progress, and stay in touch.\n\nTalk soon.`,
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
+
+  const openPortal = () => {
+    if (!url) return;
+    window.open(url, '_blank');
+  };
+
   return (
     <Card>
       <CardContent className="p-5 space-y-3">
@@ -103,7 +117,13 @@ export function StudentJourneyTokenPanel({ studentId }: { studentId: string }) {
               {token.last_seen_at && <span>Last opened: {new Date(token.last_seen_at).toLocaleString()}</span>}
               {!token.last_seen_at && <span>Not opened yet</span>}
             </div>
-            <div className="flex gap-2 pt-1">
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button size="sm" variant="outline" onClick={emailLink} className="gap-1">
+                <Mail className="h-3 w-3" /> Email link
+              </Button>
+              <Button size="sm" variant="outline" onClick={openPortal} className="gap-1">
+                <ExternalLink className="h-3 w-3" /> Open
+              </Button>
               <Button size="sm" variant="outline" onClick={rotate} className="gap-1">
                 <RefreshCw className="h-3 w-3" /> Rotate
               </Button>

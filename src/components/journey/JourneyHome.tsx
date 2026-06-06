@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
+import { JourneyProgress } from '@/components/journey/JourneyProgress';
 
 const PHASE_LABEL: Record<string, string> = {
   discovery: 'Discovery',
@@ -71,6 +72,10 @@ export function JourneyHome({
           You're in the <span className="font-medium text-foreground">{phase}</span> phase. Here's what's next.
         </p>
       </div>
+
+      <JourneyProgress studentId={studentId} student={student} />
+
+
 
       {/* Next actions */}
       <Card>
