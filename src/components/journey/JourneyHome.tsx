@@ -62,6 +62,8 @@ export function JourneyHome({
     .slice(0, 4);
 
   const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
+  const terms = getProgramTerms(student.degree_type);
+  const PHASE_LABEL: Record<string, string> = { ...PHASE_LABEL_BASE, list: terms.listPhaseLabel };
   const phase = PHASE_LABEL[student.phase] || PHASE_LABEL.discovery;
 
   return (
