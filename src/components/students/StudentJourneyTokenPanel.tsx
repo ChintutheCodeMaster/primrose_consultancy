@@ -117,7 +117,13 @@ export function StudentJourneyTokenPanel({ studentId }: { studentId: string }) {
               {token.last_seen_at && <span>Last opened: {new Date(token.last_seen_at).toLocaleString()}</span>}
               {!token.last_seen_at && <span>Not opened yet</span>}
             </div>
-            <div className="flex gap-2 pt-1">
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button size="sm" variant="outline" onClick={emailLink} className="gap-1">
+                <Mail className="h-3 w-3" /> Email link
+              </Button>
+              <Button size="sm" variant="outline" onClick={openPortal} className="gap-1">
+                <ExternalLink className="h-3 w-3" /> Open
+              </Button>
               <Button size="sm" variant="outline" onClick={rotate} className="gap-1">
                 <RefreshCw className="h-3 w-3" /> Rotate
               </Button>
