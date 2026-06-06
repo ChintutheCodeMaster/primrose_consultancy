@@ -14,7 +14,7 @@ import PastAdvisors from "./pages/PastAdvisors";
 import Agreement from "./pages/Agreement";
 import AgreementPreview from "./pages/AgreementPreview";
 import AgreementTemplate from "./pages/AgreementTemplate";
-import StudentPortal from "./pages/StudentPortal";
+
 import StudentPortalManagement from "./pages/StudentPortalManagement";
 import AdvisorPortal from "./pages/AdvisorPortal";
 import DidNotContinue from "./pages/DidNotContinue";
@@ -44,7 +44,7 @@ const App = () => (
           {/* Public pages - outside PasswordGate */}
           <Route path="/agreement/:studentId" element={<Agreement />} />
           <Route path="/agreement/demo" element={<AgreementPreview />} />
-          <Route path="/portal/:studentId" element={<StudentPortal />} />
+          
           <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
           <Route path="/journey/:token" element={<StudentJourney />} />
           

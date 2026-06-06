@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Copy, RefreshCw, Link as LinkIcon, ShieldOff, Loader2 } from 'lucide-react';
+import { Copy, RefreshCw, Link as LinkIcon, ShieldOff, Loader2, Mail, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 function genToken() {
@@ -71,6 +71,20 @@ export function StudentJourneyTokenPanel({ studentId }: { studentId: string }) {
     if (!url) return;
     navigator.clipboard.writeText(url);
     toast.success('Link copied');
+  };
+
+  const emailLink = () => {
+    if (!url) return;
+    const subject = encodeURIComponent('Your private student portal');
+    const body = encodeURIComponent(
+      `Hi,\n\nHere is your private portal link. Keep it confidential:\n\n${url}\n\nIt is where we'll exchange documents, track your application progress, and stay in touch.\n\nTalk soon.`,
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
+
+  const openPortal = () => {
+    if (!url) return;
+    window.open(url, '_blank');
   };
 
   return (
