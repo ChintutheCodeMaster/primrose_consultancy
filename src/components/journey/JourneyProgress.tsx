@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, Circle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getProgramTerms } from '@/lib/programTerms';
 
 type Stage = {
   key: string;
