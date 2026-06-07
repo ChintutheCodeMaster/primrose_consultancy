@@ -7,7 +7,7 @@ import { NeedsAttention } from './NeedsAttention';
 import { TopUniversities } from './TopUniversities';
 import { usePracticeHealth } from '@/hooks/usePracticeHealth';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, Sparkles } from 'lucide-react';
+import { LayoutGrid, Sparkles, Trophy } from 'lucide-react';
 
 export function CommandCenter() {
   const { data } = usePracticeHealth();
@@ -42,6 +42,12 @@ export function CommandCenter() {
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Command Center</h1>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <Link to="/outcomes">
+                <Trophy className="mr-1.5 h-4 w-4" />
+                Outcomes
+              </Link>
+            </Button>
             <Button asChild variant="outline" size="sm">
               <Link to="/ai-chat">
                 <Sparkles className="mr-1.5 h-4 w-4" />

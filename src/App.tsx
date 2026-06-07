@@ -32,6 +32,7 @@ import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
 import Demo from "./pages/Demo";
+import Outcomes from "./pages/Outcomes";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/app" element={<Index />} />
           <Route path="/classic-dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/outcomes" element={<Outcomes />} />
           <Route path="/leads/:year" element={<Leads />} />
             <Route path="/students" element={<Students />} />
             <Route path="/onboarding/new-student" element={<OnboardingWizard />} />

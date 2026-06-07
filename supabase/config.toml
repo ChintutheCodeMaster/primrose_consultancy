@@ -2,3 +2,6 @@ project_id = "ecutyfrcqpwdnvtzxtaq"
 
 [functions.ai-daily-brief]
 verify_jwt = false
+
+[functions.ask-rose-outcomes]
+verify_jwt = false
