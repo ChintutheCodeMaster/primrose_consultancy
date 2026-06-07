@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
 import { JourneyProgress } from '@/components/journey/JourneyProgress';
 import { JourneyHomeCalendar } from '@/components/journey/JourneyHomeCalendar';
+import { ActivityFeed } from '@/components/workspace/ActivityFeed';
+import { SharedNotepad } from '@/components/workspace/SharedNotepad';
+import { WorkspacePresence } from '@/components/workspace/WorkspacePresence';
 import { getProgramTerms } from '@/lib/programTerms';
 
 const PHASE_LABEL_BASE: Record<string, string> = {
