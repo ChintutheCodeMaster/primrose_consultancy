@@ -44,7 +44,16 @@ export function OutcomesHeatmap({ universities, cohorts, cells }: Props) {
   );
 
   return (
-    <div className="overflow-x-auto rounded-2xl border bg-card p-4">
+    <div className="relative overflow-x-auto rounded-2xl border bg-card p-4">
+      {isDemo && (
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-dashed border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2.5">
+          <div className="flex items-center gap-2 text-xs font-medium text-emerald-900">
+            <Sparkles className="h-3.5 w-3.5" />
+            Sample preview — your real acceptances will replace this as students get in.
+          </div>
+          <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">Demo</span>
+        </div>
+      )}
       <table className="w-full border-separate border-spacing-1 text-sm">
         <thead>
           <tr>
