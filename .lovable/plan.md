@@ -1,100 +1,70 @@
-# Student Portal v2 — Counselor ↔ Student Workspace
 
-## Goal
-Turn the existing `/journey/:token` (student side) and `/student-portal/:studentId` (counselor side) into the single working hub for the admissions cycle: link generation → onboarding → profile → document exchange → progress tracking → ongoing conversation.
+# Primrose IEC → "Shopify for IECs" — Same-Day Build
 
-Keep magic-link auth (Phase 2 will add real auth). Retire the older duplicate `/portal/:studentId`.
+Build all of Phase A in this session, in order. Each step is a self-contained milestone you can preview immediately.
 
 ---
 
-## 1. Link generation (counselor side)
-Already exists in `StudentJourneyTokenPanel` + `student_portal_tokens` table. Polish:
-- Move "Generate portal link" to a prominent button on the **student detail page** (currently buried under `/student-portal/:id`).
-- Add: copy link, email link (mailto), revoke, regenerate, last-accessed timestamp, expiry date control.
-- Auto-create a token the moment a lead is converted to a student, so no extra click is needed.
+## Step 1 — Visual refresh (foundation)
+- Update `src/index.css` design tokens: warmer neutrals, deep emerald accent, refined shadows, larger heading scale, tabular-nums for numbers.
+- Update `tailwind.config.ts` to expose the new tokens.
+- Refresh `StatCard` and chart palette to match.
+- Brand the AI as **"Rose"** (avatar + name used everywhere).
 
-## 2. Student onboarding (first visit)
-New `JourneyOnboarding` step that runs the first time a token is opened and `student_profile_extras.onboarded_at` is null. Single multi-step form that writes to `students` + `student_profile_extras`:
-1. Confirm name, email, phone, graduation year, current school
-2. Academic snapshot — GPA, test scores (SAT/ACT/AP/IB), class rank
-3. Interests — fields of study (multi), target countries (multi), career goals (free text)
-4. Activities & awards (repeatable rows)
-5. Family info — parent name/email/phone (used later for parent CC)
-6. Consent + "Let's begin"
+## Step 2 — DB migration (single call, everything Phase A needs)
+- `daily_briefs` (date, brief_json, generated_at) — cache AI briefs per day.
+- `practice_settings` (practice_name, logo_url, brand_color, tagline) — used in PDFs + portal.
+- `demo_seed` boolean column on `students`, `leads`, `advisors` — lets us seed and reset demo data.
+- `university_logos` (name, logo_url, color) — for Acceptance Wall tiles.
+- GRANTs + RLS on all new tables.
 
-On finish: mark onboarded, send counselor a notification in their dashboard "Attention" section.
+## Step 3 — Command Center (`/app` home)
+Replace `pages/Index.tsx` body with `CommandCenter`:
+- `AIDailyBrief` — calls new `ai-daily-brief` edge function (gemini-2.5-flash), cached daily.
+- `PracticeHealthCards` — Pipeline $, Collected MTD, Active students, Acceptances YTD, each with sparkline.
+- `AcceptanceWall` — animated mosaic of every acceptance (logo tile or initials + color). The signature moment.
+- `NeedsAttention` — cold leads, missing docs, upcoming deadlines, unpaid invoices.
+- `RecentWinsTicker` — scrolling line of latest acceptances/payments.
 
-## 3. Student profile (always-on)
-Replace today's thin `JourneyProfile` with a real profile dashboard. Two views of the same data:
-- **Student view** — editable cards (Academic, Interests, Activities, Family, About me, Essays-in-progress).
-- **Counselor view** — same cards read-only with an "Edit on behalf" toggle and an internal-notes panel only the counselor sees (`student_profile_extras.counselor_notes`).
+Reusable hooks: `usePracticeHealth`, `useAcceptances`, `useAttentionItems`.
 
-## 4. Progress bar / admissions cycle tracker
-New `JourneyProgress` component shown at top of student Home and counselor portal:
-- Cycle stages: Onboarding → Profile complete → College list locked → Essays in progress → Applications submitted → Decisions in → Enrolled.
-- Each stage computed from real data (e.g. "College list locked" = `student_colleges.locked_at` set; "Applications submitted" = % of `applied_universities` with status submitted).
-- Visual: segmented bar + % complete + "next action" CTA.
-- Per-college mini-progress (essays done / recs in / submitted / decision) on the college list rows.
+## Step 4 — Demo entry (`/demo`)
+- Public page with 3 cards: "Enter as Consultant", "Enter as Student", "Enter as Parent".
+- Seed script (one-time button on the demo page, idempotent) inserts a fictional "Bright Path Advisors" practice: 30 students, 8 acceptances, 5 leads, 1 signed agreement, journey events. All tagged `demo_seed=true`.
+- "Reset demo data" button.
+- Demo banner persists across routes when in demo mode.
 
-## 5. Document exchange
-Upgrade `JourneyDocuments` (uses `student_documents_v2` + Storage bucket `student-portal-docs`):
-- Folders: Application docs, Essays, Transcripts, Recommendations, Financial aid, Acceptance letters, Other.
-- Both sides can upload, download, rename, delete own uploads, mark "needs counselor review" / "approved".
-- Versioning already supported by `student_document_versions` — surface a version dropdown + diff date.
-- Threaded comments per document via `student_document_comments`.
-- Counselor can "request a document" → creates a placeholder row + task for the student.
+## Step 5 — Outcomes Intelligence (`/outcomes`)
+- `OutcomesHeatmap` — students × universities matrix, colored by status.
+- `CohortFunnel` — applied → accepted → enrolled per graduation year, with $ROI bar.
+- `BenchmarkCards` — pulls from existing `benchmark_percentiles` ("78th percentile on top-30 acceptances").
+- "Compare two students" side-by-side panel.
+- "Download Outcomes Report" button → calls new `generate-practice-outcomes-pdf` edge function.
 
-## 6. Messages
-Keep `JourneyMessages` (`student_messages`) but add:
-- File attachments (reuse the doc bucket)
-- Unread badge on both sides
-- Realtime via `ALTER PUBLICATION supabase_realtime ADD TABLE public.student_messages`
-- Optional parent CC (uses parent email from onboarding)
+## Step 6 — AI Strategist upgrades
+- `CollegeListAuditor` on each student page → `college-list-auditor` edge function (gemini-2.5-pro) returns reach/target/likely balance + 3 suggestions. Stored in `student_strategy_reviews`.
+- `EssayCoachPanel` in `JourneyWritingLab` → streaming "Ask Rose" sidebar with 3 quick actions (stronger opening, tighten paragraph, tone check).
+- "Generate Strategy Memo" button on student page → `generate-strategy-memo` edge function returns a 1-page PDF.
 
-## 7. Tasks / checklist
-Keep `JourneyTasks` + `student_tasks`. Add:
-- Counselor task templates (e.g. "Common App essay draft 1", "Request transcript") that can be applied per-student or per-college.
-- Due-date reminders shown on student Home and counselor dashboard "Attention" section.
-
-## 8. Counselor-side workspace (`/student-portal/:studentId`)
-Reorganize `StudentPortalManagement.tsx` into tabs that mirror the student's view 1-to-1, plus a "Token & access" tab. Today it's a long scroll; tabs = Overview / Profile / Colleges / Documents / Messages / Tasks / Access.
-
-## 9. Cleanup
-- Delete `src/pages/StudentPortal.tsx` and its `/portal/:studentId` route (duplicate of `/journey`).
-- Remove the old route from `App.tsx` and any sidebar/menu references.
+## Step 7 — Polish + verify
+- Make sure every new page is responsive (overflow-x-hidden, vertical stacking on mobile).
+- Add sidebar entries: "Command Center" (replaces Dashboard), "Outcomes".
+- Smoke-test the `/demo` flow end-to-end.
+- Update memory index with the new architecture pieces.
 
 ---
 
-## Technical section
+## What I'll skip today (still Phase B/C)
+- Multi-tenant auth/orgs (Phase 2 of existing pivot plan).
+- Marketplace/playbooks, in-app payments, public IEC profile pages.
+- Real cross-IEC benchmark data (we use the existing seed percentiles as placeholder).
 
-### Schema changes (one migration)
-- `student_profile_extras`: add `onboarded_at timestamptz`, `counselor_notes text`, `parent_name text`, `parent_email text`, `parent_phone text`, `activities jsonb`, `awards jsonb`, `career_goals text`, `about_me text`.
-- `student_colleges`: add `locked_at timestamptz`, `essays_status text`, `recs_status text`.
-- `student_documents_v2`: add `folder text default 'other'`, `review_status text default 'none'` (none / requested / approved), `requested_by text`.
-- `student_messages`: add `attachment_path text`, `read_at timestamptz`, `cc_parent boolean default false`.
-- `student_tasks`: add `template_key text`, `college_id uuid references student_colleges(id) on delete set null`.
-- Realtime: add `student_messages`, `student_documents_v2`, `student_tasks` to `supabase_realtime` publication.
-- All new columns are nullable / defaulted so existing rows are safe. No new tables.
-
-### Frontend
-- New components: `JourneyOnboarding`, `JourneyProgress`, `JourneyParentInfo`, `DocumentFolderTabs`, `DocumentCommentsPanel`, `RequestDocumentDialog`, `TaskTemplatePicker`, `CounselorNotesPanel`.
-- Refactor `StudentPortalManagement.tsx` to a tabbed shell that imports the same Journey* components in a `mode="counselor"` variant (read-only + admin actions).
-- Auto-create portal token in the lead→student conversion handler.
-- Realtime subscriptions in `JourneyMessages` and `JourneyDocuments`.
-
-### Out of scope (will mention but not build now)
-- Real student auth (Phase 2)
-- Video calls / scheduling
-- White-label branding per IEC (Phase 2 multi-tenant)
-- Payments inside the portal
+## Risks I'll handle inline
+- University logos missing → fall back to colored tile with initials.
+- Empty practice (new IEC or fresh demo before seed) → friendly onboarding state instead of empty charts.
+- AI edge function failures → graceful "Rose is resting" placeholder, no broken UI.
 
 ---
 
-## Delivery order
-1. Schema migration + retire `/portal/:studentId`
-2. Onboarding flow + profile rewrite
-3. Progress tracker
-4. Document exchange upgrade (folders, review, comments, request)
-5. Messages upgrade (attachments + realtime + unread)
-6. Tasks templates + per-college tasks
-7. Counselor tabbed workspace + auto token on conversion
+## Deliverable at the end of this session
+A single link — `/demo` → "Enter as Consultant" → Command Center with the Acceptance Wall animating in, Rose's daily brief at the top, working Outcomes page, working AI list auditor and essay coach. Shareable with your co-founder immediately.

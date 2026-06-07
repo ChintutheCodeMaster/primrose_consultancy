@@ -1,7 +1,7 @@
-import Dashboard from './Dashboard';
+import { CommandCenter } from '@/components/dashboard/CommandCenter';
 
 const Index = () => {
-  return <Dashboard />;
+  return <CommandCenter />;
 };
 
 export default Index;

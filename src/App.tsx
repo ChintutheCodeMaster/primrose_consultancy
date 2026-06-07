@@ -30,6 +30,8 @@ import OnboardingWizard from "./pages/OnboardingWizard";
 import StudentJourney from "./pages/StudentJourney";
 import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
+import Dashboard from "./pages/Dashboard";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -52,8 +54,12 @@ const App = () => (
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
 
+          {/* Demo entry */}
+          <Route path="/demo" element={<Demo />} />
+
           {/* App routes (authentication temporarily disabled) */}
           <Route path="/app" element={<Index />} />
+          <Route path="/classic-dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/leads/:year" element={<Leads />} />
             <Route path="/students" element={<Students />} />
