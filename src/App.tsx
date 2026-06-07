@@ -33,6 +33,7 @@ import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
 import Demo from "./pages/Demo";
 import Outcomes from "./pages/Outcomes";
+import StudentWorkspace from "./pages/StudentWorkspace";
 
 const queryClient = new QueryClient();
 
