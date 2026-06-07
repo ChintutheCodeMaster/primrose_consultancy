@@ -25,6 +25,7 @@ export interface OutcomesData {
     cells: Record<string, Record<string, number>>; // [university][cohort]
   };
   topUniversities: { name: string; count: number }[];
+  acceptanceList: { university: string; state: string | null; cohort: string }[];
   totals: {
     students: number;
     accepted: number;
@@ -45,18 +46,23 @@ export function useOutcomesData() {
   return useQuery<OutcomesData>({
     queryKey: ['outcomes-data'],
     queryFn: async () => {
-      const [studentsRes, acceptedRes, leadsRes, scholarshipsRes] = await Promise.all([
+      const [studentsRes, acceptedRes, leadsRes, scholarshipsRes, collegesRes] = await Promise.all([
         supabase
           .from('students')
           .select('id, created_at, signed_agreement, did_not_continue, amount_paid, package_cost, graduation_year, status, payment_date'),
         supabase.from('accepted_universities').select('name, student_id, created_at, study_year'),
         supabase.from('leads').select('id, created_at, leads_year, did_not_continue'),
         supabase.from('student_scholarships').select('id, student_id'),
+        supabase.from('college_reference').select('name, state'),
       ]);
 
       const students = studentsRes.data ?? [];
       const accepted = acceptedRes.data ?? [];
       const leads = leadsRes.data ?? [];
+      const colleges = collegesRes.data ?? [];
+      const stateByName = new Map<string, string | null>(
+        colleges.map((c) => [c.name.trim().toLowerCase(), c.state ?? null])
+      );
       const scholarships = scholarshipsRes.data ?? [];
 
       // Build cohort map from graduation_year (fallback to created_at year)
@@ -117,10 +123,20 @@ export function useOutcomesData() {
         ? totalPackages.reduce((sum, s) => sum + Number(s.package_cost ?? 0), 0) / totalPackages.length
         : 0;
 
+      const acceptanceList = accepted
+        .filter((a) => a.name)
+        .map((a) => {
+          const student = students.find((s) => s.id === a.student_id);
+          const c = a.study_year || (student?.graduation_year ?? yearOf(a.created_at)) || 'Unknown';
+          const nm = a.name.trim();
+          return { university: nm, state: stateByName.get(nm.toLowerCase()) ?? null, cohort: c };
+        });
+
       return {
         cohorts,
         heatmap: { universities, cohorts: sortedCohorts, cells },
         topUniversities,
+        acceptanceList,
         totals: {
           students: students.filter((s) => !s.did_not_continue).length,
           accepted: accepted.length,
