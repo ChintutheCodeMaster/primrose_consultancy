@@ -123,10 +123,20 @@ export function useOutcomesData() {
         ? totalPackages.reduce((sum, s) => sum + Number(s.package_cost ?? 0), 0) / totalPackages.length
         : 0;
 
+      const acceptanceList = accepted
+        .filter((a) => a.name)
+        .map((a) => {
+          const student = students.find((s) => s.id === a.student_id);
+          const c = a.study_year || (student?.graduation_year ?? yearOf(a.created_at)) || 'Unknown';
+          const nm = a.name.trim();
+          return { university: nm, state: stateByName.get(nm.toLowerCase()) ?? null, cohort: c };
+        });
+
       return {
         cohorts,
         heatmap: { universities, cohorts: sortedCohorts, cells },
         topUniversities,
+        acceptanceList,
         totals: {
           students: students.filter((s) => !s.did_not_continue).length,
           accepted: accepted.length,
