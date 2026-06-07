@@ -61,6 +61,50 @@ export type Database = {
           },
         ]
       }
+      activity_events: {
+        Row: {
+          actor: string
+          created_at: string
+          id: string
+          kind: string
+          payload: Json
+          ref_id: string | null
+          ref_table: string | null
+          student_id: string
+          summary: string
+        }
+        Insert: {
+          actor?: string
+          created_at?: string
+          id?: string
+          kind: string
+          payload?: Json
+          ref_id?: string | null
+          ref_table?: string | null
+          student_id: string
+          summary: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          ref_id?: string | null
+          ref_table?: string | null
+          student_id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advisors: {
         Row: {
           contract_url: string | null
@@ -1235,6 +1279,7 @@ export type Database = {
           author: string
           body: string
           cc_parent: boolean | null
+          consultant_read_at: string | null
           created_at: string
           id: string
           read_at: string | null
@@ -1246,6 +1291,7 @@ export type Database = {
           author: string
           body: string
           cc_parent?: boolean | null
+          consultant_read_at?: string | null
           created_at?: string
           id?: string
           read_at?: string | null
@@ -1257,6 +1303,7 @@ export type Database = {
           author?: string
           body?: string
           cc_parent?: boolean | null
+          consultant_read_at?: string | null
           created_at?: string
           id?: string
           read_at?: string | null
@@ -1544,6 +1591,35 @@ export type Database = {
           },
         ]
       }
+      student_workspace_notes: {
+        Row: {
+          body: string
+          student_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string
+          student_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          student_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_workspace_notes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           advisor_id: string | null
@@ -1698,6 +1774,32 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      workspace_presence_state: {
+        Row: {
+          last_seen_at: string
+          side: string
+          student_id: string
+        }
+        Insert: {
+          last_seen_at?: string
+          side: string
+          student_id: string
+        }
+        Update: {
+          last_seen_at?: string
+          side?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_presence_state_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
