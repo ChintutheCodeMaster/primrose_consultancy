@@ -34,6 +34,7 @@ import Dashboard from "./pages/Dashboard";
 import Demo from "./pages/Demo";
 import Outcomes from "./pages/Outcomes";
 import StudentWorkspace from "./pages/StudentWorkspace";
+import ConsultantEssayReview from "./pages/ConsultantEssayReview";
 
 const queryClient = new QueryClient();
 
