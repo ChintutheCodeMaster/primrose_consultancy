@@ -10,6 +10,7 @@ import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 
 const navigation = [
   { name: 'Dashboard', href: '/app', icon: LayoutDashboard },
+  { name: 'Outcomes', href: '/outcomes', icon: Trophy },
   { name: 'Students', href: '/students', icon: GraduationCap },
 ];
 
