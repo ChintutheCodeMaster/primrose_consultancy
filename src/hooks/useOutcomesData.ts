@@ -46,18 +46,23 @@ export function useOutcomesData() {
   return useQuery<OutcomesData>({
     queryKey: ['outcomes-data'],
     queryFn: async () => {
-      const [studentsRes, acceptedRes, leadsRes, scholarshipsRes] = await Promise.all([
+      const [studentsRes, acceptedRes, leadsRes, scholarshipsRes, collegesRes] = await Promise.all([
         supabase
           .from('students')
           .select('id, created_at, signed_agreement, did_not_continue, amount_paid, package_cost, graduation_year, status, payment_date'),
         supabase.from('accepted_universities').select('name, student_id, created_at, study_year'),
         supabase.from('leads').select('id, created_at, leads_year, did_not_continue'),
         supabase.from('student_scholarships').select('id, student_id'),
+        supabase.from('college_reference').select('name, state'),
       ]);
 
       const students = studentsRes.data ?? [];
       const accepted = acceptedRes.data ?? [];
       const leads = leadsRes.data ?? [];
+      const colleges = collegesRes.data ?? [];
+      const stateByName = new Map<string, string | null>(
+        colleges.map((c) => [c.name.trim().toLowerCase(), c.state ?? null])
+      );
       const scholarships = scholarshipsRes.data ?? [];
 
       // Build cohort map from graduation_year (fallback to created_at year)
