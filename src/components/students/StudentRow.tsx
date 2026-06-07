@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2, RotateCcw } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2, RotateCcw, Activity } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -187,6 +187,16 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   Agreement Link
                 </Button>
               </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/students/${student.id}/workspace`)}
+                className="gap-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+              >
+                <Activity className="h-3 w-3" />
+                Workspace
+              </Button>
 
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">

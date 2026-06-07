@@ -1,70 +1,85 @@
+## Goal
 
-# Primrose IEC → "Shopify for IECs" — Same-Day Build
+Turn the consultant ↔ student relationship from "two separate CRUD views" into one **shared, live workspace** per student. Both sides see the same activity in real time, can comment in-line on artifacts, and always know whether the other person has seen the latest update.
 
-Build all of Phase A in this session, in order. Each step is a self-contained milestone you can preview immediately.
+## What ships
 
----
+### 1. Unified Activity Feed (the spine)
+A single chronological stream, per student, that consultant and student both see — the "what's happening here" surface.
 
-## Step 1 — Visual refresh (foundation)
-- Update `src/index.css` design tokens: warmer neutrals, deep emerald accent, refined shadows, larger heading scale, tabular-nums for numbers.
-- Update `tailwind.config.ts` to expose the new tokens.
-- Refresh `StatCard` and chart palette to match.
-- Brand the AI as **"Rose"** (avatar + name used everywhere).
+Events surfaced:
+- New message (existing `student_messages`)
+- Essay version posted, status changed, comment added
+- College added/removed/status changed on the list
+- Task created/completed
+- Acceptance logged
+- File uploaded
+- Calendar event scheduled
 
-## Step 2 — DB migration (single call, everything Phase A needs)
-- `daily_briefs` (date, brief_json, generated_at) — cache AI briefs per day.
-- `practice_settings` (practice_name, logo_url, brand_color, tagline) — used in PDFs + portal.
-- `demo_seed` boolean column on `students`, `leads`, `advisors` — lets us seed and reset demo data.
-- `university_logos` (name, logo_url, color) — for Acceptance Wall tiles.
-- GRANTs + RLS on all new tables.
+Two render locations:
+- **Consultant side**: new tab on the student detail page → "Activity"
+- **Student side**: new section on `JourneyHome` → "What's new"
 
-## Step 3 — Command Center (`/app` home)
-Replace `pages/Index.tsx` body with `CommandCenter`:
-- `AIDailyBrief` — calls new `ai-daily-brief` edge function (gemini-2.5-flash), cached daily.
-- `PracticeHealthCards` — Pipeline $, Collected MTD, Active students, Acceptances YTD, each with sparkline.
-- `AcceptanceWall` — animated mosaic of every acceptance (logo tile or initials + color). The signature moment.
-- `NeedsAttention` — cold leads, missing docs, upcoming deadlines, unpaid invoices.
-- `RecentWinsTicker` — scrolling line of latest acceptances/payments.
+Both sides get filter chips (Messages · Essays · Colleges · Tasks · Files) and a relative timestamp ("2h ago"). Click any item to deep-link to the artifact.
 
-Reusable hooks: `usePracticeHealth`, `useAcceptances`, `useAttentionItems`.
+### 2. Live presence + read receipts
+- A small "Consultant is viewing" / "Student is viewing" pill at the top of the workspace, powered by Supabase Realtime presence channels.
+- `last_seen_at` per side, per student → unread badges in the consultant sidebar and on the student journey home.
+- `student_messages.read_at` already exists; extend with `consultant_read_at` so we can show both sides' read state on any thread.
 
-## Step 4 — Demo entry (`/demo`)
-- Public page with 3 cards: "Enter as Consultant", "Enter as Student", "Enter as Parent".
-- Seed script (one-time button on the demo page, idempotent) inserts a fictional "Bright Path Advisors" practice: 30 students, 8 acceptances, 5 leads, 1 signed agreement, journey events. All tagged `demo_seed=true`.
-- "Reset demo data" button.
-- Demo banner persists across routes when in demo mode.
+### 3. Inline comments on essays (Google-Docs style)
+- `student_document_comments` already exists (anchor_start/end) — wire it into the WritingLab editor so consultants can highlight a passage and leave a comment that the student sees inline.
+- Comments thread, resolve, and emit feed events.
+- "@-mention the other side" → triggers a notification (in-app badge + optional email).
 
-## Step 5 — Outcomes Intelligence (`/outcomes`)
-- `OutcomesHeatmap` — students × universities matrix, colored by status.
-- `CohortFunnel` — applied → accepted → enrolled per graduation year, with $ROI bar.
-- `BenchmarkCards` — pulls from existing `benchmark_percentiles` ("78th percentile on top-30 acceptances").
-- "Compare two students" side-by-side panel.
-- "Download Outcomes Report" button → calls new `generate-practice-outcomes-pdf` edge function.
+### 4. Shared notes per student (the "between us" pad)
+A free-form markdown notepad each student page carries. Consultant and student edit it together; auto-saved. Use case: weekly agenda, running list of decisions, "things to ask mom about." Realtime-synced.
 
-## Step 6 — AI Strategist upgrades
-- `CollegeListAuditor` on each student page → `college-list-auditor` edge function (gemini-2.5-pro) returns reach/target/likely balance + 3 suggestions. Stored in `student_strategy_reviews`.
-- `EssayCoachPanel` in `JourneyWritingLab` → streaming "Ask Rose" sidebar with 3 quick actions (stronger opening, tighten paragraph, tone check).
-- "Generate Strategy Memo" button on student page → `generate-strategy-memo` edge function returns a 1-page PDF.
+### 5. Unread badges across the app
+- Consultant sidebar Students count badge → number of students with new activity since `last_seen_at`.
+- Per-student row in the Students list → small dot when unread.
+- Student journey home → unread count on Messages / Essays.
 
-## Step 7 — Polish + verify
-- Make sure every new page is responsive (overflow-x-hidden, vertical stacking on mobile).
-- Add sidebar entries: "Command Center" (replaces Dashboard), "Outcomes".
-- Smoke-test the `/demo` flow end-to-end.
-- Update memory index with the new architecture pieces.
+## Why this set, in this order
 
----
+These five together are what makes a workspace *feel* shared rather than two parallel CRUDs. The feed is the spine; presence/read receipts make it feel live; inline comments solve the highest-value real workflow (essay review); shared notes give the relationship a "place"; unread badges close the loop so people actually come back.
 
-## What I'll skip today (still Phase B/C)
-- Multi-tenant auth/orgs (Phase 2 of existing pivot plan).
-- Marketplace/playbooks, in-app payments, public IEC profile pages.
-- Real cross-IEC benchmark data (we use the existing seed percentiles as placeholder).
+## Out of scope for this phase
 
-## Risks I'll handle inline
-- University logos missing → fall back to colored tile with initials.
-- Empty practice (new IEC or fresh demo before seed) → friendly onboarding state instead of empty charts.
-- AI edge function failures → graceful "Rose is resting" placeholder, no broken UI.
+Saved for follow-ups so this stays shippable:
+- Weekly auto-agenda generation (Rose)
+- Async video/voice updates (Loom-style)
+- Office-hours booking
+- Parent digest / parent-specific surface
+- Mobile-native student shell
 
----
+## Technical notes
 
-## Deliverable at the end of this session
-A single link — `/demo` → "Enter as Consultant" → Command Center with the Acceptance Wall animating in, Rose's daily brief at the top, working Outcomes page, working AI list auditor and essay coach. Shareable with your co-founder immediately.
+**Schema changes** (one migration):
+- New table `activity_events` — `id, student_id, actor ('consultant'|'student'|'system'), kind, ref_table, ref_id, summary, payload jsonb, created_at`. Indexed on `(student_id, created_at desc)`. Added to `supabase_realtime` publication.
+- New table `student_workspace_notes` — `student_id (pk), body text, updated_at, updated_by`. Realtime-enabled.
+- New table `workspace_presence_state` — `student_id, side ('consultant'|'student'), last_seen_at`. Used for unread math.
+- `student_messages` gets `consultant_read_at timestamptz`.
+- All new tables: `GRANT` to authenticated + service_role, RLS enabled with permissive policies for now (auth is disabled in current phase per project memory) — tightened in Phase 2 when multi-tenant auth lands.
+
+**Activity event emission**: triggers on `student_messages`, `student_documents_v2`, `student_document_versions`, `student_colleges`, `student_tasks`, `accepted_universities`, `student_calendar_events`, `student_documents` → INSERT into `activity_events` with a normalized summary.
+
+**Realtime**:
+- Subscribe to `activity_events` filtered by `student_id` on both consultant and student surfaces → push new events into the feed.
+- Presence channel per student → "is viewing now" pill.
+- `student_workspace_notes` subscription → shared notepad live sync.
+
+**Components**:
+- `ActivityFeed.tsx` — shared component, takes `studentId`, used in both consultant and student contexts with a `viewerSide` prop to color events appropriately.
+- `WorkspacePresence.tsx` — presence pill.
+- `SharedNotepad.tsx` — markdown textarea with debounced realtime save.
+- `useUnreadActivity(studentId, side)` — hook returning `{ unreadCount, markSeen }`.
+- WritingLab gains a `CommentLayer` that reads/writes `student_document_comments` keyed to character ranges.
+
+**Files touched**:
+- New: `src/components/workspace/ActivityFeed.tsx`, `WorkspacePresence.tsx`, `SharedNotepad.tsx`, `CommentLayer.tsx`; `src/hooks/useActivityFeed.ts`, `useUnreadActivity.ts`, `useWorkspacePresence.ts`, `useWorkspaceNotes.ts`.
+- Edited: `src/pages/StudentJourney.tsx` (mount presence + feed + notes), `src/components/journey/JourneyHome.tsx` (What's new section), `src/components/journey/JourneyWritingLab.tsx` (comment layer), consultant student-detail page (Activity tab, presence, notes, unread), `src/components/layout/Sidebar.tsx` (badge).
+
+## Demo story after build
+
+Open the consultant view of a student → see "Student viewing now" pill light up. Student adds a college on their side → it appears in the consultant feed within a second. Consultant highlights a sentence in the essay, leaves a comment → student sees the comment on their next refresh and replies inline. Both sides edit the shared notepad simultaneously. Sidebar shows a "3" badge on Students for unread activity.

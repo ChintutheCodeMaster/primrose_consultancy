@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CalendarDays, FlaskConical, ShieldCheck, Sparkles } from 'lucide-react';
 import { JourneyProgress } from '@/components/journey/JourneyProgress';
 import { JourneyHomeCalendar } from '@/components/journey/JourneyHomeCalendar';
+import { ActivityFeed } from '@/components/workspace/ActivityFeed';
+import { SharedNotepad } from '@/components/workspace/SharedNotepad';
+import { WorkspacePresence } from '@/components/workspace/WorkspacePresence';
 import { getProgramTerms } from '@/lib/programTerms';
 
 const PHASE_LABEL_BASE: Record<string, string> = {
@@ -69,16 +72,25 @@ export function JourneyHome({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">Hi {displayName} 👋</h1>
-        <p className="text-muted-foreground mt-1">
-          You're in the <span className="font-medium text-foreground">{phase}</span> phase. Here's what's next.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">Hi {displayName} 👋</h1>
+          <p className="text-muted-foreground mt-1">
+            You're in the <span className="font-medium text-foreground">{phase}</span> phase. Here's what's next.
+          </p>
+        </div>
+        <WorkspacePresence studentId={studentId} side="student" className="mt-2" />
       </div>
 
       <JourneyProgress studentId={studentId} student={student} />
 
       <JourneyHomeCalendar studentId={studentId} onOpenCalendar={() => onNavigate('calendar')} />
+
+      {/* Shared workspace */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+        <ActivityFeed studentId={studentId} viewerSide="student" limit={40} />
+        <SharedNotepad studentId={studentId} side="student" />
+      </div>
 
 
 
