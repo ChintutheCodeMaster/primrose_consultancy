@@ -93,15 +93,14 @@ const Outcomes = () => {
             {/* Heatmap */}
             <section className="space-y-3">
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Acceptance heatmap</h2>
+                <h2 className="text-xl font-semibold text-foreground">Acceptance map</h2>
                 <p className="text-sm text-muted-foreground">
-                  Where your students get in, across cohort years.
+                  Where your students get in — across the US, by state and university.
                 </p>
               </div>
-              <OutcomesHeatmap
-                universities={data.heatmap.universities}
+              <AcceptanceMap
+                acceptances={data.acceptanceList}
                 cohorts={data.heatmap.cohorts}
-                cells={data.heatmap.cells}
               />
             </section>
           </>
