@@ -1,6 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useOutcomesData } from '@/hooks/useOutcomesData';
-import { OutcomesHeatmap } from '@/components/outcomes/OutcomesHeatmap';
+import { AcceptanceMap } from '@/components/outcomes/AcceptanceMap';
 import { CohortFunnel } from '@/components/outcomes/CohortFunnel';
 import { BenchmarkCards } from '@/components/outcomes/BenchmarkCards';
 import { AskRosePanel } from '@/components/outcomes/AskRosePanel';
