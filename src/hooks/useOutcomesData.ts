@@ -25,6 +25,7 @@ export interface OutcomesData {
     cells: Record<string, Record<string, number>>; // [university][cohort]
   };
   topUniversities: { name: string; count: number }[];
+  acceptanceList: { university: string; state: string | null; cohort: string }[];
   totals: {
     students: number;
     accepted: number;
