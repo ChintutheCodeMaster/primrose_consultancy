@@ -188,6 +188,16 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 </Button>
               </div>
 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/students/${student.id}/workspace`)}
+                className="gap-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+              >
+                <Activity className="h-3 w-3" />
+                Workspace
+              </Button>
+
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
                   <Pencil className="h-3 w-3" />
