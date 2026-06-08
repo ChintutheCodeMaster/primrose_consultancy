@@ -382,6 +382,19 @@ export default function Landing() {
   );
 }
 
+const FEATURE_ACCENTS = [
+  "bg-violet-100 text-violet-600 group-hover:bg-violet-200",
+  "bg-rose-100 text-rose-600 group-hover:bg-rose-200",
+  "bg-amber-100 text-amber-700 group-hover:bg-amber-200",
+  "bg-sky-100 text-sky-600 group-hover:bg-sky-200",
+  "bg-emerald-100 text-emerald-600 group-hover:bg-emerald-200",
+  "bg-fuchsia-100 text-fuchsia-600 group-hover:bg-fuchsia-200",
+  "bg-indigo-100 text-indigo-600 group-hover:bg-indigo-200",
+  "bg-teal-100 text-teal-600 group-hover:bg-teal-200",
+];
+
+let __featureIdx = 0;
+
 function FeatureCard({
   icon: Icon,
   title,
@@ -391,9 +404,10 @@ function FeatureCard({
   title: string;
   body: string;
 }) {
+  const accent = FEATURE_ACCENTS[__featureIdx++ % FEATURE_ACCENTS.length];
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 hover:shadow-md hover:border-primary/30 transition">
-      <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+    <div className="group rounded-2xl border border-border/70 bg-white p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+      <div className={`h-10 w-10 rounded-lg flex items-center justify-center mb-4 transition-colors ${accent}`}>
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="font-semibold text-base">{title}</h3>
@@ -401,6 +415,7 @@ function FeatureCard({
     </div>
   );
 }
+
 
 function Stat({ number, label }: { number: string; label: string }) {
   return (
