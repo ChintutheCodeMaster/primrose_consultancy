@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User, CalendarDays } from 'lucide-react';
+import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User, CalendarDays, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JourneyHome } from '@/components/journey/JourneyHome';
 import { JourneyColleges } from '@/components/journey/JourneyColleges';
