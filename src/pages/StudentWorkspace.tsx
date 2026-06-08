@@ -6,8 +6,6 @@ import { ActivityFeed } from '@/components/workspace/ActivityFeed';
 import { SharedNotepad } from '@/components/workspace/SharedNotepad';
 import { WorkspacePresence } from '@/components/workspace/WorkspacePresence';
 import { MissionControl } from '@/components/workspace/MissionControl';
-import { TuitionCalculator } from '@/components/workspace/TuitionCalculator';
-import { AiDetector } from '@/components/workspace/AiDetector';
 import { DraftExchange } from '@/components/workspace/DraftExchange';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
