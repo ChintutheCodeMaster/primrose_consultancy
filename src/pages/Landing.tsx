@@ -286,12 +286,14 @@ export default function Landing() {
               name="Beta consultant, International"
               role="Cross-border IEC"
             />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="border-t border-border/60 bg-muted/20">
+      <section id="pricing" className="border-t border-border/60 bg-gradient-to-br from-emerald-50/70 via-background to-sky-50/60">
+
         <div className="mx-auto max-w-3xl px-6 py-20 text-center">
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight"
