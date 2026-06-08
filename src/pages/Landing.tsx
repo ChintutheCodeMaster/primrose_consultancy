@@ -125,12 +125,19 @@ export default function Landing() {
               { before: "Inbox chaos for essay drafts", after: "Versioned essay workflow with AI review" },
               { before: "Calendar reminders for deadlines", after: "Deadline radar across every applicant" },
             ].map((row) => (
-              <div key={row.before} className="rounded-xl border border-violet-200/70 bg-white p-4 shadow-sm">
-                <div className="text-xs uppercase tracking-wide text-rose-500/90 font-medium">Before</div>
-                <div className="text-sm line-through text-muted-foreground">{row.before}</div>
-                <div className="mt-3 text-xs uppercase tracking-wide text-violet-600 font-medium">With Primrose</div>
-                <div className="text-sm font-medium">{row.after}</div>
-
+              <div key={row.before} className="rounded-xl border border-violet-200/70 bg-white shadow-sm overflow-hidden">
+                <div className="p-4 bg-rose-50/70 border-b border-rose-100">
+                  <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-rose-700 font-semibold bg-rose-100 px-2 py-0.5 rounded-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> Before
+                  </div>
+                  <div className="mt-2 text-sm line-through text-rose-900/60">{row.before}</div>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-violet-50 to-emerald-50/60">
+                  <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-violet-700 font-semibold bg-violet-100 px-2 py-0.5 rounded-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> With Primrose
+                  </div>
+                  <div className="mt-2 text-sm font-semibold text-slate-900">{row.after}</div>
+                </div>
               </div>
             ))}
           </div>
