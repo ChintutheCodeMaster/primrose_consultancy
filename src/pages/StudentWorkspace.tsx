@@ -73,11 +73,9 @@ export default function StudentWorkspace() {
             <MissionControl studentId={id} studentName={studentName} />
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="essays">Essays & Drafts</TabsTrigger>
-                <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
-                <TabsTrigger value="tuition">Tuition</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
 
@@ -112,49 +110,13 @@ export default function StudentWorkspace() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="ai-tools" className="mt-4">
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <AiDetector />
-                  <div className="space-y-6">
-                    <div className="rounded-2xl border bg-gradient-to-br from-violet-50 to-rose-50 p-5">
-                      <div className="mb-2 flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-violet-600" />
-                        <h4 className="font-semibold">Essay AI line-edit</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Inline suggestions on the latest draft — accept or reject per change.
-                      </p>
-                      <Button asChild className="mt-3 w-full">
-                        <Link to={`/students/${id}/essays`}>
-                          Open essay editor <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="tuition" className="mt-4">
-                <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                  <TuitionCalculator />
-                  <div className="rounded-2xl border bg-muted/30 p-5 text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground mb-2">How it works</p>
-                    <ul className="space-y-1.5 text-xs">
-                      <li>• Enter city, country, and (optional) university.</li>
-                      <li>• Pick a lifestyle tier — frugal, moderate, or comfortable.</li>
-                      <li>• AI returns a monthly + total budget broken down by category.</li>
-                      <li>• Tuition itself is not included — only living costs.</li>
-                    </ul>
-                  </div>
-                </div>
-              </TabsContent>
-
               <TabsContent value="notes" className="mt-4">
                 <div className="max-w-3xl">
                   <SharedNotepad studentId={id} side="consultant" />
                 </div>
               </TabsContent>
             </Tabs>
+
           </>
         )}
       </div>
