@@ -335,30 +335,35 @@ export default function Landing() {
       </section>
 
       {/* Final CTA */}
-      <section id="cta" className="border-t border-border/60">
-        <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+      <section id="cta" className="relative overflow-hidden border-t border-border/60 bg-gradient-to-br from-violet-600 via-rose-500 to-amber-500 text-white">
+        <div className="pointer-events-none absolute inset-0 -z-0 opacity-30">
+          <div className="absolute -top-20 left-10 h-72 w-72 rounded-full bg-white/30 blur-3xl" />
+          <div className="absolute bottom-0 right-10 h-80 w-80 rounded-full bg-amber-200/40 blur-3xl" />
+        </div>
+        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center">
           <h2
             className="text-3xl md:text-5xl font-bold tracking-tight"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
           >
             Run your admissions practice on Primrose
           </h2>
-          <p className="mt-5 text-muted-foreground text-lg">
+          <p className="mt-5 text-white/90 text-lg">
             Join the Founding Consultant Program and help shape the operating
             system for modern admissions consulting.
           </p>
           <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
             <Link to="/app">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2 bg-white text-violet-700 hover:bg-white/90 border-0 shadow-lg">
                 Request early access <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <a href="mailto:hello@primrose-iec.com">
-              <Button size="lg" variant="outline">Book a demo</Button>
+              <Button size="lg" variant="outline" className="border-white/70 text-white bg-white/10 hover:bg-white/20 hover:text-white">Book a demo</Button>
             </a>
           </div>
         </div>
       </section>
+
 
       <footer className="border-t border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
