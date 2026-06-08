@@ -362,7 +362,7 @@ export default function Landing() {
             system for modern admissions consulting.
           </p>
           <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/app">
+            <Link to="/dashboard">
               <Button size="lg" className="gap-2 bg-white text-violet-700 hover:bg-white/90 border-0 shadow-lg">
                 Request early access <ArrowRight className="h-4 w-4" />
               </Button>

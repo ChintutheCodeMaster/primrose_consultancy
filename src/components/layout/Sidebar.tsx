@@ -9,7 +9,7 @@ import { useSidebarCategories } from '@/hooks/useSidebarCategories';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 
 const navigation = [
-  { name: 'Dashboard', href: '/app', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Outcomes', href: '/outcomes', icon: Trophy },
   { name: 'Students', href: '/students', icon: GraduationCap },
 ];
@@ -59,7 +59,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border">
-        <Link to="/app" className="flex items-center gap-3">
+        <Link to="/dashboard" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-primary">
             <GraduationCap className="h-6 w-6 text-sidebar-primary-foreground" />
           </div>

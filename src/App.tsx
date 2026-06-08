@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Index from "./pages/Index";
+
 import Landing from "./pages/Landing";
 import Leads from "./pages/Leads";
 import Students from "./pages/Students";
@@ -61,8 +61,8 @@ const App = () => (
           <Route path="/demo" element={<Demo />} />
 
           {/* App routes (authentication temporarily disabled) */}
-          <Route path="/app" element={<Index />} />
-          <Route path="/classic-dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/outcomes" element={<Outcomes />} />
           <Route path="/leads/:year" element={<Leads />} />

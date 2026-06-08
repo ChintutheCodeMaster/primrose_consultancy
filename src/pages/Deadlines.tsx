@@ -88,7 +88,7 @@ export default function Deadlines() {
   return (
     <MainLayout>
       <div className="animate-fade-in max-w-5xl">
-        <Link to="/app" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3">
+        <Link to="/dashboard" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3">
           <ChevronLeft className="h-4 w-4" /> Dashboard
         </Link>
         <div className="flex items-center gap-3 mb-6">
