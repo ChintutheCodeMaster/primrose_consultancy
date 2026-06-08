@@ -144,7 +144,7 @@ export default function Landing() {
 
 
       {/* Features */}
-      <section id="features" className="border-t border-border/60 bg-muted/20">
+      <section id="features" className="border-t border-border/60 bg-gradient-to-br from-sky-50 via-background to-emerald-50/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
           <div className="max-w-2xl">
             <h2
