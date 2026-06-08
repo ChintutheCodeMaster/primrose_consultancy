@@ -433,7 +433,7 @@ function Reviewer({ documentId }: { documentId: string }) {
             className="p-6 text-[15px] leading-relaxed font-serif min-h-[480px] max-h-[70vh] overflow-y-auto"
           >
             {plain ? renderedText : (
-              <p className="text-muted-foreground italic">This draft is empty.</p>
+              <p className="text-muted-foreground italic">This draftffff is empty.</p>
             )}
           </div>
         </CardContent>
