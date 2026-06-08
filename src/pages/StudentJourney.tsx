@@ -29,6 +29,7 @@ const buildNav = (collegesLabel: string): { id: Section; label: string; icon: an
   { id: 'documents', label: 'Essays', icon: FileText },
   { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
   { id: 'detector', label: 'AI Detector', icon: ShieldCheck },
+  { id: 'calculator', label: 'Living Cost', icon: DollarSign },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'profile', label: 'Profile', icon: User },
 ];
