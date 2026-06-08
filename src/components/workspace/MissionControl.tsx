@@ -48,45 +48,11 @@ export function MissionControl({ studentId, studentName }: { studentId: string; 
           meta={nextMeeting ? format(nextMeeting.at, 'MMM d, p') : undefined} />
       </div>
 
-      {/* Pipeline */}
+      {/* Admissions cycle — identical to what the student sees */}
       <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-wider text-muted-foreground">
-          <span>Pipeline</span>
-          <span className="font-semibold text-violet-700">{stage}</span>
-        </div>
-        <div className="relative">
-          <div className="absolute left-3 right-3 top-3 h-0.5 bg-border" />
-          <div
-            className="absolute left-3 top-3 h-0.5 bg-gradient-to-r from-violet-500 to-emerald-500 transition-all"
-            style={{ width: `calc(${(currentIdx / (STAGES.length - 1)) * 100}% - ${currentIdx === 0 ? 0 : 0}px)` }}
-          />
-          <ol className="relative flex justify-between">
-            {STAGES.map((s, i) => {
-              const done = i < currentIdx;
-              const active = i === currentIdx;
-              return (
-                <li key={s} className="flex flex-col items-center gap-2 text-center">
-                  <span
-                    className={
-                      'flex h-6 w-6 items-center justify-center rounded-full border-2 transition ' +
-                      (active
-                        ? 'border-violet-600 bg-violet-600 text-white shadow-md shadow-violet-500/30'
-                        : done
-                        ? 'border-emerald-500 bg-emerald-500 text-white'
-                        : 'border-border bg-background text-muted-foreground')
-                    }
-                  >
-                    {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : <span className="text-[10px] font-bold">{i + 1}</span>}
-                  </span>
-                  <span className={'text-[11px] sm:text-xs font-medium ' + (active ? 'text-foreground' : 'text-muted-foreground')}>
-                    {s}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+        {student && <JourneyProgress studentId={studentId} student={student} />}
       </div>
+
     </div>
   );
 }
