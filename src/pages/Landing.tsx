@@ -406,3 +406,168 @@ function Testimonial({
     </div>
   );
 }
+
+type AiAnswer = {
+  question: string;
+  headline: string;
+  rows: { name: string; meta: string }[];
+  cta: string;
+};
+
+const AI_ANSWERS: AiAnswer[] = [
+  {
+    question: "Which seniors haven't started their Common App personal statement?",
+    headline: "3 seniors have no draft started:",
+    rows: [
+      { name: "Maya Chen", meta: "last met 6 days ago" },
+      { name: "Jordan Patel", meta: "Common App opens in 4 days" },
+      { name: "Sam Rivera", meta: "last met 12 days ago" },
+    ],
+    cta: "→ Open all three students",
+  },
+  {
+    question: "Which students are missing recommendation letters?",
+    headline: "4 students still need at least one rec letter:",
+    rows: [
+      { name: "Aiden Walker", meta: "2 of 3 letters received" },
+      { name: "Priya Shah", meta: "0 of 2 letters received" },
+      { name: "Liam O'Connor", meta: "1 of 3 letters received" },
+      { name: "Noor Haddad", meta: "1 of 2 letters received" },
+    ],
+    cta: "→ Email recommenders",
+  },
+  {
+    question: "Which seniors haven't started their supplemental essays?",
+    headline: "5 seniors have no supplement drafts yet:",
+    rows: [
+      { name: "Ethan Park", meta: "UPenn supplement due Nov 1" },
+      { name: "Sofia Alvarez", meta: "USC supplement due Nov 1" },
+      { name: "Marcus Bell", meta: "Northwestern Why Us due Jan 1" },
+      { name: "Hannah Goldberg", meta: "Yale 3 supplements outstanding" },
+    ],
+    cta: "→ Send writing nudge",
+  },
+  {
+    question: "Which applications are due in the next 14 days?",
+    headline: "12 applications across 7 students:",
+    rows: [
+      { name: "Stanford REA", meta: "Nov 1 · 3 students" },
+      { name: "Georgetown EA", meta: "Nov 1 · 2 students" },
+      { name: "UNC Chapel Hill EA", meta: "Oct 15 · 4 students" },
+      { name: "MIT EA", meta: "Nov 1 · 3 students" },
+    ],
+    cta: "→ Open deadline radar",
+  },
+  {
+    question: "Which families have an outstanding balance?",
+    headline: "3 families with overdue invoices ($14,500 total):",
+    rows: [
+      { name: "The Chen family", meta: "$6,000 · 22 days overdue" },
+      { name: "The Patel family", meta: "$5,500 · 9 days overdue" },
+      { name: "The Rivera family", meta: "$3,000 · 4 days overdue" },
+    ],
+    cta: "→ Send payment reminders",
+  },
+  {
+    question: "Where did last year's cohort get accepted?",
+    headline: "Class of 2025 — 28 students, 142 acceptances:",
+    rows: [
+      { name: "Ivy + Stanford + MIT", meta: "9 acceptances" },
+      { name: "Top-20 US universities", meta: "47 acceptances" },
+      { name: "Oxbridge + UK G5", meta: "12 acceptances" },
+      { name: "Top US liberal arts colleges", meta: "18 acceptances" },
+    ],
+    cta: "→ Open outcomes report",
+  },
+];
+
+function AiShowcase() {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const answer = AI_ANSWERS[activeIdx];
+
+  return (
+    <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
+      <div className="grid md:grid-cols-2 gap-12 items-start">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-5">
+            <Sparkles className="h-3.5 w-3.5" /> Core to the platform
+          </div>
+          <h2
+            className="text-3xl md:text-4xl font-bold tracking-tight"
+            style={{ fontFamily: "Sora, Inter, sans-serif" }}
+          >
+            Your AI admissions operations assistant
+          </h2>
+          <p className="mt-4 text-muted-foreground leading-relaxed">
+            Ask Primrose anything about your practice in plain English. No
+            filters to build, no reports to configure — your entire caseload,
+            instantly queryable.
+          </p>
+          <p className="mt-6 text-xs uppercase tracking-wide text-muted-foreground font-medium">
+            Try a question →
+          </p>
+          <ul className="mt-3 space-y-2 text-sm">
+            {AI_ANSWERS.map((a, i) => {
+              const isActive = i === activeIdx;
+              return (
+                <li key={a.question}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveIdx(i)}
+                    className={
+                      "w-full text-left flex items-start gap-3 rounded-lg px-3 py-2 transition border " +
+                      (isActive
+                        ? "bg-primary/5 border-primary/30 text-foreground"
+                        : "border-transparent hover:bg-muted/60 text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    <MessageSquare
+                      className={
+                        "h-4 w-4 mt-0.5 flex-shrink-0 " +
+                        (isActive ? "text-primary" : "text-muted-foreground")
+                      }
+                    />
+                    <span className="italic">"{a.question}"</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-6 text-sm text-foreground font-medium">
+            Plus AI-powered essay review for line edits, structural feedback,
+            and voice notes — sent straight to your student as inline comments.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-xl md:sticky md:top-24">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div key={activeIdx} className="flex-1 space-y-3 animate-fade-in">
+              <div className="rounded-xl bg-muted/60 p-3 text-sm">
+                {answer.question}
+              </div>
+              <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 text-sm space-y-2">
+                <div className="font-medium">{answer.headline}</div>
+                <ul className="space-y-1.5 text-muted-foreground">
+                  {answer.rows.map((r) => (
+                    <li key={r.name} className="flex items-center gap-2">
+                      <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        <span className="text-foreground">{r.name}</span>
+                        <span className="mx-1">—</span>
+                        {r.meta}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-2 text-xs text-primary">{answer.cta}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
