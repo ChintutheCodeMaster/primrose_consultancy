@@ -198,13 +198,7 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                 Workspace
               </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/students/${student.id}/essays`)}
-                className="gap-1 border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800"
-                title="AI essay review"
-              >
+
                 <Sparkles className="h-3 w-3" />
                 Essay AI
               </Button>
