@@ -38,7 +38,7 @@ export default function Demo() {
       icon: Users,
       gradient: 'from-violet-600 to-indigo-600',
       ring: 'ring-violet-200',
-      to: '/app',
+      to: '/dashboard',
       cta: 'Open Command Center',
     },
     {

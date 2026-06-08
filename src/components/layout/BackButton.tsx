@@ -2,7 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-const HIDDEN_ROUTES = ['/', '/app', '/dashboard'];
+const HIDDEN_ROUTES = ['/', '/dashboard', '/dashboard'];
 
 export function BackButton() {
   const navigate = useNavigate();
