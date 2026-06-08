@@ -121,63 +121,8 @@ export default function Landing() {
       </section>
 
       {/* AI as core */}
-      <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-5">
-              <Sparkles className="h-3.5 w-3.5" /> Core to the platform
-            </div>
-            <h2
-              className="text-3xl md:text-4xl font-bold tracking-tight"
-              style={{ fontFamily: "Sora, Inter, sans-serif" }}
-            >
-              Your AI admissions operations assistant
-            </h2>
-            <p className="mt-4 text-muted-foreground leading-relaxed">
-              Ask Primrose anything about your practice in plain English. No
-              filters to build, no reports to configure — your entire
-              caseload, instantly queryable.
-            </p>
-            <ul className="mt-8 space-y-3 text-sm">
-              {[
-                "Which students are missing recommendation letters?",
-                "Which seniors haven't started their supplemental essays?",
-                "Which applications are due in the next 14 days?",
-                "Which families have an outstanding balance?",
-                "Where did last year's cohort get accepted?",
-              ].map((q) => (
-                <li key={q} className="flex items-start gap-3">
-                  <MessageSquare className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground italic">"{q}"</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 text-sm text-foreground font-medium">
-              Plus AI-powered essay review for line edits, structural feedback,
-              and voice notes — sent straight to your student as inline
-              comments.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-xl">
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div className="flex-1 space-y-3">
-                <div className="rounded-xl bg-muted/60 p-3 text-sm">
-                  Which seniors haven't started their Common App personal statement?
-                </div>
-                <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 text-sm space-y-2">
-                  <div className="font-medium">3 seniors have no draft started:</div>
-                  <ul className="space-y-1.5 text-muted-foreground">
-                    <li className="flex items-center gap-2"><UserCheck className="h-3.5 w-3.5" /> Maya Chen — last met 6 days ago</li>
-                    <li className="flex items-center gap-2"><UserCheck className="h-3.5 w-3.5" /> Jordan Patel — Common App opens in 4 days</li>
-                    <li className="flex items-center gap-2"><UserCheck className="h-3.5 w-3.5" /> Sam Rivera — last met 12 days ago</li>
-                  </ul>
-                  <div className="pt-2 text-xs text-primary">→ Open all three students</div>
-                </div>
-              </div>
-            </div>
+      <AiShowcase />
+
           </div>
         </div>
       </section>
