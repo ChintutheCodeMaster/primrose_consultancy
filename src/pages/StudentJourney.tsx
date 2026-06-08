@@ -169,6 +169,7 @@ export default function StudentJourney() {
           {section === 'documents' && <JourneyDocuments studentId={studentId} />}
           {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
           {section === 'detector' && <JourneyDetector studentId={studentId} />}
+          {section === 'calculator' && <TuitionCalculator />}
           {section === 'messages' && <JourneyMessages studentId={studentId} />}
           {section === 'profile' && <JourneyProfile studentId={studentId} student={student} />}
         </main>
