@@ -15,9 +15,10 @@ import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
+import { TuitionCalculator } from '@/components/workspace/TuitionCalculator';
 import { getProgramTerms } from '@/lib/programTerms';
 
-type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
+type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'calculator' | 'messages' | 'profile';
 
 const buildNav = (collegesLabel: string): { id: Section; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
