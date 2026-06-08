@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User, CalendarDays } from 'lucide-react';
+import { Loader2, Home, GraduationCap, ListChecks, FileText, FolderArchive, FlaskConical, ShieldCheck, MessageSquare, User, CalendarDays, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JourneyHome } from '@/components/journey/JourneyHome';
 import { JourneyColleges } from '@/components/journey/JourneyColleges';
@@ -15,9 +15,10 @@ import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
+import { TuitionCalculator } from '@/components/workspace/TuitionCalculator';
 import { getProgramTerms } from '@/lib/programTerms';
 
-type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'messages' | 'profile';
+type Section = 'home' | 'colleges' | 'tasks' | 'calendar' | 'files' | 'documents' | 'lab' | 'detector' | 'calculator' | 'messages' | 'profile';
 
 const buildNav = (collegesLabel: string): { id: Section; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
@@ -28,6 +29,7 @@ const buildNav = (collegesLabel: string): { id: Section; label: string; icon: an
   { id: 'documents', label: 'Essays', icon: FileText },
   { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
   { id: 'detector', label: 'AI Detector', icon: ShieldCheck },
+  { id: 'calculator', label: 'Living Cost', icon: DollarSign },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'profile', label: 'Profile', icon: User },
 ];
@@ -167,6 +169,7 @@ export default function StudentJourney() {
           {section === 'documents' && <JourneyDocuments studentId={studentId} />}
           {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
           {section === 'detector' && <JourneyDetector studentId={studentId} />}
+          {section === 'calculator' && <TuitionCalculator />}
           {section === 'messages' && <JourneyMessages studentId={studentId} />}
           {section === 'profile' && <JourneyProfile studentId={studentId} student={student} />}
         </main>
