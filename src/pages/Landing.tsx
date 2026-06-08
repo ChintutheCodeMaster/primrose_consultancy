@@ -97,11 +97,12 @@ export default function Landing() {
 
 
       {/* Category creation / Why Primrose */}
-      <section id="why" className="border-t border-border/60 bg-muted/20">
+      <section id="why" className="border-t border-border/60 bg-gradient-to-br from-violet-50 via-background to-rose-50/60">
         <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-xs font-medium mb-6">
             A new category
           </div>
+
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight max-w-3xl mx-auto"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
