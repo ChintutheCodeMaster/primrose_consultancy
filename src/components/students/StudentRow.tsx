@@ -199,9 +199,6 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
               </Button>
 
 
-                <Sparkles className="h-3 w-3" />
-                Essay AI
-              </Button>
 
               {onEdit && (
                 <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
