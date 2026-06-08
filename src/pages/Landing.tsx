@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -483,7 +483,38 @@ const AI_ANSWERS: AiAnswer[] = [
 
 function AiShowcase() {
   const [activeIdx, setActiveIdx] = useState(0);
+  const [typed, setTyped] = useState("");
+  const [showAnswer, setShowAnswer] = useState(false);
   const answer = AI_ANSWERS[activeIdx];
+
+  // Typewriter + auto-advance loop
+  useEffect(() => {
+    setTyped("");
+    setShowAnswer(false);
+    const full = answer.question;
+    let i = 0;
+    const typeTimer = setInterval(() => {
+      i += 1;
+      setTyped(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(typeTimer);
+        // Reveal answer shortly after typing finishes
+        const revealTimer = setTimeout(() => setShowAnswer(true), 350);
+        // Advance to next question after the answer has been visible a moment
+        const advanceTimer = setTimeout(() => {
+          setActiveIdx((idx) => (idx + 1) % AI_ANSWERS.length);
+        }, 4200);
+        // Cleanup handled by outer return via refs below
+        (typeTimer as any)._reveal = revealTimer;
+        (typeTimer as any)._advance = advanceTimer;
+      }
+    }, 38);
+    return () => {
+      clearInterval(typeTimer);
+      if ((typeTimer as any)._reveal) clearTimeout((typeTimer as any)._reveal);
+      if ((typeTimer as any)._advance) clearTimeout((typeTimer as any)._advance);
+    };
+  }, [activeIdx, answer.question]);
 
   return (
     <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
@@ -504,31 +535,28 @@ function AiShowcase() {
             instantly queryable.
           </p>
           <p className="mt-6 text-xs uppercase tracking-wide text-muted-foreground font-medium">
-            Try a question →
+            Questions consultants ask Primrose
           </p>
           <ul className="mt-3 space-y-2 text-sm">
             {AI_ANSWERS.map((a, i) => {
               const isActive = i === activeIdx;
               return (
-                <li key={a.question}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveIdx(i)}
+                <li
+                  key={a.question}
+                  className={
+                    "flex items-start gap-3 rounded-lg px-3 py-2 border transition-colors " +
+                    (isActive
+                      ? "bg-primary/5 border-primary/30 text-foreground"
+                      : "border-transparent text-muted-foreground")
+                  }
+                >
+                  <MessageSquare
                     className={
-                      "w-full text-left flex items-start gap-3 rounded-lg px-3 py-2 transition border " +
-                      (isActive
-                        ? "bg-primary/5 border-primary/30 text-foreground"
-                        : "border-transparent hover:bg-muted/60 text-muted-foreground hover:text-foreground")
+                      "h-4 w-4 mt-0.5 flex-shrink-0 " +
+                      (isActive ? "text-primary" : "text-muted-foreground")
                     }
-                  >
-                    <MessageSquare
-                      className={
-                        "h-4 w-4 mt-0.5 flex-shrink-0 " +
-                        (isActive ? "text-primary" : "text-muted-foreground")
-                      }
-                    />
-                    <span className="italic">"{a.question}"</span>
-                  </button>
+                  />
+                  <span className="italic">"{a.question}"</span>
                 </li>
               );
             })}
@@ -543,26 +571,35 @@ function AiShowcase() {
             <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <Sparkles className="h-4 w-4" />
             </div>
-            <div key={activeIdx} className="flex-1 space-y-3 animate-fade-in">
-              <div className="rounded-xl bg-muted/60 p-3 text-sm">
-                {answer.question}
+            <div className="flex-1 space-y-3 min-w-0">
+              <div className="rounded-xl bg-muted/60 p-3 text-sm min-h-[3.5rem]">
+                {typed}
+                <span
+                  className="inline-block w-[2px] h-4 align-middle bg-foreground/70 ml-0.5 animate-pulse"
+                  aria-hidden
+                />
               </div>
-              <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 text-sm space-y-2">
-                <div className="font-medium">{answer.headline}</div>
-                <ul className="space-y-1.5 text-muted-foreground">
-                  {answer.rows.map((r) => (
-                    <li key={r.name} className="flex items-center gap-2">
-                      <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>
-                        <span className="text-foreground">{r.name}</span>
-                        <span className="mx-1">—</span>
-                        {r.meta}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="pt-2 text-xs text-primary">{answer.cta}</div>
-              </div>
+              {showAnswer && (
+                <div
+                  key={activeIdx}
+                  className="rounded-xl bg-primary/5 border border-primary/20 p-4 text-sm space-y-2 animate-fade-in"
+                >
+                  <div className="font-medium">{answer.headline}</div>
+                  <ul className="space-y-1.5 text-muted-foreground">
+                    {answer.rows.map((r) => (
+                      <li key={r.name} className="flex items-center gap-2">
+                        <UserCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span>
+                          <span className="text-foreground">{r.name}</span>
+                          <span className="mx-1">—</span>
+                          {r.meta}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pt-2 text-xs text-primary">{answer.cta}</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
