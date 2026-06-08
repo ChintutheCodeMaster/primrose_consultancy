@@ -614,7 +614,7 @@ function AiShowcase() {
             and voice notes — sent straight to your student as inline comments.
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xl md:sticky md:top-24">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xl md:sticky md:top-24">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <Sparkles className="h-4 w-4" />
