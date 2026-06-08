@@ -239,12 +239,14 @@ export default function Landing() {
       </section>
 
       {/* Social proof / Founders */}
-      <section id="founders" className="mx-auto max-w-6xl px-6 py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-5">
-              Built by admissions consultants
-            </div>
+      <section id="founders" className="border-t border-border/60 bg-gradient-to-br from-amber-50/70 via-background to-rose-50/60">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-medium mb-5">
+                Built by admissions consultants
+              </div>
+
             <h2
               className="text-3xl md:text-4xl font-bold tracking-tight"
               style={{ fontFamily: "Sora, Inter, sans-serif" }}
