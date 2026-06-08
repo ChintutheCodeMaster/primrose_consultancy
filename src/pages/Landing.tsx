@@ -25,15 +25,15 @@ import {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Nav */}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-30">
-        <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-              <GraduationCap className="h-5 w-5" />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-center gap-2 min-w-0">
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <span className="font-bold text-lg tracking-tight">
+            <span className="font-bold text-base sm:text-lg tracking-tight truncate">
               Primrose <span className="text-muted-foreground font-medium">IEC</span>
             </span>
           </Link>
@@ -44,11 +44,12 @@ export default function Landing() {
             <a href="#founders" className="hover:text-foreground transition">Founders</a>
             <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
           </nav>
-          <a href="#cta">
-            <Button size="sm">Request early access</Button>
+          <a href="#cta" className="flex-shrink-0">
+            <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4">Early access</Button>
           </a>
         </div>
       </header>
+
 
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -59,13 +60,14 @@ export default function Landing() {
           <div className="absolute top-40 left-1/3 h-[300px] w-[300px] rounded-full bg-rose-300/30 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-sky-300/30 blur-3xl" />
         </div>
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-24 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-xs font-medium text-violet-700 mb-6 shadow-sm">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-[11px] sm:text-xs font-medium text-violet-700 mb-5 sm:mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            The admissions practice operating system
+            <span className="hidden sm:inline">The admissions practice operating system</span>
+            <span className="sm:hidden">Admissions practice OS</span>
           </div>
           <h1
-            className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto"
+            className="text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl font-bold tracking-tight sm:leading-[1.05] max-w-4xl mx-auto"
             style={{ fontFamily: "Sora, Inter, system-ui, sans-serif" }}
           >
             The{" "}
@@ -74,19 +76,19 @@ export default function Landing() {
             </span>{" "}
             for independent educational consultants
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
             Manage leads, students, essays, deadlines, agreements, payments, and
             outcomes in one calm workspace built specifically for admissions
             consulting.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-            <a href="#cta">
-              <Button size="lg" className="gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
+          <div className="mt-8 sm:mt-10 flex items-center justify-center gap-3 flex-wrap">
+            <a href="#cta" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
                 Request early access <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
-            <a href="#ai">
-              <Button size="lg" variant="outline" className="border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
+            <a href="#ai" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
             </a>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
@@ -96,9 +98,10 @@ export default function Landing() {
       </section>
 
 
+
       {/* Category creation / Why Primrose */}
       <section id="why" className="border-t border-border/60 bg-gradient-to-br from-violet-50 via-background to-rose-50/60">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-xs font-medium mb-6">
             A new category
           </div>
@@ -152,7 +155,7 @@ export default function Landing() {
 
       {/* Features */}
       <section id="features" className="border-t border-border/60 bg-gradient-to-br from-sky-50 via-background to-emerald-50/60">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20">
           <div className="max-w-2xl">
             <h2
               className="text-3xl md:text-4xl font-bold tracking-tight"
@@ -247,7 +250,7 @@ export default function Landing() {
 
       {/* Social proof / Founders */}
       <section id="founders" className="border-t border-border/60 bg-gradient-to-br from-amber-50/70 via-background to-rose-50/60">
-        <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-medium mb-5">
@@ -301,7 +304,7 @@ export default function Landing() {
       {/* Pricing */}
       <section id="pricing" className="border-t border-border/60 bg-gradient-to-br from-emerald-50/70 via-background to-sky-50/60">
 
-        <div className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-14 sm:py-20 text-center">
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
@@ -347,7 +350,7 @@ export default function Landing() {
           <div className="absolute -top-20 left-10 h-72 w-72 rounded-full bg-white/30 blur-3xl" />
           <div className="absolute bottom-0 right-10 h-80 w-80 rounded-full bg-amber-200/40 blur-3xl" />
         </div>
-        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center">
+        <div className="relative mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24 text-center">
           <h2
             className="text-3xl md:text-5xl font-bold tracking-tight"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
@@ -373,7 +376,7 @@ export default function Landing() {
 
 
       <footer className="border-t border-border/60">
-        <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             <span>© {new Date().getFullYear()} Primrose IEC — The admissions practice operating system</span>
@@ -562,7 +565,7 @@ function AiShowcase() {
 
 
   return (
-    <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="ai" className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
       <div className="grid md:grid-cols-2 gap-12 items-start">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-5">
@@ -611,7 +614,7 @@ function AiShowcase() {
             and voice notes — sent straight to your student as inline comments.
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xl md:sticky md:top-24">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xl md:sticky md:top-24">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
               <Sparkles className="h-4 w-4" />
