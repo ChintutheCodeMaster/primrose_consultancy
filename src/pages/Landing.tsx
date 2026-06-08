@@ -60,13 +60,14 @@ export default function Landing() {
           <div className="absolute top-40 left-1/3 h-[300px] w-[300px] rounded-full bg-rose-300/30 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-sky-300/30 blur-3xl" />
         </div>
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-24 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-xs font-medium text-violet-700 mb-6 shadow-sm">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-[11px] sm:text-xs font-medium text-violet-700 mb-5 sm:mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            The admissions practice operating system
+            <span className="hidden sm:inline">The admissions practice operating system</span>
+            <span className="sm:hidden">Admissions practice OS</span>
           </div>
           <h1
-            className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto"
+            className="text-[2rem] leading-[1.1] sm:text-5xl md:text-6xl font-bold tracking-tight sm:leading-[1.05] max-w-4xl mx-auto"
             style={{ fontFamily: "Sora, Inter, system-ui, sans-serif" }}
           >
             The{" "}
@@ -75,19 +76,19 @@ export default function Landing() {
             </span>{" "}
             for independent educational consultants
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-5 sm:mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
             Manage leads, students, essays, deadlines, agreements, payments, and
             outcomes in one calm workspace built specifically for admissions
             consulting.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-            <a href="#cta">
-              <Button size="lg" className="gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
+          <div className="mt-8 sm:mt-10 flex items-center justify-center gap-3 flex-wrap">
+            <a href="#cta" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
                 Request early access <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
-            <a href="#ai">
-              <Button size="lg" variant="outline" className="border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
+            <a href="#ai" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
             </a>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
@@ -95,6 +96,7 @@ export default function Landing() {
           </p>
         </div>
       </section>
+
 
 
       {/* Category creation / Why Primrose */}
