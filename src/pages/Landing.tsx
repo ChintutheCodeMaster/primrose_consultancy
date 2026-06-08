@@ -51,36 +51,50 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-6 pt-20 pb-24 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
-          <Sparkles className="h-3.5 w-3.5" />
-          The admissions practice operating system
+      <section className="relative overflow-hidden">
+        {/* Colorful gradient blobs */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-violet-400/30 blur-3xl" />
+          <div className="absolute -top-20 right-0 h-[360px] w-[360px] rounded-full bg-amber-300/40 blur-3xl" />
+          <div className="absolute top-40 left-1/3 h-[300px] w-[300px] rounded-full bg-rose-300/30 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-sky-300/30 blur-3xl" />
         </div>
-        <h1
-          className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto"
-          style={{ fontFamily: "Sora, Inter, system-ui, sans-serif" }}
-        >
-          The AI-powered operating system for independent educational consultants
-        </h1>
-        <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Manage leads, students, essays, deadlines, agreements, payments, and
-          outcomes in one calm workspace built specifically for admissions
-          consulting.
-        </p>
-        <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-          <a href="#cta">
-            <Button size="lg" className="gap-2">
-              Request early access <ArrowRight className="h-4 w-4" />
-            </Button>
-          </a>
-          <a href="#ai">
-            <Button size="lg" variant="outline">See Primrose in action</Button>
-          </a>
+        <div className="mx-auto max-w-6xl px-6 pt-20 pb-24 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-xs font-medium text-violet-700 mb-6 shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" />
+            The admissions practice operating system
+          </div>
+          <h1
+            className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto"
+            style={{ fontFamily: "Sora, Inter, system-ui, sans-serif" }}
+          >
+            The{" "}
+            <span className="bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">
+              AI-powered operating system
+            </span>{" "}
+            for independent educational consultants
+          </h1>
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Manage leads, students, essays, deadlines, agreements, payments, and
+            outcomes in one calm workspace built specifically for admissions
+            consulting.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
+            <a href="#cta">
+              <Button size="lg" className="gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
+                Request early access <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
+            <a href="#ai">
+              <Button size="lg" variant="outline" className="border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Built by admissions consultants for admissions consultants.
+          </p>
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Built by admissions consultants for admissions consultants.
-        </p>
       </section>
+
 
       {/* Category creation / Why Primrose */}
       <section id="why" className="border-t border-border/60 bg-muted/20">
