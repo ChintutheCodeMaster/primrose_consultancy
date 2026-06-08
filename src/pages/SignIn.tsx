@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, Users, Heart, Sparkles, ArrowRight, ExternalLink } from 'lucide-react';
 
-export default function Demo() {
+export default function SignIn() {
   const [sampleStudentId, setSampleStudentId] = useState<string | null>(null);
   const [sampleToken, setSampleToken] = useState<string | null>(null);
 
