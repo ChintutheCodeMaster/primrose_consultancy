@@ -101,7 +101,7 @@ export default function Landing() {
 
       {/* Category creation / Why Primrose */}
       <section id="why" className="border-t border-border/60 bg-gradient-to-br from-violet-50 via-background to-rose-50/60">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-14 sm:py-20 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 text-violet-700 px-3 py-1 text-xs font-medium mb-6">
             A new category
           </div>
@@ -155,7 +155,7 @@ export default function Landing() {
 
       {/* Features */}
       <section id="features" className="border-t border-border/60 bg-gradient-to-br from-sky-50 via-background to-emerald-50/60">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20">
           <div className="max-w-2xl">
             <h2
               className="text-3xl md:text-4xl font-bold tracking-tight"
@@ -250,7 +250,7 @@ export default function Landing() {
 
       {/* Social proof / Founders */}
       <section id="founders" className="border-t border-border/60 bg-gradient-to-br from-amber-50/70 via-background to-rose-50/60">
-        <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-medium mb-5">
@@ -304,7 +304,7 @@ export default function Landing() {
       {/* Pricing */}
       <section id="pricing" className="border-t border-border/60 bg-gradient-to-br from-emerald-50/70 via-background to-sky-50/60">
 
-        <div className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-14 sm:py-20 text-center">
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
@@ -350,7 +350,7 @@ export default function Landing() {
           <div className="absolute -top-20 left-10 h-72 w-72 rounded-full bg-white/30 blur-3xl" />
           <div className="absolute bottom-0 right-10 h-80 w-80 rounded-full bg-amber-200/40 blur-3xl" />
         </div>
-        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center">
+        <div className="relative mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24 text-center">
           <h2
             className="text-3xl md:text-5xl font-bold tracking-tight"
             style={{ fontFamily: "Sora, Inter, sans-serif" }}
@@ -376,7 +376,7 @@ export default function Landing() {
 
 
       <footer className="border-t border-border/60">
-        <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             <span>© {new Date().getFullYear()} Primrose IEC — The admissions practice operating system</span>
@@ -565,7 +565,7 @@ function AiShowcase() {
 
 
   return (
-    <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="ai" className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
       <div className="grid md:grid-cols-2 gap-12 items-start">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium mb-5">
