@@ -533,28 +533,26 @@ function AiShowcase() {
     setShowAnswer(false);
     const full = answer.question;
     let i = 0;
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
+    let advanceTimer: ReturnType<typeof setTimeout> | undefined;
     const typeTimer = setInterval(() => {
       i += 1;
       setTyped(full.slice(0, i));
       if (i >= full.length) {
         clearInterval(typeTimer);
-        // Reveal answer shortly after typing finishes
-        const revealTimer = setTimeout(() => setShowAnswer(true), 350);
-        // Advance to next question after the answer has been visible a moment
-        const advanceTimer = setTimeout(() => {
+        revealTimer = setTimeout(() => setShowAnswer(true), 350);
+        advanceTimer = setTimeout(() => {
           setActiveIdx((idx) => (idx + 1) % AI_ANSWERS.length);
         }, 4200);
-        // Cleanup handled by outer return via refs below
-        (typeTimer as any)._reveal = revealTimer;
-        (typeTimer as any)._advance = advanceTimer;
       }
     }, 38);
     return () => {
       clearInterval(typeTimer);
-      if ((typeTimer as any)._reveal) clearTimeout((typeTimer as any)._reveal);
-      if ((typeTimer as any)._advance) clearTimeout((typeTimer as any)._advance);
+      if (revealTimer) clearTimeout(revealTimer);
+      if (advanceTimer) clearTimeout(advanceTimer);
     };
   }, [activeIdx, answer.question]);
+
 
   return (
     <section id="ai" className="mx-auto max-w-6xl px-6 py-24">
