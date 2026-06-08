@@ -31,7 +31,7 @@ import StudentJourney from "./pages/StudentJourney";
 import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
-import Demo from "./pages/Demo";
+import SignIn from "./pages/SignIn";
 import Outcomes from "./pages/Outcomes";
 import StudentWorkspace from "./pages/StudentWorkspace";
 import ConsultantEssayReview from "./pages/ConsultantEssayReview";
@@ -57,8 +57,10 @@ const App = () => (
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
 
-          {/* Demo entry */}
-          <Route path="/demo" element={<Demo />} />
+          {/* Sign in / role picker */}
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/demo" element={<SignIn />} />
+
 
           {/* App routes (authentication temporarily disabled) */}
           <Route path="/dashboard" element={<Dashboard />} />
