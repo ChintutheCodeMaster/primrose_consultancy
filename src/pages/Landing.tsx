@@ -123,9 +123,8 @@ export default function Landing() {
       {/* AI as core */}
       <AiShowcase />
 
-          </div>
-        </div>
-      </section>
+
+
 
       {/* Features */}
       <section id="features" className="border-t border-border/60 bg-muted/20">
