@@ -64,7 +64,7 @@ export default function Demo() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Hero with colorful gradient blobs (match Landing) */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10">
@@ -74,13 +74,13 @@ export default function Demo() {
           <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-sky-300/30 blur-3xl" />
         </div>
 
-        <div className="mx-auto max-w-6xl px-6 pt-16 pb-12 sm:pt-20 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-xs font-medium text-violet-700 mb-6 shadow-sm">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-10 sm:pt-20 sm:pb-12 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-[11px] sm:text-xs font-medium text-violet-700 mb-5 sm:mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
             Live demo · Primrose IEC
           </div>
           <h1
-            className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.05] max-w-3xl mx-auto"
+            className="text-[1.85rem] leading-[1.15] sm:text-4xl md:text-5xl font-bold tracking-tight sm:leading-[1.05] max-w-3xl mx-auto"
             style={{ fontFamily: 'Sora, Inter, system-ui, sans-serif' }}
           >
             Step inside the{' '}
@@ -88,16 +88,17 @@ export default function Demo() {
               admissions operating system
             </span>
           </h1>
-          <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 sm:mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Pick the role you want to experience. Everything below is the real
             product running on real data.
           </p>
         </div>
 
         {/* Cards */}
-        <div className="mx-auto max-w-6xl px-6 pb-10">
-          <div className="grid gap-5 md:grid-cols-3">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 pb-10">
+          <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
             {cards.map((c, i) => (
+
               <Link
                 key={c.label}
                 to={c.to}
