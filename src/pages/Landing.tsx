@@ -28,12 +28,12 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Nav */}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-30">
-        <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-              <GraduationCap className="h-5 w-5" />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-center gap-2 min-w-0">
+            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <span className="font-bold text-lg tracking-tight">
+            <span className="font-bold text-base sm:text-lg tracking-tight truncate">
               Primrose <span className="text-muted-foreground font-medium">IEC</span>
             </span>
           </Link>
@@ -44,11 +44,12 @@ export default function Landing() {
             <a href="#founders" className="hover:text-foreground transition">Founders</a>
             <a href="#pricing" className="hover:text-foreground transition">Pricing</a>
           </nav>
-          <a href="#cta">
-            <Button size="sm">Request early access</Button>
+          <a href="#cta" className="flex-shrink-0">
+            <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4">Early access</Button>
           </a>
         </div>
       </header>
+
 
       {/* Hero */}
       <section className="relative overflow-hidden">
