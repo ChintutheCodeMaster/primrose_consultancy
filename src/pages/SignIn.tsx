@@ -77,21 +77,22 @@ export default function SignIn() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-10 sm:pt-20 sm:pb-12 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-[11px] sm:text-xs font-medium text-violet-700 mb-5 sm:mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            Live demo · Primrose IEC
+            Sign in · Primrose IEC
           </div>
           <h1
             className="text-[1.85rem] leading-[1.15] sm:text-4xl md:text-5xl font-bold tracking-tight sm:leading-[1.05] max-w-3xl mx-auto"
             style={{ fontFamily: 'Sora, Inter, system-ui, sans-serif' }}
           >
-            Step inside the{' '}
+            Sign in to{' '}
             <span className="bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">
-              admissions operating system
+              Primrose
             </span>
           </h1>
           <p className="mt-4 sm:mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Pick the role you want to experience. Everything below is the real
-            product running on real data.
+            Choose how you'd like to enter — as a consultant, student, or
+            parent. Each view is the real product running on real data.
           </p>
+
         </div>
 
         {/* Cards */}
