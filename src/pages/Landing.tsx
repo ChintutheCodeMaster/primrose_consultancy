@@ -125,11 +125,12 @@ export default function Landing() {
               { before: "Inbox chaos for essay drafts", after: "Versioned essay workflow with AI review" },
               { before: "Calendar reminders for deadlines", after: "Deadline radar across every applicant" },
             ].map((row) => (
-              <div key={row.before} className="rounded-xl border border-border bg-card p-4">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Before</div>
+              <div key={row.before} className="rounded-xl border border-violet-200/70 bg-white p-4 shadow-sm">
+                <div className="text-xs uppercase tracking-wide text-rose-500/90 font-medium">Before</div>
                 <div className="text-sm line-through text-muted-foreground">{row.before}</div>
-                <div className="mt-3 text-xs uppercase tracking-wide text-primary">With Primrose</div>
+                <div className="mt-3 text-xs uppercase tracking-wide text-violet-600 font-medium">With Primrose</div>
                 <div className="text-sm font-medium">{row.after}</div>
+
               </div>
             ))}
           </div>
