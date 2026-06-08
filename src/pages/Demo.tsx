@@ -36,7 +36,8 @@ export default function Demo() {
       title: 'Enter as an IEC',
       desc: 'The Command Center, Rose your AI strategist, the Acceptance Wall, full CRM.',
       icon: Users,
-      gradient: 'from-emerald-500 via-teal-600 to-cyan-700',
+      gradient: 'from-violet-600 to-indigo-600',
+      ring: 'ring-violet-200',
       to: '/app',
       cta: 'Open Command Center',
     },
@@ -45,95 +46,119 @@ export default function Demo() {
       title: 'Enter as a Student',
       desc: 'The student journey: calendar, college list, essays, AI coach, and progress.',
       icon: GraduationCap,
-      gradient: 'from-indigo-500 via-violet-600 to-purple-700',
+      gradient: 'from-rose-500 to-amber-500',
+      ring: 'ring-rose-200',
       to: sampleToken ? `/journey/${sampleToken}` : sampleStudentId ? `/journey/demo` : '/students',
       cta: sampleToken ? 'Open Student Journey' : 'See Students',
     },
     {
       label: 'Parent',
       title: 'Enter as a Parent',
-      desc: 'A calm, read-only window into the student\'s progress, milestones and wins.',
+      desc: "A calm, read-only window into the student's progress, milestones and wins.",
       icon: Heart,
-      gradient: 'from-rose-500 via-pink-600 to-fuchsia-700',
+      gradient: 'from-sky-500 to-emerald-500',
+      ring: 'ring-sky-200',
       to: sampleToken ? `/journey/${sampleToken}` : '/',
       cta: 'Open Parent View',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:py-20">
-        {/* Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-white/70 px-4 py-1.5 text-xs font-medium text-emerald-700 shadow-sm backdrop-blur">
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Hero with colorful gradient blobs (match Landing) */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-violet-400/30 blur-3xl" />
+          <div className="absolute -top-20 right-0 h-[360px] w-[360px] rounded-full bg-amber-300/40 blur-3xl" />
+          <div className="absolute top-40 left-1/3 h-[300px] w-[300px] rounded-full bg-rose-300/30 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-sky-300/30 blur-3xl" />
+        </div>
+
+        <div className="mx-auto max-w-6xl px-6 pt-16 pb-12 sm:pt-20 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-xs font-medium text-violet-700 mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
             Live demo · Primrose IEC
           </div>
-          <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
-            The operating system for{' '}
-            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              Independent Educational Consultants
+          <h1
+            className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.05] max-w-3xl mx-auto"
+            style={{ fontFamily: 'Sora, Inter, system-ui, sans-serif' }}
+          >
+            Step inside the{' '}
+            <span className="bg-gradient-to-r from-violet-600 via-rose-500 to-amber-500 bg-clip-text text-transparent">
+              admissions operating system
             </span>
           </h1>
-          <p className="mt-5 text-lg text-muted-foreground">
-            Pick the role you want to experience. Everything below is the real product running on real data.
+          <p className="mt-5 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Pick the role you want to experience. Everything below is the real
+            product running on real data.
           </p>
         </div>
 
         {/* Cards */}
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {cards.map((c, i) => (
-            <Link
-              key={c.label}
-              to={c.to}
-              className="group relative flex flex-col overflow-hidden rounded-3xl border bg-card p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-2xl animate-slide-up"
-              style={{ animationDelay: `${i * 80}ms`, animationFillMode: 'both' }}
-            >
-              <div className={`absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-to-br ${c.gradient} opacity-20 blur-2xl transition-opacity group-hover:opacity-40`} />
+        <div className="mx-auto max-w-6xl px-6 pb-10">
+          <div className="grid gap-5 md:grid-cols-3">
+            {cards.map((c, i) => (
+              <Link
+                key={c.label}
+                to={c.to}
+                className={`group relative flex flex-col overflow-hidden rounded-3xl border border-violet-200/60 bg-white/80 backdrop-blur p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-2xl hover:ring-2 ${c.ring} animate-slide-up`}
+                style={{ animationDelay: `${i * 80}ms`, animationFillMode: 'both' }}
+              >
+                <div className={`absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-to-br ${c.gradient} opacity-20 blur-2xl transition-opacity group-hover:opacity-40`} />
 
-              <div className={`relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${c.gradient} text-white shadow-lg`}>
-                <c.icon className="h-7 w-7" />
-              </div>
+                <div className={`relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${c.gradient} text-white shadow-lg`}>
+                  <c.icon className="h-7 w-7" />
+                </div>
 
-              <p className="relative mt-6 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                {c.label}
-              </p>
-              <h2 className="relative mt-1 text-2xl font-semibold">{c.title}</h2>
-              <p className="relative mt-3 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
+                <p className="relative mt-6 text-xs font-medium uppercase tracking-widest text-violet-600">
+                  {c.label}
+                </p>
+                <h2
+                  className="relative mt-1 text-2xl font-semibold"
+                  style={{ fontFamily: 'Sora, Inter, sans-serif' }}
+                >
+                  {c.title}
+                </h2>
+                <p className="relative mt-3 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
 
-              <div className="relative mt-8 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{c.cta}</span>
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
-          ))}
+                <div className="relative mt-8 flex items-center justify-between">
+                  <span className={`text-sm font-semibold bg-gradient-to-r ${c.gradient} bg-clip-text text-transparent`}>{c.cta}</span>
+                  <ArrowRight className="h-5 w-5 text-violet-600 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* Highlights */}
-        <div className="mt-16 grid gap-4 rounded-3xl border bg-card/60 p-8 backdrop-blur sm:grid-cols-3">
-          <Highlight title="AI Daily Brief" desc="Rose summarizes your practice every morning." />
-          <Highlight title="Acceptance Wall" desc="Every student win, immortalized as a tile." />
-          <Highlight title="Practice Intelligence" desc="Pipeline, deadlines, cold leads, all in one view." />
-        </div>
+      {/* Highlights */}
+      <section className="border-t border-border/60 bg-gradient-to-br from-violet-50 via-background to-rose-50/60">
+        <div className="mx-auto max-w-5xl px-6 py-14">
+          <div className="grid gap-6 rounded-3xl border border-violet-200/60 bg-white/70 backdrop-blur p-8 sm:grid-cols-3">
+            <Highlight color="bg-violet-500" title="AI Daily Brief" desc="Rose summarizes your practice every morning." />
+            <Highlight color="bg-rose-500" title="Acceptance Wall" desc="Every student win, immortalized as a tile." />
+            <Highlight color="bg-amber-500" title="Practice Intelligence" desc="Pipeline, deadlines, cold leads, all in one view." />
+          </div>
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/">
-              Back to marketing site
-              <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-            </Link>
-          </Button>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-sm">
+            <Button asChild variant="ghost" size="sm" className="text-violet-700 hover:text-violet-900 hover:bg-violet-50">
+              <Link to="/">
+                Back to marketing site
+                <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
-function Highlight({ title, desc }: { title: string; desc: string }) {
+function Highlight({ title, desc, color }: { title: string; desc: string; color: string }) {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
         <p className="text-sm font-semibold">{title}</p>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
