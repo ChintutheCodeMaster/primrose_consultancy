@@ -34,7 +34,7 @@ export default function Landing() {
               <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <span className="font-bold text-base sm:text-lg tracking-tight truncate">
-              Primrose <span className="text-muted-foreground font-medium">IEC</span>
+              Primrose
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -113,10 +113,10 @@ export default function Landing() {
             Admissions software wasn't built for admissions consultants
           </h2>
           <p className="mt-6 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Most IECs run their practice on a patchwork of spreadsheets, Google
-            Docs, email threads, shared calendars, and generic CRMs that were
-            designed for sales teams — not for guiding a student through four
-            years of essays, applications, and decisions.
+            Most admissions consultants run their practice on a patchwork of
+            spreadsheets, Google Docs, email threads, shared calendars, and
+            generic CRMs that were designed for sales teams — not for guiding a
+            student through four years of essays, applications, and decisions.
           </p>
           <p className="mt-4 text-foreground font-medium max-w-2xl mx-auto">
             Primrose brings the entire admissions workflow — from first inquiry
@@ -284,7 +284,7 @@ export default function Landing() {
             <Testimonial
               quote="Primrose finally replaced the four tools I was juggling. The AI assistant alone saves me hours a week."
               name="Beta consultant, US"
-              role="Solo IEC, undergraduate admissions"
+              role="Solo consultant, undergraduate admissions"
             />
             <Testimonial
               quote="It's the first platform that actually thinks like an admissions consultant. The essay workflow is a game-changer."
@@ -294,7 +294,7 @@ export default function Landing() {
             <Testimonial
               quote="The college list, deadline tracking, and parent communication finally live in one place. My students feel it too."
               name="Beta consultant, International"
-              role="Cross-border IEC"
+              role="Cross-border advisor"
             />
             </div>
           </div>
@@ -379,7 +379,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
-            <span>© {new Date().getFullYear()} Primrose IEC — The admissions practice operating system</span>
+            <span>© {new Date().getFullYear()} Primrose — The admissions practice operating system</span>
           </div>
           <div className="flex items-center gap-6">
             <a href="#features" className="hover:text-foreground">Features</a>
