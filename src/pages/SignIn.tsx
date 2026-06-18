@@ -33,7 +33,7 @@ export default function SignIn() {
   const cards = [
     {
       label: 'Consultant',
-      title: 'Enter as an IEC',
+      title: 'Enter as a Consultant',
       desc: 'The Command Center, Rose your AI strategist, the Acceptance Wall, full CRM.',
       icon: Users,
       gradient: 'from-violet-600 to-indigo-600',
@@ -77,7 +77,7 @@ export default function SignIn() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-10 sm:pt-20 sm:pb-12 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/60 bg-white/70 backdrop-blur px-3 py-1 text-[11px] sm:text-xs font-medium text-violet-700 mb-5 sm:mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5" />
-            Sign in · Primrose IEC
+            Sign in · Primrose
           </div>
           <h1
             className="text-[1.85rem] leading-[1.15] sm:text-4xl md:text-5xl font-bold tracking-tight sm:leading-[1.05] max-w-3xl mx-auto"

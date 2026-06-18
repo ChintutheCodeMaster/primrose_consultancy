@@ -1,0 +1,80 @@
+# Project Memory
+
+## Core
+- Product: **Primrose** — multi-tenant SaaS CRM for private admissions consultants and college counselors (IECA members, HECA members, solo counselors, boutique firms, essay coaches, international agents). Pivoting from the original Hebrew "Noga" CRM. Avoid "IEC"/"IECA"-coded language on acquisition surfaces (landing, sign-in, metadata) — use neutral terms like "consultant" / "advisor" / "private admissions consultant".
+- Direction: English UI, LTR, USD default. Multi-tenant via Lovable Cloud auth + `organization_id` + RLS (Phase 2, not yet built).
+- Stack: Supabase DB & Storage, React + Vite + Tailwind.
+- Current auth: **DISABLED** during build. PasswordGate component still exists but is unused in App.tsx; all routes are open. Real auth comes back in Phase 2.
+- Routing: `/` = public marketing site (Landing.tsx). `/app` = dashboard (Index). All routes open (no gate).
+- Pivot terminology map: מתעניינים → Inquiries, סטודנטים → Students, לקוחות עבר → Alumni, לא המשיכו → Closed/Lost, יועצים → Consultants, הסכם → Engagement Agreement, מקור הגעה → Lead Source, תחום לימודים → Field of Interest.
+- Pivot status: Phase 1 partially shipped (shell + sidebar + landing in English/LTR). Most page bodies (Dashboard, Leads, Students, Settings, dialogs) still contain Hebrew copy and ₪ currency — translate progressively. Plan saved at `.lovable/plan.md` with 5 phases.
+- Robustness: Always use null-safe checks for email/phone before string operations.
+- UI Constraints: Selects/Dialogs must have max-height and `overflow-y-auto`. Search inputs need an 'X' clear button.
+- Mobile Layout: Use `overflow-x-hidden` on main layouts and vertical stacking for tables/components.
+- Financial Inputs: Manage as strings internally, parse to number on DB save.
+- Data Validation: Email and Phone are optional. Use `type="text"` for email to prevent browser validation blocks.
+- File Access: Open PDFs/Images synchronously in a new tab; download Office files directly.
+
+## Memories
+- [Pivot Plan](mem://product/pivot-plan) — 5-phase Noga → Primrose pivot, see also .lovable/plan.md
+- [Domain & Purpose](mem://business/domain-and-purpose) — original CRM for Noga study abroad consulting
+- [Database & Backend](mem://technical/database-backend) — Supabase DB and Storage usage
+- [Password Protection](mem://constraints/password-protection) — Global and advisor auth logic
+- [Sidebar Organization](mem://style/sidebar-navigation-order) — Specific ordering of sidebar categories
+- [Dynamic Sidebar](mem://features/dynamic-sidebar-management) — DB-driven sidebar category management
+- [Settings Dropdowns](mem://features/settings/dropdown-options-management) — Dynamic management of source/country options
+- [Wix Integration](mem://features/leads/wix-integration) — Automatic webhook lead creation from Wix
+- [Wix Lead Year Settings](mem://features/settings/leads-year-management) — Transition dates for Wix leads' year assignment
+- [Dialog State Management](mem://technical/dialog-state-management) — Preventing state resets during typing in dialogs
+- [Leads Categorization](mem://features/leads/categorization) — Keeping exact names, year categorization (YY)
+- [Leads Excel Import](mem://features/leads/excel-import) — Duplicate handling and skipping logic
+- [Data Import Conventions](mem://technical/data-import-conventions) — Hebrew to English term mapping for imports
+- [Global Search](mem://features/search/global-search-navigation) — URL year parameters required for searches
+- [Robust Search Logic](mem://technical/robust-search-logic) — Handling missing data during search queries
+- [Search UI Elements](mem://style/search-ui-elements) — Clear button implementation
+- [Conversion Workflow](mem://features/leads/conversion-workflow) — Steps for converting leads to students
+- [Student Lifecycle](mem://features/students/lifecycle) — Acceptance details and automatic payment dates
+- [Student Payment Logic](mem://features/students/payment-logic) — VAT, hourly rates, and auto-dating
+- [Target Countries](mem://features/students/target-countries) — Multi-select dynamic country tagging
+- [Target Universities](mem://features/students/university-selection) — UniversityDropdown component usage
+- [Field of Study](mem://features/students/field-of-study-autocomplete) — FieldAutocomplete dynamic list component
+- [Student Filtering](mem://features/students/filtering) — Robust filtering options and always-visible university filter
+- [Student Statuses](mem://features/students/status-options) — Allowed statuses (active, accepted, enrolled, graduated, paused)
+- [Student Restoration](mem://features/students/restoration) — Bringing past clients back to active status
+- [Scholarships](mem://features/students/scholarships) — Documenting specific scholarships won
+- [College List](mem://features/students/college-list) — US college tracker + applicant academic profile (student_colleges, student_profile_extras)
+- [Acceptance Letters](mem://features/acceptance-letter-uploads) — Managing multiple letters via Supabase Storage
+- [Contact Documentation](mem://features/contact-documentation) — Timestamped call log and interaction history
+- [Data Requirements](mem://constraints/data-requirements) — Optional emails/phones, autocomplete setups
+- [Past Clients Management](mem://features/past-clients/management) — 2021-22 exception and graduation year logic
+- [Past Clients Financials](mem://features/students/past-clients-financial-logic) — Falling back to amount_paid if package cost is missing
+- [DNC Organization](mem://features/did-not-continue-organization) — Moving records to 'Did Not Continue' with original dates
+- [DNC Import Tool](mem://features/did-not-continue-import-tool) — `/temp-import-dnc` duplicate merging logic
+- [Advisors System](mem://features/advisors-system) — Advisor card UI and multi-select assignment
+- [Advisor Portals](mem://features/advisor-portal/functionality) — Standalone view for docs and checklists
+- [Projects & Collaborations](mem://features/projects-and-collaborations) — Project-based incomes and file detachment
+- [Agreements System](mem://features/agreements/system) — Digital agreement generation at `/agreement/:studentId`
+- [Agreement Templates](mem://features/agreements/templates) — Package, Hourly, Edit, and MBA templates
+- [Signed Agreements](mem://features/signed-agreements-page) — Log of digitally signed contracts
+- [Analytics Visual Style](mem://features/analytics-visual-style) — Chart formatting and color schemes
+- [Analytics Overview Cards](mem://features/analytics/overview-cards) — Core KPIs displayed
+- [Income Calculation](mem://features/financial/income-calculation) — Current month payment_date logic
+- [Income Details](mem://features/analytics/income-details) — Unique student counts vs total sums
+- [Conversion Funnel](mem://features/analytics/conversion-funnel) — Formula for conversion tracking
+- [University Distribution](mem://features/analytics/university-distribution) — Top 10 universities pie chart logic
+- [Projects Income](mem://features/analytics/projects-income) — Stacked bar chart for collab entities
+- [Dashboard Export Reminder](mem://features/dashboard/export-reminder) — 14-day localStorage reminder banner
+- [Dashboard New Leads](mem://features/dashboard/new-leads-notification) — 7-day website leads notification
+- [Dashboard New Students](mem://features/dashboard/new-students-logic) — Counting all records created this month
+- [Dashboard Attention](mem://features/dashboard/attention-section) — Alerts for missing docs/payments
+- [Dashboard Data Export](mem://features/dashboard-data-export) — Segregated Excel sheet generation
+- [Data Export Deduplication](mem://features/data-export/deduplication-logic) — Merging duplicates on export
+- [Email Export Tool](mem://features/data-export/email-export-tool) — `/temp-export` lists generation
+- [Custom Payment Reminders](mem://features/custom-payment-reminders) — Custom dates overriding default logic
+- [Dialog & Dropdown Behavior](mem://style/dialog-and-dropdown-behavior) — Max-height constraints
+- [Financial Input Logic](mem://style/financial-input-logic) — String-to-number handling for decimals
+- [Mobile Responsiveness](mem://style/mobile-responsiveness) — Stacking UI and `overflow-x-hidden`
+- [File Storage & Access](mem://technical/file-storage-and-access) — Synchronous tab opening for PDFs/images
+- [AI Chat System](mem://features/ai-assistant/chat-system) — CRM query bot with streaming
+- [AI Chat History](mem://features/ai-assistant/history-persistence) — Saving threads in DB
+- [AI Interactive Navigation](mem://features/ai-assistant/interactive-navigation) — Markdown routing links
