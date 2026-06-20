@@ -8,7 +8,11 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Noga's data lives in the `noga` Postgres schema of the shared TPR Supabase
+// project; `as any` because types.ts is still generated for the public schema
+// and will be regenerated against `noga` separately. Runtime is unaffected.
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  db: { schema: 'noga' as any },
   auth: {
     storage: localStorage,
     persistSession: true,
