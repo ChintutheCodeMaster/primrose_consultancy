@@ -10,10 +10,10 @@ export function NeedsAttention({ data }: Props) {
   }
 
   const items = [
-    { label: 'Cold leads', value: data.coldLeads, icon: UserX, tone: 'text-rose-600 bg-rose-50', to: '/leads/all' },
-    { label: 'Unsigned agreements', value: data.unsignedAgreements, icon: FileWarning, tone: 'text-violet-600 bg-violet-50', to: '/students' },
-    { label: 'Deadlines next 14 days', value: data.upcomingDeadlines, icon: Clock, tone: 'text-amber-600 bg-amber-50', to: '/deadlines' },
-    { label: 'Unpaid students', value: data.unpaidStudents, icon: CircleDollarSign, tone: 'text-emerald-700 bg-emerald-50', to: '/students' },
+    { label: 'Cold leads', value: data.coldLeads, icon: UserX, tone: 'text-rose-600 bg-rose-50', to: '/leads/26' },
+    { label: 'Unsigned agreements', value: data.unsignedAgreements, icon: FileWarning, tone: 'text-violet-600 bg-violet-50', to: '/students?agreement=unsigned' },
+    { label: 'Deadlines next 14 days', value: data.upcomingDeadlines, icon: Clock, tone: 'text-amber-600 bg-amber-50', to: '/deadlines?focus=upcoming' },
+    { label: 'Unpaid students', value: data.unpaidStudents, icon: CircleDollarSign, tone: 'text-emerald-700 bg-emerald-50', to: '/students?payment=unpaid' },
   ];
 
   return (

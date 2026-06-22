@@ -24,6 +24,7 @@ export default function Students() {
   const [statusFilter, setStatusFilter] = useState<StudentStatus | 'all'>('all');
   const [advisorFilter, setAdvisorFilter] = useState<string>('all');
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
+  const [agreementFilter, setAgreementFilter] = useState<string>('all');
   const [countryFilter, setCountryFilter] = useState<string>('all');
   const [degreeFilter, setDegreeFilter] = useState<DegreeType | 'all'>('all');
   const [fieldFilter, setFieldFilter] = useState<string>('all');
@@ -140,7 +141,17 @@ export default function Students() {
     if (searchParams.get('filter') === 'attention') {
       setAttentionFilter(true);
     }
-    
+
+    const paymentParam = searchParams.get('payment');
+    if (paymentParam === 'paid' || paymentParam === 'unpaid') {
+      setPaymentFilter(paymentParam);
+    }
+
+    const agreementParam = searchParams.get('agreement');
+    if (agreementParam === 'signed' || agreementParam === 'unsigned') {
+      setAgreementFilter(agreementParam);
+    }
+
     // Handle highlight parameter for scrolling to specific student
     const studentId = searchParams.get('highlight');
     if (studentId) {
@@ -182,15 +193,16 @@ export default function Students() {
   }, [students]);
 
   // Check if any filter is active
-  const hasActiveFilters = statusFilter !== 'all' || advisorFilter !== 'all' || 
-    paymentFilter !== 'all' || countryFilter !== 'all' || degreeFilter !== 'all' ||
-    fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' || 
+  const hasActiveFilters = statusFilter !== 'all' || advisorFilter !== 'all' ||
+    paymentFilter !== 'all' || agreementFilter !== 'all' || countryFilter !== 'all' || degreeFilter !== 'all' ||
+    fieldFilter !== 'all' || sourceFilter !== 'all' || costFilter !== 'all' ||
     acceptedFilter !== 'all' || universityFilter !== 'all' || attentionFilter;
 
   const clearAllFilters = () => {
     setStatusFilter('all');
     setAdvisorFilter('all');
     setPaymentFilter('all');
+    setAgreementFilter('all');
     setCountryFilter('all');
     setDegreeFilter('all');
     setFieldFilter('all');
@@ -219,9 +231,12 @@ export default function Students() {
                            student.interestedField.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
       const matchesAdvisor = advisorFilter === 'all' || student.advisorName === advisorFilter;
-      const matchesPayment = paymentFilter === 'all' || 
-        (paymentFilter === 'paid' && student.isPaid) || 
+      const matchesPayment = paymentFilter === 'all' ||
+        (paymentFilter === 'paid' && student.isPaid) ||
         (paymentFilter === 'unpaid' && !student.isPaid);
+      const matchesAgreement = agreementFilter === 'all' ||
+        (agreementFilter === 'signed' && student.signedAgreement) ||
+        (agreementFilter === 'unsigned' && !student.signedAgreement);
       const matchesCountry = countryFilter === 'all' || student.interestedCountry === countryFilter;
       const matchesDegree = degreeFilter === 'all' || student.degreeType === degreeFilter;
       const matchesField = fieldFilter === 'all' || student.interestedField === fieldFilter;
@@ -239,18 +254,18 @@ export default function Students() {
         student.targetUniversity === universityFilter ||
         student.acceptedUniversities.some(u => u.name === universityFilter);
       
-      return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment && 
-             matchesCountry && matchesDegree && matchesField && matchesSource && 
+      return matchesSearch && matchesStatus && matchesAdvisor && matchesPayment &&
+             matchesAgreement && matchesCountry && matchesDegree && matchesField && matchesSource &&
              matchesCost && matchesAccepted && matchesAttention && matchesUniversity;
     });
-    
+
     // Sort by date
     return filtered.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, universityFilter, sortOrder]);
+  }, [students, searchTerm, statusFilter, advisorFilter, paymentFilter, agreementFilter, countryFilter, degreeFilter, fieldFilter, sourceFilter, costFilter, acceptedFilter, attentionFilter, universityFilter, sortOrder]);
 
   const handleAddStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
     const { error } = await supabase.from('students').insert({
@@ -526,6 +541,17 @@ export default function Students() {
                 <SelectItem value="all">All Payment Statuses</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="unpaid">Unpaid</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={agreementFilter} onValueChange={setAgreementFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Agreement" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Agreement Statuses</SelectItem>
+                <SelectItem value="signed">Signed</SelectItem>
+                <SelectItem value="unsigned">Unsigned</SelectItem>
               </SelectContent>
             </Select>
 

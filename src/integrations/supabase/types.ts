@@ -1319,47 +1319,6 @@ export type Database = {
           },
         ]
       }
-      student_portal_tokens: {
-        Row: {
-          created_at: string
-          expires_at: string | null
-          id: string
-          last_seen_at: string | null
-          status: string
-          student_id: string
-          token: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          last_seen_at?: string | null
-          status?: string
-          student_id: string
-          token: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          last_seen_at?: string | null
-          status?: string
-          student_id?: string
-          token?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "student_portal_tokens_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       student_profile_extras: {
         Row: {
           about_me: string | null

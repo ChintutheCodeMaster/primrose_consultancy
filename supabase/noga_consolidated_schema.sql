@@ -449,18 +449,6 @@ CREATE TABLE noga.student_messages (
   created_at          timestamptz NOT NULL DEFAULT now()
 );
 
--- ---- student_portal_tokens ------------------------------------------------
-CREATE TABLE noga.student_portal_tokens (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id    uuid NOT NULL,
-  token         text NOT NULL UNIQUE,
-  status        text NOT NULL DEFAULT 'active',
-  expires_at    timestamptz,
-  last_seen_at  timestamptz,
-  created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
-);
-
 -- ---- student_profile_extras -----------------------------------------------
 CREATE TABLE noga.student_profile_extras (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -816,10 +804,6 @@ CREATE TRIGGER update_student_profile_extras_updated_at
   BEFORE UPDATE ON noga.student_profile_extras
   FOR EACH ROW EXECUTE FUNCTION noga.update_updated_at_column();
 
-CREATE TRIGGER trg_portal_tokens_updated
-  BEFORE UPDATE ON noga.student_portal_tokens
-  FOR EACH ROW EXECUTE FUNCTION noga.update_updated_at_column();
-
 CREATE TRIGGER trg_student_tasks_updated
   BEFORE UPDATE ON noga.student_tasks
   FOR EACH ROW EXECUTE FUNCTION noga.update_updated_at_column();
@@ -902,7 +886,6 @@ ALTER TABLE noga.student_document_versions   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_documents           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_documents_v2        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_messages            ENABLE ROW LEVEL SECURITY;
-ALTER TABLE noga.student_portal_tokens       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_profile_extras      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_scholarships        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE noga.student_strategy_reviews    ENABLE ROW LEVEL SECURITY;
@@ -1058,9 +1041,6 @@ CREATE POLICY "Allow public insert on student_profile_extras" ON noga.student_pr
 CREATE POLICY "Allow public update on student_profile_extras" ON noga.student_profile_extras FOR UPDATE USING (true);
 CREATE POLICY "Allow public delete on student_profile_extras" ON noga.student_profile_extras FOR DELETE USING (true);
 
--- student_portal_tokens
-CREATE POLICY "Allow public access" ON noga.student_portal_tokens FOR ALL USING (true) WITH CHECK (true);
-
 -- student_tasks
 CREATE POLICY "Allow public access" ON noga.student_tasks FOR ALL USING (true) WITH CHECK (true);
 
@@ -1177,10 +1157,6 @@ ALTER TABLE noga.student_documents_v2
 
 ALTER TABLE noga.student_messages
   ADD CONSTRAINT student_messages_student_id_fkey
-  FOREIGN KEY (student_id) REFERENCES noga.students(id) ON DELETE CASCADE;
-
-ALTER TABLE noga.student_portal_tokens
-  ADD CONSTRAINT student_portal_tokens_student_id_fkey
   FOREIGN KEY (student_id) REFERENCES noga.students(id) ON DELETE CASCADE;
 
 ALTER TABLE noga.student_profile_extras

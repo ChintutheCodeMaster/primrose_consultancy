@@ -13,7 +13,7 @@ import { openExternalFile } from "@/lib/file-open";
 import { StudentApplicantProfile } from "@/components/students/StudentApplicantProfile";
 import { StudentCollegeList } from "@/components/students/StudentCollegeList";
 import { StudentStrategistPanel } from "@/components/students/StudentStrategistPanel";
-import { StudentJourneyTokenPanel } from "@/components/students/StudentJourneyTokenPanel";
+import { AccountStatusPanel } from "@/components/students/AccountStatusPanel";
 import { JourneyProgress } from "@/components/journey/JourneyProgress";
 import { JourneyFiles } from "@/components/journey/JourneyFiles";
 import { JourneyCalendar } from "@/components/journey/JourneyCalendar";
@@ -68,6 +68,7 @@ interface Document {
 interface Student {
   id: string;
   name: string;
+  email?: string | null;
 }
 
 const documentCategories = [
@@ -116,7 +117,7 @@ export default function StudentPortalManagement() {
     
     const { data: studentData } = await supabase
       .from("students")
-      .select("id, name")
+      .select("id, name, email")
       .eq("id", studentId)
       .maybeSingle();
 
@@ -273,40 +274,6 @@ export default function StudentPortalManagement() {
     }
   };
 
-  const copyPortalLink = async () => {
-    const { data } = await supabase
-      .from('student_portal_tokens')
-      .select('token')
-      .eq('student_id', studentId!)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (!data?.token) {
-      toast({ title: 'No active link', description: 'Generate a portal link first (see panel below).', variant: 'destructive' });
-      return;
-    }
-    const link = `${window.location.origin}/journey/${data.token}`;
-    navigator.clipboard.writeText(link);
-    toast({ title: "Link copied!", description: "Student portal link copied to clipboard" });
-  };
-
-  const openPortal = async () => {
-    const { data } = await supabase
-      .from('student_portal_tokens')
-      .select('token')
-      .eq('student_id', studentId!)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (!data?.token) {
-      toast({ title: 'No active link', description: 'Generate a portal link first.', variant: 'destructive' });
-      return;
-    }
-    window.open(`/journey/${data.token}`, '_blank');
-  };
-
   if (loading) {
     return (
       <MainLayout>
@@ -330,15 +297,6 @@ export default function StudentPortalManagement() {
               <h1 className="text-2xl font-bold text-foreground">Portal Management - {student?.name}</h1>
               <p className="text-sm text-muted-foreground">Manage checklist and documents for the candidate portal</p>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={copyPortalLink}>
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Copy Portal Link
-            </Button>
-            <Button variant="outline" onClick={openPortal}>
-              View Portal
-            </Button>
           </div>
         </div>
 
@@ -633,10 +591,14 @@ export default function StudentPortalManagement() {
           </Card>
         </div>
 
-        {/* IECA workflow: applicant profile + college list */}
+        {/* IECA workflow: account status + applicant profile + college list */}
         {studentId && (
           <>
-            <StudentJourneyTokenPanel studentId={studentId} />
+            <AccountStatusPanel
+              studentId={studentId}
+              studentEmail={student?.email}
+              studentName={student?.name}
+            />
             <StudentApplicantProfile studentId={studentId} />
             <StudentCollegeList studentId={studentId} />
             <StudentStrategistPanel studentId={studentId} />

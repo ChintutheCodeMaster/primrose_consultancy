@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Clock, ChevronLeft, ExternalLink } from "lucide-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,9 +41,67 @@ function bucketLabel(days: number): string {
   return "31+ days";
 }
 
+function DeadlineCard({ r }: { r: DeadlineRow }) {
+  const d = daysUntil(r.deadline);
+  const u = urgency(d);
+  return (
+    <Card className="p-4 hover:shadow-sm transition-shadow">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="font-medium truncate">
+            {r.student_name} — <span className="text-foreground/80">{r.college_name}</span>
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+            <span>{new Date(r.deadline + "T00:00:00").toLocaleDateString()}</span>
+            {r.application_plan && (
+              <Badge variant="outline" className="text-[10px] py-0">
+                {r.application_plan}
+              </Badge>
+            )}
+            <span className="opacity-60">·</span>
+            <span className="capitalize">{r.status?.replace(/_/g, " ")}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge className={u.cls + " border"}>{u.label}</Badge>
+          {r.portal_url && (
+            <a href={r.portal_url} target="_blank" rel="noreferrer">
+              <Button size="sm" variant="ghost">
+                Portal <ExternalLink className="h-3 w-3 ml-1" />
+              </Button>
+            </a>
+          )}
+          <Link to={`/student-portal/${r.student_id}`}>
+            <Button size="sm" variant="outline">
+              Open student
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function BucketGroup({ title, list }: { title: string; list: DeadlineRow[] }) {
+  if (!list.length) return null;
+  return (
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        {title} <span className="text-foreground/60">({list.length})</span>
+      </h3>
+      <div className="space-y-2">
+        {list.map((r) => <DeadlineCard key={r.id} r={r} />)}
+      </div>
+    </div>
+  );
+}
+
 export default function Deadlines() {
   const [rows, setRows] = useState<DeadlineRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const upcomingRef = useRef<HTMLDivElement | null>(null);
+  const [highlightUpcoming, setHighlightUpcoming] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -77,13 +135,29 @@ export default function Deadlines() {
     })();
   }, []);
 
-  // group by bucket
-  const groups: Record<string, DeadlineRow[]> = {};
+  // Scroll-to + ring-highlight when arriving via `?focus=upcoming`
+  useEffect(() => {
+    if (loading) return;
+    if (searchParams.get("focus") !== "upcoming") return;
+    setHighlightUpcoming(true);
+    const t1 = setTimeout(() => {
+      upcomingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+    const t2 = setTimeout(() => setHighlightUpcoming(false), 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [loading, searchParams]);
+
+  // Bucket rows
+  const buckets: Record<string, DeadlineRow[]> = {};
   for (const r of rows) {
     const k = bucketLabel(daysUntil(r.deadline));
-    (groups[k] ||= []).push(r);
+    (buckets[k] ||= []).push(r);
   }
-  const order = ["Overdue", "Next 7 days", "8–14 days", "15–30 days", "31+ days"];
+  const upcoming = [
+    ...(buckets["Overdue"] || []),
+    ...(buckets["Next 7 days"] || []),
+    ...(buckets["8–14 days"] || []),
+  ];
 
   return (
     <MainLayout>
@@ -110,61 +184,57 @@ export default function Deadlines() {
             No upcoming application deadlines. Add deadlines on each student's college list.
           </Card>
         ) : (
-          <div className="space-y-6">
-            {order.map((bucket) => {
-              const list = groups[bucket];
-              if (!list?.length) return null;
-              return (
-                <div key={bucket}>
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                    {bucket} <span className="text-foreground/60">({list.length})</span>
-                  </h2>
-                  <div className="space-y-2">
-                    {list.map((r) => {
-                      const d = daysUntil(r.deadline);
-                      const u = urgency(d);
-                      return (
-                        <Card key={r.id} className="p-4 hover:shadow-sm transition-shadow">
-                          <div className="flex items-center justify-between gap-3 flex-wrap">
-                            <div className="min-w-0 flex-1">
-                              <div className="font-medium truncate">
-                                {r.student_name} —{" "}
-                                <span className="text-foreground/80">{r.college_name}</span>
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
-                                <span>{new Date(r.deadline + "T00:00:00").toLocaleDateString()}</span>
-                                {r.application_plan && (
-                                  <Badge variant="outline" className="text-[10px] py-0">
-                                    {r.application_plan}
-                                  </Badge>
-                                )}
-                                <span className="opacity-60">·</span>
-                                <span className="capitalize">{r.status?.replace(/_/g, " ")}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={u.cls + " border"}>{u.label}</Badge>
-                              {r.portal_url && (
-                                <a href={r.portal_url} target="_blank" rel="noreferrer">
-                                  <Button size="sm" variant="ghost">
-                                    Portal <ExternalLink className="h-3 w-3 ml-1" />
-                                  </Button>
-                                </a>
-                              )}
-                              <Link to={`/student-portal/${r.student_id}`}>
-                                <Button size="sm" variant="outline">
-                                  Open student
-                                </Button>
-                              </Link>
-                            </div>
-                          </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
+          <div className="space-y-10">
+            {/* Section 1: Upcoming (next 14 days) */}
+            <section
+              ref={upcomingRef}
+              className={`rounded-2xl border p-5 transition-all duration-500 ${
+                highlightUpcoming
+                  ? "border-amber-400 ring-4 ring-amber-200/70 shadow-lg bg-amber-50/40"
+                  : "border-border bg-card"
+              }`}
+            >
+              <div className="flex items-baseline justify-between mb-4">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold">Upcoming — next 14 days</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Overdue and anything due in the next two weeks.
+                  </p>
                 </div>
-              );
-            })}
+                <Badge variant="outline" className="text-xs">
+                  {upcoming.length}
+                </Badge>
+              </div>
+              {upcoming.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nothing in the next 14 days. Nice.</p>
+              ) : (
+                <div className="space-y-6">
+                  <BucketGroup title="Overdue" list={buckets["Overdue"] || []} />
+                  <BucketGroup title="Next 7 days" list={buckets["Next 7 days"] || []} />
+                  <BucketGroup title="8–14 days" list={buckets["8–14 days"] || []} />
+                </div>
+              )}
+            </section>
+
+            {/* Section 2: All deadlines */}
+            <section className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-baseline justify-between mb-4">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold">All deadlines</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Every tracked deadline grouped by urgency.
+                  </p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {rows.length}
+                </Badge>
+              </div>
+              <div className="space-y-6">
+                {(["Overdue", "Next 7 days", "8–14 days", "15–30 days", "31+ days"] as const).map((b) => (
+                  <BucketGroup key={b} title={b} list={buckets[b] || []} />
+                ))}
+              </div>
+            </section>
           </div>
         )}
       </div>

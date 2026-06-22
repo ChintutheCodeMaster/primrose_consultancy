@@ -46,7 +46,7 @@ export function NewWebsiteLeadsBanner() {
           variant="outline" size="sm" className="gap-1.5 shrink-0"
           onClick={() => {
             const year = leads[0]?.leads_year;
-            navigate(year ? `/leads/${year}` : '/leads/27');
+            navigate(year ? `/leads/${year}` : '/leads/26');
           }}
         >
           <UserPlus className="h-3.5 w-3.5" />

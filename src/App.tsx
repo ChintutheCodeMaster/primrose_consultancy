@@ -27,11 +27,9 @@ import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
-import StudentJourney from "./pages/StudentJourney";
 import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
-import SignIn from "./pages/SignIn";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentHome from "./pages/StudentHome";
@@ -55,19 +53,13 @@ const App = () => (
           <Route path="/agreement/demo" element={<AgreementPreview />} />
           
           <Route path="/advisor/:advisorId" element={<AdvisorPortal />} />
-          <Route path="/journey/:token" element={<StudentJourney />} />
-          
-          
+
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
 
           {/* Auth pages (public) */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
-          {/* Deprecated role-picker — kept temporarily; consider deleting. */}
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/demo" element={<SignIn />} />
 
           {/* Student-facing auth-protected landing */}
           <Route

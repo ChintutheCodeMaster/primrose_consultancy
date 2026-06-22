@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { Student, studentStatusLabels, studentStatusColors, degreeTypeLabels } from '@/types/crm';
 import { StatusBadge } from '@/components/ui/status-badge';
-import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, ExternalLink, Settings, UserX, Trash2, RotateCcw, Activity } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, GraduationCap, Briefcase, Share2, User, DollarSign, CheckCircle, XCircle, Building, FileText, Pencil, History, FileSignature, AlertTriangle, Link2, Settings, UserX, Trash2, RotateCcw, Activity, MoreHorizontal } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { openExternalFile } from '@/lib/file-open';
 import { CopyableContact } from '@/components/ui/copyable-contact';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
-import { GenerateInviteLinkButton } from './GenerateInviteLinkButton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,11 +58,9 @@ const agreementTypeLabels: Record<AgreementType, string> = {
 
 export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContinue, onRestoreToStudent, onDelete, showActions = true }: StudentRowProps) {
   const navigate = useNavigate();
-  const [agreementType, setAgreementType] = useState<AgreementType>(
-    student.paymentType === 'hourly' ? 'hourly' : 
-    student.paymentType === 'other' ? 'package' : 'package'
-  );
   const [showAgreementDetails, setShowAgreementDetails] = useState(false);
+  const [generatingInvite, setGeneratingInvite] = useState(false);
+  const [pendingAlumniYear, setPendingAlumniYear] = useState<string | null>(null);
   
   // Check if student needs reminder (not signed agreement and more than 4 days since creation)
   const daysSinceCreation = differenceInDays(new Date(), new Date(student.createdAt));
@@ -72,13 +80,64 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       ? student.amountPaid
       : Number((student as any).amount_paid ?? 0);
 
-  const copyAgreementLink = () => {
-    const link = `${window.location.origin}/agreement/${student.id}?type=${agreementType}`;
+  const copyAgreementLink = (type: AgreementType) => {
+    const link = `${window.location.origin}/agreement/${student.id}?type=${type}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link copied!",
-      description: `${agreementTypeLabels[agreementType]} agreement link copied to clipboard`,
+      description: `${agreementTypeLabels[type]} agreement link copied to clipboard`,
     });
+  };
+
+  const handleGenerateInviteLink = async () => {
+    if (generatingInvite) return;
+    setGeneratingInvite(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        sonnerToast.error('Please log in as a consultant to generate an invite.');
+        return;
+      }
+
+      const { data: advisor, error: advisorErr } = await supabase
+        .from('advisors')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (advisorErr || !advisor) {
+        sonnerToast.error('Your consultant profile is not linked yet. Contact an admin.');
+        return;
+      }
+
+      const { data: invite, error: inviteErr } = await supabase
+        .from('student_invites')
+        .insert({
+          advisor_id: advisor.id,
+          student_id: student.id,
+          email: student.email || null,
+          name: student.name || null,
+        })
+        .select('token')
+        .single();
+
+      if (inviteErr || !invite) {
+        if ((inviteErr as any)?.code === '23505') {
+          sonnerToast.info('An active invite already exists. Open Manage Portal to copy or revoke it.');
+          return;
+        }
+        sonnerToast.error(inviteErr?.message ?? 'Could not generate invite.');
+        return;
+      }
+
+      const url = `${window.location.origin}/register?invite=${invite.token}`;
+      await navigator.clipboard.writeText(url);
+      sonnerToast.success('Registration link copied to clipboard.');
+    } catch (err) {
+      sonnerToast.error(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setGeneratingInvite(false);
+    }
   };
 
   return (
@@ -108,193 +167,178 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
             <span className="text-lg font-bold">{student.name.charAt(0)}</span>
           </div>
-          <div>
-            <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors">
+          <div className="min-w-0">
+            <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors truncate">
               {student.name}
             </h3>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1">
               <StatusBadge variant={studentStatusColors[student.status]}>
                 {studentStatusLabels[student.status]}
               </StatusBadge>
-              <span className="text-xs text-muted-foreground">
-                {format(student.createdAt, 'dd/MM/yyyy', { locale: he })}
-              </span>
             </div>
           </div>
         </div>
-        
+
         {/* Actions */}
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Agreement Status Badge - Clickable if signed */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Agreement Status Pill */}
           {student.signedAgreement ? (
             <button
               onClick={() => setShowAgreementDetails(true)}
-              className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-success/20 text-success hover:bg-success/30 transition-colors cursor-pointer"
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-success/15 text-success hover:bg-success/25 transition-colors"
             >
-              <FileSignature className="h-4 w-4" />
-              <span>Agreement Signed</span>
+              <FileSignature className="h-3.5 w-3.5" />
+              Signed
             </button>
           ) : (
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-warning/20 text-warning-foreground">
-              <XCircle className="h-4 w-4" />
-              <span>Agreement Not Signed</span>
-            </div>
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-warning/15 text-warning-foreground">
+              <XCircle className="h-3.5 w-3.5" />
+              Unsigned
+            </span>
           )}
-          
-          {/* Payment Status Badge */}
-          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${student.isPaid ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
-            {student.isPaid ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-            <span>{student.isPaid ? 'Paid' : 'Not Paid'}</span>
-          </div>
-          
+
+          {/* Payment Status Pill */}
+          <span className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${student.isPaid ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
+            {student.isPaid ? <CheckCircle className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+            {student.isPaid ? 'Paid' : 'Unpaid'}
+          </span>
+
           {showActions && (
             <>
-              {/* Portal Management Button */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate(`/student-portal/${student.id}`)}
-                className="gap-1"
-                title="Manage Student Portal"
-              >
-                <Settings className="h-3 w-3" />
-                Manage Portal
-              </Button>
-
-              {/* Agreement Type Select + Copy Link */}
-              <div className="flex items-center gap-1">
-                <Select value={agreementType} onValueChange={(v) => setAgreementType(v as AgreementType)}>
-                  <SelectTrigger className="h-8 w-24 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover z-50">
-                    <SelectItem value="package">Package</SelectItem>
-                    <SelectItem value="hourly">Hourly</SelectItem>
-                    <SelectItem value="edit">Edit</SelectItem>
-                    <SelectItem value="mba">MBA</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={copyAgreementLink}
-                  className="gap-1"
-                  title="Copy agreement link"
-                >
-                  <Link2 className="h-3 w-3" />
-                  Agreement Link
-                </Button>
-              </div>
-
+              {/* Primary action */}
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => navigate(`/students/${student.id}/workspace`)}
-                className="gap-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
               >
-                <Activity className="h-3 w-3" />
+                <Activity className="h-3.5 w-3.5" />
                 Workspace
               </Button>
 
+              {/* Overflow menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9" title="More actions">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {onEdit && (
+                    <DropdownMenuItem onClick={onEdit}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => navigate(`/student-portal/${student.id}`)}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Manage Portal
+                  </DropdownMenuItem>
 
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Link2 className="mr-2 h-4 w-4" />
+                      Copy Agreement Link
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        {(Object.keys(agreementTypeLabels) as AgreementType[]).map((t) => (
+                          <DropdownMenuItem key={t} onClick={() => copyAgreementLink(t)}>
+                            {agreementTypeLabels[t]}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
 
-              {onEdit && (
-                <Button variant="outline" size="sm" onClick={onEdit} className="gap-1">
-                  <Pencil className="h-3 w-3" />
-                  Edit
-                </Button>
-              )}
-              <GenerateInviteLinkButton
-                studentId={student.id}
-                studentName={student.name}
-                studentEmail={student.email}
-              />
-              {onDidNotContinue && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={onDidNotContinue} 
-                  className="gap-1 text-muted-foreground hover:text-destructive hover:border-destructive"
-                >
-                  <UserX className="h-3 w-3" />
-                  Closed/Lost
-                </Button>
-              )}
-              {onMoveToPastClient && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="default" size="sm" className="gap-1">
-                      <History className="h-3 w-3" />
-                      Move to Alumni
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {pastClientsYears.map((year) => (
-                      <DropdownMenuItem 
-                        key={year} 
-                        onClick={() => onMoveToPastClient(year)}
-                      >
-                        Alumni {year}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-              {onRestoreToStudent && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1 text-primary hover:text-primary hover:border-primary">
-                      <RotateCcw className="h-3 w-3" />
-                      Restore to Student
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Restore Alumni to Active Student</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action will restore "{student.name}" to an active student. The graduation year will be deleted and the status will change to active.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={onRestoreToStudent}>
-                        Restore to Student
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-              {onDelete && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action will permanently delete the student "{student.name}" and all related information. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
+                  <DropdownMenuItem onClick={handleGenerateInviteLink} disabled={generatingInvite}>
+                    <Link2 className="mr-2 h-4 w-4" />
+                    {generatingInvite ? 'Generating…' : 'Copy Invite Link'}
+                  </DropdownMenuItem>
+
+                  {(onMoveToPastClient || onRestoreToStudent || onDidNotContinue) && <DropdownMenuSeparator />}
+
+                  {onMoveToPastClient && (
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <History className="mr-2 h-4 w-4" />
+                        Move to Alumni
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          {pastClientsYears.map((year) => (
+                            <DropdownMenuItem key={year} onSelect={() => setPendingAlumniYear(year)}>
+                              Alumni {year}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  )}
+
+                  {onRestoreToStudent && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <RotateCcw className="mr-2 h-4 w-4" />
+                          Restore to Student
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Restore Alumni to Active Student</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action will restore "{student.name}" to an active student. The graduation year will be deleted and the status will change to active.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={onRestoreToStudent}>
+                            Restore to Student
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+
+                  {onDidNotContinue && (
+                    <DropdownMenuItem onClick={onDidNotContinue} className="text-destructive focus:text-destructive">
+                      <UserX className="mr-2 h-4 w-4" />
+                      Closed/Lost
+                    </DropdownMenuItem>
+                  )}
+
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action will permanently delete the student "{student.name}" and all related information. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
         </div>
@@ -490,6 +534,36 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
         open={showAgreementDetails}
         onOpenChange={setShowAgreementDetails}
       />
+
+      {/* Move-to-Alumni confirmation — guards against the ⋯ submenu misclick */}
+      <AlertDialog
+        open={pendingAlumniYear !== null}
+        onOpenChange={(open) => { if (!open) setPendingAlumniYear(null); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Move {student.name} to Alumni {pendingAlumniYear}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {student.name} will be removed from the active Students list and moved to
+              <span className="font-medium"> Alumni {pendingAlumniYear}</span>. You can restore
+              them later from the Past Clients page if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingAlumniYear && onMoveToPastClient) {
+                  onMoveToPastClient(pendingAlumniYear);
+                }
+                setPendingAlumniYear(null);
+              }}
+            >
+              Move to Alumni {pendingAlumniYear}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

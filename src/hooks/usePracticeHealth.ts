@@ -7,7 +7,6 @@ export interface PracticeHealth {
   pipelineValue: number;
   collectedMTD: number;
   acceptancesYTD: number;
-  scholarshipsCount: number;
   unsignedAgreements: number;
   upcomingDeadlines: number;
   coldLeads: number;
@@ -23,7 +22,8 @@ export function usePracticeHealth() {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const startOfYear = new Date(now.getFullYear(), 0, 1).toISOString();
       const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString();
-      const in14Days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+      const todayIso = now.toISOString().slice(0, 10);
+      const in14DaysIso = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
       const [students, accepted, leads, agreements] = await Promise.all([
         supabase.from('students').select('id, package_cost, amount_paid, signed_agreement, is_paid, created_at, payment_date, did_not_continue, graduation_year').eq('did_not_continue', false),
@@ -60,12 +60,12 @@ export function usePracticeHealth() {
         .slice(0, 8)
         .map(([name, count]) => ({ name, count }));
 
-      // Upcoming deadlines (from student_calendar_events)
-      const { data: events } = await supabase
-        .from('student_calendar_events')
-        .select('id, event_date')
-        .gte('event_date', now.toISOString())
-        .lte('event_date', in14Days);
+      // Upcoming college-application deadlines (same source as DeadlineRadar)
+      const { data: deadlines } = await supabase
+        .from('student_colleges')
+        .select('id')
+        .gte('deadline', todayIso)
+        .lte('deadline', in14DaysIso);
 
       return {
         activeStudents: active.length,
@@ -73,9 +73,8 @@ export function usePracticeHealth() {
         pipelineValue: pipeline,
         collectedMTD,
         acceptancesYTD,
-        scholarshipsCount: 0,
         unsignedAgreements: unsigned,
-        upcomingDeadlines: events?.length ?? 0,
+        upcomingDeadlines: deadlines?.length ?? 0,
         coldLeads: cold,
         unpaidStudents: unpaid,
         topUniversities,
