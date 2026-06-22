@@ -12,6 +12,7 @@ import { openExternalFile } from '@/lib/file-open';
 import { CopyableContact } from '@/components/ui/copyable-contact';
 import { useNavigate } from 'react-router-dom';
 import { AgreementDetailsDialog } from './AgreementDetailsDialog';
+import { GenerateInviteLinkButton } from './GenerateInviteLinkButton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -206,6 +207,11 @@ export function StudentRow({ student, onEdit, onMoveToPastClient, onDidNotContin
                   Edit
                 </Button>
               )}
+              <GenerateInviteLinkButton
+                studentId={student.id}
+                studentName={student.name}
+                studentEmail={student.email}
+              />
               {onDidNotContinue && (
                 <Button 
                   variant="outline" 

@@ -32,9 +32,13 @@ import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import StudentHome from "./pages/StudentHome";
 import Outcomes from "./pages/Outcomes";
 import StudentWorkspace from "./pages/StudentWorkspace";
 import ConsultantEssayReview from "./pages/ConsultantEssayReview";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -57,34 +61,46 @@ const App = () => (
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
 
-          {/* Sign in / role picker */}
+          {/* Auth pages (public) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Deprecated role-picker — kept temporarily; consider deleting. */}
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/demo" element={<SignIn />} />
 
+          {/* Student-facing auth-protected landing */}
+          <Route
+            path="/student"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentHome />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* App routes (authentication temporarily disabled) */}
-          <Route path="/dashboard" element={<Dashboard />} />
-
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/outcomes" element={<Outcomes />} />
-          <Route path="/leads/:year" element={<Leads />} />
-            <Route path="/students" element={<Students />} />
-            <Route path="/students/:id/workspace" element={<StudentWorkspace />} />
-            <Route path="/students/:id/essays" element={<ConsultantEssayReview />} />
-            <Route path="/onboarding/new-student" element={<OnboardingWizard />} />
-          <Route path="/advisors" element={<Advisors />} />
-          <Route path="/past-advisors" element={<PastAdvisors />} />
-          <Route path="/did-not-continue/:year" element={<DidNotContinue />} />
-          <Route path="/agreement-template" element={<AgreementTemplate />} />
-          <Route path="/student-portal/:studentId" element={<StudentPortalManagement />} />
-          <Route path="/past-clients/:year" element={<PastClients />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/signed-agreements" element={<SignedAgreements />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/ai-chat" element={<AiChat />} />
-          <Route path="/deadlines" element={<Deadlines />} />
-          <Route path="/temp-export" element={<TempExportEmails />} />
-          <Route path="/temp-import-dnc" element={<TempImportDidNotContinue />} />
+          {/* Consultant / admin app routes */}
+          <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Dashboard /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Analytics /></ProtectedRoute>} />
+          <Route path="/outcomes" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Outcomes /></ProtectedRoute>} />
+          <Route path="/leads/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Leads /></ProtectedRoute>} />
+          <Route path="/students" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Students /></ProtectedRoute>} />
+          <Route path="/students/:id/workspace" element={<ProtectedRoute allowedRoles={['consultant', 'admin', 'student']}><StudentWorkspace /></ProtectedRoute>} />
+          <Route path="/students/:id/essays" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><ConsultantEssayReview /></ProtectedRoute>} />
+          <Route path="/onboarding/new-student" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><OnboardingWizard /></ProtectedRoute>} />
+          <Route path="/advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Advisors /></ProtectedRoute>} />
+          <Route path="/past-advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><PastAdvisors /></ProtectedRoute>} />
+          <Route path="/did-not-continue/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><DidNotContinue /></ProtectedRoute>} />
+          <Route path="/agreement-template" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><AgreementTemplate /></ProtectedRoute>} />
+          <Route path="/student-portal/:studentId" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><StudentPortalManagement /></ProtectedRoute>} />
+          <Route path="/past-clients/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><PastClients /></ProtectedRoute>} />
+          <Route path="/projects" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Projects /></ProtectedRoute>} />
+          <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><SignedAgreements /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Settings /></ProtectedRoute>} />
+          <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><AiChat /></ProtectedRoute>} />
+          <Route path="/deadlines" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Deadlines /></ProtectedRoute>} />
+          <Route path="/temp-export" element={<ProtectedRoute allowedRoles={['admin']}><TempExportEmails /></ProtectedRoute>} />
+          <Route path="/temp-import-dnc" element={<ProtectedRoute allowedRoles={['admin']}><TempImportDidNotContinue /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
