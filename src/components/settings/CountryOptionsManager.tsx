@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Loader2, ChevronUp, ChevronDown, Pencil, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAllCountryOptions, CountryOption } from '@/hooks/useCountryOptions';
@@ -15,7 +15,9 @@ export function CountryOptionsManager() {
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newCountryName, setNewCountryName] = useState('');
-  
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
   const { data: countries = [], isLoading } = useAllCountryOptions();
 
   const addMutation = useMutation({
@@ -56,6 +58,45 @@ export function CountryOptionsManager() {
       toast.error('Error updating country');
     },
   });
+
+  const renameMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase
+        .from('country_options')
+        .update({ name })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['country-options'] });
+      queryClient.invalidateQueries({ queryKey: ['country-options-all'] });
+      toast.success('Country renamed');
+      setEditingId(null);
+      setEditingName('');
+    },
+    onError: () => {
+      toast.error('Error renaming country');
+    },
+  });
+
+  const startEdit = (country: CountryOption) => {
+    setEditingId(country.id);
+    setEditingName(country.name);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName('');
+  };
+
+  const saveEdit = () => {
+    const trimmed = editingName.trim();
+    if (!editingId || !trimmed) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+    renameMutation.mutate({ id: editingId, name: trimmed });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -152,19 +193,36 @@ export function CountryOptionsManager() {
               <TableHead className="w-24">Active</TableHead>
               <TableHead className="w-24">Move</TableHead>
               <TableHead className="w-16"></TableHead>
+              <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {countries.map((country, index) => (
               <TableRow key={country.id} className={!country.is_active ? 'opacity-50' : ''}>
-                <TableCell>{country.name}</TableCell>
+                <TableCell>
+                  {editingId === country.id ? (
+                    <Input
+                      autoFocus
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveEdit();
+                        if (e.key === 'Escape') cancelEdit();
+                      }}
+                      disabled={renameMutation.isPending}
+                      className="h-8"
+                    />
+                  ) : (
+                    country.name
+                  )}
+                </TableCell>
                 <TableCell>
                   <Switch
                     checked={country.is_active}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       toggleActiveMutation.mutate({ id: country.id, isActive: checked })
                     }
-                    disabled={toggleActiveMutation.isPending}
+                    disabled={toggleActiveMutation.isPending || editingId === country.id}
                   />
                 </TableCell>
                 <TableCell>
@@ -173,7 +231,7 @@ export function CountryOptionsManager() {
                       variant="ghost"
                       size="icon"
                       onClick={() => reorderMutation.mutate({ id: country.id, direction: 'up' })}
-                      disabled={index === 0 || reorderMutation.isPending}
+                      disabled={index === 0 || reorderMutation.isPending || editingId === country.id}
                     >
                       <ChevronUp className="h-4 w-4" />
                     </Button>
@@ -181,18 +239,56 @@ export function CountryOptionsManager() {
                       variant="ghost"
                       size="icon"
                       onClick={() => reorderMutation.mutate({ id: country.id, direction: 'down' })}
-                      disabled={index === countries.length - 1 || reorderMutation.isPending}
+                      disabled={index === countries.length - 1 || reorderMutation.isPending || editingId === country.id}
                     >
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
                 <TableCell>
+                  {editingId === country.id ? (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={saveEdit}
+                        disabled={renameMutation.isPending}
+                        title="Save"
+                      >
+                        {renameMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 text-success" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={cancelEdit}
+                        disabled={renameMutation.isPending}
+                        title="Cancel"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEdit(country)}
+                      disabled={editingId !== null}
+                      title="Rename"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
+                </TableCell>
+                <TableCell>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => deleteMutation.mutate(country.id)}
-                    disabled={deleteMutation.isPending}
+                    disabled={deleteMutation.isPending || editingId === country.id}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -201,7 +297,7 @@ export function CountryOptionsManager() {
             ))}
             {countries.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   No countries
                 </TableCell>
               </TableRow>

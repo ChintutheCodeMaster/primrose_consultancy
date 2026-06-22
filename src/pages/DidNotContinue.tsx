@@ -88,14 +88,14 @@ export default function DidNotContinue() {
     const date = new Date(dateString);
     const itemYear = date.getFullYear();
     
-    if (year === '2025-and below') {
+    if (year === '2025-and-below') {
       return itemYear <= 2025;
     }
     return itemYear === parseInt(year || '2026');
   };
 
   // Get display label for the year
-  const yearDisplayLabel = year === '2025-and below' ? '2025 and below' : year;
+  const yearDisplayLabel = year === '2025-and-below' ? '2025 and below' : year;
 
   // Fetch leads that did not continue (full data)
   const { data: leads = [], isLoading: leadsLoading } = useQuery({

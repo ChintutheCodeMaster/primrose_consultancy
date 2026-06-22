@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Loader2, ChevronUp, ChevronDown, Pencil, Check, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAllSourceOptions, SourceOption } from '@/hooks/useSourceOptions';
@@ -15,7 +15,9 @@ export function SourceOptionsManager() {
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newSourceName, setNewSourceName] = useState('');
-  
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+
   const { data: sources = [], isLoading } = useAllSourceOptions();
 
   const addMutation = useMutation({
@@ -56,6 +58,45 @@ export function SourceOptionsManager() {
       toast.error('Error updating source');
     },
   });
+
+  const renameMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase
+        .from('source_options')
+        .update({ name })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['source-options'] });
+      queryClient.invalidateQueries({ queryKey: ['source-options-all'] });
+      toast.success('Source renamed');
+      setEditingId(null);
+      setEditingName('');
+    },
+    onError: () => {
+      toast.error('Error renaming source');
+    },
+  });
+
+  const startEdit = (source: SourceOption) => {
+    setEditingId(source.id);
+    setEditingName(source.name);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName('');
+  };
+
+  const saveEdit = () => {
+    const trimmed = editingName.trim();
+    if (!editingId || !trimmed) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+    renameMutation.mutate({ id: editingId, name: trimmed });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -152,19 +193,36 @@ export function SourceOptionsManager() {
               <TableHead className="w-24">Active</TableHead>
               <TableHead className="w-24">Move</TableHead>
               <TableHead className="w-16"></TableHead>
+              <TableHead className="w-16"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sources.map((source, index) => (
               <TableRow key={source.id} className={!source.is_active ? 'opacity-50' : ''}>
-                <TableCell>{source.name}</TableCell>
+                <TableCell>
+                  {editingId === source.id ? (
+                    <Input
+                      autoFocus
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveEdit();
+                        if (e.key === 'Escape') cancelEdit();
+                      }}
+                      disabled={renameMutation.isPending}
+                      className="h-8"
+                    />
+                  ) : (
+                    source.name
+                  )}
+                </TableCell>
                 <TableCell>
                   <Switch
                     checked={source.is_active}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       toggleActiveMutation.mutate({ id: source.id, isActive: checked })
                     }
-                    disabled={toggleActiveMutation.isPending}
+                    disabled={toggleActiveMutation.isPending || editingId === source.id}
                   />
                 </TableCell>
                 <TableCell>
@@ -173,7 +231,7 @@ export function SourceOptionsManager() {
                       variant="ghost"
                       size="icon"
                       onClick={() => reorderMutation.mutate({ id: source.id, direction: 'up' })}
-                      disabled={index === 0 || reorderMutation.isPending}
+                      disabled={index === 0 || reorderMutation.isPending || editingId === source.id}
                     >
                       <ChevronUp className="h-4 w-4" />
                     </Button>
@@ -181,18 +239,56 @@ export function SourceOptionsManager() {
                       variant="ghost"
                       size="icon"
                       onClick={() => reorderMutation.mutate({ id: source.id, direction: 'down' })}
-                      disabled={index === sources.length - 1 || reorderMutation.isPending}
+                      disabled={index === sources.length - 1 || reorderMutation.isPending || editingId === source.id}
                     >
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
                 <TableCell>
+                  {editingId === source.id ? (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={saveEdit}
+                        disabled={renameMutation.isPending}
+                        title="Save"
+                      >
+                        {renameMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Check className="h-4 w-4 text-success" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={cancelEdit}
+                        disabled={renameMutation.isPending}
+                        title="Cancel"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEdit(source)}
+                      disabled={editingId !== null}
+                      title="Rename"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
+                </TableCell>
+                <TableCell>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => deleteMutation.mutate(source.id)}
-                    disabled={deleteMutation.isPending}
+                    disabled={deleteMutation.isPending || editingId === source.id}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -201,7 +297,7 @@ export function SourceOptionsManager() {
             ))}
             {sources.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
                   No sources available
                 </TableCell>
               </TableRow>
