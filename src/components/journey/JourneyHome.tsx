@@ -31,7 +31,7 @@ export function JourneyHome({
 
   useEffect(() => {
     (async () => {
-      const [{ data: t }, { data: c }, { data: m }] = await Promise.all([
+      const [{ data: t }, { data: c }, { data: convs }] = await Promise.all([
         supabase
           .from('student_tasks')
           .select('*')
@@ -44,17 +44,40 @@ export function JourneyHome({
           .select('college_name, deadline, status, list_bucket')
           .eq('student_id', studentId),
         supabase
-          .from('student_messages')
-          .select('*')
-          .eq('student_id', studentId)
-          .eq('author', 'consultant')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
+          .from('conversations' as any)
+          .select('id, advisor_id')
+          .eq('student_id', studentId),
       ]);
       setTasks(t || []);
       setColleges(c || []);
-      setLatestMsg(m);
+
+      const convRows = ((convs as any[]) ?? []) as Array<{ id: string; advisor_id: string }>;
+      if (convRows.length === 0) {
+        setLatestMsg(null);
+        return;
+      }
+      const advisorIds = convRows.map((c) => c.advisor_id);
+      const { data: advisorRows } = await supabase
+        .from('advisors')
+        .select('id, user_id')
+        .in('id', advisorIds);
+      const advisorUserIds = ((advisorRows as any[]) ?? [])
+        .map((a) => a.user_id)
+        .filter(Boolean);
+      if (advisorUserIds.length === 0) {
+        setLatestMsg(null);
+        return;
+      }
+      const { data: msg } = await supabase
+        .from('messages' as any)
+        .select('id, content, created_at, sender_id, conversation_id')
+        .in('conversation_id', convRows.map((c) => c.id))
+        .in('sender_id', advisorUserIds)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const row = msg as any;
+      setLatestMsg(row ? { body: row.content, created_at: row.created_at } : null);
     })();
   }, [studentId]);
 

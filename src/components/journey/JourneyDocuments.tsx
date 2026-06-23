@@ -61,6 +61,7 @@ export function JourneyDocuments({ studentId }: { studentId: string }) {
       .from('student_documents_v2')
       .select('*')
       .eq('student_id', studentId)
+      .neq('kind', 'essay')
       .order('updated_at', { ascending: false });
     setDocs(data || []);
   };
@@ -146,7 +147,7 @@ function NewDocDialog({
   onCreated: (id: string) => void;
 }) {
   const [title, setTitle] = useState('');
-  const [kind, setKind] = useState('essay');
+  const [kind, setKind] = useState('supplement');
   const [prompt, setPrompt] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -201,7 +202,6 @@ function NewDocDialog({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="essay">Essay</SelectItem>
               <SelectItem value="supplement">Supplement</SelectItem>
               <SelectItem value="resume">Resume / Activities</SelectItem>
               <SelectItem value="form">Form</SelectItem>

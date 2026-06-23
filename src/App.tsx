@@ -36,6 +36,11 @@ import StudentHome from "./pages/StudentHome";
 import Outcomes from "./pages/Outcomes";
 import StudentWorkspace from "./pages/StudentWorkspace";
 import ConsultantEssayReview from "./pages/ConsultantEssayReview";
+import StudentEssayList from "./pages/StudentEssayList";
+import StudentEssay from "./pages/StudentEssay";
+import EditEssay from "./pages/EditEssay";
+import ConsultantMessages from "./pages/ConsultantMessages";
+import StudentMessages from "./pages/StudentMessages";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -71,6 +76,15 @@ const App = () => (
             }
           />
 
+          {/* Student essay flow */}
+          <Route path="/student/essays" element={<ProtectedRoute allowedRoles={['student']}><StudentEssayList /></ProtectedRoute>} />
+          <Route path="/student/essay/new" element={<ProtectedRoute allowedRoles={['student']}><StudentEssay /></ProtectedRoute>} />
+          <Route path="/student/essay/:id" element={<ProtectedRoute allowedRoles={['student']}><StudentEssay /></ProtectedRoute>} />
+          <Route path="/student/essay/:id/edit" element={<ProtectedRoute allowedRoles={['student']}><EditEssay /></ProtectedRoute>} />
+
+          {/* Student messaging */}
+          <Route path="/student/messages" element={<ProtectedRoute allowedRoles={['student']}><StudentMessages /></ProtectedRoute>} />
+
           {/* Consultant / admin app routes */}
           <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Dashboard /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Analytics /></ProtectedRoute>} />
@@ -79,6 +93,7 @@ const App = () => (
           <Route path="/students" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Students /></ProtectedRoute>} />
           <Route path="/students/:id/workspace" element={<ProtectedRoute allowedRoles={['consultant', 'admin', 'student']}><StudentWorkspace /></ProtectedRoute>} />
           <Route path="/students/:id/essays" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><ConsultantEssayReview /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><ConsultantMessages /></ProtectedRoute>} />
           <Route path="/onboarding/new-student" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><OnboardingWizard /></ProtectedRoute>} />
           <Route path="/advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Advisors /></ProtectedRoute>} />
           <Route path="/past-advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><PastAdvisors /></ProtectedRoute>} />

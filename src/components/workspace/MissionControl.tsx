@@ -14,18 +14,38 @@ export function MissionControl({ studentId, studentName }: { studentId: string; 
   useEffect(() => {
     (async () => {
       const today = new Date().toISOString();
-      const [studentRes, task, version, msg, meeting] = await Promise.all([
+      const [studentRes, task, version, convs, meeting] = await Promise.all([
         supabase.from('students').select('*').eq('id', studentId).maybeSingle(),
         supabase.from('student_tasks').select('title, due_date').eq('student_id', studentId).eq('status', 'open').gte('due_date', today.slice(0, 10)).order('due_date').limit(1).maybeSingle(),
         supabase.from('student_document_versions').select('created_at, document_id, student_documents_v2!inner(title, student_id)').eq('student_documents_v2.student_id', studentId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
-        supabase.from('student_messages').select('author, created_at').eq('student_id', studentId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase.from('conversations' as any).select('id').eq('student_id', studentId),
         supabase.from('student_calendar_events').select('title, start_at').eq('student_id', studentId).gte('start_at', today).order('start_at').limit(1).maybeSingle(),
       ]);
       setStudent(studentRes.data);
       if (task.data?.due_date) setNextDeadline({ title: task.data.title, date: new Date(task.data.due_date) });
       if (version.data?.created_at) setLastDraft({ title: (version.data as any).student_documents_v2?.title || 'Essay', at: new Date(version.data.created_at) });
-      if (msg.data?.created_at) setLastMsg({ author: msg.data.author || 'system', at: new Date(msg.data.created_at) });
       if (meeting.data?.start_at) setNextMeeting({ title: meeting.data.title || 'Meeting', at: new Date(meeting.data.start_at) });
+
+      const convIds = ((convs.data as any[]) ?? []).map((c) => c.id);
+      if (convIds.length > 0) {
+        const { data: msg } = await supabase
+          .from('messages' as any)
+          .select('sender_id, created_at')
+          .in('conversation_id', convIds)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const row = msg as any;
+        if (row?.created_at) {
+          const { data: advisor } = await supabase
+            .from('advisors')
+            .select('id')
+            .eq('user_id', row.sender_id)
+            .maybeSingle();
+          const author = advisor ? 'consultant' : 'student';
+          setLastMsg({ author, at: new Date(row.created_at) });
+        }
+      }
     })();
   }, [studentId]);
 

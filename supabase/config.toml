@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.ask-rose-outcomes]
 verify_jwt = false
+
+[functions.noga-send-counselor-feedback]
+verify_jwt = false
+
+[functions.noga-send-new-essay-notification]
+verify_jwt = false
