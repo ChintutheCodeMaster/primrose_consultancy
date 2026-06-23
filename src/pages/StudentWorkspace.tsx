@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -27,7 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getProgramTerms } from '@/lib/programTerms';
-import { ArrowLeft, ExternalLink, Loader2, Sparkles, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, Sparkles, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy, LogOut } from 'lucide-react';
 
 type StudentSection =
   | 'home' | 'colleges' | 'tasks' | 'calendar' | 'files'
@@ -109,11 +110,26 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
 
 export default function StudentWorkspace() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { role, isLoading: roleLoading } = useCurrentRole();
   const [student, setStudent] = useState<any>(null);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success('Signed out.');
+      navigate('/login', { replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not sign out.');
+      setSigningOut(false);
+    }
+  };
 
   const checkOnboarding = async (sid: string) => {
     const { data } = await supabase
@@ -191,7 +207,7 @@ export default function StudentWorkspace() {
           <div className="absolute -top-20 right-0 h-[400px] w-[400px] rounded-full bg-amber-300/20 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
         </div>
         <header className="sticky top-0 z-30 border-b border-white/30 bg-white/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500 to-amber-500 text-white grid place-items-center text-sm font-semibold shadow-md shadow-rose-500/25">
                 <span className="relative">P</span>
@@ -199,10 +215,22 @@ export default function StudentWorkspace() {
               </div>
               <span className="font-semibold tracking-tight text-lg" style={{ fontFamily: 'Sora, Inter, sans-serif' }}>MyJourney</span>
             </div>
-            <div className="hidden sm:flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Hi,</span>
-              <span className="font-semibold text-foreground">{displayName}</span>
-              <span className="ml-1">👋</span>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">Hi,</span>
+                <span className="font-semibold text-foreground">{displayName}</span>
+                <span className="ml-1">👋</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={signingOut}
+                className="rounded-xl bg-white/70 backdrop-blur press-soft gap-1.5 border-rose-200/60 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+              >
+                {signingOut ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LogOut className="h-3.5 w-3.5" />}
+                <span className="hidden sm:inline">Log out</span>
+              </Button>
             </div>
           </div>
         </header>

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { AIDailyBrief } from './AIDailyBrief';
 import { AcceptanceWall } from './AcceptanceWall';
@@ -19,6 +20,26 @@ import { toast } from '@/hooks/use-toast';
 export function CommandCenter() {
   const { data } = usePracticeHealth();
   const [isExporting, setIsExporting] = useState(false);
+  const [firstName, setFirstName] = useState<string>('');
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      // Prefer advisor name (set on consultant signup), then admin name, then auth metadata.
+      const [{ data: advisor }, { data: admin }] = await Promise.all([
+        supabase.from('advisors').select('name').eq('user_id', user.id).maybeSingle(),
+        supabase.from('admins' as any).select('name').eq('user_id', user.id).maybeSingle(),
+      ]);
+      const raw =
+        (advisor as any)?.name ||
+        (admin as any)?.name ||
+        (user.user_metadata as any)?.full_name ||
+        '';
+      const first = String(raw).trim().split(/\s+/)[0] || '';
+      setFirstName(first);
+    })();
+  }, []);
 
   const briefStats = data && {
     active_students: data.activeStudents,
@@ -67,8 +88,11 @@ export function CommandCenter() {
                 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl text-gradient-primary"
                 style={{ fontFamily: 'Sora, Inter, sans-serif' }}
               >
-                Dashboard
+                Hi{firstName ? `, ${firstName}` : ''} <span className="inline-block animate-float">👋</span>
               </h1>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Here's how your practice is doing today.
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild size="sm" className="rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white shadow-md shadow-violet-500/25 hover:shadow-lg hover:shadow-violet-500/35 transition-all press-soft">

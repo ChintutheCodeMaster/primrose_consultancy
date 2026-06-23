@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -8,6 +8,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useSidebarCategories } from '@/hooks/useSidebarCategories';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -25,8 +27,23 @@ const agreementTemplateTypes = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { data: categories = [], isLoading: isCategoriesLoading } = useSidebarCategories();
   const { role } = useCurrentRole();
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success('Signed out.');
+      navigate('/login', { replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not sign out.');
+      setSigningOut(false);
+    }
+  };
   
   // Group categories by type
   const leadsCategories = categories.filter(c => c.category_type === 'leads');
@@ -355,7 +372,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-sidebar-border p-4">
+      <div className="border-t border-sidebar-border p-4 space-y-1">
         <Link
           to="/settings"
           onClick={handleClick}
@@ -364,6 +381,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Settings className="h-5 w-5" />
           Settings
         </Link>
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={signingOut}
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-rose-500/15 hover:text-rose-200 disabled:opacity-60"
+        >
+          {signingOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
+          {signingOut ? 'Signing out…' : 'Log out'}
+        </button>
       </div>
     </div>
   );
