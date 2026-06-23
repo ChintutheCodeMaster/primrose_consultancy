@@ -39,8 +39,11 @@ export default function StudentHome() {
 
   if (state.kind === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex min-h-screen items-center justify-center bg-background bg-mesh-warm">
+        <div className="flex flex-col items-center gap-3 animate-fade-in">
+          <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Loading your journey</p>
+        </div>
       </div>
     );
   }
@@ -50,9 +53,13 @@ export default function StudentHome() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="max-w-md rounded-2xl border border-violet-200/60 bg-white/90 p-8 text-center shadow-sm backdrop-blur">
-        <h1 className="text-xl font-semibold">Your workspace isn&apos;t set up yet</h1>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background bg-mesh-warm p-6">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-rose-400/20 blur-3xl animate-float" />
+        <div className="absolute bottom-0 right-0 h-[360px] w-[360px] rounded-full bg-amber-300/25 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      </div>
+      <div className="max-w-md rounded-3xl border border-white/60 bg-white/80 p-10 text-center shadow-[0_20px_60px_-20px_hsl(20_90%_50%/0.25)] backdrop-blur-xl animate-scale-in">
+        <h1 className="text-2xl font-bold tracking-tight text-gradient-primary">Your workspace isn&apos;t set up yet</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           Ask your consultant to send you a fresh registration link, or to
           link your account to your existing student profile.

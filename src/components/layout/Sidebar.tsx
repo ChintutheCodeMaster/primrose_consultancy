@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useSidebarCategories } from '@/hooks/useSidebarCategories';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { GlobalSearchInput } from '@/components/search/GlobalSearchInput';
 
 const navigation = [
@@ -25,6 +26,7 @@ const agreementTemplateTypes = [
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const { data: categories = [], isLoading: isCategoriesLoading } = useSidebarCategories();
+  const { role } = useCurrentRole();
   
   // Group categories by type
   const leadsCategories = categories.filter(c => c.category_type === 'leads');
@@ -232,6 +234,23 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <UserCircle className="h-5 w-5" />
           Consultants
         </Link>
+
+        {/* Admin-only: manage IEC consultants + invites */}
+        {role === 'iec_admin' && (
+          <Link
+            to="/admin/consultants"
+            onClick={handleClick}
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+              location.pathname.startsWith('/admin/consultants')
+                ? 'bg-sidebar-accent text-sidebar-primary'
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+            )}
+          >
+            <ShieldCheck className="h-5 w-5" />
+            Manage IEC
+          </Link>
+        )}
 
         {/* Analytics */}
         <Link

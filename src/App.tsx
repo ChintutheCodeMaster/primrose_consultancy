@@ -41,6 +41,7 @@ import StudentEssay from "./pages/StudentEssay";
 import EditEssay from "./pages/EditEssay";
 import ConsultantMessages from "./pages/ConsultantMessages";
 import StudentMessages from "./pages/StudentMessages";
+import AdminConsultants from "./pages/AdminConsultants";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -86,28 +87,29 @@ const App = () => (
           <Route path="/student/messages" element={<ProtectedRoute allowedRoles={['student']}><StudentMessages /></ProtectedRoute>} />
 
           {/* Consultant / admin app routes */}
-          <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Dashboard /></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Analytics /></ProtectedRoute>} />
-          <Route path="/outcomes" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Outcomes /></ProtectedRoute>} />
-          <Route path="/leads/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Leads /></ProtectedRoute>} />
-          <Route path="/students" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Students /></ProtectedRoute>} />
-          <Route path="/students/:id/workspace" element={<ProtectedRoute allowedRoles={['consultant', 'admin', 'student']}><StudentWorkspace /></ProtectedRoute>} />
-          <Route path="/students/:id/essays" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><ConsultantEssayReview /></ProtectedRoute>} />
-          <Route path="/messages" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><ConsultantMessages /></ProtectedRoute>} />
-          <Route path="/onboarding/new-student" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><OnboardingWizard /></ProtectedRoute>} />
-          <Route path="/advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Advisors /></ProtectedRoute>} />
-          <Route path="/past-advisors" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><PastAdvisors /></ProtectedRoute>} />
-          <Route path="/did-not-continue/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><DidNotContinue /></ProtectedRoute>} />
-          <Route path="/agreement-template" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><AgreementTemplate /></ProtectedRoute>} />
-          <Route path="/student-portal/:studentId" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><StudentPortalManagement /></ProtectedRoute>} />
-          <Route path="/past-clients/:year" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><PastClients /></ProtectedRoute>} />
-          <Route path="/projects" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Projects /></ProtectedRoute>} />
-          <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><SignedAgreements /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Settings /></ProtectedRoute>} />
-          <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><AiChat /></ProtectedRoute>} />
-          <Route path="/deadlines" element={<ProtectedRoute allowedRoles={['consultant', 'admin']}><Deadlines /></ProtectedRoute>} />
-          <Route path="/temp-export" element={<ProtectedRoute allowedRoles={['admin']}><TempExportEmails /></ProtectedRoute>} />
-          <Route path="/temp-import-dnc" element={<ProtectedRoute allowedRoles={['admin']}><TempImportDidNotContinue /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Dashboard /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Analytics /></ProtectedRoute>} />
+          <Route path="/outcomes" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Outcomes /></ProtectedRoute>} />
+          <Route path="/leads/:year" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Leads /></ProtectedRoute>} />
+          <Route path="/students" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Students /></ProtectedRoute>} />
+          <Route path="/students/:id/workspace" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin', 'student']}><StudentWorkspace /></ProtectedRoute>} />
+          <Route path="/students/:id/essays" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><ConsultantEssayReview /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><ConsultantMessages /></ProtectedRoute>} />
+          <Route path="/onboarding/new-student" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><OnboardingWizard /></ProtectedRoute>} />
+          <Route path="/advisors" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Advisors /></ProtectedRoute>} />
+          <Route path="/past-advisors" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><PastAdvisors /></ProtectedRoute>} />
+          <Route path="/did-not-continue/:year" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><DidNotContinue /></ProtectedRoute>} />
+          <Route path="/agreement-template" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AgreementTemplate /></ProtectedRoute>} />
+          <Route path="/student-portal/:studentId" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><StudentPortalManagement /></ProtectedRoute>} />
+          <Route path="/past-clients/:year" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><PastClients /></ProtectedRoute>} />
+          <Route path="/projects" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Projects /></ProtectedRoute>} />
+          <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><SignedAgreements /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Settings /></ProtectedRoute>} />
+          <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AiChat /></ProtectedRoute>} />
+          <Route path="/deadlines" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Deadlines /></ProtectedRoute>} />
+          <Route path="/admin/consultants" element={<ProtectedRoute allowedRoles={['iec_admin']}><AdminConsultants /></ProtectedRoute>} />
+          <Route path="/temp-export" element={<ProtectedRoute allowedRoles={['iec_admin']}><TempExportEmails /></ProtectedRoute>} />
+          <Route path="/temp-import-dnc" element={<ProtectedRoute allowedRoles={['iec_admin']}><TempImportDidNotContinue /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

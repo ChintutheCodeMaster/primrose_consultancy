@@ -22,15 +22,16 @@ import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
 // import { TuitionCalculator } from '@/components/workspace/TuitionCalculator';
 import TuitionCalculator from '@/components/workspace/TuitionCalculator';
+import { JourneyScholarshipFinder } from '@/components/journey/JourneyScholarshipFinder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getProgramTerms } from '@/lib/programTerms';
-import { ArrowLeft, ExternalLink, Loader2, Sparkles, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, Sparkles, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy } from 'lucide-react';
 
 type StudentSection =
   | 'home' | 'colleges' | 'tasks' | 'calendar' | 'files'
-  | 'documents' | 'lab' | 'detector' | 'calculator' | 'messages' | 'profile';
+  | 'documents' | 'lab' | 'detector' | 'calculator' | 'scholarships' | 'messages' | 'profile';
 
 const buildStudentNav = (collegesLabel: string): { id: StudentSection; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
@@ -42,6 +43,7 @@ const buildStudentNav = (collegesLabel: string): { id: StudentSection; label: st
   { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
   { id: 'detector', label: 'AI Detector', icon: ShieldCheck },
   { id: 'calculator', label: 'Living Cost', icon: DollarSign },
+  { id: 'scholarships', label: 'Scholarships', icon: Trophy },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'profile', label: 'Profile', icon: User },
 ];
@@ -57,24 +59,28 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
   const NAV = buildStudentNav(terms.navLabel);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-      <nav className="lg:sticky lg:top-20 self-start">
-        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-1 gap-1 p-1 rounded-xl bg-card border">
-          {NAV.map((n) => {
+    <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr] gap-6">
+      <nav className="lg:sticky lg:top-20 self-start animate-slide-up">
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-1 gap-1 p-2 rounded-2xl glass shadow-[0_8px_30px_-12px_hsl(222_47%_11%/0.12)]">
+          {NAV.map((n, i) => {
             const Icon = n.icon;
             const active = section === n.id;
             return (
               <button
                 key={n.id}
                 onClick={() => setSection(n.id)}
+                style={{ animationDelay: `${i * 30}ms` }}
                 className={cn(
-                  'flex flex-col lg:flex-row items-center lg:items-center gap-1 lg:gap-3 px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors',
+                  'group relative flex flex-col lg:flex-row items-center lg:items-center gap-1 lg:gap-3 px-2 lg:px-3.5 py-2.5 rounded-xl text-xs lg:text-sm font-medium transition-all duration-300 press-soft animate-slide-up-sm',
                   active
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+                    ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/60',
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                {active && (
+                  <span className="absolute left-0 top-1/2 hidden lg:block h-6 w-1 -translate-y-1/2 rounded-r-full bg-accent" />
+                )}
+                <Icon className={cn('h-4 w-4 shrink-0 transition-transform', active ? '' : 'group-hover:scale-110')} />
                 <span className="truncate">{n.label}</span>
               </button>
             );
@@ -82,7 +88,7 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
         </div>
       </nav>
 
-      <main className="min-w-0">
+      <main key={section} className="min-w-0 animate-fade-in-fast">
         <CalendarReminderWatcher studentId={studentId} />
         {section === 'home' && <JourneyHome student={student} studentId={studentId} onNavigate={setSection} />}
         {section === 'colleges' && <JourneyColleges studentId={studentId} degreeType={student?.degree_type} />}
@@ -92,7 +98,8 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
         {section === 'documents' && <JourneyDocuments studentId={studentId} />}
         {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
         {section === 'detector' && <JourneyDetector studentId={studentId} />}
-        {section === 'calculator' && <TuitionCalculator />}
+        {section === 'calculator' && <TuitionCalculator onNavigate={(s) => setSection(s as StudentSection)} />}
+        {section === 'scholarships' && <JourneyScholarshipFinder />}
         {section === 'messages' && <JourneyMessages studentId={studentId} />}
         {section === 'profile' && <JourneyProfile studentId={studentId} student={student} />}
       </main>
@@ -178,17 +185,28 @@ export default function StudentWorkspace() {
     }
     const displayName = student.preferred_name || (student.name || '').split(' ')[0] || 'there';
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-        <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-md bg-primary text-primary-foreground grid place-items-center text-sm font-semibold">P</div>
-              <span className="font-semibold tracking-tight">MyJourney</span>
+      <div className="relative min-h-screen overflow-hidden bg-background bg-mesh-warm">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-32 -left-24 h-[480px] w-[480px] rounded-full bg-rose-400/15 blur-3xl animate-float" />
+          <div className="absolute -top-20 right-0 h-[400px] w-[400px] rounded-full bg-amber-300/20 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        </div>
+        <header className="sticky top-0 z-30 border-b border-white/30 bg-white/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500 to-amber-500 text-white grid place-items-center text-sm font-semibold shadow-md shadow-rose-500/25">
+                <span className="relative">P</span>
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/30 to-transparent" />
+              </div>
+              <span className="font-semibold tracking-tight text-lg" style={{ fontFamily: 'Sora, Inter, sans-serif' }}>MyJourney</span>
             </div>
-            <div className="text-sm text-muted-foreground hidden sm:block">Hi, {displayName}</div>
+            <div className="hidden sm:flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Hi,</span>
+              <span className="font-semibold text-foreground">{displayName}</span>
+              <span className="ml-1">👋</span>
+            </div>
           </div>
         </header>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 animate-fade-in">
           <StudentJourneyView studentId={id} student={student} mode="student" />
         </div>
       </div>

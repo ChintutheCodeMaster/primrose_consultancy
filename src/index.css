@@ -108,10 +108,55 @@
 
   html {
     direction: ltr;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-background text-foreground font-heebo antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    background-image:
+      radial-gradient(circle at 0% 0%, hsl(45 93% 47% / 0.04), transparent 40%),
+      radial-gradient(circle at 100% 0%, hsl(222 47% 20% / 0.04), transparent 40%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: hsl(45 93% 47% / 0.25);
+    color: hsl(222 47% 11%);
+  }
+
+  /* Modern, subtle scrollbar everywhere */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(220 13% 80%);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(220 9% 60%);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+
+  /* Refined focus ring everywhere — softer than browser default */
+  *:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(45 93% 47% / 0.5);
+    border-radius: var(--radius);
+    transition: box-shadow 0.15s ease;
   }
 }
 
@@ -121,20 +166,164 @@
     background-image: var(--gradient-accent);
   }
 
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(222 47% 20%), hsl(222 47% 40%));
+  }
+
+  /* Card variants */
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
   }
 
+  .card-lift {
+    @apply transition-all duration-300 ease-out;
+    box-shadow:
+      0 1px 2px hsl(222 47% 11% / 0.04),
+      0 1px 3px hsl(222 47% 11% / 0.06);
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 6px -1px hsl(222 47% 11% / 0.06),
+      0 10px 24px -8px hsl(222 47% 11% / 0.12);
+  }
+
+  .card-glow {
+    @apply transition-all duration-300;
+    box-shadow:
+      0 1px 2px hsl(222 47% 11% / 0.04),
+      0 0 0 1px hsl(220 13% 87%);
+  }
+  .card-glow:hover {
+    box-shadow:
+      0 4px 16px hsl(45 93% 47% / 0.15),
+      0 0 0 1px hsl(45 93% 47% / 0.35);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    background-color: hsl(0 0% 100% / 0.7);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid hsl(0 0% 100% / 0.6);
+  }
+
+  .glass-dark {
+    background-color: hsl(222 47% 12% / 0.7);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+
+  /* Hero gradient backgrounds */
+  .bg-mesh-violet {
+    background-image:
+      radial-gradient(at 0% 0%, hsl(263 70% 70% / 0.35) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsl(45 93% 60% / 0.30) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(330 80% 70% / 0.25) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsl(200 80% 70% / 0.25) 0px, transparent 50%);
+  }
+
+  .bg-mesh-warm {
+    background-image:
+      radial-gradient(at 10% 10%, hsl(45 93% 60% / 0.35) 0px, transparent 50%),
+      radial-gradient(at 90% 20%, hsl(20 90% 65% / 0.30) 0px, transparent 50%),
+      radial-gradient(at 80% 90%, hsl(330 70% 70% / 0.25) 0px, transparent 50%);
+  }
+
+  .bg-mesh-cool {
+    background-image:
+      radial-gradient(at 0% 0%, hsl(222 47% 20% / 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(45 93% 60% / 0.10) 0px, transparent 50%);
+  }
+
+  .bg-grid-faint {
+    background-image:
+      linear-gradient(hsl(220 13% 87% / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 13% 87% / 0.5) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Pretty divider */
+  .gradient-divider {
+    background: linear-gradient(90deg, transparent, hsl(220 13% 80%), transparent);
+    height: 1px;
+  }
+
+  /* Ring (focus / status) */
+  .ring-accent-soft {
+    box-shadow: 0 0 0 4px hsl(45 93% 47% / 0.15);
+  }
+
+  /* Animation utilities */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.5s ease-out both;
   }
-
+  .animate-fade-in-fast {
+    animation: fadeIn 0.25s ease-out both;
+  }
   .animate-slide-up {
-    animation: slideUp 0.4s ease-out;
+    animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-slide-up-sm {
+    animation: slideUpSm 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-slide-down {
+    animation: slideDown 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-blur-in {
+    animation: blurIn 0.5s ease-out both;
+  }
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(220 14% 92%) 0%,
+      hsl(220 14% 96%) 50%,
+      hsl(220 14% 92%) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-pulse-soft {
+    animation: pulseSoft 2.4s ease-in-out infinite;
+  }
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
   }
 
-  .animate-scale-in {
-    animation: scaleIn 0.3s ease-out;
+  /* Stagger helpers — combine with animate-slide-up */
+  .stagger-1 { animation-delay: 60ms; }
+  .stagger-2 { animation-delay: 120ms; }
+  .stagger-3 { animation-delay: 180ms; }
+  .stagger-4 { animation-delay: 240ms; }
+  .stagger-5 { animation-delay: 300ms; }
+  .stagger-6 { animation-delay: 360ms; }
+
+  /* Interactive utilities */
+  .press-soft {
+    @apply transition-transform active:scale-[0.98];
+  }
+  .icon-bounce {
+    @apply transition-transform group-hover:-translate-y-0.5;
+  }
+  .ring-pulse {
+    position: relative;
+  }
+  .ring-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 hsl(45 93% 47% / 0.5);
+    animation: ringPulse 1.8s ease-out infinite;
   }
 }
 
@@ -315,32 +504,69 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUpSm {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blurIn {
+  from { opacity: 0; filter: blur(8px); transform: translateY(8px); }
+  to   { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.7; }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes ringPulse {
+  0%   { box-shadow: 0 0 0 0 hsl(45 93% 47% / 0.5); }
+  100% { box-shadow: 0 0 0 12px hsl(45 93% 47% / 0); }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

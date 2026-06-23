@@ -472,14 +472,24 @@ export default function Students() {
         {/* Sticky Header and Search - Only search is sticky */}
         <div className="sticky top-0 z-10 bg-background pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8 pt-2">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-slide-up">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Students</h1>
-              <p className="text-muted-foreground mt-1">Manage engaged students ({filteredStudents.length})</p>
+              <h1
+                className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient-primary"
+                style={{ fontFamily: 'Sora, Inter, sans-serif' }}
+              >
+                Students
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Manage engaged students
+                <span className="ml-1.5 inline-flex items-center rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-semibold">
+                  {filteredStudents.length}
+                </span>
+              </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2">
-                <Sparkles className="h-4 w-4" /> Onboarding Wizard
+              <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2 rounded-xl bg-white/70 backdrop-blur press-soft">
+                <Sparkles className="h-4 w-4 text-amber-500" /> Onboarding Wizard
               </Button>
               <AddStudentDialog onAdd={handleAddStudent} />
             </div>

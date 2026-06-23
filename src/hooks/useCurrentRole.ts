@@ -7,6 +7,7 @@ export type AppRole =
   | 'parent'
   | 'counselor'
   | 'admin'
+  | 'iec_admin'
   | 'principal'
   | 'teacher';
 

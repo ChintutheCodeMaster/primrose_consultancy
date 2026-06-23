@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface Invite {
+type InviteKind = 'student' | 'advisor';
+
+interface StudentInvite {
+  kind: 'student';
   id: string;
   token: string;
   advisor_id: string;
@@ -17,6 +20,20 @@ interface Invite {
   expires_at: string | null;
   used_at: string | null;
 }
+
+interface AdvisorInvite {
+  kind: 'advisor';
+  id: string;
+  token: string;
+  admin_id: string;
+  advisor_id: string | null;
+  email: string | null;
+  name: string | null;
+  expires_at: string | null;
+  used_at: string | null;
+}
+
+type Invite = StudentInvite | AdvisorInvite;
 
 export default function Register() {
   const [searchParams] = useSearchParams();
@@ -32,45 +49,78 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const mode: 'student' | 'consultant' = inviteToken ? 'student' : 'consultant';
+  const mode: InviteKind | null = invite ? invite.kind : null;
 
   useEffect(() => {
-    if (!inviteToken) return;
+    if (!inviteToken) {
+      setInviteLoading(false);
+      return;
+    }
     (async () => {
-      const { data, error } = await supabase
+      // Check student_invites first
+      const { data: studentRow } = await supabase
         .from('student_invites')
         .select('id, token, advisor_id, student_id, email, name, expires_at, used_at')
         .eq('token', inviteToken)
         .maybeSingle();
 
-      if (error || !data) {
-        setInviteError('This registration link is invalid or has been removed.');
-      } else if (data.used_at) {
-        setInviteError('This registration link has already been used. Please log in instead.');
-      } else if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        setInviteError('This registration link has expired. Please ask your consultant for a new one.');
-      } else {
-        setInvite(data as Invite);
-        if (data.email) setEmail(data.email);
-        if (data.name) setFullName(data.name);
+      if (studentRow) {
+        const row = studentRow as any;
+        if (row.used_at) {
+          setInviteError('This registration link has already been used. Please log in instead.');
+        } else if (row.expires_at && new Date(row.expires_at) < new Date()) {
+          setInviteError('This registration link has expired. Please ask your consultant for a new one.');
+        } else {
+          setInvite({ ...row, kind: 'student' } as StudentInvite);
+          if (row.email) setEmail(row.email);
+          if (row.name) setFullName(row.name);
+        }
+        setInviteLoading(false);
+        return;
       }
+
+      // Fall back to advisor_invites
+      const { data: advisorRow } = await supabase
+        .from('advisor_invites' as any)
+        .select('id, token, admin_id, advisor_id, email, name, expires_at, used_at')
+        .eq('token', inviteToken)
+        .maybeSingle();
+
+      if (advisorRow) {
+        const row = advisorRow as any;
+        if (row.used_at) {
+          setInviteError('This registration link has already been used. Please log in instead.');
+        } else if (row.expires_at && new Date(row.expires_at) < new Date()) {
+          setInviteError('This registration link has expired. Please ask your admin for a new one.');
+        } else {
+          setInvite({ ...row, kind: 'advisor' } as AdvisorInvite);
+          if (row.email) setEmail(row.email);
+          if (row.name) setFullName(row.name);
+        }
+        setInviteLoading(false);
+        return;
+      }
+
+      setInviteError('This registration link is invalid or has been removed.');
       setInviteLoading(false);
     })();
   }, [inviteToken]);
 
   const heading = useMemo(() => {
     if (mode === 'student') return 'Create your student account';
-    return 'Create your consultant account';
+    if (mode === 'advisor') return 'Create your consultant account';
+    return 'Registration is by invite only';
   }, [mode]);
 
   const subheading = useMemo(() => {
     if (mode === 'student') return "You've been invited to join Primrose by your consultant.";
-    return 'Sign up to access your Primrose CRM, AI strategist, and student workspace.';
+    if (mode === 'advisor') return "You've been invited to join Primrose by your IEC admin.";
+    return 'Ask your consultant or admin to send you an invite link.';
   }, [mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting) return;
+    if (submitting || !invite) return;
     if (!fullName.trim() || !email.trim() || !password) {
       toast.error('Please fill in name, email, and password.');
       return;
@@ -82,7 +132,7 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      const role = mode === 'student' ? 'student' : 'consultant';
+      const role = invite.kind === 'student' ? 'student' : 'consultant';
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -100,8 +150,7 @@ export default function Register() {
 
       const userId = data.user.id;
 
-      // Client-side follow-up insert into noga.* (Option 1: trigger stays lean)
-      if (mode === 'student' && invite) {
+      if (invite.kind === 'student') {
         if (invite.student_id) {
           await supabase
             .from('students')
@@ -121,18 +170,32 @@ export default function Register() {
           .from('student_invites')
           .update({ used_at: new Date().toISOString(), used_by_user_id: userId })
           .eq('id', invite.id);
-      } else if (mode === 'consultant') {
-        await supabase.from('advisors').insert({
-          name: fullName.trim(),
-          email: email.trim(),
-          user_id: userId,
-          is_active: true,
-        });
+      } else {
+        // advisor invite
+        if (invite.advisor_id) {
+          await supabase
+            .from('advisors')
+            .update({ user_id: userId, admin_id: invite.admin_id } as any)
+            .eq('id', invite.advisor_id);
+        } else {
+          await supabase.from('advisors').insert({
+            name: fullName.trim(),
+            email: email.trim(),
+            user_id: userId,
+            admin_id: invite.admin_id,
+            is_active: true,
+          } as any);
+        }
+
+        await supabase
+          .from('advisor_invites' as any)
+          .update({ used_at: new Date().toISOString(), used_by_user_id: userId })
+          .eq('id', invite.id);
       }
 
       if (data.session) {
         toast.success('Welcome to Primrose.');
-        navigate(mode === 'student' ? '/student' : '/dashboard', { replace: true });
+        navigate(invite.kind === 'student' ? '/student' : '/dashboard', { replace: true });
       } else {
         toast.success('Account created. Please check your email to confirm, then log in.');
         navigate('/login', { replace: true });
@@ -165,27 +228,65 @@ export default function Register() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-violet-400/20 blur-3xl" />
-        <div className="absolute -top-20 right-0 h-[360px] w-[360px] rounded-full bg-amber-300/30 blur-3xl" />
+  if (!invite) {
+    // No invite token at all → registration is invite-only.
+    return (
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background bg-mesh-violet p-6">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-violet-400/20 blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-0 h-[360px] w-[360px] rounded-full bg-amber-300/25 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        </div>
+        <div className="max-w-md rounded-3xl border border-white/60 bg-white/80 p-10 text-center shadow-[0_20px_60px_-20px_hsl(263_70%_50%/0.25)] backdrop-blur-xl animate-scale-in">
+          <h1 className="text-2xl font-bold tracking-tight text-gradient-primary">{heading}</h1>
+          <p className="mt-3 text-sm text-muted-foreground">{subheading}</p>
+          <Button asChild variant="outline" className="mt-6 rounded-xl press-soft">
+            <Link to="/login">Go to login</Link>
+          </Button>
+        </div>
       </div>
+    );
+  }
+
+  const isStudent = mode === 'student';
+
+  return (
+    <div className={`relative min-h-screen overflow-hidden bg-background ${isStudent ? 'bg-mesh-warm' : 'bg-mesh-violet'}`}>
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className={`absolute -top-32 -left-24 h-[480px] w-[480px] rounded-full blur-3xl animate-float ${isStudent ? 'bg-rose-400/25' : 'bg-violet-400/25'}`} />
+        <div className={`absolute -top-20 right-0 h-[400px] w-[400px] rounded-full blur-3xl animate-float ${isStudent ? 'bg-amber-300/30' : 'bg-amber-300/30'}`} style={{ animationDelay: '1.5s' }} />
+        <div className={`absolute bottom-0 left-1/3 h-[360px] w-[360px] rounded-full blur-3xl animate-float ${isStudent ? 'bg-orange-300/20' : 'bg-rose-300/20'}`} style={{ animationDelay: '3s' }} />
+      </div>
+
       <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 py-12">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${mode === 'student' ? 'from-rose-500 to-amber-500' : 'from-violet-600 to-indigo-600'} text-white shadow-lg`}>
-            {mode === 'student' ? <GraduationCap className="h-7 w-7" /> : <Users className="h-7 w-7" />}
+        <div className="mb-7 flex flex-col items-center text-center animate-slide-up">
+          <div
+            className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-xl ${
+              isStudent ? 'from-rose-500 to-amber-500 shadow-rose-500/30' : 'from-violet-600 to-indigo-700 shadow-violet-500/30'
+            }`}
+          >
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 to-transparent" />
+            {isStudent ? <GraduationCap className="h-8 w-8 relative" /> : <Users className="h-8 w-8 relative" />}
           </div>
-          <h1 className="mt-5 text-2xl font-semibold tracking-tight" style={{ fontFamily: 'Sora, Inter, sans-serif' }}>
+          <h1
+            className="mt-5 text-3xl font-bold tracking-tight text-gradient-primary"
+            style={{ fontFamily: 'Sora, Inter, sans-serif' }}
+          >
             {heading}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">{subheading}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full rounded-2xl border border-violet-200/60 bg-white/90 p-6 shadow-sm backdrop-blur">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="fullName">Full name</Label>
+        <form
+          onSubmit={handleSubmit}
+          className={`w-full rounded-3xl border border-white/60 bg-white/80 p-7 backdrop-blur-xl animate-slide-up stagger-2 ${
+            isStudent
+              ? 'shadow-[0_20px_60px_-20px_hsl(20_90%_50%/0.25)]'
+              : 'shadow-[0_20px_60px_-20px_hsl(263_70%_50%/0.25)]'
+          }`}
+        >
+          <div className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="fullName" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full name</Label>
               <Input
                 id="fullName"
                 value={fullName}
@@ -193,10 +294,13 @@ export default function Register() {
                 placeholder="Jane Doe"
                 autoComplete="name"
                 disabled={submitting}
+                className={`h-11 rounded-xl bg-white/70 transition-all focus-visible:bg-white ${
+                  isStudent ? 'border-rose-200/70 focus-visible:border-rose-400' : 'border-violet-200/70 focus-visible:border-violet-400'
+                }`}
               />
             </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -205,13 +309,16 @@ export default function Register() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 disabled={submitting || !!invite?.email}
+                className={`h-11 rounded-xl bg-white/70 transition-all focus-visible:bg-white ${
+                  isStudent ? 'border-rose-200/70 focus-visible:border-rose-400' : 'border-violet-200/70 focus-visible:border-violet-400'
+                }`}
               />
               {invite?.email ? (
-                <p className="mt-1 text-xs text-muted-foreground">Pre-filled by your consultant.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Pre-filled by your {isStudent ? 'consultant' : 'admin'}.</p>
               ) : null}
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -220,18 +327,29 @@ export default function Register() {
                 placeholder="At least 8 characters"
                 autoComplete="new-password"
                 disabled={submitting}
+                className={`h-11 rounded-xl bg-white/70 transition-all focus-visible:bg-white ${
+                  isStudent ? 'border-rose-200/70 focus-visible:border-rose-400' : 'border-violet-200/70 focus-visible:border-violet-400'
+                }`}
               />
             </div>
           </div>
 
-          <Button type="submit" className="mt-6 w-full" disabled={submitting}>
+          <Button
+            type="submit"
+            className={`mt-7 w-full h-11 rounded-xl text-white transition-all press-soft ${
+              isStudent
+                ? 'bg-gradient-to-br from-rose-500 to-amber-500 shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/35'
+                : 'bg-gradient-to-br from-violet-600 to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/35'
+            }`}
+            disabled={submitting}
+          >
             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Create account
           </Button>
 
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="mt-5 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-violet-700 hover:underline">
+            <Link to="/login" className={`font-medium underline-offset-4 hover:underline transition-colors ${isStudent ? 'text-rose-700 hover:text-rose-900' : 'text-violet-700 hover:text-violet-900'}`}>
               Log in
             </Link>
           </p>
