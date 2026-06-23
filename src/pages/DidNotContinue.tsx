@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, UserX, Undo2, Phone, Mail, GraduationCap, Calendar, MapPin, Briefcase, Share2, DollarSign, User, FileText, Building, CheckCircle, XCircle, ArrowUpDown, Pencil, ArrowRightLeft } from 'lucide-react';
 import { InlineReasonEditor } from '@/components/InlineReasonEditor';
 import { supabase } from '@/integrations/supabase/client';
+import { resolveCurrentAdvisor } from '@/lib/resolveCurrentAdvisor';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -197,6 +198,13 @@ export default function DidNotContinue() {
   // Move lead to students did-not-continue
   const moveLeadToStudentsMutation = useMutation({
     mutationFn: async (lead: FullLead) => {
+      // Carry over the lead's advisor_id when available; fall back to current
+      // advisor so RLS lets the insert through. Admins (no advisor row) keep
+      // advisor_id NULL — IEC inbox.
+      const current = await resolveCurrentAdvisor();
+      const advisorId = (lead as any).advisor_id ?? current.id;
+      const advisorName = lead.advisor_name ?? current.name ?? null;
+
       const { error: insertError } = await supabase
         .from('students')
         .insert({
@@ -208,12 +216,13 @@ export default function DidNotContinue() {
           interested_field: lead.interested_field,
           source: lead.source,
           meeting_summary: lead.meeting_summary,
-          advisor_name: lead.advisor_name,
+          advisor_id: advisorId,
+          advisor_name: advisorName,
           package_notes: lead.package_notes,
           did_not_continue: true,
           discontinue_reason: lead.discontinue_reason,
           created_at: lead.created_at,
-        });
+        } as any);
       if (insertError) throw insertError;
       const { error: deleteError } = await supabase.from('leads').delete().eq('id', lead.id);
       if (deleteError) throw deleteError;
@@ -230,6 +239,12 @@ export default function DidNotContinue() {
   // Move student to leads did-not-continue
   const moveStudentToLeadsMutation = useMutation({
     mutationFn: async (student: FullStudent) => {
+      // Same pattern as the lead → student direction: keep the row's advisor
+      // attribution so RLS lets the insert pass.
+      const current = await resolveCurrentAdvisor();
+      const advisorId = (student as any).advisor_id ?? current.id;
+      const advisorName = student.advisor_name ?? current.name ?? null;
+
       const { error: insertError } = await supabase
         .from('leads')
         .insert({
@@ -241,12 +256,13 @@ export default function DidNotContinue() {
           interested_field: student.interested_field,
           source: student.source,
           meeting_summary: student.meeting_summary,
-          advisor_name: student.advisor_name,
+          advisor_id: advisorId,
+          advisor_name: advisorName,
           package_notes: student.package_notes,
           did_not_continue: true,
           discontinue_reason: student.discontinue_reason,
           created_at: student.created_at,
-        });
+        } as any);
       if (insertError) throw insertError;
       const { error: deleteError } = await supabase.from('students').delete().eq('id', student.id);
       if (deleteError) throw deleteError;

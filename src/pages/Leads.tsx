@@ -14,6 +14,7 @@ import { Loader2, ArrowUpDown, Upload } from 'lucide-react';
 import { Lead, LeadStatus, leadStatusLabels, Student, DegreeType } from '@/types/crm';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { resolveCurrentAdvisor } from '@/lib/resolveCurrentAdvisor';
 import { DiscontinueReasonDialog, DiscontinueDestination } from '@/components/DiscontinueReasonDialog';
 
 export default function Leads() {
@@ -126,6 +127,24 @@ export default function Leads() {
   }, [leads, searchTerm, statusFilter, sortOrder]);
 
   const handleAddLead = async (newLead: Omit<Lead, 'id' | 'createdAt' | 'lastContactAt'> & { leadsYear: string }) => {
+    // Auto-link new lead to the logged-in consultant so RLS lets it through.
+    // Admins creating leads (no advisor row) intentionally leave advisor_id NULL
+    // — those leads land in the admin's IEC inbox.
+    const { data: { user } } = await supabase.auth.getUser();
+    let advisorId: string | null = null;
+    let advisorName: string = '';
+    if (user) {
+      const { data: advisor } = await supabase
+        .from('advisors')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (advisor) {
+        advisorId = (advisor as any).id;
+        advisorName = (advisor as any).name ?? '';
+      }
+    }
+
     const { error } = await supabase.from('leads').insert({
       name: newLead.name,
       email: newLead.email,
@@ -138,13 +157,15 @@ export default function Leads() {
       meeting_summary: newLead.meetingSummary,
       package_notes: newLead.packageNotes,
       leads_year: newLead.leadsYear,
-    });
-    
+      advisor_id: advisorId,
+      advisor_name: advisorName || null,
+    } as any);
+
     if (error) {
       toast.error('Error adding lead');
       return;
     }
-    
+
     queryClient.invalidateQueries({ queryKey: ['leads'] });
     toast.success('Lead added successfully!');
   };
@@ -192,7 +213,11 @@ export default function Leads() {
       // Move lead to students table as did_not_continue
       const lead = leads.find(l => l.id === leadId);
       if (!lead) return;
-      
+
+      const current = await resolveCurrentAdvisor();
+      const advisorId = (lead as any).advisorId ?? current.id;
+      const advisorName = lead.advisorName || current.name || null;
+
       const { error: insertError } = await supabase
         .from('students')
         .insert({
@@ -204,12 +229,13 @@ export default function Leads() {
           interested_field: lead.interestedField || null,
           source: lead.source || null,
           meeting_summary: lead.meetingSummary || null,
-          advisor_name: lead.advisorName || null,
+          advisor_id: advisorId,
+          advisor_name: advisorName,
           package_notes: lead.packageNotes || null,
           did_not_continue: true,
           discontinue_reason: reason || null,
           created_at: lead.createdAt.toISOString(),
-        });
+        } as any);
       
       if (insertError) {
         toast.error('Error moving to students');
@@ -255,6 +281,12 @@ export default function Leads() {
   };
 
   const handleConvertToStudent = async (newStudent: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => {
+    // Preserve the lead's advisor when converting; fall back to logged-in
+    // consultant so RLS allows the insert.
+    const current = await resolveCurrentAdvisor();
+    const advisorId = newStudent.advisorId ?? current.id;
+    const advisorName = newStudent.advisorName || current.name || null;
+
     // Insert new student
     const { error: studentError } = await supabase.from('students').insert({
       name: newStudent.name,
@@ -271,13 +303,14 @@ export default function Leads() {
       package_notes: newStudent.packageNotes,
       package_cost: newStudent.packageCost,
       payment_notes: newStudent.paymentNotes,
-      advisor_name: newStudent.advisorName,
+      advisor_id: advisorId,
+      advisor_name: advisorName,
       is_paid: newStudent.isPaid,
       signed_agreement: newStudent.signedAgreement,
       target_country: newStudent.targetCountry,
       target_university: newStudent.targetUniversity,
       program: newStudent.program,
-    });
+    } as any);
     
     if (studentError) {
       toast.error('Error converting to student');

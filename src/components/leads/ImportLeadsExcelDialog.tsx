@@ -286,6 +286,24 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
 
     setIsLoading(true);
     try {
+      // Auto-link imported leads to the logged-in consultant so RLS lets them
+      // through. Admins (no advisor row) import with advisor_id NULL — those
+      // leads land in the admin's IEC inbox.
+      const { data: { user } } = await supabase.auth.getUser();
+      let advisorId: string | null = null;
+      let advisorName: string = '';
+      if (user) {
+        const { data: advisor } = await supabase
+          .from('advisors')
+          .select('id, name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (advisor) {
+          advisorId = (advisor as any).id;
+          advisorName = (advisor as any).name ?? '';
+        }
+      }
+
       const insertData = leadsToImport.map(lead => ({
         name: lead.name,
         email: lead.email || `no-email-${Date.now()}-${Math.random().toString(36).substr(2, 9)}@placeholder.com`,
@@ -295,9 +313,11 @@ export function ImportLeadsExcelDialog({ open, onOpenChange, onImportComplete, y
         source: lead.source || null,
         package_notes: lead.packageNotes || null,
         status: 'new',
+        advisor_id: advisorId,
+        advisor_name: advisorName || null,
       }));
 
-      const { error } = await supabase.from('leads').insert(insertData);
+      const { error } = await supabase.from('leads').insert(insertData as any);
 
       if (error) throw error;
 

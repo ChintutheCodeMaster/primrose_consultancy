@@ -67,8 +67,13 @@ export function CommandCenter() {
       const fileName = await exportAllDataToExcel();
       toast({ title: 'File downloaded', description: fileName });
     } catch (e) {
-      console.error(e);
-      toast({ title: 'Export Error', description: 'Could not export data', variant: 'destructive' });
+      console.error('[Export to Excel failed]', e);
+      const msg = e instanceof Error ? e.message : String(e);
+      toast({
+        title: 'Export Error',
+        description: msg.length > 200 ? msg.slice(0, 200) + '…' : msg,
+        variant: 'destructive',
+      });
     } finally {
       setIsExporting(false);
     }

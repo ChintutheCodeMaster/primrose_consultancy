@@ -25,11 +25,14 @@ export function usePracticeHealth() {
       const todayIso = now.toISOString().slice(0, 10);
       const in14DaysIso = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
-      const [students, accepted, leads, agreements] = await Promise.all([
+      // Note: student_agreements is intentionally not queried — the unsigned
+      // count comes from students.signed_agreement, and student_agreements
+      // doesn't have a 'status' column. Don't add it back unless you actually
+      // use the result.
+      const [students, accepted, leads] = await Promise.all([
         supabase.from('students').select('id, package_cost, amount_paid, signed_agreement, is_paid, created_at, payment_date, did_not_continue, graduation_year').eq('did_not_continue', false),
         supabase.from('accepted_universities').select('name, created_at, student_id'),
         supabase.from('leads').select('id, created_at, last_contact_at').eq('did_not_continue', false),
-        supabase.from('student_agreements').select('id, status, created_at'),
       ]);
 
       const allStudents = students.data ?? [];
