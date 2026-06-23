@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { MultiCountrySelect } from '@/components/ui/multi-country-select';
-import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
+import { SingleAdvisorSelect } from '@/components/ui/single-advisor-select';
 import { UniversityDropdown } from '@/components/ui/university-dropdown';
 import { CountryDropdown } from '@/components/ui/country-dropdown';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
@@ -500,11 +500,17 @@ export function EditStudentDialog({ student, open, onOpenChange, onSave }: EditS
           {/* Student-specific fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="advisorName">Consultants</Label>
-              <MultiAdvisorSelect
-                value={formData.advisorName || ''}
-                onChange={(v) => setFormData({ ...formData, advisorName: v })}
-                placeholder="Select consultants"
+              <Label htmlFor="advisorName">Consultant</Label>
+              <SingleAdvisorSelect
+                value={formData.advisorId || ''}
+                onChange={(advisor) =>
+                  setFormData({
+                    ...formData,
+                    advisorId: advisor?.id ?? undefined,
+                    advisorName: advisor?.name ?? '',
+                  })
+                }
+                placeholder="Select consultant"
               />
             </div>
             <div className="space-y-2">

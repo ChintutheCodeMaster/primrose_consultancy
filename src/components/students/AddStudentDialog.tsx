@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
-import { MultiAdvisorSelect } from '@/components/ui/multi-advisor-select';
+import { SingleAdvisorSelect } from '@/components/ui/single-advisor-select';
 import { MultiUniversitySelect } from '@/components/ui/multi-university-select';
 import { Student, StudentStatus, DegreeType, degreeTypeLabels } from '@/types/crm';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,6 +47,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     amountPaid: 0,
     paymentNotes: '',
     advisorPaymentNotes: '',
+    advisorId: '',
     advisorName: '',
     isPaid: false,
     signedAgreement: false,
@@ -57,6 +58,28 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
     status: 'active' as StudentStatus,
     acceptedUniversities: [] as { name: string; acceptanceLetterUrl?: string }[],
   });
+
+  // Auto-link the new student to the logged-in consultant.
+  // Resolves noga.advisors.user_id = auth.uid() and pre-fills advisor fields
+  // when the dialog opens. Admins / users with no advisor row see an empty
+  // dropdown and must pick a consultant manually.
+  useEffect(() => {
+    if (!open) return;
+    if (formData.advisorId) return; // already chosen, don't overwrite
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: advisor } = await supabase
+        .from('advisors')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (advisor) {
+        setFormData((f) => ({ ...f, advisorId: advisor.id, advisorName: advisor.name }));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const parseNumber = (text: string): number => {
     const cleaned = text.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
@@ -114,6 +137,7 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
       amountPaid: 0,
       paymentNotes: '',
       advisorPaymentNotes: '',
+      advisorId: '',
       advisorName: '',
       isPaid: false,
       signedAgreement: false,
@@ -277,11 +301,17 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="advisorName">Consultants</Label>
-              <MultiAdvisorSelect
-                value={formData.advisorName}
-                onChange={(v) => setFormData({ ...formData, advisorName: v })}
-                placeholder="Select consultants"
+              <Label htmlFor="advisorName">Consultant</Label>
+              <SingleAdvisorSelect
+                value={formData.advisorId}
+                onChange={(advisor) =>
+                  setFormData({
+                    ...formData,
+                    advisorId: advisor?.id ?? '',
+                    advisorName: advisor?.name ?? '',
+                  })
+                }
+                placeholder="Select consultant"
               />
             </div>
           </div>

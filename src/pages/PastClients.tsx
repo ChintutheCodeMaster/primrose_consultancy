@@ -44,6 +44,7 @@ export default function PastClients() {
           accepted_universities (*),
           applied_universities (*)
         `)
+        .eq('status', 'graduated')
         .eq('graduation_year', year);
       
       if (error) throw error;

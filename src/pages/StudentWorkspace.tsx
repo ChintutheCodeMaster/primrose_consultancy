@@ -15,7 +15,9 @@ import { JourneyTasks } from '@/components/journey/JourneyTasks';
 import { JourneyCalendar } from '@/components/journey/JourneyCalendar';
 import { JourneyFiles } from '@/components/journey/JourneyFiles';
 import { JourneyDocuments } from '@/components/journey/JourneyDocuments';
+import { JourneyEssays } from '@/components/journey/JourneyEssays';
 import { JourneyWritingLab } from '@/components/journey/JourneyWritingLab';
+import { JourneyPrimroseLab } from '@/components/journey/JourneyPrimroseLab';
 import { JourneyDetector } from '@/components/journey/JourneyDetector';
 import { JourneyMessages } from '@/components/journey/JourneyMessages';
 import { JourneyProfile } from '@/components/journey/JourneyProfile';
@@ -41,7 +43,7 @@ const buildStudentNav = (collegesLabel: string): { id: StudentSection; label: st
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
   { id: 'files', label: 'Files', icon: FolderArchive },
   { id: 'documents', label: 'Essays', icon: FileText },
-  { id: 'lab', label: 'Writing Lab', icon: FlaskConical },
+  { id: 'lab', label: 'Primrose Lab', icon: FlaskConical },
   { id: 'detector', label: 'AI Detector', icon: ShieldCheck },
   { id: 'calculator', label: 'Living Cost', icon: DollarSign },
   { id: 'scholarships', label: 'Scholarships', icon: Trophy },
@@ -96,8 +98,8 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
         {section === 'tasks' && <JourneyTasks studentId={studentId} />}
         {section === 'calendar' && <JourneyCalendar studentId={studentId} mode={mode} />}
         {section === 'files' && <JourneyFiles studentId={studentId} mode={mode} />}
-        {section === 'documents' && <JourneyDocuments studentId={studentId} />}
-        {section === 'lab' && <JourneyWritingLab studentId={studentId} />}
+        {section === 'documents' && (mode === 'student' ? <JourneyEssays /> : <JourneyDocuments studentId={studentId} />)}
+        {section === 'lab' && (mode === 'student' ? <JourneyPrimroseLab /> : <JourneyWritingLab studentId={studentId} />)}
         {section === 'detector' && <JourneyDetector studentId={studentId} />}
         {section === 'calculator' && <TuitionCalculator onNavigate={(s) => setSection(s as StudentSection)} />}
         {section === 'scholarships' && <JourneyScholarshipFinder />}

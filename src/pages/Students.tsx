@@ -51,7 +51,7 @@ export default function Students() {
           accepted_universities (*),
           applied_universities (*)
         `)
-        .is('graduation_year', null)
+        .neq('status', 'graduated')
         .eq('did_not_continue', false)
         .order('created_at', { ascending: false });
       
