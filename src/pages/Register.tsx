@@ -148,58 +148,38 @@ export default function Register() {
         return;
       }
 
-      const userId = data.user.id;
-
-      if (invite.kind === 'student') {
-        if (invite.student_id) {
-          await supabase
-            .from('students')
-            .update({ user_id: userId })
-            .eq('id', invite.student_id);
-        } else {
-          await supabase.from('students').insert({
-            name: fullName.trim(),
-            email: email.trim(),
-            user_id: userId,
-            advisor_id: invite.advisor_id,
-            status: 'active',
-          });
+      // RLS on noga.students / noga.advisors blocks the freshly-signed-up
+      // user from claiming their own row (chicken-and-egg). Delegate to a
+      // SECURITY DEFINER RPC that validates the token server-side and does
+      // the linkage + marks the invite consumed atomically.
+      if (!data.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (signInError) {
+          toast.error('Account created but could not sign in to finish setup. Please log in.');
+          navigate('/login', { replace: true });
+          return;
         }
-
-        await supabase
-          .from('student_invites')
-          .update({ used_at: new Date().toISOString(), used_by_user_id: userId })
-          .eq('id', invite.id);
-      } else {
-        // advisor invite
-        if (invite.advisor_id) {
-          await supabase
-            .from('advisors')
-            .update({ user_id: userId, admin_id: invite.admin_id } as any)
-            .eq('id', invite.advisor_id);
-        } else {
-          await supabase.from('advisors').insert({
-            name: fullName.trim(),
-            email: email.trim(),
-            user_id: userId,
-            admin_id: invite.admin_id,
-            is_active: true,
-          } as any);
-        }
-
-        await supabase
-          .from('advisor_invites' as any)
-          .update({ used_at: new Date().toISOString(), used_by_user_id: userId })
-          .eq('id', invite.id);
       }
 
-      if (data.session) {
-        toast.success('Welcome to Primrose.');
-        navigate(invite.kind === 'student' ? '/student' : '/dashboard', { replace: true });
-      } else {
-        toast.success('Account created. Please check your email to confirm, then log in.');
-        navigate('/login', { replace: true });
+      const rpcName =
+        invite.kind === 'student' ? 'claim_student_invite' : 'claim_advisor_invite';
+      const { error: claimError } = await supabase.rpc(rpcName as any, {
+        p_token: invite.token,
+        p_full_name: fullName.trim(),
+        p_email: email.trim(),
+      });
+
+      if (claimError) {
+        toast.error(claimError.message || 'Could not link your invite.');
+        setSubmitting(false);
+        return;
       }
+
+      toast.success('Welcome to Primrose.');
+      navigate(invite.kind === 'student' ? '/student' : '/dashboard', { replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong.');
       setSubmitting(false);
