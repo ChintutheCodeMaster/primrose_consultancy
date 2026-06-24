@@ -19,9 +19,9 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }), {
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY2");
+    if (!ANTHROPIC_API_KEY) {
+      return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY2 is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -77,44 +77,98 @@ Whenever you mention a student, inquiry, or consultant by name, turn the name in
 
 Use the real record ID (uuid) for each link. Always link names when they appear in your answer.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const anthropicResp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
+        model: "claude-sonnet-4-6",
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages,
         stream: true,
       }),
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
+    if (!anthropicResp.ok) {
+      if (anthropicResp.status === 429) {
         return new Response(JSON.stringify({ error: "Too many requests — please try again in a moment." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in workspace settings." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      const t = await anthropicResp.text();
+      console.error("Anthropic error:", anthropicResp.status, t);
       return new Response(JSON.stringify({ error: "AI service error" }), {
+        status: anthropicResp.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!anthropicResp.body) {
+      return new Response(JSON.stringify({ error: "No response body from AI" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
+    // Translate Anthropic SSE → OpenAI-shaped SSE so the existing frontend parser
+    // (which reads choices[0].delta.content + [DONE]) continues to work.
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const reader = anthropicResp.body.getReader();
+
+    const translated = new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        const emitDelta = (text: string) => {
+          const chunk = `data: ${JSON.stringify({ choices: [{ delta: { content: text } }] })}\n\n`;
+          controller.enqueue(encoder.encode(chunk));
+        };
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let nlIdx: number;
+            while ((nlIdx = buffer.indexOf("\n")) !== -1) {
+              let line = buffer.slice(0, nlIdx);
+              buffer = buffer.slice(nlIdx + 1);
+              if (line.endsWith("\r")) line = line.slice(0, -1);
+              if (!line.startsWith("data: ")) continue;
+
+              const payload = line.slice(6).trim();
+              if (!payload) continue;
+              try {
+                const evt = JSON.parse(payload);
+                if (
+                  evt.type === "content_block_delta" &&
+                  evt.delta?.type === "text_delta" &&
+                  typeof evt.delta.text === "string"
+                ) {
+                  emitDelta(evt.delta.text);
+                } else if (evt.type === "message_stop") {
+                  controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                }
+              } catch {
+                // ignore malformed lines
+              }
+            }
+          }
+          controller.close();
+        } catch (e) {
+          console.error("stream translation error:", e);
+          controller.error(e);
+        }
+      },
+    });
+
+    return new Response(translated, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
