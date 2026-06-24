@@ -8,7 +8,7 @@ import { ActivityFeed } from '@/components/workspace/ActivityFeed';
 import { SharedNotepad } from '@/components/workspace/SharedNotepad';
 import { WorkspacePresence } from '@/components/workspace/WorkspacePresence';
 import { MissionControl } from '@/components/workspace/MissionControl';
-import { DraftExchange } from '@/components/workspace/DraftExchange';
+import { WorkspaceEssaysList } from '@/components/workspace/WorkspaceEssaysList';
 import { JourneyHome } from '@/components/journey/JourneyHome';
 import { JourneyColleges } from '@/components/journey/JourneyColleges';
 import { JourneyTasks } from '@/components/journey/JourneyTasks';
@@ -30,7 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getProgramTerms } from '@/lib/programTerms';
-import { ArrowLeft, ExternalLink, Loader2, Sparkles, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy, LogOut } from 'lucide-react';
+import { ArrowLeft, Loader2, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy, LogOut } from 'lucide-react';
 
 type StudentSection =
   | 'home' | 'colleges' | 'tasks' | 'calendar' | 'files'
@@ -293,25 +293,7 @@ export default function StudentWorkspace() {
               </TabsContent>
 
               <TabsContent value="essays" className="mt-4">
-                <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                  <DraftExchange studentId={id} side="consultant" />
-                  <div className="space-y-4">
-                    <div className="rounded-2xl border bg-gradient-to-br from-violet-50 to-rose-50 p-5">
-                      <div className="mb-2 flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-violet-600" />
-                        <h4 className="font-semibold">In-app essay editor</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Open the versioned editor with inline AI line-edit feedback and anchored comments.
-                      </p>
-                      <Button asChild className="mt-3 w-full">
-                        <Link to={`/students/${id}/essays`}>
-                          Open essay editor <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <WorkspaceEssaysList studentId={id} />
               </TabsContent>
 
               <TabsContent value="notes" className="mt-4">
