@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -345,7 +344,6 @@ export default function RoseVoiceChat() {
   };
 
   return (
-    <MainLayout>
       <div className="relative pb-12">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-rose-400/20 blur-3xl animate-float" />
@@ -444,6 +442,5 @@ export default function RoseVoiceChat() {
           ) : null}
         </div>
       </div>
-    </MainLayout>
   );
 }

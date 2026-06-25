@@ -27,8 +27,6 @@ import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
-import OnboardingQuestionnaire from "./pages/OnboardingQuestionnaire";
-import RoseVoiceChat from "./pages/RoseVoiceChat";
 import Deadlines from "./pages/Deadlines";
 import { FollowUpReminderPopup } from "./components/FollowUpReminderPopup";
 import Dashboard from "./pages/Dashboard";
@@ -110,8 +108,6 @@ const App = () => (
           <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><SignedAgreements /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Settings /></ProtectedRoute>} />
           <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AiChat /></ProtectedRoute>} />
-          <Route path="/onboarding/questionnaire" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><OnboardingQuestionnaire /></ProtectedRoute>} />
-          <Route path="/onboarding/rose" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><RoseVoiceChat /></ProtectedRoute>} />
           <Route path="/deadlines" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Deadlines /></ProtectedRoute>} />
           <Route path="/admin/consultants" element={<ProtectedRoute allowedRoles={['iec_admin']}><AdminConsultants /></ProtectedRoute>} />
           <Route path="/temp-export" element={<ProtectedRoute allowedRoles={['iec_admin']}><TempExportEmails /></ProtectedRoute>} />

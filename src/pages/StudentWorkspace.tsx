@@ -23,6 +23,8 @@ import { JourneyMessages } from '@/components/journey/JourneyMessages';
 import { JourneyProfile } from '@/components/journey/JourneyProfile';
 import { JourneyOnboarding } from '@/components/journey/JourneyOnboarding';
 import { CalendarReminderWatcher } from '@/components/journey/CalendarReminderWatcher';
+import OnboardingQuestionnaire from '@/pages/OnboardingQuestionnaire';
+import RoseVoiceChat from '@/pages/RoseVoiceChat';
 // import { TuitionCalculator } from '@/components/workspace/TuitionCalculator';
 import TuitionCalculator from '@/components/workspace/TuitionCalculator';
 import { JourneyScholarshipFinder } from '@/components/journey/JourneyScholarshipFinder';
@@ -30,14 +32,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getProgramTerms } from '@/lib/programTerms';
-import { ArrowLeft, Loader2, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy, LogOut } from 'lucide-react';
+import { ArrowLeft, Loader2, Home, GraduationCap, ListChecks, CalendarDays, FolderArchive, FileText, FlaskConical, ShieldCheck, DollarSign, MessageSquare, User, Trophy, LogOut, Compass, Mic } from 'lucide-react';
 
 type StudentSection =
   | 'home' | 'colleges' | 'tasks' | 'calendar' | 'files'
-  | 'documents' | 'lab' | 'detector' | 'calculator' | 'scholarships' | 'messages' | 'profile';
+  | 'documents' | 'lab' | 'detector' | 'calculator' | 'scholarships' | 'messages' | 'profile'
+  | 'questionnaire' | 'rose';
 
 const buildStudentNav = (collegesLabel: string): { id: StudentSection; label: string; icon: any }[] => [
   { id: 'home', label: 'Home', icon: Home },
+  { id: 'questionnaire', label: 'Onboarding', icon: Compass },
+  { id: 'rose', label: 'Speak with Rose', icon: Mic },
   { id: 'colleges', label: collegesLabel, icon: GraduationCap },
   { id: 'tasks', label: 'Tasks', icon: ListChecks },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays },
@@ -105,6 +110,8 @@ function StudentJourneyView({ studentId, student, mode }: { studentId: string; s
         {section === 'scholarships' && <JourneyScholarshipFinder />}
         {section === 'messages' && <JourneyMessages studentId={studentId} />}
         {section === 'profile' && <JourneyProfile studentId={studentId} student={student} />}
+        {section === 'questionnaire' && <OnboardingQuestionnaire />}
+        {section === 'rose' && <RoseVoiceChat />}
       </main>
     </div>
   );

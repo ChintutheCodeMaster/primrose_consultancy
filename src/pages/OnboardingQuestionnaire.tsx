@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
@@ -483,18 +482,15 @@ export default function OnboardingQuestionnaire() {
 
   if (!loaded || !step || !question) {
     return (
-      <MainLayout>
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="h-7 w-7 animate-spin text-violet-600" />
-        </div>
-      </MainLayout>
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin text-violet-600" />
+      </div>
     );
   }
 
   const isLast = currentStep === steps.length - 1 && currentQuestion === step.questions.length - 1;
 
   return (
-    <MainLayout>
       <div className="relative bg-mesh-violet">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full bg-violet-400/20 blur-3xl animate-float" />
@@ -581,6 +577,5 @@ export default function OnboardingQuestionnaire() {
           </div>
         </div>
       </div>
-    </MainLayout>
   );
 }
