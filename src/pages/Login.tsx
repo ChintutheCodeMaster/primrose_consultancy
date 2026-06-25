@@ -6,31 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-type AppRole =
-  | 'student'
-  | 'consultant'
-  | 'parent'
-  | 'counselor'
-  | 'admin'
-  | 'iec_admin'
-  | 'principal'
-  | 'teacher';
-
-const destinationFor = (role: AppRole | null, next: string | null): string => {
-  if (next) return next;
-  switch (role) {
-    case 'iec_admin':
-      return '/admin/consultants';
-    case 'consultant':
-    case 'admin':
-      return '/dashboard';
-    case 'student':
-      return '/student';
-    default:
-      return '/';
-  }
-};
+import { destinationFor, type AppRole } from '@/lib/auth-destination';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -103,6 +80,14 @@ export default function Login() {
           onSubmit={handleSubmit}
           className="w-full rounded-3xl border border-white/60 bg-white/80 p-7 shadow-[0_20px_60px_-20px_hsl(263_70%_50%/0.25)] backdrop-blur-xl animate-slide-up stagger-2"
         >
+          <GoogleSignInButton mode="login" />
+
+          <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
+            <span className="h-px flex-1 bg-violet-200/70" />
+            or
+            <span className="h-px flex-1 bg-violet-200/70" />
+          </div>
+
           <div className="space-y-5">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</Label>

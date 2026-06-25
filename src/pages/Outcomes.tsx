@@ -2,7 +2,6 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useOutcomesData } from '@/hooks/useOutcomesData';
 import { AcceptanceMap } from '@/components/outcomes/AcceptanceMap';
 import { CohortFunnel } from '@/components/outcomes/CohortFunnel';
-import { BenchmarkCards } from '@/components/outcomes/BenchmarkCards';
 import { AskRosePanel } from '@/components/outcomes/AskRosePanel';
 import { Button } from '@/components/ui/button';
 import { Download, Trophy, GraduationCap, Award, DollarSign, Loader2 } from 'lucide-react';
@@ -65,19 +64,6 @@ const Outcomes = () => {
             <div className="print:hidden">
               <AskRosePanel outcomes={data} />
             </div>
-
-            {/* Benchmarks */}
-            <section className="space-y-3">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">Schools like yours</h2>
-                <p className="text-sm text-muted-foreground">How your practice stacks against the Primrose network.</p>
-              </div>
-              <BenchmarkCards
-                yourAcceptances={data.totals.accepted}
-                yourAvgPackage={data.totals.avgPackageUSD}
-                yourStudents={data.totals.students}
-              />
-            </section>
 
             {/* Cohort Funnel */}
             <section className="space-y-3">

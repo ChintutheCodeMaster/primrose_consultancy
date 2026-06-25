@@ -6,7 +6,6 @@ import { AIDailyBrief } from './AIDailyBrief';
 import { AcceptanceWall } from './AcceptanceWall';
 import { PracticeHealthCards } from './PracticeHealthCards';
 import { NeedsAttention } from './NeedsAttention';
-import { TopUniversities } from './TopUniversities';
 import { DeadlineRadar } from './DeadlineRadar';
 import { RecentlySignedAgreements } from './RecentlySignedAgreements';
 import { NewWebsiteLeadsBanner } from './NewWebsiteLeadsBanner';
@@ -142,11 +141,8 @@ export function CommandCenter() {
 
         {/* Two-column */}
         <div className="grid gap-6 lg:grid-cols-2 animate-slide-up stagger-6">
-          <div className="space-y-6">
-            <NeedsAttention data={data} />
-            <PendingPaymentProjects />
-          </div>
-          <TopUniversities data={data} />
+          <NeedsAttention data={data} />
+          <PendingPaymentProjects />
         </div>
       </div>
     </MainLayout>

@@ -641,6 +641,9 @@ export default function Projects() {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Projects and Collaborations ({collaborations.length})</h1>
             <p className="text-muted-foreground mt-1">Manage collaboration entities and their projects</p>
+            <p className="text-sm text-muted-foreground mt-3 max-w-3xl">
+              Track organizations, partners, and external projects you collaborate with. Store key contacts, agreements, payment details, deliverables, and project history in one place—from paid speaking engagements and school partnerships to referral and consulting relationships.
+            </p>
           </div>
           <Dialog open={isAddCollabOpen} onOpenChange={open => { setIsAddCollabOpen(open); if (!open) closeCollabDialog(); }}>
             <DialogTrigger asChild>

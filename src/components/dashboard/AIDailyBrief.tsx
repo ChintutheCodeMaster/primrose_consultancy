@@ -60,7 +60,7 @@ export function AIDailyBrief({ stats, className }: Props) {
     <div
       className={cn(
         'relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-lg',
-        'bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white',
+        'bg-gradient-to-br from-rose-500 via-rose-600 to-pink-700 text-white',
         className,
       )}
     >

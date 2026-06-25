@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, Send, Loader2, User, Sparkles, Plus, Trash2, MessageSquare } from 'lucide-react';
+import { Send, Loader2, User, Sparkles, Plus, Trash2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -249,19 +249,31 @@ export default function AiChat() {
   return (
     <MainLayout>
       <div className="animate-fade-in flex flex-col h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)]" dir="ltr">
-        <div className="mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-            <Sparkles className="h-7 w-7 text-primary" />
-            AI Assistant
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">Ask questions about the data in the system and the AI will find the answers.</p>
+        {/* Hero header — Rose branding */}
+        <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 mb-4 shadow-lg bg-gradient-to-br from-rose-500 via-rose-600 to-pink-700 text-white">
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-amber-200/20 blur-2xl" />
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-white/70">Your AI Strategist</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">Rose</h1>
+              <p className="text-white/85 text-sm mt-0.5">Ask anything about your practice — Students, Leads, statistics, and more.</p>
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 flex gap-4 overflow-hidden min-h-0">
           {/* Conversation sidebar */}
-          <div className="w-56 flex-shrink-0 flex flex-col bg-card rounded-xl border border-border overflow-hidden">
-            <div className="p-3 border-b border-border">
-              <Button onClick={startNewChat} variant="outline" size="sm" className="w-full gap-2">
+          <div className="w-56 flex-shrink-0 flex flex-col bg-card rounded-xl border border-rose-100 overflow-hidden">
+            <div className="p-3 border-b border-rose-100">
+              <Button
+                onClick={startNewChat}
+                size="sm"
+                className="w-full gap-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0"
+              >
                 <Plus className="h-4 w-4" />
                 New Chat
               </Button>
@@ -271,12 +283,12 @@ export default function AiChat() {
                 <div
                   key={conv.id}
                   className={cn(
-                    'group flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors border-b border-border/50',
-                    activeConversationId === conv.id && 'bg-muted'
+                    'group flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-rose-50/60 transition-colors border-b border-rose-50',
+                    activeConversationId === conv.id && 'bg-rose-50'
                   )}
                   onClick={() => setActiveConversationId(conv.id)}
                 >
-                  <MessageSquare className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  <MessageSquare className="h-4 w-4 flex-shrink-0 text-rose-500" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm truncate text-foreground">{conv.title}</p>
                     <p className="text-xs text-muted-foreground">
@@ -298,24 +310,24 @@ export default function AiChat() {
           </div>
 
           {/* Chat area */}
-          <div className="flex-1 flex flex-col bg-card rounded-xl border border-border overflow-hidden min-h-0">
+          <div className="flex-1 flex flex-col bg-card rounded-xl border border-rose-100 overflow-hidden min-h-0">
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-rose-50/40 to-transparent">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center gap-6 py-12">
-                  <div className="bg-primary/10 rounded-full p-4">
-                    <Bot className="h-10 w-10 text-primary" />
+                  <div className="rounded-full p-4 bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-200">
+                    <Sparkles className="h-10 w-10" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-foreground mb-1">Hello! How can I help?</h3>
-                    <p className="text-muted-foreground text-sm">I can search for Students, Leads, statistics, and more</p>
+                    <h3 className="font-semibold text-lg text-foreground mb-1">Hi, I'm Rose — how can I help?</h3>
+                    <p className="text-muted-foreground text-sm">I can search Students, Leads, statistics, and more across your practice.</p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-center max-w-lg">
                     {SUGGESTION_PROMPTS.map((prompt) => (
                       <button
                         key={prompt}
                         onClick={() => send(prompt)}
-                        className="text-sm px-3 py-2 rounded-lg border border-border bg-muted/50 text-foreground hover:bg-muted transition-colors"
+                        className="text-sm px-3 py-2 rounded-lg border border-rose-200 bg-white text-rose-700 hover:bg-rose-50 transition-colors"
                       >
                         {prompt}
                       </button>
@@ -330,14 +342,16 @@ export default function AiChat() {
                   className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                    msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    msg.role === 'user'
+                      ? 'bg-rose-600 text-white'
+                      : 'bg-gradient-to-br from-rose-500 to-pink-600 text-white'
                   }`}>
-                    {msg.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                    {msg.role === 'user' ? <User className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
                   </div>
                   <div className={`max-w-[80%] rounded-xl px-4 py-3 ${
                     msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/70 text-foreground'
+                      ? 'bg-rose-600 text-white'
+                      : 'bg-white border border-rose-100 text-foreground'
                   }`}>
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:text-xs [&_th]:px-2 [&_td]:px-2" dir="ltr">
@@ -348,7 +362,7 @@ export default function AiChat() {
                                 return (
                                   <button
                                     type="button"
-                                    className="text-primary underline hover:text-primary/80 font-medium cursor-pointer bg-transparent border-none p-0 inline"
+                                    className="text-rose-600 underline hover:text-rose-700 font-medium cursor-pointer bg-transparent border-none p-0 inline"
                                     onClick={() => navigate(href)}
                                     {...(props as any)}
                                   >
@@ -370,25 +384,25 @@ export default function AiChat() {
 
               {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-muted">
-                    <Bot className="h-4 w-4" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-500 to-pink-600 text-white">
+                    <Sparkles className="h-4 w-4" />
                   </div>
-                  <div className="bg-muted/70 rounded-xl px-4 py-3">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                  <div className="bg-white border border-rose-100 rounded-xl px-4 py-3">
+                    <Loader2 className="h-4 w-4 animate-spin text-rose-500" />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Input */}
-            <div className="border-t border-border p-4">
+            <div className="border-t border-rose-100 p-4 bg-white">
               <div className="flex gap-2 items-end">
                 <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask a question about the data in the system..."
-                  className="resize-none min-h-[44px] max-h-[120px]"
+                  placeholder="Ask Rose anything about your practice..."
+                  className="resize-none min-h-[44px] max-h-[120px] focus-visible:ring-rose-400"
                   rows={1}
                   dir="ltr"
                 />
@@ -396,7 +410,7 @@ export default function AiChat() {
                   onClick={() => send(input)}
                   disabled={!input.trim() || isLoading}
                   size="icon"
-                  className="flex-shrink-0 h-[44px] w-[44px]"
+                  className="flex-shrink-0 h-[44px] w-[44px] bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0"
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>

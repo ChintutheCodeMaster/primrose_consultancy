@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck, LogOut, Mic, ClipboardList, Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -19,10 +19,9 @@ const navigation = [
 ];
 
 const agreementTemplateTypes = [
-  { type: 'package', label: 'Package' },
   { type: 'hourly', label: 'Hourly' },
-  { type: 'edit', label: 'Edit' },
-  { type: 'mba', label: 'MBA' },
+  { type: 'package', label: 'Package' },
+  { type: 'other', label: 'Other' },
 ] as const;
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -59,6 +58,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [isDidNotContinueOpen, setIsDidNotContinueOpen] = useState(
     location.pathname.startsWith('/did-not-continue')
   );
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(
+    location.pathname.startsWith('/onboarding/')
+  );
+  const isOnboardingActive = location.pathname.startsWith('/onboarding/');
   const [isAgreementOpen, setIsAgreementOpen] = useState(
     location.pathname.startsWith('/agreement-template') || location.pathname === '/signed-agreements'
   );
@@ -69,7 +72,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const isAdvisorsActive = location.pathname === '/advisors' || location.pathname === '/past-advisors';
 
   const currentAgreementTemplateType =
-    new URLSearchParams(location.search).get('type') ?? 'package';
+    new URLSearchParams(location.search).get('type') ?? 'hourly';
 
   const handleClick = () => {
     if (onNavigate) onNavigate();
@@ -313,8 +316,55 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <Sparkles className="h-5 w-5" />
-          AI Assistant
+          Rose
         </Link>
+
+        {/* Onboarding Collapsible */}
+        <Collapsible open={isOnboardingOpen} onOpenChange={setIsOnboardingOpen}>
+          <CollapsibleTrigger className={cn(
+            'flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
+            isOnboardingActive
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+          )}>
+            <div className="flex items-center gap-3">
+              <Compass className="h-5 w-5" />
+              Onboarding
+            </div>
+            <ChevronDown className={cn(
+              'h-4 w-4 transition-transform duration-200',
+              isOnboardingOpen && 'rotate-180'
+            )} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pr-4 space-y-1 mt-1">
+            <Link
+              to="/onboarding/questionnaire"
+              onClick={handleClick}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                location.pathname === '/onboarding/questionnaire'
+                  ? 'bg-sidebar-accent text-sidebar-primary'
+                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+              )}
+            >
+              <ClipboardList className="h-4 w-4" />
+              Onboarding
+            </Link>
+            <Link
+              to="/onboarding/rose"
+              onClick={handleClick}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+                location.pathname === '/onboarding/rose'
+                  ? 'bg-sidebar-accent text-sidebar-primary'
+                  : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+              )}
+            >
+              <Mic className="h-4 w-4" />
+              Speak with Rose
+            </Link>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Agreement Collapsible */}
         <Collapsible open={isAgreementOpen} onOpenChange={setIsAgreementOpen}>

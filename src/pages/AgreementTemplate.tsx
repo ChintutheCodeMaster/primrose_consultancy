@@ -22,11 +22,12 @@ import {
   Eye,
   Package,
   Clock,
-  GraduationCap,
+  FileEdit,
   Plus,
   Trash2,
 } from "lucide-react";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { DEFAULT_TEMPLATES } from "@/lib/agreementTemplateDefaults";
 
 interface AgreementTemplate {
   id: string;
@@ -39,18 +40,18 @@ interface AgreementTemplate {
 
 // Built-in defaults — always show even if no row exists yet.
 const BUILT_IN: { type: string; label: string }[] = [
-  { type: "package", label: "Package" },
   { type: "hourly", label: "Hourly" },
-  { type: "mba", label: "MBA" },
+  { type: "package", label: "Package" },
+  { type: "other", label: "Other" },
 ];
 
 const BUILT_IN_TYPES = new Set(BUILT_IN.map((b) => b.type));
 // Legacy/hidden types we don't surface as tabs
-const HIDDEN_TYPES = new Set(["edit"]);
+const HIDDEN_TYPES = new Set(["edit", "mba"]);
 
 const iconFor = (type: string) => {
   if (type === "hourly") return Clock;
-  if (type === "mba") return GraduationCap;
+  if (type === "other") return FileEdit;
   return Package;
 };
 
@@ -69,7 +70,7 @@ export default function AgreementTemplate() {
   const [order, setOrder] = useState<{ type: string; label: string }[]>([]);
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [editedName, setEditedName] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<string>("package");
+  const [activeTab, setActiveTab] = useState<string>("hourly");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -105,10 +106,10 @@ export default function AgreementTemplate() {
     const contentMap: Record<string, string> = {};
     const nameMap: Record<string, string> = {};
 
-    // Seed defaults
+    // Seed defaults — pre-fill editor with ready-made template when no DB row exists yet
     for (const b of BUILT_IN) {
       tplMap[b.type] = null;
-      contentMap[b.type] = "";
+      contentMap[b.type] = DEFAULT_TEMPLATES[b.type] || "";
       nameMap[b.type] = `${b.label} Agreement`;
     }
 
@@ -207,8 +208,8 @@ export default function AgreementTemplate() {
       return;
     }
     toast({ title: "Template deleted" });
-    setActiveTab("package");
-    setSearchParams({ type: "package" });
+    setActiveTab("hourly");
+    setSearchParams({ type: "hourly" });
     fetchTemplates();
   };
 

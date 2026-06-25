@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.noga-send-new-essay-notification]
 verify_jwt = false
+
+[functions.noga-rose-realtime-session]
+verify_jwt = false
+
+[functions.noga-rose-voice-insights]
+verify_jwt = false

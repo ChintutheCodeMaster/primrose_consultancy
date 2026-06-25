@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 type InviteKind = 'student' | 'advisor';
 
@@ -264,6 +265,17 @@ export default function Register() {
               : 'shadow-[0_20px_60px_-20px_hsl(263_70%_50%/0.25)]'
           }`}
         >
+          <GoogleSignInButton
+            mode="signup"
+            pendingInvite={{ token: invite.token, kind: invite.kind }}
+          />
+
+          <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
+            <span className={`h-px flex-1 ${isStudent ? 'bg-rose-200/70' : 'bg-violet-200/70'}`} />
+            or sign up with email
+            <span className={`h-px flex-1 ${isStudent ? 'bg-rose-200/70' : 'bg-violet-200/70'}`} />
+          </div>
+
           <div className="space-y-5">
             <div className="space-y-1.5">
               <Label htmlFor="fullName" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full name</Label>
