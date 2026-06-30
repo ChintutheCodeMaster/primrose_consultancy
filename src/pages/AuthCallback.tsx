@@ -79,15 +79,25 @@ export default function AuthCallback() {
 
       const role = (roleRow?.role as AppRole | undefined) ?? null;
 
-      // Brand-new Google user, no invite claimed, no role row beyond a default —
-      // they shouldn't be here. The handle_new_user trigger will have left a
-      // default 'student' row; treat that as "no proper role" only if there's
-      // also no claim of any noga.* domain row. Simpler: if no invite was
-      // pending and they never went through Register, bounce them.
-      if (!pending && !role) {
-        await supabase.auth.signOut();
-        navigate('/register?invite_required=1', { replace: true });
-        return;
+      // Invite-only gate: signInWithOAuth will silently CREATE an auth.users
+      // row for an unknown Google email, and the handle_new_user trigger seeds
+      // a default user_roles row — so a missing role isn't enough to detect
+      // "unauthorized newcomer." Require an actual Noga identity row
+      // (advisor / student / admin linked by user_id) when no invite is being
+      // claimed in this same callback.
+      if (!pending) {
+        const [advisorRes, studentRes, adminRes] = await Promise.all([
+          supabase.from('advisors').select('id').eq('user_id', user.id).maybeSingle(),
+          supabase.from('students').select('id').eq('user_id', user.id).maybeSingle(),
+          supabase.from('admins' as any).select('id').eq('user_id', user.id).maybeSingle(),
+        ]);
+        const hasNogaIdentity = !!(advisorRes.data || studentRes.data || adminRes.data);
+        if (!hasNogaIdentity) {
+          await supabase.auth.signOut();
+          toast.error('No Primrose account found for this Google email. Please use your invite link to register.');
+          navigate('/login', { replace: true });
+          return;
+        }
       }
 
       navigate(destinationFor(role, null), { replace: true });

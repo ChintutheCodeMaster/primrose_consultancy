@@ -61,7 +61,7 @@ export function GoogleSignInButton({ mode, pendingInvite }: Props) {
     }
   };
 
-  const label = mode === 'signup' ? 'Sign up with Google' : 'Continue with Google';
+  const label = mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google';
 
   return (
     <Button
