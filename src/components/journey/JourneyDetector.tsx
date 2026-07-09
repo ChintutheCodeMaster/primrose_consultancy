@@ -101,7 +101,7 @@ export function JourneyDetector({ studentId }: { studentId: string }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={10}
-            placeholder="Paste a paragraph or full essay..."
+            placeholder="We are using state of the art essays, however results may vary for one to another giving a directional view"
           />
           <Button onClick={run} disabled={loading || !text.trim()} className="gap-2">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}

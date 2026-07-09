@@ -23,7 +23,6 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import TempExportEmails from "./pages/TempExportEmails";
 import TempImportDidNotContinue from "./pages/TempImportDidNotContinue";
-import Projects from "./pages/Projects";
 import SignedAgreements from "./pages/SignedAgreements";
 import AiChat from "./pages/AiChat";
 import OnboardingWizard from "./pages/OnboardingWizard";
@@ -43,6 +42,7 @@ import EditEssay from "./pages/EditEssay";
 import ConsultantMessages from "./pages/ConsultantMessages";
 import StudentMessages from "./pages/StudentMessages";
 import AdminConsultants from "./pages/AdminConsultants";
+import ContactUs from "./pages/ContactUs";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -63,6 +63,7 @@ const App = () => (
 
           {/* Public marketing site */}
           <Route path="/" element={<Landing />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* Auth pages (public) */}
           <Route path="/login" element={<Login />} />
@@ -104,7 +105,6 @@ const App = () => (
           <Route path="/agreement-template" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AgreementTemplate /></ProtectedRoute>} />
           <Route path="/student-portal/:studentId" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><StudentPortalManagement /></ProtectedRoute>} />
           <Route path="/past-clients/:year" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><PastClients /></ProtectedRoute>} />
-          <Route path="/projects" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Projects /></ProtectedRoute>} />
           <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><SignedAgreements /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Settings /></ProtectedRoute>} />
           <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AiChat /></ProtectedRoute>} />

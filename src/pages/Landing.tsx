@@ -779,12 +779,12 @@ export default function Landing() {
             <a href="#faq" className="hover:text-foreground transition">FAQ</a>
           </nav>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Link to="/sign-in" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition px-2">
+            <Link to="/login" className="hidden sm:inline-flex text-sm text-muted-foreground hover:text-foreground transition px-2">
               Sign in
             </Link>
-            <a href="#cta" className="hidden sm:inline-flex">
-              <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4">Early access</Button>
-            </a>
+            <Link to="/login" className="hidden sm:inline-flex">
+              <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4">Try for free!</Button>
+            </Link>
             <button
               type="button"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -818,15 +818,15 @@ export default function Landing() {
                 </a>
               ))}
               <Link
-                to="/sign-in"
+                to="/login"
                 onClick={() => setMobileOpen(false)}
                 className="py-2 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60"
               >
                 Sign in
               </Link>
-              <a href="#cta" onClick={() => setMobileOpen(false)} className="mt-1">
-                <Button size="sm" className="w-full">Early access</Button>
-              </a>
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="mt-1">
+                <Button size="sm" className="w-full">Try for free!</Button>
+              </Link>
             </nav>
           </div>
         )}
@@ -883,11 +883,11 @@ export default function Landing() {
           </Reveal>
           <Reveal delay={260}>
             <div className="mt-8 sm:mt-10 flex items-center justify-center gap-3 flex-wrap">
-              <a href="#cta" className="w-full sm:w-auto">
+              <Link to="/login" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20 transition-transform hover:scale-[1.03]">
-                  Request early access <ArrowRight className="h-4 w-4" />
+                  Try for free! <ArrowRight className="h-4 w-4" />
                 </Button>
-              </a>
+              </Link>
               <a href="#demo" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto border-violet-300 text-violet-700 hover:bg-violet-50">See Primrose in action</Button>
               </a>
@@ -1096,11 +1096,11 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="mt-8 sm:mt-10 text-center">
-            <a href="#cta">
+            <Link to="/login">
               <Button className="gap-2 bg-gradient-to-r from-violet-600 to-rose-500 hover:from-violet-700 hover:to-rose-600 text-white border-0 shadow-lg shadow-violet-500/20">
-                Request early access <ArrowRight className="h-4 w-4" />
+                Try for free! <ArrowRight className="h-4 w-4" />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -1625,6 +1625,8 @@ export default function Landing() {
                 annual: { price: "$0", cadence: "/ month", fullPrice: null, promo: "billed annually" },
                 tagline: "For consultants exploring Primrose.",
                 cta: "Start free",
+                ctaHref: "/login",
+                external: false,
                 highlight: false,
                 features: [
                   "Up to 5 active students",
@@ -1638,7 +1640,9 @@ export default function Landing() {
                 monthly: { price: "$19", cadence: "/ consultant / month", fullPrice: "$49", promo: "for the first month" },
                 annual: { price: "$19", cadence: "/ consultant / month", fullPrice: "$49", promo: "billed annually" },
                 tagline: "Everything a solo IEC needs to run a full practice.",
-                cta: "Start 14-day trial",
+                cta: "Get started — $19",
+                ctaHref: "https://buy.stripe.com/4gM4gA6B75vpepi9im5Vu08",
+                external: true,
                 highlight: true,
                 features: [
                   "Unlimited students & alumni",
@@ -1653,7 +1657,9 @@ export default function Landing() {
                 monthly: { price: "$129", cadence: "/ consultant / month", fullPrice: null, promo: null },
                 annual: { price: "$99", cadence: "/ consultant / month", fullPrice: "$129", promo: "billed annually" },
                 tagline: "For multi-consultant firms and collaborations.",
-                cta: "Talk to sales",
+                cta: "Get started — $129",
+                ctaHref: "https://buy.stripe.com/aFa6oIf7D4rl94Y2TY5Vu09",
+                external: true,
                 highlight: false,
                 features: [
                   "Everything in Professional",
@@ -1706,7 +1712,10 @@ export default function Landing() {
                     ))}
                   </ul>
                   <a
-                    href="#cta"
+                    href={tier.ctaHref}
+                    {...(tier.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     className={`mt-8 inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition ${
                       tier.highlight
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -1834,9 +1843,9 @@ export default function Landing() {
             system for modern admissions consulting.
           </p>
           <div className="mt-10 flex items-center justify-center gap-3 flex-wrap">
-            <Link to="/dashboard">
+            <Link to="/login">
               <Button size="lg" className="gap-2 bg-white text-violet-700 hover:bg-white/90 border-0 shadow-lg">
-                Request early access <ArrowRight className="h-4 w-4" />
+                Try for free! <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <a href="mailto:hello@primrose-iec.com">
@@ -1857,10 +1866,10 @@ export default function Landing() {
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#demo" className="hover:text-foreground">Demo</a>
             <a href="#pricing" className="hover:text-foreground">Pricing</a>
-            <a href="#cta" className="hover:text-foreground">Early access</a>
+            <Link to="/login" className="hover:text-foreground">Try for free!</Link>
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground">Terms</Link>
-            <a href="mailto:hello@primrose-iec.com" className="hover:text-foreground">Contact</a>
+            <Link to="/contact" className="hover:text-foreground">Contact</Link>
           </div>
         </div>
       </footer>

@@ -193,7 +193,7 @@ export function StudentCollegeList({ studentId }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            College List ({rows.length})
+            University List ({rows.length})
           </CardTitle>
           <div className="flex flex-wrap gap-1.5">
             {BUCKETS.map((b) => (
@@ -208,7 +208,7 @@ export function StudentCollegeList({ studentId }: Props) {
         {/* Add row */}
         <div className="flex gap-2">
           <Input
-            placeholder="Add a college (e.g., Brown University)"
+            placeholder="Add a university (e.g., Brown University)"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
@@ -227,14 +227,14 @@ export function StudentCollegeList({ studentId }: Props) {
           </div>
         ) : rows.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
-            No colleges yet. Add a school to start tracking applications.
+            No universities yet. Add one to start tracking applications.
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-xs text-muted-foreground border-b">
                 <tr>
-                  <th className="text-left p-2 min-w-40">College</th>
+                  <th className="text-left p-2 min-w-40">University</th>
                   <th className="text-left p-2">Bucket</th>
                   <th className="text-left p-2">Plan</th>
                   <th className="text-left p-2">Deadline</th>

@@ -21,7 +21,7 @@ type College = {
 const STEPS = [
   { id: 1, title: 'Student', icon: UserPlus },
   { id: 2, title: 'Academic Profile', icon: GraduationCap },
-  { id: 3, title: 'College List', icon: ListChecks },
+  { id: 3, title: 'University List', icon: ListChecks },
   { id: 4, title: 'Finish', icon: Sparkles },
 ];
 
@@ -348,7 +348,7 @@ export default function OnboardingWizard() {
                     className="grid grid-cols-12 gap-2 items-end p-3 rounded-lg border bg-muted/30"
                   >
                     <div className="col-span-12 sm:col-span-4 space-y-1">
-                      <Label className="text-xs">College</Label>
+                      <Label className="text-xs">University</Label>
                       <Input
                         value={c.name}
                         onChange={(e) => updateCollege(i, { name: e.target.value })}
@@ -413,7 +413,7 @@ export default function OnboardingWizard() {
                   </div>
                 ))}
                 <Button type="button" variant="outline" onClick={addCollege} className="gap-2">
-                  <Plus className="h-4 w-4" /> Add college
+                  <Plus className="h-4 w-4" /> Add university
                 </Button>
               </div>
             )}
@@ -437,7 +437,7 @@ export default function OnboardingWizard() {
                 </div>
                 <div className="rounded-lg border p-4">
                   <h3 className="font-semibold mb-2">
-                    College list ({colleges.filter((c) => c.name.trim()).length})
+                    University list ({colleges.filter((c) => c.name.trim()).length})
                   </h3>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     {colleges

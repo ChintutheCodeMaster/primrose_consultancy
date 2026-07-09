@@ -37,7 +37,7 @@ export function JourneyWritingLab({ studentId }: { studentId: string }) {
       <div className="flex gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-900">
         <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
         <div className="text-sm text-amber-900 dark:text-amber-200">
-          <strong>The words must be yours.</strong> Colleges expect your authentic voice. These tools refuse to draft prose
+          <strong>The words must be yours.</strong> Universities expect your authentic voice. These tools refuse to draft prose
           for you — they help you reflect, structure, and refine what you've already written.
         </div>
       </div>

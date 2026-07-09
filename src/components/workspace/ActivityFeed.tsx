@@ -17,7 +17,7 @@ const KIND_META: Record<string, { label: string; icon: any; tone: string }> = {
   message:        { label: 'Messages',  icon: MessageSquare,  tone: 'bg-sky-100 text-sky-800' },
   essay_version:  { label: 'Essays',    icon: FileText,       tone: 'bg-indigo-100 text-indigo-800' },
   comment:        { label: 'Essays',    icon: MessageCircle,  tone: 'bg-indigo-100 text-indigo-800' },
-  college:        { label: 'Colleges',  icon: GraduationCap,  tone: 'bg-violet-100 text-violet-800' },
+  college:        { label: 'Universities', icon: GraduationCap, tone: 'bg-violet-100 text-violet-800' },
   task:           { label: 'Tasks',     icon: ListChecks,     tone: 'bg-amber-100 text-amber-800' },
   acceptance:     { label: 'Wins',      icon: Trophy,         tone: 'bg-emerald-100 text-emerald-800' },
   calendar:       { label: 'Calendar',  icon: CalendarDays,   tone: 'bg-rose-100 text-rose-800' },
@@ -28,7 +28,7 @@ const FILTERS = [
   { id: 'all', label: 'All', kinds: null as string[] | null },
   { id: 'messages', label: 'Messages', kinds: ['message'] },
   { id: 'essays', label: 'Essays', kinds: ['essay_version', 'comment'] },
-  { id: 'colleges', label: 'Colleges', kinds: ['college'] },
+  { id: 'colleges', label: 'Universities', kinds: ['college'] },
   { id: 'tasks', label: 'Tasks', kinds: ['task'] },
   { id: 'wins', label: 'Wins', kinds: ['acceptance'] },
 ];

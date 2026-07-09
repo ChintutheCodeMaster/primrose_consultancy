@@ -420,7 +420,7 @@ export function JourneyPrimroseLab() {
               id="lab-textarea"
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Paste 1–5 sentences here. A hook, an opening, a paragraph you're not sure about. The shorter the better to start."
+              placeholder="Share with us your current essay and see what you could improve further"
               className="min-h-[200px] text-base leading-relaxed border-violet-100 focus:border-violet-300 resize-none rounded-xl"
             />
             <div className="flex items-center justify-between">

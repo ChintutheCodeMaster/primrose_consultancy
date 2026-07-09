@@ -488,9 +488,9 @@ export default function Students() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2 rounded-xl bg-white/70 backdrop-blur press-soft">
+              {/* <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2 rounded-xl bg-white/70 backdrop-blur press-soft">
                 <Sparkles className="h-4 w-4 text-amber-500" /> Onboarding Wizard
-              </Button>
+              </Button> */}
               <AddStudentDialog onAdd={handleAddStudent} />
             </div>
           </div>

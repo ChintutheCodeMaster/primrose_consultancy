@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, FolderKanban, Sparkles, Trophy, MessageSquare, ShieldCheck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, GraduationCap, Settings, History, ChevronDown, UserCircle, FileText, BarChart3, Menu, X, Loader2, Search, Sparkles, Trophy, MessageSquare, ShieldCheck, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -284,21 +284,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Link>
 
 
-
-        {/* Projects */}
-        <Link
-          to="/projects"
-          onClick={handleClick}
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200',
-            location.pathname === '/projects'
-              ? 'bg-sidebar-accent text-sidebar-primary'
-              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-          )}
-        >
-          <FolderKanban className="h-5 w-5" />
-          Projects
-        </Link>
 
         {/* AI Chat */}
         <Link
