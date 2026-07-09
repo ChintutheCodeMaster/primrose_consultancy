@@ -43,6 +43,7 @@ import ConsultantMessages from "./pages/ConsultantMessages";
 import StudentMessages from "./pages/StudentMessages";
 import AdminConsultants from "./pages/AdminConsultants";
 import ContactUs from "./pages/ContactUs";
+import QuickEssayCheck from "./pages/QuickEssayCheck";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -108,6 +109,7 @@ const App = () => (
           <Route path="/signed-agreements" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><SignedAgreements /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Settings /></ProtectedRoute>} />
           <Route path="/ai-chat" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><AiChat /></ProtectedRoute>} />
+          <Route path="/quick-essay-check" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><QuickEssayCheck /></ProtectedRoute>} />
           <Route path="/deadlines" element={<ProtectedRoute allowedRoles={['consultant', 'iec_admin']}><Deadlines /></ProtectedRoute>} />
           <Route path="/admin/consultants" element={<ProtectedRoute allowedRoles={['iec_admin']}><AdminConsultants /></ProtectedRoute>} />
           <Route path="/temp-export" element={<ProtectedRoute allowedRoles={['iec_admin']}><TempExportEmails /></ProtectedRoute>} />

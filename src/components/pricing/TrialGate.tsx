@@ -1,12 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTrialStatus } from '@/hooks/useTrialStatus';
 import { PricingModal } from './PricingModal';
+import { ConsultantOnboardingWizard } from '@/components/onboarding/ConsultantOnboardingWizard';
+import { QuickCreateStudentDialog } from '@/components/onboarding/QuickCreateStudentDialog';
+
+type GateMode = 'intro' | 'onboarding' | 'locked' | null;
 
 /**
- * Renders the two consultant-lifecycle popups in one place:
- *   1. First login post-registration → dismissible intro pricing modal (once).
- *   2. Trial expired without an active subscription → blocking pricing modal.
- * Only ever renders for consultants; silent for other roles or while loading.
+ * Orchestrates the consultant post-signup flow:
+ *   1. First login → dismissible intro pricing modal (once).
+ *   2. Post-pricing → blocking 4-step onboarding wizard (once).
+ *   3. Wizard finish → "Add your first student" modal (dismissible).
+ *   4. Trial expired without paid subscription → blocking pricing modal.
+ * Silent for non-consultants and while the hook is loading.
  */
 export function TrialGate() {
   const {
@@ -15,17 +21,19 @@ export function TrialGate() {
     status,
     isExpired,
     hasSeenIntroPricing,
+    hasCompletedOnboarding,
     markIntroPricingSeen,
   } = useTrialStatus();
 
-  const mode = useMemo<'intro' | 'locked' | null>(() => {
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+
+  const mode = useMemo<GateMode>(() => {
     if (isLoading || !isConsultant || status === 'active') return null;
     if (isExpired) return 'locked';
     if (!hasSeenIntroPricing) return 'intro';
+    if (!hasCompletedOnboarding) return 'onboarding';
     return null;
-  }, [isLoading, isConsultant, status, isExpired, hasSeenIntroPricing]);
-
-  if (!mode) return null;
+  }, [isLoading, isConsultant, status, isExpired, hasSeenIntroPricing, hasCompletedOnboarding]);
 
   if (mode === 'locked') {
     return (
@@ -38,14 +46,32 @@ export function TrialGate() {
     );
   }
 
+  if (mode === 'intro') {
+    return (
+      <PricingModal
+        open
+        title="Welcome to Primrose"
+        subtitle="You're on a 7-day free trial. Grab the founding offer while it's live — first 2 months at $19."
+        onClose={() => {
+          void markIntroPricingSeen();
+        }}
+      />
+    );
+  }
+
+  if (mode === 'onboarding') {
+    return (
+      <ConsultantOnboardingWizard
+        open
+        onFinished={() => setShowQuickCreate(true)}
+      />
+    );
+  }
+
   return (
-    <PricingModal
-      open
-      title="Welcome to Primrose"
-      subtitle="You're on a 7-day free trial. Grab the founding offer while it's live — first 2 months at $19."
-      onClose={() => {
-        void markIntroPricingSeen();
-      }}
+    <QuickCreateStudentDialog
+      open={showQuickCreate}
+      onClose={() => setShowQuickCreate(false)}
     />
   );
 }

@@ -3,6 +3,16 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type SubscriptionStatus = 'trialing' | 'active' | 'expired' | 'canceled';
 
+export interface ConsultantOnboardingInput {
+  first_name: string;
+  last_name: string;
+  company_name?: string | null;
+  website?: string | null;
+  primary_program?: string | null;
+  students_per_year?: string | null;
+  primary_destinations?: string | null;
+}
+
 export interface TrialStatus {
   isLoading: boolean;
   isConsultant: boolean;
@@ -13,7 +23,9 @@ export interface TrialStatus {
   daysLeft: number;
   isExpired: boolean;
   hasSeenIntroPricing: boolean;
+  hasCompletedOnboarding: boolean;
   markIntroPricingSeen: () => Promise<void>;
+  saveConsultantOnboarding: (data: ConsultantOnboardingInput) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -25,7 +37,9 @@ const daysBetween = (endIso: string): number => {
 };
 
 export const useTrialStatus = (): TrialStatus => {
-  const [state, setState] = useState<Omit<TrialStatus, 'markIntroPricingSeen' | 'refresh'>>({
+  const [state, setState] = useState<
+    Omit<TrialStatus, 'markIntroPricingSeen' | 'saveConsultantOnboarding' | 'refresh'>
+  >({
     isLoading: true,
     isConsultant: false,
     advisorId: null,
@@ -35,6 +49,7 @@ export const useTrialStatus = (): TrialStatus => {
     daysLeft: 7,
     isExpired: false,
     hasSeenIntroPricing: false,
+    hasCompletedOnboarding: false,
   });
 
   const load = useCallback(async () => {
@@ -58,7 +73,9 @@ export const useTrialStatus = (): TrialStatus => {
 
     const { data: advisor } = await supabase
       .from('advisors')
-      .select('id, trial_started_at, subscription_status, has_seen_intro_pricing')
+      .select(
+        'id, trial_started_at, subscription_status, has_seen_intro_pricing, has_completed_onboarding',
+      )
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -98,6 +115,7 @@ export const useTrialStatus = (): TrialStatus => {
       daysLeft,
       isExpired,
       hasSeenIntroPricing: Boolean(advisor.has_seen_intro_pricing),
+      hasCompletedOnboarding: Boolean(advisor.has_completed_onboarding),
     });
   }, []);
 
@@ -116,9 +134,31 @@ export const useTrialStatus = (): TrialStatus => {
       .eq('id', state.advisorId);
   }, [state.advisorId, state.hasSeenIntroPricing]);
 
+  const saveConsultantOnboarding = useCallback(
+    async (data: ConsultantOnboardingInput) => {
+      if (!state.advisorId) return;
+      const fullName = `${data.first_name.trim()} ${data.last_name.trim()}`.trim();
+      const payload = {
+        first_name: data.first_name.trim(),
+        last_name: data.last_name.trim(),
+        company_name: data.company_name?.trim() || null,
+        website: data.website?.trim() || null,
+        primary_program: data.primary_program?.trim() || null,
+        students_per_year: data.students_per_year?.trim() || null,
+        primary_destinations: data.primary_destinations?.trim() || null,
+        has_completed_onboarding: true,
+        ...(fullName ? { name: fullName } : {}),
+      };
+      setState((s) => ({ ...s, hasCompletedOnboarding: true }));
+      await supabase.from('advisors').update(payload).eq('id', state.advisorId);
+    },
+    [state.advisorId],
+  );
+
   return {
     ...state,
     markIntroPricingSeen,
+    saveConsultantOnboarding,
     refresh: load,
   };
 };
