@@ -23,6 +23,7 @@ export function TrialGate() {
     hasSeenIntroPricing,
     hasCompletedOnboarding,
     markIntroPricingSeen,
+    refresh,
   } = useTrialStatus();
 
   const [showQuickCreate, setShowQuickCreate] = useState(false);
@@ -63,7 +64,10 @@ export function TrialGate() {
     return (
       <ConsultantOnboardingWizard
         open
-        onFinished={() => setShowQuickCreate(true)}
+        onFinished={async () => {
+          setShowQuickCreate(true);
+          await refresh();
+        }}
       />
     );
   }

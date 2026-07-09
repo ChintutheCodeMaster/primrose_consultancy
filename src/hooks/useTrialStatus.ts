@@ -136,7 +136,11 @@ export const useTrialStatus = (): TrialStatus => {
 
   const saveConsultantOnboarding = useCallback(
     async (data: ConsultantOnboardingInput) => {
-      if (!state.advisorId) return;
+      if (!state.advisorId) {
+        throw new Error(
+          'We could not find your consultant profile yet. Please refresh and try again.',
+        );
+      }
       const fullName = `${data.first_name.trim()} ${data.last_name.trim()}`.trim();
       const payload = {
         first_name: data.first_name.trim(),
@@ -149,8 +153,21 @@ export const useTrialStatus = (): TrialStatus => {
         has_completed_onboarding: true,
         ...(fullName ? { name: fullName } : {}),
       };
+      const { data: rows, error } = await supabase
+        .from('advisors')
+        .update(payload)
+        .eq('id', state.advisorId)
+        .select('id');
+      if (error) {
+        console.error('saveConsultantOnboarding update failed:', error);
+        throw new Error(error.message || 'Could not save your profile.');
+      }
+      if (!rows || rows.length === 0) {
+        throw new Error(
+          'Could not save your profile — RLS blocked the update. Apply the trial + onboarding migrations and try again.',
+        );
+      }
       setState((s) => ({ ...s, hasCompletedOnboarding: true }));
-      await supabase.from('advisors').update(payload).eq('id', state.advisorId);
     },
     [state.advisorId],
   );

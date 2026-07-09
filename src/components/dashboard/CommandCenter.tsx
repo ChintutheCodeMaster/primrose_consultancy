@@ -134,7 +134,7 @@ export function CommandCenter() {
         <div className="animate-slide-up stagger-4"><PracticeHealthCards data={data} /></div>
 
         {/* Acceptance Wall (hero) */}
-        <div className="animate-slide-up stagger-5"><AcceptanceWall /></div>
+        {/* <div className="animate-slide-up stagger-5"><AcceptanceWall /></div> */}
 
         {/* Deadline radar */}
         <div className="animate-slide-up stagger-6"><DeadlineRadar /></div>

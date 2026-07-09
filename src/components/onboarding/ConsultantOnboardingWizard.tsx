@@ -181,8 +181,9 @@ export function ConsultantOnboardingWizard({ open, onFinished }: Props) {
       await saveConsultantOnboarding(form);
       onFinished();
     } catch (e) {
-      console.error(e);
-      toast.error('Could not save your profile. Please try again.');
+      console.error('Onboarding save failed:', e);
+      const msg = e instanceof Error ? e.message : 'Could not save your profile. Please try again.';
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
