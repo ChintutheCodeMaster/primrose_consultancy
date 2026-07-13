@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTrialStatus } from '@/hooks/useTrialStatus';
 import { PricingModal } from './PricingModal';
 import { ConsultantOnboardingWizard } from '@/components/onboarding/ConsultantOnboardingWizard';
-import { QuickCreateStudentDialog } from '@/components/onboarding/QuickCreateStudentDialog';
 
 type GateMode = 'intro' | 'onboarding' | 'locked' | null;
 
@@ -10,11 +10,12 @@ type GateMode = 'intro' | 'onboarding' | 'locked' | null;
  * Orchestrates the consultant post-signup flow:
  *   1. First login → dismissible intro pricing modal (once).
  *   2. Post-pricing → blocking 4-step onboarding wizard (once).
- *   3. Wizard finish → "Add your first student" modal (dismissible).
+ *   3. Wizard finish → redirect to /students with the New Student button highlighted.
  *   4. Trial expired without paid subscription → blocking pricing modal.
  * Silent for non-consultants and while the hook is loading.
  */
 export function TrialGate() {
+  const navigate = useNavigate();
   const {
     isLoading,
     isConsultant,
@@ -25,8 +26,6 @@ export function TrialGate() {
     markIntroPricingSeen,
     refresh,
   } = useTrialStatus();
-
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
 
   const mode = useMemo<GateMode>(() => {
     if (isLoading || !isConsultant || status === 'active') return null;
@@ -65,17 +64,12 @@ export function TrialGate() {
       <ConsultantOnboardingWizard
         open
         onFinished={async () => {
-          setShowQuickCreate(true);
           await refresh();
+          navigate('/students?highlight=new-student');
         }}
       />
     );
   }
 
-  return (
-    <QuickCreateStudentDialog
-      open={showQuickCreate}
-      onClose={() => setShowQuickCreate(false)}
-    />
-  );
+  return null;
 }

@@ -18,9 +18,12 @@ import { FieldAutocomplete } from '@/components/ui/field-autocomplete';
 
 interface AddStudentDialogProps {
   onAdd: (student: Omit<Student, 'id' | 'createdAt' | 'notes' | 'documents'>) => void;
+  /** When true, draws attention to the trigger button (e.g. right after
+   *  finishing the consultant onboarding wizard). */
+  highlight?: boolean;
 }
 
-export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
+export function AddStudentDialog({ onAdd, highlight = false }: AddStudentDialogProps) {
   const sourceOptions = useSourceOptions();
   const countryOptions = useCountryOptions();
   const [open, setOpen] = useState(false);
@@ -161,7 +164,14 @@ export function AddStudentDialog({ onAdd }: AddStudentDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button
+          className={
+            'gap-2 transition-shadow ' +
+            (highlight
+              ? 'ring-4 ring-rose-300/70 ring-offset-2 animate-pulse shadow-[0_0_0_6px_rgba(244,63,94,0.15)]'
+              : '')
+          }
+        >
           <Plus className="h-4 w-4" />
           New Student
         </Button>

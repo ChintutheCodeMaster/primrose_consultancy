@@ -39,6 +39,19 @@ export default function Students() {
   const studentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [discontinuingStudent, setDiscontinuingStudent] = useState<Student | null>(null);
   const [reminderTarget, setReminderTarget] = useState<{ studentId: string; year: string; name: string } | null>(null);
+  const [highlightNewStudent, setHighlightNewStudent] = useState(false);
+
+  // Trigger a one-time highlight on the "New Student" button when we're
+  // redirected here from the consultant onboarding wizard.
+  useEffect(() => {
+    if (searchParams.get('highlight') !== 'new-student') return;
+    setHighlightNewStudent(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('highlight');
+    setSearchParams(next, { replace: true });
+    const t = setTimeout(() => setHighlightNewStudent(false), 6000);
+    return () => clearTimeout(t);
+  }, [searchParams, setSearchParams]);
 
   // Fetch students from Supabase
   const { data: students = [], isLoading } = useQuery({
@@ -491,7 +504,7 @@ export default function Students() {
               {/* <Button variant="outline" onClick={() => navigate('/onboarding/new-student')} className="gap-2 rounded-xl bg-white/70 backdrop-blur press-soft">
                 <Sparkles className="h-4 w-4 text-amber-500" /> Onboarding Wizard
               </Button> */}
-              <AddStudentDialog onAdd={handleAddStudent} />
+              <AddStudentDialog onAdd={handleAddStudent} highlight={highlightNewStudent} />
             </div>
           </div>
 
